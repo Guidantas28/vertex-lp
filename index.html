@@ -99,13 +99,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
      branco no escuro. Nunca redesenhar a logo em código. */
   .logo{display:flex;align-items:center;}
   .logo img{height:23px;width:auto;}
-  /* botão terciário/ghost (DS §26): só texto, sem caixa */
-  .ghost{display:inline-flex;align-items:center;height:32px;padding:0 8px;
-    border-radius:var(--btn-r);font-size:var(--fs-control);font-weight:500;
-    color:var(--ink-2);text-decoration:none;
-    transition:color var(--dur) var(--ease), background var(--dur) var(--ease);}
-  .ghost:hover{color:var(--ink);background:var(--panel-2);}
-  .ghost:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  /* o header não tem link nenhum: em tráfego frio, saída antes de motivo pra
+     ficar é vazamento */
 
   /* hero */
   .hero{align-items:center;text-align:center;gap:15px;padding-top:22px;}
@@ -153,6 +148,10 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     37%,100%{opacity:0;transform:translateY(-66%)}
   }
   .lead{font-size:var(--fs-subtitle);max-width:34ch;}
+  /* linha de fricção: responde tempo, cartão, instalação e o que a pessoa leva
+     da call, tudo no espaço de uma linha logo abaixo do botão */
+  .atrito{margin:-4px 0 0;max-width:38ch;font-size:var(--fs-label);
+    line-height:1.5;color:var(--ink-3);}
 
   /* Button (DS §7/§21/§26): mono no Padrão, retangular --btn-r 6px, altura lg
      44px, 14px/600. Sem gradiente e sem pílula — não é a forma do sistema. */
@@ -515,7 +514,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     <div class="logo">
       <img src="vos-logo-mono-dark.png" alt="VOS" width="901" height="277">
     </div>
-    <a class="ghost" href="#agendar">Entrar</a>
   </div>
 
   <section class="hero">
@@ -527,6 +525,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       e não precisa ser você</h1>
     <p class="lead">A maioria das ferramentas para na conversa. No VOS ela continua: vira orçamento, vira venda, baixa do estoque, avisa o cliente e ainda gera nota fiscal, tudo na mesma tela.</p>
     <a href="#agendar" class="cta">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <p class="atrito">15 minutos, sem cartão e sem instalar nada. Você sai da call com o atendimento do seu negócio já desenhado.</p>
     <div class="badges">
       <div class="proof">
         <div class="pf">

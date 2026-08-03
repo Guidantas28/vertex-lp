@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Ferramenta interna de revisão, não faz parte da campanha. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>VOS · Revisão da landing</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --accent:#ED4B00; --accent-soft:rgba(237,75,0,.12);
+    --ok:#15935A; --ok-soft:rgba(21,147,90,.12);
+    --warn:#C9810C; --warn-soft:rgba(201,129,12,.12);
+    --bad:#DC3B2B; --bad-soft:rgba(220,59,43,.12);
+    --info:#1F6FEB; --info-soft:rgba(31,111,235,.12);
+    --bg:#fafafa; --panel:#fff; --panel-2:#f5f5f5;
+    --ink:#171717; --ink-2:#525252; --ink-3:#8a8a8a;
+    --line:rgba(0,0,0,.09); --line-2:rgba(0,0,0,.15);
+    --r:8px; --r-lg:12px; --btn-r:6px;
+    --ease:cubic-bezier(.22,1,.36,1); --dur:.24s;
+    --sans:Inter,ui-sans-serif,-apple-system,"Segoe UI",sans-serif;
+  }
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+    font-size:14px;line-height:1.5;letter-spacing:-.006em;-webkit-font-smoothing:antialiased;}
+
+  .top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;
+    flex-wrap:wrap;padding:14px 24px;background:rgba(250,250,250,.92);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+  .top h1{margin:0;font-size:22px;font-weight:650;letter-spacing:-.025em;}
+  .top .sub{color:var(--ink-3);font-size:13px;}
+  .top .acoes{margin-left:auto;display:flex;gap:8px;}
+  button{font-family:inherit;font-size:13px;font-weight:600;height:34px;padding:0 14px;
+    border-radius:var(--btn-r);border:1px solid var(--line-2);background:var(--panel);
+    color:var(--ink);cursor:pointer;transition:border-color var(--dur) var(--ease);}
+  button:hover{border-color:var(--ink-3);}
+  button.pri{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+  .telas{display:flex;gap:24px;align-items:flex-start;overflow-x:auto;
+    padding:24px;scrollbar-width:thin;}
+  .tela{flex:none;}
+  .tela h2{margin:0 0 4px;font-size:13px;font-weight:600;}
+  .tela p{margin:0 0 10px;font-size:11px;color:var(--ink-3);}
+  .moldura{border:1px solid var(--line-2);border-radius:var(--r-lg);overflow:hidden;
+    background:#fff;box-shadow:0 18px 40px -24px rgba(0,0,0,.35);}
+  .moldura iframe{display:block;border:0;transform-origin:top left;}
+
+  .estado{padding:8px 24px 48px;display:grid;gap:16px;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));max-width:1400px;}
+  .bloco{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--panel);
+    padding:18px;}
+  .bloco h3{margin:0 0 4px;font-size:15px;font-weight:600;}
+  .bloco > p{margin:0 0 14px;font-size:12px;color:var(--ink-3);}
+  .bloco ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px;}
+  .bloco li{display:flex;gap:9px;font-size:13px;line-height:1.45;color:var(--ink-2);}
+  .bloco li b{color:var(--ink);font-weight:600;}
+  .mk{flex:none;width:16px;height:16px;margin-top:2px;border-radius:99px;display:grid;
+    place-items:center;font-size:9px;font-weight:700;}
+  .ok .mk{background:var(--ok-soft);color:var(--ok);}
+  .pend .mk{background:var(--bad-soft);color:var(--bad);}
+  .aberto .mk{background:var(--warn-soft);color:var(--warn);}
+  .tag{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 9px;
+    border-radius:999px;font-size:11px;font-weight:600;}
+  .tag.ok{background:var(--ok-soft);color:var(--ok);}
+  .tag.pend{background:var(--bad-soft);color:var(--bad);}
+  .tag.aberto{background:var(--warn-soft);color:var(--warn);}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div>
+    <h1>Landing de anúncio · revisão</h1>
+    <span class="sub">Os três tamanhos que importam, lado a lado. Editou o <code>index.html</code>? Clica em recarregar.</span>
+  </div>
+  <div class="acoes">
+    <button type="button" id="recarrega" class="pri">Recarregar tudo</button>
+    <button type="button" onclick="window.open('index.html','_blank')">Abrir a página</button>
+  </div>
+</div>
+
+<div class="telas">
+  <div class="tela">
+    <h2>Celular · 375 × 812</h2>
+    <p>iPhone padrão. É aqui que 90% do tráfego de anúncio chega.</p>
+    <div class="moldura" style="width:375px;height:760px">
+      <iframe data-lp src="index.html" width="375" height="760"></iframe>
+    </div>
+  </div>
+
+  <div class="tela">
+    <h2>Celular pequeno · 320 × 720</h2>
+    <p>O pior caso. Se passa aqui, passa em qualquer aparelho.</p>
+    <div class="moldura" style="width:320px;height:720px">
+      <iframe data-lp src="index.html" width="320" height="720"></iframe>
+    </div>
+  </div>
+
+  <div class="tela">
+    <h2>Desktop · 1280 × 860 <span class="sub">(a 60%)</span></h2>
+    <p>Onde os quatro cards deixam de ser carrossel e o fluxo deita.</p>
+    <div class="moldura" style="width:768px;height:516px">
+      <iframe data-lp src="index.html" width="1280" height="860" style="transform:scale(.6)"></iframe>
+    </div>
+  </div>
+</div>
+
+<div class="estado">
+  <div class="bloco ok">
+    <h3>No ar <span class="tag ok">11</span></h3>
+    <p>Decidido, implementado e verificado.</p>
+    <ul>
+      <li><span class="mk">✓</span><span><b>Header sem saída.</b> O "Entrar" saiu: em tráfego frio é vazamento.</span></li>
+      <li><span class="mk">✓</span><span><b>Hero.</b> "São 22h e o cliente chamou" · "Alguém precisa CONVERSAR / VENDER / GERENCIAR e não precisa ser você".</span></li>
+      <li><span class="mk">✓</span><span><b>Sub.</b> A conversa que continua até a nota fiscal, sem promessa numérica.</span></li>
+      <li><span class="mk">✓</span><span><b>Linha de fricção.</b> 15 minutos, sem cartão, sem instalar, e o que a pessoa leva da call.</span></li>
+      <li><span class="mk">✓</span><span><b>Botão laranja com seta.</b> Exceção de campanha ao mono do DS, registrada no CSS.</span></li>
+      <li><span class="mk">✓</span><span><b>Logo mono oficial</b> no header e na sidebar do mock.</span></li>
+      <li><span class="mk">✓</span><span><b>Quatro cards vivos:</b> fluxo, conversa, pipeline e notificação.</span></li>
+      <li><span class="mk">✓</span><span><b>Uma história só.</b> A Ana Prado atravessa os quatro cards: chama 22:47, agenda 16:30, paga R$ 90, entra no funil, volta em 30 dias.</span></li>
+      <li><span class="mk">✓</span><span><b>Vídeo toca no scroll</b>, mudo, com chip de som. Pausa ao sair da tela.</span></li>
+      <li><span class="mk">✓</span><span><b>Barra fixa</b> some quando o CTA do fim aparece.</span></li>
+      <li><span class="mk">✓</span><span><b>Responsivo</b> verificado em 320, 360, 375 e 414: sem rolagem lateral.</span></li>
+    </ul>
+  </div>
+
+  <div class="bloco pend">
+    <h3>Trava a conversão <span class="tag pend">2</span></h3>
+    <p>Enquanto isso existir, a página não converte nada.</p>
+    <ul>
+      <li><span class="mk">!</span><span><b>A seção #agendar não existe.</b> Os três botões apontam pro vazio. É o único item que sozinho zera a página.</span></li>
+      <li><span class="mk">!</span><span><b>Sem prova social.</b> Nenhum cliente, nome ou número. Pra montar a esteira de 3 linhas preciso de depoimentos reais: nome, negócio, cidade e frase. Não invento cliente.</span></li>
+    </ul>
+  </div>
+
+  <div class="bloco aberto">
+    <h3>Esperando você <span class="tag aberto">4</span></h3>
+    <p>Decisões que são suas, não minhas.</p>
+    <ul>
+      <li><span class="mk">?</span><span><b>Title Case nos botões.</b> O DS manda ("Agendar Demonstração"), mas é copy de anúncio e eu não mexo sem sua ordem.</span></li>
+      <li><span class="mk">?</span><span><b>A letra manuscrita é fonte de sistema.</b> No Android não existe: a voz à mão some pra boa parte do tráfego. Posso trocar por uma do Google.</span></li>
+      <li><span class="mk">?</span><span><b>"Inteligência artificial que possui o conhecimento real da sua empresa".</b> O "possui" é duro perto do resto da página.</span></li>
+      <li><span class="mk">?</span><span><b>Push travado.</b> A conta desta máquina é só leitora no <code>Guidantas28/vertex-lp</code>. Precisa te dar escrita pra eu subir a main e abrir o PR.</span></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  document.getElementById('recarrega').addEventListener('click', function(){
+    document.querySelectorAll('iframe[data-lp]').forEach(function(f){
+      f.src = 'index.html?t=' + Date.now();
+    });
+  });
+</script>
+
+</body>
+</html>
