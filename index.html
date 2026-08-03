@@ -229,6 +229,18 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   .player .capa:hover .play{transform:scale(1.07);}
   .player .capa:active .play{transform:scale(.96);}
   .player .capa .play svg{width:22px;height:22px;margin-left:3px;fill:var(--accent);}
+  /* enquanto toca sozinho o vídeo fica mudo (é o que os navegadores permitem):
+     o chip chama o som e liga os controles nativos */
+  .player .som{position:absolute;right:10px;bottom:10px;z-index:2;display:none;
+    align-items:center;gap:6px;height:30px;padding:0 11px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.55);backdrop-filter:blur(6px);color:#fff;
+    font-family:inherit;font-size:var(--fs-label);font-weight:600;cursor:pointer;
+    transition:background var(--dur) var(--ease);}
+  .player.on .som{display:flex;}
+  .player.on.audio .som{display:none;}
+  .player .som:hover{background:rgba(0,0,0,.74);}
+  .player .som:focus-visible{outline:2px solid #fff;outline-offset:2px;}
+  .player .som svg{width:14px;height:14px;flex:none;}
   .player .capa .rot{position:absolute;left:0;right:0;bottom:12px;text-align:center;
     font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
     color:rgba(255,255,255,.9);}
@@ -391,8 +403,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   .reveal{opacity:0;transform:translateY(16px);
     transition:opacity .65s ease, transform .65s var(--ease);}
   .reveal.in{opacity:1;transform:none;}
-  .note{width:var(--col);margin:20px 0 6px;padding:11px 13px;border:1px dashed var(--line-2);
-    border-radius:var(--r);font-size:var(--fs-label);color:var(--ink-3);text-align:center;}
 
   @media (prefers-reduced-motion:reduce){
     /* sem deslocamento: as palavras só trocam por opacidade */
@@ -549,11 +559,15 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
 
     <div class="band-video">
       <div class="player" id="player">
-        <video id="vid" src="broll.mp4#t=0.5" playsinline preload="metadata"
+        <video id="vid" src="broll.mp4#t=0.5" playsinline muted preload="metadata"
                controlslist="nodownload"></video>
         <button type="button" class="capa" id="capa" aria-label="Assistir ao vídeo">
           <span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12 8 5.2Z"/></svg></span>
           <span class="rot">Conheça o VOS</span>
+        </button>
+        <button type="button" class="som" id="som" aria-label="Ativar o som do vídeo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>
+          Ativar Som
         </button>
       </div>
     </div>
@@ -570,7 +584,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     </div>
   </section>
 
-  <div class="note">Protótipo. Dashboard recriado a partir do print do produto.</div>
 </div>
 
 <div class="bar" id="bar"><a href="#agendar" class="cta">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
@@ -627,18 +640,50 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.14});
   document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
 
-  // player: capa com play; no primeiro play liga os controles nativos
+  /* player: toca sozinho (mudo) quando entra na tela e pausa quando sai.
+     Autoplay com som é bloqueado em todo navegador, então o som fica a um
+     toque de distância no chip. Capa e clique seguem valendo como caminho
+     manual — inclusive quando o autoplay é recusado. */
   (function(){
     var pl=document.getElementById('player'), vid=document.getElementById('vid'),
-        capa=document.getElementById('capa');
+        capa=document.getElementById('capa'), som=document.getElementById('som');
     if(!pl||!vid||!capa) return;
-    capa.addEventListener('click',function(){
-      pl.classList.add('on');
-      vid.controls=true;
+    var comSom=false;
+
+    function ligaSom(){
+      comSom=true; vid.muted=false; vid.controls=true;
+      pl.classList.add('on','audio');
       vid.play();
+    }
+    capa.addEventListener('click',ligaSom);
+    if(som) som.addEventListener('click',ligaSom);
+
+    var reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!reduz && 'IntersectionObserver' in window){
+      var dentro=false;
+      function tenta(){
+        if(!dentro) return;
+        if(!comSom) vid.muted=true;
+        var p=vid.play();
+        // só some com a capa se o navegador REALMENTE deixou tocar
+        if(p&&p.then) p.then(function(){pl.classList.add('on');}).catch(function(){});
+      }
+      // quem cai na página com o player já na tela (scroll restaurado, voltar
+      // do histórico) pede play antes de ter mídia: o canplay tenta de novo
+      vid.addEventListener('canplay',tenta);
+      new IntersectionObserver(function(es){
+        es.forEach(function(e){
+          dentro=e.isIntersecting;
+          if(dentro) tenta();
+          else if(!vid.paused) vid.pause();
+        });
+      },{threshold:.55}).observe(pl);
+    }
+
+    // no fim volta a capa, e o próximo play recomeça mudo
+    vid.addEventListener('ended',function(){
+      pl.classList.remove('on','audio'); vid.controls=false; comSom=false;
     });
-    // se voltar ao início, mostra a capa de novo
-    vid.addEventListener('ended',function(){ pl.classList.remove('on'); vid.controls=false; });
   })();
 
   var bar=document.getElementById('bar');
