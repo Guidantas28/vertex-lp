@@ -335,8 +335,11 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   }
 
   /* 1 · inbox que corre sozinha */
-  .feat-chat{margin-top:16px;}
-  .feat-chat-vp{position:relative;height:250px;overflow:hidden;border-radius:var(--r);
+  /* A conversa ocupa o que sobra do card. A janela vai ABSOLUTA de propósito:
+     em fluxo normal ela cresce com as 26 mensagens, o card cresce junto e
+     arrasta a linha inteira (medi 2302px de card antes desse ajuste). */
+  .feat-chat{margin-top:16px;flex:1;min-height:150px;position:relative;}
+  .feat-chat-vp{position:absolute;inset:0;overflow:hidden;border-radius:var(--r);
     border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.22);
     -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 88%,transparent 100%);
     mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 88%,transparent 100%);}
@@ -781,6 +784,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       }).join('');
       alvo.innerHTML='<div class="feat-chat-seq">'+seq+'</div><div class="feat-chat-seq">'+seq+'</div>';
     })();
+
 
     /* 3 · o caixa: cada entrada nova sobe o número, cresce a barra de hoje e
        entra no feed. Os três movimentos acontecem no mesmo tick de propósito:
