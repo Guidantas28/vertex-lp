@@ -109,27 +109,26 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   h1{margin:0;font-size:var(--fs-display);line-height:1.04;font-weight:800;
     letter-spacing:-.03em;text-wrap:balance;}
   /* palavra que troca dentro da pincelada */
-  .stk{display:block;position:relative;width:fit-content;max-width:100%;margin:6px auto 4px;
-    padding:16px clamp(26px,8vw,44px) 20px;font-size:clamp(1.05em,calc(0.9em + 1vw),1.3em);}
-  /* estica igual dos 4 lados (sem width/height, senão desalinha) */
-  .stk .bg{position:absolute;top:-14px;right:-14px;bottom:-14px;left:-14px;
-    width:auto;height:auto;max-width:none;z-index:0;}
+  .stk{display:block;position:relative;width:fit-content;max-width:100%;margin:4px auto 0;
+    padding:15px clamp(32px,9.5vw,54px) 15px;font-size:clamp(1.05em,calc(0.9em + 1vw),1.3em);}
+  /* estica igual dos 4 lados (sem width/height, senão desalinha). A inclinação
+     de 1,2° é o que faz parecer traço de marcador e não retângulo. */
+  .stk .bg{position:absolute;top:-13px;right:-13px;bottom:-13px;left:-13px;
+    width:auto;height:auto;max-width:none;z-index:0;transform:rotate(-1.2deg);}
   /* a palavra da pincelada também é Inter: só o manuscrito ficou fora da régua */
   .stk{--stk-font:var(--sans);--stk-peso:800;--stk-tam:.98em;--stk-track:-.025em}
-  /* overflow escondido = as palavras entram e saem POR TRÁS da pincelada */
-  .stk .stk-word{position:relative;z-index:1;display:block;min-width:5.6em;
-    font-size:1em;background:none;border:0;padding:0;overflow:hidden;}
-  /* fantasma com a palavra mais longa: é ele que define a largura da pincelada */
-  .stk .sizer{visibility:hidden;display:block;white-space:nowrap;}
-  .stk .sizer,
-  .stk .stk-word i{text-transform:uppercase;line-height:1.08;
+  /* As palavras vivem todas na MESMA célula de grid: a largura do bloco passa a
+     ser a da palavra mais larga, sozinha. Antes um span fantasma media uma
+     palavra fixa e qualquer palavra mais larga que ela estourava o traço.
+     overflow escondido = elas entram e saem por trás da pincelada. */
+  .stk .stk-word{position:relative;z-index:1;display:grid;font-size:1em;
+    background:none;border:0;padding:0;overflow:hidden;}
+  .stk .stk-word i{grid-area:1/1;justify-self:center;white-space:nowrap;
+    text-transform:uppercase;line-height:1.12;
     font-family:var(--stk-font),var(--sans);
     font-weight:var(--stk-peso);
     font-size:var(--stk-tam);
-    letter-spacing:var(--stk-track);}
-  /* padding-bottom compensa a métrica da fonte (caixa alta assenta baixa na linha) */
-  .stk .stk-word i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    padding-bottom:.06em;
+    letter-spacing:var(--stk-track);
     font-style:normal;opacity:0;color:var(--stk-ink);
     animation-name:roll;animation-duration:6.6s;animation-iteration-count:infinite;
     animation-timing-function:var(--ease);}
@@ -140,11 +139,13 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   .stk .stk-word i:nth-of-type(3){animation-delay:4.4s}
   /* a palavra sobe pra dentro da pincelada, segura e sai por cima. Sem salto,
      sem giro: só a curva do sistema (easeVos). */
+  /* a saída termina em 37% e a próxima palavra entra em 33,3% (1/3 do ciclo):
+     uma empurra a outra, sem aquele piscar de pincelada vazia no meio */
   @keyframes roll{
     0%      {opacity:0;transform:translateY(66%)}
-    5%      {opacity:1;transform:translateY(0)}
-    30%     {opacity:1;transform:translateY(0)}
-    35%,100%{opacity:0;transform:translateY(-66%)}
+    4%      {opacity:1;transform:translateY(0)}
+    33%     {opacity:1;transform:translateY(0)}
+    37%,100%{opacity:0;transform:translateY(-66%)}
   }
   .lead{font-size:var(--fs-subtitle);max-width:34ch;}
 
@@ -423,7 +424,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
   <filter id="t3" x="-30%" y="-80%" width="160%" height="260%">
     <feTurbulence type="fractalNoise" baseFrequency="0.03 0.07" numOctaves="3" seed="77" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/>
   </filter>
 </defs></svg>
 
@@ -436,13 +437,13 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   </div>
 
   <section class="hero">
-    <div class="eb"><u>A nova era da sua empresa<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
-    <h1>A plataforma que
+    <div class="eb"><u>São 22h e o cliente chamou<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
+    <h1>Alguém precisa
       <span class="stk"><svg class="bg" id="pincel" viewBox="0 0 400 120" preserveAspectRatio="none"></svg>
-        <span class="stk-word"><span class="sizer" aria-hidden="true">gerencia</span><i>conversa</i><i>vende</i><i>gerencia</i></span>
+        <span class="stk-word"><i>conversar</i><i>vender</i><i>gerenciar</i></span>
       </span>
-      por você</h1>
-    <p class="lead">Empresas modernas atendem milhares de clientes sem aumentar a equipe. Sua operação dobra, seu time continua o mesmo.</p>
+      e não precisa ser você</h1>
+    <p class="lead">Todo cliente que chama no WhatsApp é atendido na hora, qualificado e agendado sozinho. Sua equipe entra quando o negócio já está pronto pra fechar.</p>
     <a href="#agendar" class="cta">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     <div class="badges">
       <div class="proof">
@@ -597,27 +598,33 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     var svg=document.getElementById('pincel'); if(!svg) return;
     var C=getComputedStyle(document.documentElement).getPropertyValue('--stk-brush').trim()||'#ED4B00';
     var r=rng(83), g='<g filter="url(#t3)" fill="'+C+'">';
-    var x0=52,x1=348,topo=36,base=84,N=14,cima='',baixo='';
+    var x0=48,x1=352,topo=34,base=86,N=18,cima='',baixo='';
+    var meio=(topo+base)/2, metade=(base-topo)/2;
+    // afina de leve só nas pontas (expoente baixo): dá começo e fim de traço,
+    // sem virar formato de folha
+    function afina(u){ return .86+.14*Math.pow(Math.sin(u*Math.PI),.45); }
     for(var i=0;i<=N;i++){
-      var x=x0+(x1-x0)*i/N, y=topo+(r()-.5)*3-Math.sin(i/N*Math.PI)*4;
-      cima+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' ';
+      var u=i/N, x=x0+(x1-x0)*u;
+      cima+=(i?'L':'M')+x.toFixed(1)+' '+(meio-metade*afina(u)+(r()-.5)*2.2).toFixed(1)+' ';
     }
     for(var j=N;j>=0;j--){
-      var xb=x0+(x1-x0)*j/N, yb=base+(r()-.5)*3+Math.sin(j/N*Math.PI)*2.8;
-      baixo+='L'+xb.toFixed(1)+' '+yb.toFixed(1)+' ';
+      var v=j/N, xb=x0+(x1-x0)*v;
+      baixo+='L'+xb.toFixed(1)+' '+(meio+metade*afina(v)+(r()-.5)*2.2).toFixed(1)+' ';
     }
     g+='<path d="'+cima+baixo+'Z"/>';
+    // cerdas das pontas: poucas, curtas e finas. Antes eram 12 de cada lado,
+    // grossas, e liam como barras quebradas em vez de pincel
     [-1,1].forEach(function(dir){
-      for(var k=0;k<12;k++){
-        var y=topo+4+r()*(base-topo-8), len=10+r()*18, h=2+r()*4.5;
-        var x=dir<0? x0-len+4 : x1-4;
+      for(var k=0;k<5;k++){
+        var y=topo+7+r()*(base-topo-14), len=7+r()*11, h=1.6+r()*2.4;
+        var x=dir<0? x0-len+5 : x1-5;
         g+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+len.toFixed(1)+
            '" height="'+h.toFixed(1)+'" rx="'+(h/2).toFixed(1)+'"/>';
       }
     });
-    for(var p=0;p<3;p++){
-      var d=r()>.5?1:-1, cx=d>0? x1+6+r()*30 : x0-6-r()*30, cy=topo+2+r()*(base-topo-4);
-      g+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(1+r()*2.6).toFixed(1)+'"/>';
+    for(var p=0;p<2;p++){
+      var d=r()>.5?1:-1, cx=d>0? x1+7+r()*22 : x0-7-r()*22, cy=topo+4+r()*(base-topo-8);
+      g+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(1+r()*1.9).toFixed(1)+'"/>';
     }
     svg.innerHTML=g+'</g>';
   })();
