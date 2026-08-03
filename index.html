@@ -4,30 +4,78 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@700;800&family=Luckiest+Guy&family=Titan+One&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<!-- Tipografia oficial do VOS: Inter em TUDO (DS §4/§18). A voz manuscrita da
+     campanha é fonte de sistema e não passa por aqui. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>*,*::before,*::after{box-sizing:border-box}html,body{margin:0;padding:0}
 img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
 <title>VOS · Landing de anúncio</title>
 
 <style>
+  /* ─────────────────────────────────────────────────────────────────────────
+     VOS Design System 2.0 aplicado (docs/DESIGN-SYSTEM.md do vertex-saas).
+     Tokens copiados dos valores VIGENTES do estilo Padrão (minimal) + LIGHT:
+     vos-os.css (marca e status) e vos-theme.css (superfícies, tinta, linhas).
+     Tipografia: Inter + escala §18 · Radius: minimal (--r 8 / --r-sm 6 /
+     --r-xs 5), botão --btn-r 6px · Motion: easeVos cubic-bezier(.22,1,.36,1),
+     0.24s (src/lib/motion.ts) · Ação primária MONO (§7).
+     Fora da régua de propósito: a voz manuscrita (--script) e a pincelada SVG
+     do hero, que são arte de marketing (exceção sancionada no CLAUDE.md).
+     ───────────────────────────────────────────────────────────────────────── */
   :root{
-    --orange:#ED4B00; --orange-2:#FF7A1A; --orange-soft:#FFF1E9;
-    --purple:#5B2BD9; --purple-2:#8B2FC9;
-    --ink:#14121A; --ink-2:#5B5666; --ink-3:#948E9F;
-    --bg:#FFFFFF; --soft:#F7F5F9; --line:rgba(20,18,26,.09);
-    --ok:#12A06A;
+    /* marca e status — vos-os.css */
+    --accent:#ED4B00; --accent-400:#FF6A2B; --accent-600:#C63D00;
+    --accent-soft:rgba(237,75,0,.12); --accent-line:rgba(237,75,0,.30);
+    --ok:#15935A; --ok-soft:rgba(21,147,90,.12);
+    --warn:#C9810C; --bad:#DC3B2B;
+    --info:#1F6FEB; --info-soft:rgba(31,111,235,.12);
+
+    /* superfícies e tinta, LIGHT — vos-theme.css */
+    --bg:#FFFFFF; --canvas:#fafafa; --panel:#ffffff; --panel-2:#f5f5f5;
+    --ink:#171717; --ink-2:#525252; --ink-3:#8a8a8a;
+    --line:rgba(0,0,0,.09); --line-2:rgba(0,0,0,.15);
+
+    /* superfícies e tinta, DARK (a faixa escura) — vos-theme.css */
+    --d-bg:#0d0d0d; --d-panel:#151515; --d-panel-2:#1c1c1c;
+    --d-ink:#f5f5f5; --d-ink-2:#a8a8a8; --d-ink-3:#7a7a7a;
+    --d-line:rgba(255,255,255,.10);
+
+    /* radius — minimal */
+    --r:8px; --r-sm:6px; --r-xs:5px; --btn-r:6px; --r-lg:12px; --r-xl:16px;
+
+    /* motion */
+    --ease:cubic-bezier(.22,1,.36,1); --dur:.24s;
+
+    /* tipografia 2.0 (§18). O display do hero é marketing; o resto são papéis */
+    --fs-display:clamp(32px,9vw,46px);
+    --fs-page-title:clamp(20px,5.4vw,22px);
+    --fs-subtitle:16px;
+    --fs-card-title:15px;
+    --fs-body:14px;
+    --fs-control:13px;
+    --fs-label:12px;
+    --fs-micro:11px;
+    --fs-kpi:20px;
+
+    /* ação primária = MONO no estilo Padrão (DS §7): preto no claro, branco no
+       escuro. Pra devolver o laranja da campanha, troque só estas duas linhas
+       por --cta-bg:var(--accent) e --cta-fg:#fff. */
+    --cta-bg:var(--ink); --cta-fg:var(--bg);
+
     --col:min(540px, 100% - 32px);
-    --sans:Inter,"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+    --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     --script:"Ink Free","Bradley Hand","Segoe Script","Brush Script MT",cursive;
   }
   body{background:var(--bg);color:var(--ink);font-family:var(--sans);
-    -webkit-font-smoothing:antialiased;line-height:1.5;}
+    -webkit-font-smoothing:antialiased;line-height:1.5;
+    font-size:var(--fs-body);letter-spacing:-.006em;}
   .wrap{display:flex;flex-direction:column;align-items:center;padding-bottom:92px;}
   section{width:var(--col);display:flex;flex-direction:column;gap:18px;padding:46px 0;}
-  h2{margin:0;font-size:clamp(23px,6vw,30px);line-height:1.08;font-weight:800;
-    letter-spacing:-.035em;text-wrap:balance;}
-  p{margin:0;color:var(--ink-2);font-size:15.5px;}
-  .eb{font-family:var(--script);font-size:22px;font-weight:700;color:var(--orange);
+  h2{margin:0;font-size:var(--fs-page-title);line-height:1.18;font-weight:650;
+    letter-spacing:-.025em;text-wrap:balance;}
+  p{margin:0;color:var(--ink-2);font-size:var(--fs-body);}
+  /* voz manuscrita da campanha: fica, é o layout de marketing */
+  .eb{font-family:var(--script);font-size:22px;font-weight:700;color:var(--accent);
     line-height:1.15;letter-spacing:.005em;}
   .eb u{position:relative;display:inline-block;text-decoration:none;padding-bottom:2px;}
   .eb u svg{position:absolute;left:-2%;bottom:-5px;width:104%;height:10px;overflow:visible;}
@@ -40,33 +88,40 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   .logo{display:flex;align-items:center;gap:6px;font-weight:800;font-size:17px;
     letter-spacing:-.045em;color:var(--ink);}
   .logo svg{width:21px;height:21px;flex:none;}
-  .ghost{font-size:13px;font-weight:650;color:var(--ink-2);text-decoration:none;}
+  /* botão terciário/ghost (DS §26): só texto, sem caixa */
+  .ghost{display:inline-flex;align-items:center;height:32px;padding:0 8px;
+    border-radius:var(--btn-r);font-size:var(--fs-control);font-weight:500;
+    color:var(--ink-2);text-decoration:none;
+    transition:color var(--dur) var(--ease), background var(--dur) var(--ease);}
+  .ghost:hover{color:var(--ink);background:var(--panel-2);}
+  .ghost:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 
   /* hero */
   .hero{align-items:center;text-align:center;gap:15px;padding-top:22px;}
-  h1{margin:0;font-size:clamp(33px,9vw,50px);line-height:1;font-weight:800;
-    letter-spacing:-.042em;text-wrap:balance;}
+  h1{margin:0;font-size:var(--fs-display);line-height:1.04;font-weight:800;
+    letter-spacing:-.03em;text-wrap:balance;}
   /* palavra que troca dentro da pincelada */
   .stk{display:block;position:relative;width:fit-content;max-width:100%;margin:6px auto 4px;
     padding:16px clamp(26px,8vw,44px) 20px;font-size:clamp(1.05em,calc(0.9em + 1vw),1.3em);}
   /* estica igual dos 4 lados (sem width/height, senão desalinha) */
   .stk .bg{position:absolute;top:-14px;right:-14px;bottom:-14px;left:-14px;
     width:auto;height:auto;max-width:none;z-index:0;}
-  .stk{--stk-font:"Anton";--stk-peso:400;--stk-tam:1.16em;--stk-track:.012em}
+  /* a palavra da pincelada também é Inter: só o manuscrito ficou fora da régua */
+  .stk{--stk-font:var(--sans);--stk-peso:800;--stk-tam:.98em;--stk-track:-.025em}
   .stk .stk-word{position:relative;z-index:1;display:block;min-width:5.6em;
     font-size:1em;background:none;border:0;padding:0;}
   /* fantasma com a palavra mais longa: é ele que define a largura da pincelada */
   .stk .sizer{visibility:hidden;display:block;white-space:nowrap;}
   .stk .sizer,
   .stk .stk-word i{text-transform:uppercase;line-height:1.08;
-    font-family:var(--stk-font,"Baloo 2"),var(--sans);
-    font-weight:var(--stk-peso,800);
-    font-size:var(--stk-tam,1em);
-    letter-spacing:var(--stk-track,.01em);}
+    font-family:var(--stk-font),var(--sans);
+    font-weight:var(--stk-peso);
+    font-size:var(--stk-tam);
+    letter-spacing:var(--stk-track);}
   /* padding-bottom compensa a métrica da fonte (caixa alta assenta baixa na linha) */
   .stk .stk-word i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    padding-bottom:.5em;
-    font-style:normal;opacity:0;color:#A83700;
+    padding-bottom:.06em;
+    font-style:normal;opacity:0;color:var(--accent-600);
     animation-name:pop;animation-duration:6.6s;animation-iteration-count:infinite;}
   .stk .stk-word i:nth-child(1){animation-delay:0s}
   .stk .stk-word i:nth-child(2){animation-delay:2.2s}
@@ -79,53 +134,59 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     29%{opacity:1;transform:scale(1) rotate(0)}
     33%,100%{opacity:0;transform:scale(.82) rotate(3deg)}
   }
-  .lead{font-size:16.5px;max-width:34ch;}
-  /* botão principal: compacto, não domina o bloco */
+  .lead{font-size:var(--fs-subtitle);max-width:34ch;}
+
+  /* Button (DS §7/§21/§26): mono no Padrão, retangular --btn-r 6px, altura lg
+     44px, 14px/600. Sem gradiente e sem pílula — não é a forma do sistema. */
   .cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-    background:linear-gradient(94deg,var(--orange),var(--orange-2));color:#fff;
-    font-family:inherit;font-size:14.5px;font-weight:750;letter-spacing:-.005em;
-    border:0;border-radius:99px;padding:13px 22px;cursor:pointer;text-decoration:none;
-    transition:transform .13s ease, filter .2s ease;}
-  .cta:hover{filter:brightness(1.05);}
-  .cta:active{transform:scale(.985);}
-  .cta:focus-visible{outline:2px solid var(--ink);outline-offset:3px;}
+    height:44px;padding:0 20px;border:1px solid var(--cta-bg);border-radius:var(--btn-r);
+    background:var(--cta-bg);color:var(--cta-fg);
+    font-family:inherit;font-size:14px;font-weight:600;letter-spacing:-.006em;
+    cursor:pointer;text-decoration:none;
+    transition:opacity var(--dur) var(--ease), transform var(--dur) var(--ease);}
+  .cta:hover{opacity:.88;}
+  .cta:active{transform:scale(.99);}
+  .cta:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
   .badges{display:flex;flex-direction:column;align-items:center;gap:10px;}
   /* selos de prova social (Meta Business Partner · VOS) */
-  .proof{--proof:#6B6889;color:var(--proof);
-    display:flex;align-items:center;justify-content:center;
+  .proof{color:var(--ink-3);display:flex;align-items:center;justify-content:center;
     gap:clamp(11px,3.6vw,20px);flex-wrap:wrap;}
   .pf{display:flex;align-items:center;gap:7px;}
-  .pf-sep{width:1px;align-self:stretch;min-height:18px;background:currentColor;opacity:.22;}
+  .pf-sep{width:1px;align-self:stretch;min-height:18px;background:var(--line-2);}
   .pf-meta{width:clamp(19px,5vw,24px);height:auto;flex:none;}
-  .pf-txt{font-size:clamp(10.5px,2.9vw,12.5px);font-weight:450;letter-spacing:-.005em;
-    white-space:nowrap;}
-  .pf-txt b{font-weight:750;}
+  .pf-txt{font-size:clamp(var(--fs-micro),3vw,var(--fs-label));font-weight:500;
+    letter-spacing:-.006em;white-space:nowrap;}
+  .pf-txt b{font-weight:600;color:var(--ink-2);}
   .pf-vos{width:clamp(15px,4vw,19px);height:auto;flex:none;}
-  .pf-vost{font-family:"Plus Jakarta Sans",var(--sans);font-weight:800;
-    font-size:clamp(12px,3.4vw,15px);letter-spacing:-.02em;}
+  .pf-vost{font-weight:700;font-size:clamp(var(--fs-label),3.4vw,var(--fs-card-title));
+    letter-spacing:-.03em;color:var(--ink-2);}
   @media (max-width:330px){ .pf-sep{display:none} }
-  .integr{display:flex;flex-direction:column;align-items:center;gap:7px;}
-  .integr .lb{font-size:8.5px;letter-spacing:.17em;text-transform:uppercase;
-    color:var(--ink-3);font-weight:700;}
+  .integr{display:flex;flex-direction:column;align-items:center;gap:8px;}
+  /* label de seção (§18, papel 11): 10px · 600 · uppercase · 0.1em */
+  .integr .lb{font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-3);font-weight:600;}
   .integr .ics{display:flex;gap:6px;justify-content:center;}
-  .integr .ic{flex:0 0 auto;width:28px;height:28px;border-radius:9px;
-    display:grid;place-items:center;background:#fff;border:1.4px solid;}
+  /* cor de canal é identidade reconhecível (DS §35) — fica como está */
+  .integr .ic{flex:0 0 auto;width:28px;height:28px;border-radius:var(--r);
+    display:grid;place-items:center;background:var(--panel);border:1.4px solid;}
   .integr .ic svg{width:15px;height:15px;flex:none;}
   @media (max-width:400px){
     .integr .ics{gap:5px}
-    .integr .ic{width:26px;height:26px;border-radius:8px}
+    .integr .ic{width:26px;height:26px;border-radius:var(--r-sm)}
     .integr .ic svg{width:14px;height:14px}
   }
 
-  /* faixa com divisão curva depois do botão */
+  /* faixa com divisão curva depois do botão — canvas quase preto do dark (§24) */
   .band{width:100%;position:relative;overflow:hidden;
-    background:linear-gradient(104deg,#2E1F33 0%,#221B39 42%,#1B1730 100%);
-    display:flex;flex-direction:column;align-items:center;padding-bottom:46px;}
+    background:linear-gradient(104deg,var(--d-panel) 0%,#121212 46%,var(--d-bg) 100%);
+    display:flex;flex-direction:column;align-items:center;padding-bottom:46px;
+    /* no escuro a ação primária inverte: branca com texto escuro (DS §7) */
+    --cta-bg:var(--d-ink);--cta-fg:var(--d-bg);}
   /* tudo dentro da faixa escura vira claro */
-  .band .eb{color:#FF8A3D;}
-  .band-head h2{color:#fff;}
-  .band-head h2 u{color:#FF9A52 !important;}
-  .band .band-head p{color:rgba(255,255,255,.82);}
+  .band .eb{color:var(--accent-400);}
+  .band-head h2{color:var(--d-ink);}
+  .band-head h2 u{color:var(--accent-400) !important;}
+  .band .band-head p{color:var(--d-ink-2);}
   /* mesmo bloco do título de cima, só com respiro depois do dashboard */
   .band .band-head-2{margin-top:clamp(22px,6vw,36px);align-items:center;}
   /* b-roll dentro da faixa escura */
@@ -135,50 +196,49 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   /* CTA fechando a faixa escura, depois do vídeo */
   .band-cta{width:var(--col);margin-top:clamp(18px,5vw,26px);}
   .player{position:relative;width:min(268px,74%);aspect-ratio:9/16;
-    border-radius:18px;overflow:hidden;background:#14121A;
+    border-radius:var(--r-xl);overflow:hidden;background:var(--d-bg);
     box-shadow:0 26px 56px -26px rgba(0,0,0,.6);}
-  .player video{width:100%;height:100%;display:block;object-fit:cover;background:#14121A;}
+  .player video{width:100%;height:100%;display:block;object-fit:cover;background:var(--d-bg);}
   .player.on video{object-fit:contain;}
   .player .capa{position:absolute;inset:0;border:0;padding:0;cursor:pointer;
     display:grid;place-items:center;background:
-      linear-gradient(180deg,rgba(20,18,26,.12) 0%,rgba(20,18,26,.05) 45%,rgba(20,18,26,.55) 100%);
-    transition:opacity .25s ease;}
+      linear-gradient(180deg,rgba(0,0,0,.12) 0%,rgba(0,0,0,.05) 45%,rgba(0,0,0,.55) 100%);
+    transition:opacity var(--dur) var(--ease);}
   .player.on .capa{opacity:0;pointer-events:none;}
   .player .capa .play{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.94);
     display:grid;place-items:center;box-shadow:0 10px 26px -8px rgba(0,0,0,.5);
-    transition:transform .16s ease;}
+    transition:transform var(--dur) var(--ease);}
   .player .capa:hover .play{transform:scale(1.07);}
   .player .capa:active .play{transform:scale(.96);}
-  .player .capa .play svg{width:22px;height:22px;margin-left:3px;fill:var(--orange);}
+  .player .capa .play svg{width:22px;height:22px;margin-left:3px;fill:var(--accent);}
   .player .capa .rot{position:absolute;left:0;right:0;bottom:12px;text-align:center;
-    font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+    font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
     color:rgba(255,255,255,.9);}
-  .band-foot-t{width:var(--col);text-align:center;color:#fff;
-    font-family:"Plus Jakarta Sans",var(--sans);font-weight:800;
-    font-size:clamp(19px,5vw,26px);letter-spacing:.01em;text-transform:uppercase;
+  .band-foot-t{width:var(--col);text-align:center;color:var(--d-ink);
+    font-weight:700;font-size:var(--fs-page-title);letter-spacing:-.025em;
     margin:clamp(20px,5vw,32px) 0 9px;}
-  .band > section h2{color:#fff;}
-  .band .pain{background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);
-    border:1px solid rgba(255,255,255,.09);}
-  .band .pain b{color:rgba(255,255,255,.45);}
+  .band > section h2{color:var(--d-ink);}
+  .band .pain{background:rgba(255,255,255,.06);color:var(--d-ink-2);
+    border:1px solid var(--d-line);}
+  .band .pain b{color:var(--d-ink-3);}
   .band-top{display:block;width:100%;height:clamp(38px,9vw,72px);margin-bottom:-2px;}
   .band-in{width:var(--col);padding-top:clamp(18px,5vw,38px);}
   /* título + texto entre a curva e o dashboard */
   .band-head{width:var(--col);text-align:center;padding:clamp(6px,3vw,18px) 0 4px;
     display:flex;flex-direction:column;gap:10px;}
-  .band-head h2{font-family:"Plus Jakarta Sans",var(--sans);font-weight:700;
-    font-size:clamp(21px,5.4vw,28px);line-height:1.18;letter-spacing:-.028em;text-wrap:balance;}
-  .band-head h2 u{text-decoration:none;color:#A83700;}
-  .band-head p{font-size:15px;color:var(--ink-2);text-wrap:balance;}
-  .band-foot{width:var(--col);text-align:center;font-size:15px;color:var(--ink-2);
+  .band-head h2{font-weight:650;font-size:var(--fs-page-title);line-height:1.2;
+    letter-spacing:-.025em;text-wrap:balance;}
+  .band-head h2 u{text-decoration:none;color:var(--accent);}
+  .band-head p{font-size:var(--fs-body);color:var(--ink-2);text-wrap:balance;}
+  .band-foot{width:var(--col);text-align:center;font-size:var(--fs-body);color:var(--ink-2);
     text-wrap:balance;margin-top:clamp(16px,4vw,26px);}
   .band > section{padding-top:8px;padding-bottom:10px;}
 
   /* dashboard recriado */
   /* dashboard: vaza pra direita e some num degradê */
   .band-in{position:relative;}
-  /* degradê colado na borda direita da TELA, some o dashboard suavemente */
-  /* começa onde o dashboard começa, senão o branco borra o roxo acima dele */
+  /* degradê colado na borda direita da TELA, some o dashboard suavemente.
+     Fade pro branco do próprio painel, não pro fundo da faixa. */
   .band-in::after{content:"";position:absolute;top:calc(clamp(18px,5vw,38px) + 6px);bottom:0;
     right:calc((100% - 100vw) / 2);width:clamp(40px,11vw,118px);
     background:linear-gradient(to right,
@@ -188,118 +248,134 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       rgba(255,255,255,.94) 92%,
       #fff 100%);
     pointer-events:none;z-index:3;}
+  /* acima de ~1080px o dashboard cabe inteiro e não encosta na borda da tela:
+     o degradê ficaria pintando uma coluna branca sobre a faixa escura. */
+  @media (min-width:1081px){ .band-in::after{display:none} }
   /* desenhado em 820px e reduzido por escala: TODO o conteúdo continua visível */
   .shotwrap{position:relative;width:150%;max-width:none;margin-top:6px;
     animation:float 7s ease-in-out infinite;}
+  /* daqui pra baixo é o produto de verdade: mesmos tokens e mesma escala do app */
   .shot{position:absolute;top:0;left:0;width:820px;transform-origin:top left;
-    border-radius:16px;overflow:hidden;background:#fff;
-    border:1px solid var(--line);box-shadow:0 26px 56px -26px rgba(20,18,26,.32);}
+    border-radius:var(--r-lg);overflow:hidden;background:var(--panel);
+    border:1px solid var(--line);box-shadow:0 26px 56px -26px rgba(0,0,0,.32);}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-  .bar-top{display:flex;gap:7px;padding:12px 15px;background:#FAF9FB;border-bottom:1px solid var(--line);}
-  .bar-top i{width:11px;height:11px;border-radius:50%;background:#E2DEE8;}
+  .bar-top{display:flex;gap:7px;padding:12px 15px;background:var(--canvas);
+    border-bottom:1px solid var(--line);}
+  .bar-top i{width:11px;height:11px;border-radius:50%;background:#e2e2e2;}
   .dash{display:flex;}
   .side{width:22%;min-width:22%;padding:15px 12px;border-right:1px solid var(--line);
-    display:flex;flex-direction:column;gap:2px;background:#FCFBFD;}
+    display:flex;flex-direction:column;gap:2px;background:var(--canvas);}
   .side .vlogo{display:flex;align-items:center;gap:6px;font-weight:800;font-size:15px;
     letter-spacing:-.04em;margin-bottom:12px;}
   .side .vlogo svg{width:17px;height:17px;}
   .side .org{display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid var(--line);
-    border-radius:9px;font-weight:700;font-size:11px;margin-bottom:6px;}
-  .side .org b{width:17px;height:17px;border-radius:5px;background:var(--orange);color:#fff;
-    display:grid;place-items:center;font-size:8.5px;flex:none;}
-  .side .grp{font-size:8.5px;letter-spacing:.13em;color:var(--ink-3);font-weight:700;
-    margin:9px 0 3px;}
-  .side .it{display:flex;align-items:center;gap:8px;color:var(--ink-2);font-size:11.5px;
-    padding:5px 6px;border-radius:7px;}
-  .side .it b{width:13px;height:13px;border-radius:4px;background:#E7E3ED;flex:none;}
-  .side .it.on{color:var(--ink);font-weight:700;background:#F1EEF6;}
-  .side .it em{margin-left:auto;font-style:normal;font-size:8.5px;font-weight:700;color:#fff;
-    background:var(--orange);border-radius:99px;padding:1px 6px;}
+    border-radius:var(--r-sm);font-weight:600;font-size:var(--fs-control);margin-bottom:6px;
+    background:var(--panel);}
+  .side .org b{width:17px;height:17px;border-radius:var(--r-xs);background:var(--accent);color:#fff;
+    display:grid;place-items:center;font-size:9px;flex:none;}
+  /* label de seção da sidebar (§18, papel 11) */
+  .side .grp{font-size:10px;letter-spacing:.1em;color:var(--ink-3);font-weight:600;
+    text-transform:uppercase;margin:10px 0 3px;}
+  .side .it{display:flex;align-items:center;gap:8px;color:var(--ink-2);
+    font-size:var(--fs-control);font-weight:500;padding:6px;border-radius:var(--r-sm);}
+  .side .it b{width:13px;height:13px;border-radius:var(--r-xs);background:#e7e7e7;flex:none;}
+  .side .it.on{color:var(--ink);font-weight:600;background:var(--panel-2);}
+  /* contador na navegação: pílula soft, nunca fundo sólido cheio (DS §7) */
+  .side .it em{margin-left:auto;font-style:normal;font-size:var(--fs-micro);font-weight:500;
+    color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:1px 7px;}
   .main{flex:1;padding:16px 18px;display:flex;flex-direction:column;gap:11px;min-width:0;}
-  .tabs{display:flex;gap:16px;font-size:11.5px;color:var(--ink-3);font-weight:650;
+  .tabs{display:flex;gap:16px;font-size:var(--fs-control);color:var(--ink-3);font-weight:500;
     border-bottom:1px solid var(--line);padding-bottom:9px;}
-  .tabs .on{color:var(--ink);border-bottom:2px solid var(--orange);padding-bottom:9px;
-    margin-bottom:-10px;}
-  .hi{font-size:18px;font-weight:800;letter-spacing:-.03em;margin:3px 0 2px;}
-  .panel{border:1px solid var(--line);border-radius:10px;padding:12px 13px;}
-  .panel .pt{font-size:11.5px;font-weight:700;margin-bottom:9px;}
+  .tabs .on{color:var(--ink);font-weight:600;border-bottom:2px solid var(--accent);
+    padding-bottom:9px;margin-bottom:-10px;}
+  .hi{font-size:22px;font-weight:650;letter-spacing:-.025em;margin:3px 0 2px;}
+  .panel{border:1px solid var(--line);border-radius:var(--r);padding:12px 13px;}
+  .panel .pt{font-size:var(--fs-card-title);font-weight:600;margin-bottom:9px;}
   .funnel{display:flex;gap:12px;}
   .funnel div{flex:1;min-width:0;}
-  .funnel span{display:block;font-size:9.5px;color:var(--ink-3);white-space:nowrap;
+  .funnel span{display:block;font-size:var(--fs-label);color:var(--ink-3);white-space:nowrap;
     overflow:hidden;margin-bottom:2px;}
-  .funnel b{font-size:15px;font-weight:800;letter-spacing:-.025em;}
+  .funnel b{font-size:var(--fs-kpi);font-weight:700;letter-spacing:-.025em;
+    font-variant-numeric:tabular-nums;}
   .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-  .kpi{border:1px solid var(--line);border-radius:10px;padding:12px 13px;}
-  .kpi span{font-size:10.5px;color:var(--ink-2);font-weight:600;}
-  .kpi b{display:block;font-size:18px;font-weight:800;letter-spacing:-.03em;margin-top:2px;}
-  .kpi small{display:block;font-size:9.5px;color:var(--ok);margin-top:4px;}
+  .kpi{border:1px solid var(--line);border-radius:var(--r);padding:12px 13px;}
+  .kpi span{font-size:var(--fs-label);color:var(--ink-2);font-weight:500;}
+  .kpi b{display:block;font-size:var(--fs-kpi);font-weight:700;letter-spacing:-.025em;
+    margin-top:2px;font-variant-numeric:tabular-nums;}
+  .kpi small{display:block;font-size:var(--fs-micro);color:var(--ok);margin-top:4px;}
   .spark{height:28px;margin-top:7px;display:flex;align-items:flex-end;gap:3px;}
-  .spark i{flex:1;background:#D9F0E5;border-radius:2px;}
+  .spark i{flex:1;background:var(--ok-soft);border-radius:2px;}
   .bars{display:flex;align-items:flex-end;gap:9px;height:58px;padding-top:6px;}
-  .bars i{flex:1;background:#1FA971;border-radius:3px 3px 0 0;}
+  .bars i{flex:1;background:var(--ok);border-radius:3px 3px 0 0;}
 
   /* dores */
   .pains{display:flex;flex-direction:column;gap:8px;}
-  .pain{display:flex;gap:10px;padding:14px;border-radius:12px;background:var(--soft);
-    font-size:15px;color:var(--ink-2);}
+  .pain{display:flex;gap:10px;padding:14px;border-radius:var(--r);background:var(--panel-2);
+    font-size:var(--fs-body);color:var(--ink-2);}
   .pain b{color:var(--ink-3);flex:none;font-variant-numeric:tabular-nums;}
 
   /* números */
   .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-  .num{background:var(--orange-soft);border-radius:13px;padding:16px 10px;text-align:center;}
-  .num b{display:block;font-size:clamp(21px,6vw,27px);font-weight:800;letter-spacing:-.035em;
-    color:var(--orange);font-variant-numeric:tabular-nums;}
-  .num small{display:block;margin-top:3px;font-size:11.5px;color:var(--ink-2);line-height:1.3;}
+  .num{background:var(--accent-soft);border-radius:var(--r);padding:16px 10px;text-align:center;}
+  .num b{display:block;font-size:clamp(21px,6vw,27px);font-weight:700;letter-spacing:-.03em;
+    color:var(--accent);font-variant-numeric:tabular-nums;}
+  .num small{display:block;margin-top:3px;font-size:var(--fs-label);color:var(--ink-2);line-height:1.3;}
 
   /* depoimento */
-  .quote{background:var(--soft);border-radius:15px;padding:18px;display:flex;flex-direction:column;gap:12px;}
-  .quote p{color:var(--ink);font-size:16px;}
-  .who{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-3);}
-  .who i{width:29px;height:29px;border-radius:50%;background:#E7E3ED;display:grid;place-items:center;
-    font-size:10.5px;font-weight:800;color:var(--ink-2);font-style:normal;}
+  .quote{background:var(--panel-2);border-radius:var(--r-lg);padding:18px;
+    display:flex;flex-direction:column;gap:12px;}
+  .quote p{color:var(--ink);font-size:var(--fs-subtitle);}
+  .who{display:flex;align-items:center;gap:9px;font-size:var(--fs-control);color:var(--ink-3);}
+  .who i{width:29px;height:29px;border-radius:50%;background:var(--panel-2);display:grid;
+    place-items:center;font-size:var(--fs-micro);font-weight:700;color:var(--ink-2);font-style:normal;}
 
   /* planos */
   /* preço como manchete: eyebrow à mão + valor com risco cinza embaixo */
   .preco{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;}
-  .preco .frase{font-size:clamp(20px,5.4vw,24px);font-weight:750;letter-spacing:-.03em;
+  .preco .frase{font-size:var(--fs-page-title);font-weight:650;letter-spacing:-.025em;
     line-height:1.25;color:var(--ink-2);text-wrap:balance;}
-  .preco .n{position:relative;display:inline-block;font-weight:800;letter-spacing:-.045em;
+  .preco .n{position:relative;display:inline-block;font-weight:800;letter-spacing:-.035em;
     line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;
-    font-size:clamp(38px,10.5vw,46px);}
+    font-size:clamp(34px,10vw,44px);}
   .preco .n .risco{position:absolute;left:-3%;bottom:-10px;width:106%;height:11px;overflow:visible;}
   .preco .n .risco path{fill:none;stroke:var(--ink-3);stroke-width:4;stroke-linecap:round;
     stroke-dasharray:260;stroke-dashoffset:260;animation:draw .85s .35s ease-out forwards;}
-  .preco .mes{font-size:13px;color:var(--ink-2);margin-top:6px;}
+  .preco .mes{font-size:var(--fs-control);color:var(--ink-2);margin-top:6px;}
 
   /* form */
-  .form{background:var(--soft);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:13px;}
+  .form{background:var(--panel-2);border-radius:var(--r-lg);padding:18px;
+    display:flex;flex-direction:column;gap:13px;}
   .slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:7px;}
-  .slot{font-family:inherit;font-size:13.5px;font-weight:700;color:var(--ink);background:#fff;
-    border:1px solid var(--line);border-radius:11px;padding:12px 8px;cursor:pointer;
-    transition:border-color .12s, background .12s, color .12s;}
-  .slot:hover{border-color:var(--orange);}
-  .slot[aria-pressed="true"]{background:var(--orange);border-color:var(--orange);color:#fff;}
-  .slot small{display:block;font-size:11px;font-weight:500;opacity:.74;}
-  label{font-size:12.5px;font-weight:700;color:var(--ink-2);display:block;margin-bottom:6px;}
-  input{width:100%;font-family:inherit;font-size:16px;color:var(--ink);background:#fff;
-    border:1px solid var(--line);border-radius:11px;padding:14px 13px;}
-  input:focus{outline:2px solid var(--orange);outline-offset:1px;border-color:transparent;}
-  .micro{font-size:12.5px;color:var(--ink-3);text-align:center;}
+  .slot{font-family:inherit;font-size:var(--fs-control);font-weight:600;color:var(--ink);
+    background:var(--panel);border:1px solid var(--line-2);border-radius:var(--btn-r);
+    padding:10px 8px;min-height:38px;cursor:pointer;
+    transition:border-color var(--dur) var(--ease), background var(--dur) var(--ease),
+      color var(--dur) var(--ease);}
+  .slot:hover{border-color:var(--ink-3);}
+  .slot[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg);}
+  .slot small{display:block;font-size:var(--fs-micro);font-weight:400;opacity:.74;}
+  label{font-size:var(--fs-label);font-weight:500;color:var(--ink-2);display:block;margin-bottom:6px;}
+  /* input padrão do DS §21: 38px de altura, raio de botão, anel laranja no foco */
+  input{width:100%;height:38px;font-family:inherit;font-size:var(--fs-body);color:var(--ink);
+    background:var(--panel);border:1px solid var(--line-2);border-radius:var(--btn-r);
+    padding:0 12px;transition:border-color var(--dur) var(--ease);}
+  input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent;}
+  .micro{font-size:var(--fs-label);color:var(--ink-3);text-align:center;}
 
   .bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(255,255,255,.94);
     backdrop-filter:blur(10px);border-top:1px solid var(--line);
     padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:center;
     transform:translateY(115%);visibility:hidden;
-    transition:transform .32s cubic-bezier(.2,.8,.3,1), visibility .32s;}
+    transition:transform .32s var(--ease), visibility .32s;}
   .bar.show{transform:none;visibility:visible;}
-  .bar .cta{max-width:540px;padding:16px;font-size:16px;}
+  .bar .cta{max-width:540px;}
 
 
   .reveal{opacity:0;transform:translateY(16px);
-    transition:opacity .65s ease, transform .65s cubic-bezier(.2,.8,.3,1);}
+    transition:opacity .65s ease, transform .65s var(--ease);}
   .reveal.in{opacity:1;transform:none;}
-  .note{width:var(--col);margin:20px 0 6px;padding:11px 13px;border:1px dashed var(--line);
-    border-radius:11px;font-size:11.5px;color:var(--ink-3);text-align:center;}
+  .note{width:var(--col);margin:20px 0 6px;padding:11px 13px;border:1px dashed var(--line-2);
+    border-radius:var(--r);font-size:var(--fs-label);color:var(--ink-3);text-align:center;}
 
   @media (prefers-reduced-motion:reduce){
     /* sem deslocamento: as palavras só trocam por opacidade */
@@ -412,14 +488,14 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
           <div class="it"><b></b> Insights</div>
         </div>
         <div class="main">
-          <div class="tabs"><span class="on">★ Executivo</span><span>Financeiro</span><span>Vendas</span><span style="color:var(--orange)">+</span></div>
+          <div class="tabs"><span class="on">★ Executivo</span><span>Financeiro</span><span>Vendas</span><span style="color:var(--accent)">+</span></div>
           <div class="hi">Boa tarde, Marina.</div>
           <div class="panel">
             <div class="pt">Funil de venda</div>
             <div class="funnel">
-              <div><span>● Aberto</span><b style="color:var(--orange)">R$ 168,9k</b></div>
-              <div><span>● Em negociação</span><b style="color:var(--orange)">R$ 57,2k</b></div>
-              <div><span>● Ticket médio</span><b style="color:#2C7BE5">R$ 866</b></div>
+              <div><span>● Aberto</span><b style="color:var(--accent)">R$ 168,9k</b></div>
+              <div><span>● Em negociação</span><b style="color:var(--accent)">R$ 57,2k</b></div>
+              <div><span>● Ticket médio</span><b style="color:var(--info)">R$ 866</b></div>
               <div><span>● Vendas</span><b style="color:var(--ok)">R$ 12,1k</b></div>
             </div>
           </div>
@@ -427,17 +503,17 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
             <div class="kpi"><span>Receita</span><b style="color:var(--ok)">R$ 12,1k</b>
               <div class="spark"><i style="height:26%"></i><i style="height:70%"></i><i style="height:38%"></i><i style="height:52%"></i><i style="height:100%"></i><i style="height:44%"></i></div>
               <small>↑ 138,1% vs. anterior</small></div>
-            <div class="kpi"><span>Custo operacional</span><b style="color:var(--orange)">R$ 4,6k</b>
-              <div class="spark"><i style="height:20%;background:#FBE0D6"></i><i style="height:46%;background:#FBE0D6"></i><i style="height:30%;background:#FBE0D6"></i><i style="height:64%;background:#FBE0D6"></i><i style="height:36%;background:#FBE0D6"></i><i style="height:54%;background:#FBE0D6"></i></div>
-              <small style="color:var(--orange)">↑ 503,3% vs. anterior</small></div>
+            <div class="kpi"><span>Custo operacional</span><b style="color:var(--accent)">R$ 4,6k</b>
+              <div class="spark"><i style="height:20%;background:var(--accent-soft)"></i><i style="height:46%;background:var(--accent-soft)"></i><i style="height:30%;background:var(--accent-soft)"></i><i style="height:64%;background:var(--accent-soft)"></i><i style="height:36%;background:var(--accent-soft)"></i><i style="height:54%;background:var(--accent-soft)"></i></div>
+              <small style="color:var(--accent)">↑ 503,3% vs. anterior</small></div>
             <div class="kpi"><span>Margem líquida</span><b style="color:var(--ok)">R$ 7,5k</b>
               <div class="spark"><i style="height:40%"></i><i style="height:58%"></i><i style="height:34%"></i><i style="height:72%"></i><i style="height:50%"></i><i style="height:66%"></i></div>
               <small>62,2% · ↓ 22,9 p.p.</small></div>
           </div>
           <div class="kpis">
-            <div class="kpi"><span>Assinaturas ativas</span><b style="color:var(--orange)">0</b><small style="color:var(--ink-3)">Planos contínuos ativos</small></div>
+            <div class="kpi"><span>Assinaturas ativas</span><b style="color:var(--accent)">0</b><small style="color:var(--ink-3)">Planos contínuos ativos</small></div>
             <div class="kpi"><span>MRR (assinaturas)</span><b style="color:var(--ok)">R$ 0</b><small style="color:var(--ink-3)">Receita recorrente mensal</small></div>
-            <div class="kpi"><span>Churn</span><b style="color:var(--orange)">0%</b><small style="color:var(--ink-3)">Nenhuma cancelada</small></div>
+            <div class="kpi"><span>Churn</span><b style="color:var(--accent)">0%</b><small style="color:var(--ink-3)">Nenhuma cancelada</small></div>
           </div>
           <div class="panel">
             <div class="pt">Fluxo de caixa · 7 dias</div>
@@ -483,7 +559,9 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
 <div class="bar" id="bar"><a href="#agendar" class="cta">Agendar demonstração</a></div>
 
 <script>
-  /* pincelada laranja gerada em SVG (traço limpo) */
+  /* pincelada laranja gerada em SVG (traço limpo). Arte decorativa de
+     marketing: hex sancionado pelo CLAUDE.md (tinta do --accent), fora da
+     regra de token da UI de produto. */
   (function(){
     function rng(s){return function(){s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;}}
     var svg=document.getElementById('pincel'); if(!svg) return;
