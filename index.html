@@ -57,10 +57,12 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     --fs-micro:11px;
     --fs-kpi:20px;
 
-    /* ação primária = MONO no estilo Padrão (DS §7): preto no claro, branco no
-       escuro. Pra devolver o laranja da campanha, troque só estas duas linhas
-       por --cta-bg:var(--accent) e --cta-fg:#fff. */
-    --cta-bg:var(--ink); --cta-fg:var(--bg);
+    /* Ação primária LARANJA — exceção deliberada de campanha (Victor, 03/08).
+       O DS §7 pede primary MONO no estilo Padrão; aqui é peça de anúncio, e o
+       laranja da marca é o que puxa o clique. Hover/pressed usam os valores
+       aprovados na §23 (--vos-primary-hover / --vos-primary-pressed). */
+    --cta-bg:var(--accent); --cta-fg:#fff;
+    --cta-bg-hover:#FF5A12; --cta-bg-active:#C83F00;
 
     --col:min(540px, 100% - 32px);
     --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -85,9 +87,10 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
 
   /* header */
   .hdr{width:var(--col);display:flex;align-items:center;justify-content:space-between;padding:16px 0 4px;}
-  .logo{display:flex;align-items:center;gap:6px;font-weight:800;font-size:17px;
-    letter-spacing:-.045em;color:var(--ink);}
-  .logo svg{width:21px;height:21px;flex:none;}
+  /* lockup MONO oficial (24/07: o chrome foi aposentado) — escuro no claro,
+     branco no escuro. Nunca redesenhar a logo em código. */
+  .logo{display:flex;align-items:center;}
+  .logo img{height:23px;width:auto;}
   /* botão terciário/ghost (DS §26): só texto, sem caixa */
   .ghost{display:inline-flex;align-items:center;height:32px;padding:0 8px;
     border-radius:var(--btn-r);font-size:var(--fs-control);font-weight:500;
@@ -108,8 +111,9 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     width:auto;height:auto;max-width:none;z-index:0;}
   /* a palavra da pincelada também é Inter: só o manuscrito ficou fora da régua */
   .stk{--stk-font:var(--sans);--stk-peso:800;--stk-tam:.98em;--stk-track:-.025em}
+  /* overflow escondido = as palavras entram e saem POR TRÁS da pincelada */
   .stk .stk-word{position:relative;z-index:1;display:block;min-width:5.6em;
-    font-size:1em;background:none;border:0;padding:0;}
+    font-size:1em;background:none;border:0;padding:0;overflow:hidden;}
   /* fantasma com a palavra mais longa: é ele que define a largura da pincelada */
   .stk .sizer{visibility:hidden;display:block;white-space:nowrap;}
   .stk .sizer,
@@ -121,18 +125,21 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   /* padding-bottom compensa a métrica da fonte (caixa alta assenta baixa na linha) */
   .stk .stk-word i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     padding-bottom:.06em;
-    font-style:normal;opacity:0;color:var(--accent-600);
-    animation-name:pop;animation-duration:6.6s;animation-iteration-count:infinite;}
-  .stk .stk-word i:nth-child(1){animation-delay:0s}
-  .stk .stk-word i:nth-child(2){animation-delay:2.2s}
-  .stk .stk-word i:nth-child(3){animation-delay:4.4s}
-  @keyframes pop{
-    0%{opacity:0;transform:scale(.7) rotate(-5deg)}
-    4%{opacity:1;transform:scale(1.15) rotate(2deg)}
-    8%{opacity:1;transform:scale(.96) rotate(-1deg)}
-    12%{opacity:1;transform:scale(1) rotate(0)}
-    29%{opacity:1;transform:scale(1) rotate(0)}
-    33%,100%{opacity:0;transform:scale(.82) rotate(3deg)}
+    font-style:normal;opacity:0;color:var(--accent);
+    animation-name:roll;animation-duration:6.6s;animation-iteration-count:infinite;
+    animation-timing-function:var(--ease);}
+  /* nth-of-type, não nth-child: o primeiro filho é o span fantasma que mede a
+     pincelada, e com nth-child a ordem saía trocada (gerencia vinha primeiro) */
+  .stk .stk-word i:nth-of-type(1){animation-delay:0s}
+  .stk .stk-word i:nth-of-type(2){animation-delay:2.2s}
+  .stk .stk-word i:nth-of-type(3){animation-delay:4.4s}
+  /* a palavra sobe pra dentro da pincelada, segura e sai por cima. Sem salto,
+     sem giro: só a curva do sistema (easeVos). */
+  @keyframes roll{
+    0%      {opacity:0;transform:translateY(66%)}
+    5%      {opacity:1;transform:translateY(0)}
+    30%     {opacity:1;transform:translateY(0)}
+    35%,100%{opacity:0;transform:translateY(-66%)}
   }
   .lead{font-size:var(--fs-subtitle);max-width:34ch;}
 
@@ -143,10 +150,18 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     background:var(--cta-bg);color:var(--cta-fg);
     font-family:inherit;font-size:14px;font-weight:600;letter-spacing:-.006em;
     cursor:pointer;text-decoration:none;
-    transition:opacity var(--dur) var(--ease), transform var(--dur) var(--ease);}
-  .cta:hover{opacity:.88;}
-  .cta:active{transform:scale(.99);}
-  .cta:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+    transition:background var(--dur) var(--ease), border-color var(--dur) var(--ease),
+      transform var(--dur) var(--ease);}
+  .cta:hover{background:var(--cta-bg-hover);border-color:var(--cta-bg-hover);}
+  .cta:active{background:var(--cta-bg-active);border-color:var(--cta-bg-active);
+    transform:scale(.99);}
+  /* anel de foco escuro: sobre botão laranja um anel laranja não aparece */
+  .cta:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+  /* seta 16px (§21) que escorrega pra frente no hover e recua no toque */
+  .cta .ar{width:16px;height:16px;flex:none;
+    transition:transform var(--dur) var(--ease);}
+  .cta:hover .ar{transform:translateX(3px);}
+  .cta:active .ar{transform:translateX(1px);}
   .badges{display:flex;flex-direction:column;align-items:center;gap:10px;}
   /* selos de prova social (Meta Business Partner · VOS) */
   .proof{color:var(--ink-3);display:flex;align-items:center;justify-content:center;
@@ -179,9 +194,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   /* faixa com divisão curva depois do botão — canvas quase preto do dark (§24) */
   .band{width:100%;position:relative;overflow:hidden;
     background:linear-gradient(104deg,var(--d-panel) 0%,#121212 46%,var(--d-bg) 100%);
-    display:flex;flex-direction:column;align-items:center;padding-bottom:46px;
-    /* no escuro a ação primária inverte: branca com texto escuro (DS §7) */
-    --cta-bg:var(--d-ink);--cta-fg:var(--d-bg);}
+    display:flex;flex-direction:column;align-items:center;padding-bottom:46px;}
   /* tudo dentro da faixa escura vira claro */
   .band .eb{color:var(--accent-400);}
   .band-head h2{color:var(--d-ink);}
@@ -265,9 +278,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   .dash{display:flex;}
   .side{width:22%;min-width:22%;padding:15px 12px;border-right:1px solid var(--line);
     display:flex;flex-direction:column;gap:2px;background:var(--canvas);}
-  .side .vlogo{display:flex;align-items:center;gap:6px;font-weight:800;font-size:15px;
-    letter-spacing:-.04em;margin-bottom:12px;}
-  .side .vlogo svg{width:17px;height:17px;}
+  .side .vlogo{display:flex;align-items:center;margin-bottom:12px;}
+  .side .vlogo img{height:17px;width:auto;}
   .side .org{display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid var(--line);
     border-radius:var(--r-sm);font-weight:600;font-size:var(--fs-control);margin-bottom:6px;
     background:var(--panel);}
@@ -379,8 +391,12 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
 
   @media (prefers-reduced-motion:reduce){
     /* sem deslocamento: as palavras só trocam por opacidade */
-    .rot i{transform:none;animation-name:wordFade}
-    @keyframes wordFade{0%{opacity:0}5%,29%{opacity:1}35%,100%{opacity:0}}
+    .stk .stk-word i{animation-name:wordFade}
+    @keyframes wordFade{
+      0%{opacity:0;transform:none}
+      5%,30%{opacity:1;transform:none}
+      35%,100%{opacity:0;transform:none}}
+    .cta .ar{transition:none}
     .reveal{opacity:1;transform:none;transition:none}
     .shot,.ze i{animation:none}
     .st{opacity:1;transform:none}
@@ -399,11 +415,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
 <div class="wrap">
   <div class="hdr">
     <div class="logo">
-      <svg viewBox="0 0 32 32" aria-hidden="true">
-        <path d="M16 2.6 27.2 9.3 16 16 4.8 9.3Z" fill="#3B3743"/>
-        <path d="M27.2 9.3v13.4L16 29.4V16Z" fill="#14121A"/>
-        <path d="M4.8 9.3v13.4L16 29.4V16Z" fill="#26232E"/>
-      </svg>VOS
+      <img src="vos-logo-mono-dark.png" alt="VOS" width="901" height="277">
     </div>
     <a class="ghost" href="#agendar">Entrar</a>
   </div>
@@ -416,7 +428,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       </span>
       por você</h1>
     <p class="lead">Empresas modernas atendem milhares de clientes sem aumentar a equipe. Sua operação dobra, seu time continua o mesmo.</p>
-    <a href="#agendar" class="cta">Agendar demonstração</a>
+    <a href="#agendar" class="cta">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     <div class="badges">
       <div class="proof">
         <div class="pf">
@@ -467,7 +479,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       <div class="bar-top"><i></i><i></i><i></i></div>
       <div class="dash">
         <div class="side">
-          <div class="vlogo"><svg viewBox="0 0 32 32"><path d="M16 2.6 27.2 9.3 16 16 4.8 9.3Z" fill="#3B3743"/><path d="M27.2 9.3v13.4L16 29.4V16Z" fill="#14121A"/><path d="M4.8 9.3v13.4L16 29.4V16Z" fill="#26232E"/></svg>VOS</div>
+          <div class="vlogo"><img src="vos-logo-mono-dark.png" alt="VOS" width="901" height="277"></div>
           <div class="org"><b>AC</b> Acme Co.</div>
           <div class="grp">CONTROLE</div>
           <div class="it on"><b></b> Dashboard</div>
@@ -541,7 +553,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       </div>
     </div>
 
-    <div class="band-cta"><a href="#agendar" class="cta">Agendar demonstração</a></div>
+    <div class="band-cta"><a href="#agendar" class="cta">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
   </div>
 
   <section class="reveal">
@@ -556,7 +568,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   <div class="note">Protótipo. Dashboard recriado a partir do print do produto.</div>
 </div>
 
-<div class="bar" id="bar"><a href="#agendar" class="cta">Agendar demonstração</a></div>
+<div class="bar" id="bar"><a href="#agendar" class="cta">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
 
 <script>
   /* pincelada laranja gerada em SVG (traço limpo). Arte decorativa de
