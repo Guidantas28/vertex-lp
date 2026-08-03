@@ -446,13 +446,15 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   @keyframes sobe{from{transform:translateY(0)}to{transform:translateY(-50%)}}
   .depo{padding:15px;border-radius:var(--r-lg);border:1px solid rgba(255,255,255,.09);
     background:rgba(255,255,255,.035);}
-  .depo-estrelas{display:flex;gap:2px;color:var(--accent);font-size:11px;letter-spacing:.06em;}
+  .depo-estrelas{display:flex;align-items:center;gap:6px;color:var(--accent);
+    font-size:11px;letter-spacing:.06em;}
+  .depo-estrelas em{font-style:normal;font-size:var(--fs-micro);font-weight:700;
+    color:var(--d-ink-2);letter-spacing:0;}
   .depo p{margin:8px 0 0;font-size:var(--fs-control);line-height:1.55;color:var(--d-ink);}
   .depo-quem{display:flex;align-items:center;gap:9px;margin-top:12px;
     padding-top:11px;border-top:1px solid rgba(255,255,255,.07);}
-  .depo-av{flex:none;width:28px;height:28px;border-radius:99px;display:grid;place-items:center;
-    background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);
-    font-size:var(--fs-micro);font-weight:700;}
+  .depo-av{flex:none;width:32px;height:32px;border-radius:99px;object-fit:cover;
+    background:rgba(255,255,255,.08);}
   .depo-quem b{display:block;font-size:var(--fs-label);font-weight:600;color:rgba(255,255,255,.92);}
   .depo-quem span{display:block;font-size:var(--fs-micro);color:var(--d-ink-3);}
   /* enquanto for rascunho o bloco se denuncia, pra ninguém publicar sem trocar */
@@ -919,28 +921,31 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     (function(){
       var caixa=document.getElementById('depos'); if(!caixa) return;
 
-      /* ═══ TROCAR AQUI PELOS DEPOIMENTOS REAIS ═══════════════════════════
-         [frase, nome, negócio · cidade]. Enquanto o primeiro item for este
-         rascunho, o bloco aparece tracejado e com aviso, pra não ir pro ar
-         por engano. Depoimento inventado com nome e cidade é registro falso. */
+      /* Clientes, mesma base da /v4 (src/data/content.ts) e as mesmas fotos.
+         [arquivo, nome, negócio, cidade, nota, frase] */
       var DEPOIMENTOS=[
-        ['Frase do cliente aqui, curta e do jeito que ele falou.','Nome do cliente','Negócio · Cidade'],
-        ['Uma frase um pouco mais longa, contando o que mudou no dia a dia depois do VOS.','Nome do cliente','Negócio · Cidade'],
-        ['Frase curta.','Nome do cliente','Negócio · Cidade'],
-        ['O melhor depoimento é o que cita um número do próprio negócio.','Nome do cliente','Negócio · Cidade'],
-        ['Frase do cliente aqui, no tom de quem está contando pra um amigo.','Nome do cliente','Negócio · Cidade'],
-        ['Duas linhas bastam. Ninguém lê depoimento de cinco.','Nome do cliente','Negócio · Cidade'],
-        ['Frase que responde uma objeção específica funciona melhor que elogio.','Nome do cliente','Negócio · Cidade'],
-        ['Frase curta e concreta.','Nome do cliente','Negócio · Cidade'],
-        ['Se o cliente falar do antes e do depois, melhor ainda.','Nome do cliente','Negócio · Cidade']
+        ['social-16','Tiago Moraes','Oficina Forte','Belo Horizonte, MG','4,8','Fechei o mês com +R$ 32 mil organizando peça, serviço e nota num lugar só. Antes eram três sistemas e uma planilha.'],
+        ['social-17','Vanessa Lopes','Supermercado Bom Dia','Curitiba, PR','4,7','Parei de perder venda por falta de controle. O estoque bate com o caixa todo dia, sem conferência no domingo.'],
+        ['social-18','Fernando Reis','Engefort Engenharia','São Paulo, SP','4,6','Orçamento vira OS, a equipe vê no celular e o cliente acompanha. Obra atrasada por falta de informação acabou.'],
+        ['social-19','Carla Mendes','Café Aroma','Porto Alegre, RS','4,5','O fluxo de caixa atualiza sozinho a cada venda. Sei exatamente quanto entra e sai antes de fechar o dia.'],
+        ['social-20','Diego Prado','Prime Elétrica','Recife, PE','4,8','Migrei num fim de semana. Segunda já estava vendendo dentro do VOS e o time não precisou de treinamento longo.'],
+        ['social-12','Patrícia Nunes','Ello Calçados','Fortaleza, CE','4,7','Catálogo no WhatsApp, pedido automático e estoque baixando sozinho. Vende mais sem contratar ninguém.'],
+        ['social-21','Aline Costa','Adega Premium','Rio de Janeiro, RJ','4,6','Pedido, PIX e notificação pro estoque, tudo no automático. O cliente compra de madrugada e eu acordo com tudo organizado.'],
+        ['social-11','Eduardo Pires','Construla Obras','Brasília, DF','4,8','Orçamento aceito vira OS na hora. Cliente assina digital e a obra já entra na agenda da equipe.'],
+        ['social-22','Marcos Vieira','Alfa Climatização','Campinas, SP','4,7','A equipe sai pra rua com tudo no celular. Resposta na hora e nada se perde no caminho entre visita e escritório.'],
+        ['social-14','Sandra Moraes','Empório Sabor','Salvador, BA','4,5','NF-e sai junto com a venda. Fim de mês sem correria com contador por nota que faltou emitir.'],
+        ['social-23','Letícia Ramos','Agro Campo Verde','Goiânia, GO','4,6','Proposta, contrato e cobrança no mesmo fluxo. Parei de digitar os mesmos dados em três lugares diferentes.'],
+        ['social-13','Renato Alves','Auto Peças Brasil','Manaus, AM','4,8','Alerta de estoque baixo antes de faltar peça. Cliente não vai embora porque o sistema avisou a tempo.'],
+        ['social-24','Rodrigo Santos','Alta Fitness','Florianópolis, SC','4,7','Confirmação automática no WhatsApp reduziu faltas. A agenda enche e o time sabe quem vem antes de abrir a academia.'],
+        ['social-25','Juliana Reis','Studio Bella','Belém, PA','4,8','As faltas caíram demais com a confirmação automática. A agenda vive lotada e o salão não fica com horário vazio.'],
+        ['social-15','André Andrade','Andrade Contabilidade','São Paulo, SP','4,6','Tudo num lugar só. O time parou de digitar a mesma coisa em três sistemas e os clientes sentem a diferença.']
       ];
-      var ehRascunho = DEPOIMENTOS[0][1]==='Nome do cliente';
+      var ehRascunho = false;
 
       function cartao(d){
-        var inicial=(d[1]||'?').trim().charAt(0).toUpperCase();
-        return '<div class="depo"><div class="depo-estrelas">★★★★★</div><p>'+d[0]+'</p>'+
-          '<div class="depo-quem"><span class="depo-av">'+inicial+'</span>'+
-          '<span><b>'+d[1]+'</b><span>'+d[2]+'</span></span></div></div>';
+        return '<div class="depo"><div class="depo-estrelas">★★★★★<em>'+d[4]+'</em></div><p>'+d[5]+'</p>'+
+          '<div class="depo-quem"><img class="depo-av" src="pessoas/'+d[0]+'.webp" alt="" loading="lazy" width="56" height="56">'+
+          '<span><b>'+d[1]+'</b><span>'+d[2]+' · '+d[3]+'</span></span></div></div>';
       }
       var pistas=innerWidth>=760?3:1, veloc=['38s','46s','42s'];
       function monta(){
