@@ -64,6 +64,11 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     --cta-bg:var(--accent); --cta-fg:#fff;
     --cta-bg-hover:#FF5A12; --cta-bg-active:#C83F00;
 
+    /* pincelada do hero: bloco laranja chapado com a palavra em branco. O
+       pêssego claro com letra laranja dava ~3:1 e a palavra sumia no fundo.
+       Pra voltar ao claro: --stk-brush:#FFD2B4 e --stk-ink:var(--accent-600). */
+    --stk-brush:#ED4B00; --stk-ink:#fff;
+
     --col:min(540px, 100% - 32px);
     --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     --script:"Ink Free","Bradley Hand","Segoe Script","Brush Script MT",cursive;
@@ -125,7 +130,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   /* padding-bottom compensa a métrica da fonte (caixa alta assenta baixa na linha) */
   .stk .stk-word i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     padding-bottom:.06em;
-    font-style:normal;opacity:0;color:var(--accent);
+    font-style:normal;opacity:0;color:var(--stk-ink);
     animation-name:roll;animation-duration:6.6s;animation-iteration-count:infinite;
     animation-timing-function:var(--ease);}
   /* nth-of-type, não nth-child: o primeiro filho é o span fantasma que mede a
@@ -577,7 +582,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   (function(){
     function rng(s){return function(){s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;}}
     var svg=document.getElementById('pincel'); if(!svg) return;
-    var r=rng(83), C='#FFD2B4', g='<g filter="url(#t3)" fill="'+C+'">';
+    var C=getComputedStyle(document.documentElement).getPropertyValue('--stk-brush').trim()||'#ED4B00';
+    var r=rng(83), g='<g filter="url(#t3)" fill="'+C+'">';
     var x0=52,x1=348,topo=36,base=84,N=14,cima='',baixo='';
     for(var i=0;i<=N;i++){
       var x=x0+(x1-x0)*i/N, y=topo+(r()-.5)*3-Math.sin(i/N*Math.PI)*4;
