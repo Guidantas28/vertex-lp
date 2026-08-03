@@ -273,7 +273,15 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   /* No celular vira carrossel com encaixe: o card PARA e a animação dele conta
      a história. Trilho deslizando junto com o conteúdo animado deixa os dois
      ilegíveis. A partir de 900px os três cabem lado a lado e o carrossel some. */
-  .feats{width:100%;margin-top:clamp(18px,5vw,34px);}
+  .feats{position:relative;width:100%;margin-top:clamp(18px,5vw,34px);}
+  /* a seta só existe onde há vizinho ao lado: no celular é carrossel */
+  .feats-seta{display:none;position:absolute;z-index:2;pointer-events:none;
+    color:var(--accent-400);transform:translate(-50%,-50%) rotate(-2deg);}
+  .feats-seta svg{width:34px;height:15px;fill:none;stroke:currentColor;
+    stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:80;stroke-dashoffset:80;
+    animation:draw .9s .4s ease-out forwards;}
+  @media (min-width:900px){ .feats-seta{display:block;} }
   /* o respiro lateral é a folga exata pra centralizar: com padding fixo o
      primeiro e o último card nunca ficavam no meio, porque o scroll não passa
      de zero nem do fim */
@@ -351,7 +359,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   @media (min-width:900px){ .feats-dica{display:none;} }
   @media (min-width:900px){
     .feats-track{display:grid;grid-template-columns:repeat(3,1fr);overflow:visible;
-      gap:14px;padding:0;width:min(1060px,calc(100% - 48px));margin:0 auto;}
+      gap:34px;padding:0;width:min(1060px,calc(100% - 48px));margin:0 auto;}
     .feat{flex:auto;}
     .feats-dots{display:none;}
   }
@@ -694,6 +702,10 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
         </article>
 
       </div>
+      <!-- setas entre os cards: só no desktop, onde os três ficam lado a lado.
+           Posicionadas por JS a partir do retângulo real de cada card. -->
+      <span class="feats-seta" aria-hidden="true"><svg viewBox="0 0 40 18"><path d="M2 9c8-3.4 19-3.4 33 0"/><path d="M27.5 3.6 35.5 9 27.5 14.4"/></svg></span>
+      <span class="feats-seta" aria-hidden="true"><svg viewBox="0 0 40 18"><path d="M2 9c8-3.4 19-3.4 33 0"/><path d="M27.5 3.6 35.5 9 27.5 14.4"/></svg></span>
       <div class="feats-dots" id="featsDots"></div>
       <div class="feats-dica" id="featsDica">
         <u>arrasta pro lado</u>
@@ -1048,6 +1060,23 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
         if(perto!==atual){ atual=perto; marca(); }
       },{passive:true});
       cada(6000,function(){ if(!manual && innerWidth<900) vai(atual+1); });
+
+      /* as setas se posicionam pelo vão real entre um card e o próximo, então
+         acompanham qualquer mudança de largura sem conta de porcentagem */
+      var setas=[].slice.call(document.querySelectorAll('.feats-seta'));
+      function poeSetas(){
+        if(innerWidth<900 || !setas.length) return;
+        var base=trilho.parentElement.getBoundingClientRect();
+        setas.forEach(function(s,k){
+          var a=cards[k], b=cards[k+1]; if(!a||!b) return;
+          var ra=a.getBoundingClientRect(), rb=b.getBoundingClientRect();
+          s.style.left=((ra.right+rb.left)/2 - base.left)+'px';
+          s.style.top=(ra.top + ra.height/2 - base.top)+'px';
+        });
+      }
+      poeSetas();
+      addEventListener('resize',poeSetas,{passive:true});
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(poeSetas);
     })();
 
     /* liga e desliga tudo conforme a seção entra e sai da tela */
