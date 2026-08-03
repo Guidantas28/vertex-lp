@@ -407,6 +407,38 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     .fn.ativo{transform:translateY(-2px);}
   }
 
+  /* ── Esteira de depoimentos ─────────────────────────────────────────────
+     3 pistas subindo em velocidades diferentes pra não sincronizar. No celular
+     vira 1 pista: 3 colunas em 375px dariam ~110px cada, ilegível. */
+  .depos{width:100%;margin-top:6px;display:grid;gap:12px;grid-template-columns:1fr;
+    height:clamp(300px,52vw,360px);overflow:hidden;padding:0 16px;
+    -webkit-mask-image:linear-gradient(180deg,transparent,#000 14%,#000 86%,transparent);
+    mask-image:linear-gradient(180deg,transparent,#000 14%,#000 86%,transparent);}
+  .depo-pista{overflow:hidden;}
+  .depo-fita{display:flex;flex-direction:column;gap:12px;
+    animation:sobe var(--v,38s) linear infinite;will-change:transform;}
+  .depos:hover .depo-fita{animation-play-state:paused;}
+  @keyframes sobe{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+  .depo{padding:15px;border-radius:var(--r-lg);border:1px solid rgba(255,255,255,.09);
+    background:rgba(255,255,255,.035);}
+  .depo-estrelas{display:flex;gap:2px;color:var(--accent);font-size:11px;letter-spacing:.06em;}
+  .depo p{margin:8px 0 0;font-size:var(--fs-control);line-height:1.55;color:var(--d-ink);}
+  .depo-quem{display:flex;align-items:center;gap:9px;margin-top:12px;
+    padding-top:11px;border-top:1px solid rgba(255,255,255,.07);}
+  .depo-av{flex:none;width:28px;height:28px;border-radius:99px;display:grid;place-items:center;
+    background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);
+    font-size:var(--fs-micro);font-weight:700;}
+  .depo-quem b{display:block;font-size:var(--fs-label);font-weight:600;color:rgba(255,255,255,.92);}
+  .depo-quem span{display:block;font-size:var(--fs-micro);color:var(--d-ink-3);}
+  /* enquanto for rascunho o bloco se denuncia, pra ninguém publicar sem trocar */
+  .depos.rascunho .depo{border-style:dashed;border-color:rgba(237,75,0,.4);}
+  .depos-aviso{width:var(--col);margin:10px auto 0;text-align:center;
+    font-size:var(--fs-micro);color:var(--accent);}
+  @media (min-width:760px){
+    .depos{grid-template-columns:repeat(3,1fr);width:min(1060px,calc(100% - 48px));
+      margin-left:auto;margin-right:auto;padding:0;}
+  }
+
   /* 3 · a operação avisando sozinha */
   .feat-notif{margin-top:16px;height:250px;overflow:hidden;}
   .feat-notif-stack{display:flex;flex-direction:column;gap:8px;}
@@ -643,6 +675,14 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       </div>
     </div>
 
+    <div class="band-head band-head-2">
+      <div class="eb"><u>não é a gente falando<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
+    </div>
+    <!-- Esteira de depoimentos: 3 pistas subindo em velocidades diferentes.
+         CONTEÚDO É RASCUNHO. Trocar pelos depoimentos reais no array
+         DEPOIMENTOS lá embaixo (frase, nome, negócio e cidade). -->
+    <div class="depos" id="depos" aria-hidden="true"></div>
+
     <div class="band-cta"><a href="#agendar" class="cta">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
   </div>
 
@@ -874,6 +914,55 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
         if(passo>=FLUXOS[f].nos.length+1){ f=(f+1)%FLUXOS.length; passo=-1; desenha(); return; }
         if(passo<FLUXOS[f].nos.length) pinta();
       });
+    })();
+
+    /* esteira de depoimentos: 3 pistas subindo. A fita é escrita duas vezes e
+       anda -50%, então o loop emenda sem salto. */
+    (function(){
+      var caixa=document.getElementById('depos'); if(!caixa) return;
+
+      /* ═══ TROCAR AQUI PELOS DEPOIMENTOS REAIS ═══════════════════════════
+         [frase, nome, negócio · cidade]. Enquanto o primeiro item for este
+         rascunho, o bloco aparece tracejado e com aviso, pra não ir pro ar
+         por engano. Depoimento inventado com nome e cidade é registro falso. */
+      var DEPOIMENTOS=[
+        ['Frase do cliente aqui, curta e do jeito que ele falou.','Nome do cliente','Negócio · Cidade'],
+        ['Uma frase um pouco mais longa, contando o que mudou no dia a dia depois do VOS.','Nome do cliente','Negócio · Cidade'],
+        ['Frase curta.','Nome do cliente','Negócio · Cidade'],
+        ['O melhor depoimento é o que cita um número do próprio negócio.','Nome do cliente','Negócio · Cidade'],
+        ['Frase do cliente aqui, no tom de quem está contando pra um amigo.','Nome do cliente','Negócio · Cidade'],
+        ['Duas linhas bastam. Ninguém lê depoimento de cinco.','Nome do cliente','Negócio · Cidade'],
+        ['Frase que responde uma objeção específica funciona melhor que elogio.','Nome do cliente','Negócio · Cidade'],
+        ['Frase curta e concreta.','Nome do cliente','Negócio · Cidade'],
+        ['Se o cliente falar do antes e do depois, melhor ainda.','Nome do cliente','Negócio · Cidade']
+      ];
+      var ehRascunho = DEPOIMENTOS[0][1]==='Nome do cliente';
+
+      function cartao(d){
+        var inicial=(d[1]||'?').trim().charAt(0).toUpperCase();
+        return '<div class="depo"><div class="depo-estrelas">★★★★★</div><p>'+d[0]+'</p>'+
+          '<div class="depo-quem"><span class="depo-av">'+inicial+'</span>'+
+          '<span><b>'+d[1]+'</b><span>'+d[2]+'</span></span></div></div>';
+      }
+      var pistas=innerWidth>=760?3:1, veloc=['38s','46s','42s'];
+      function monta(){
+        var n=innerWidth>=760?3:1;
+        if(n===pistas && caixa.children.length) return;   // só remonta se mudou de faixa
+        pistas=n; caixa.innerHTML='';
+        for(var p=0;p<n;p++){
+          var lista=DEPOIMENTOS.filter(function(_,i){ return n===1 || i%n===p; });
+          var fita=lista.map(cartao).join('');
+          caixa.insertAdjacentHTML('beforeend',
+            '<div class="depo-pista"><div class="depo-fita" style="--v:'+veloc[p]+'">'+fita+fita+'</div></div>');
+        }
+      }
+      monta();
+      addEventListener('resize',monta,{passive:true});
+      if(ehRascunho){
+        caixa.classList.add('rascunho');
+        caixa.insertAdjacentHTML('afterend',
+          '<p class="depos-aviso">Rascunho: trocar pelos depoimentos reais antes de publicar.</p>');
+      }
     })();
 
     /* carrossel: só no celular. O card fica parado 6s deixando a animação dele
