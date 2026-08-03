@@ -29,6 +29,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     --ok:#15935A; --ok-soft:rgba(21,147,90,.12);
     --warn:#C9810C; --bad:#DC3B2B;
     --info:#1F6FEB; --info-soft:rgba(31,111,235,.12);
+    /* violeta do Zé/IA: a única cor de módulo que o DS manteve (§23) */
+    --ai:#7A5BFF;
 
     /* superfícies e tinta, LIGHT — vos-theme.css */
     --bg:#FFFFFF; --canvas:#fafafa; --panel:#ffffff; --panel-2:#f5f5f5;
@@ -269,78 +271,114 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     text-wrap:balance;margin-top:clamp(16px,4vw,26px);}
   .band > section{padding-top:8px;padding-bottom:10px;}
 
-  /* dashboard recriado */
-  /* dashboard: vaza pra direita e some num degradê */
-  .band-in{position:relative;}
-  /* degradê colado na borda direita da TELA, some o dashboard suavemente.
-     Fade pro branco do próprio painel, não pro fundo da faixa. */
-  .band-in::after{content:"";position:absolute;top:calc(clamp(18px,5vw,38px) + 6px);bottom:0;
-    right:calc((100% - 100vw) / 2);width:clamp(40px,11vw,118px);
-    background:linear-gradient(to right,
-      rgba(255,255,255,0) 0%,
-      rgba(255,255,255,.30) 46%,
-      rgba(255,255,255,.70) 74%,
-      rgba(255,255,255,.94) 92%,
-      #fff 100%);
-    pointer-events:none;z-index:3;}
-  /* acima de ~1080px o dashboard cabe inteiro e não encosta na borda da tela:
-     o degradê ficaria pintando uma coluna branca sobre a faixa escura. */
-  @media (min-width:1081px){ .band-in::after{display:none} }
-  /* desenhado em 820px e reduzido por escala: TODO o conteúdo continua visível */
-  .shotwrap{position:relative;width:150%;max-width:none;margin-top:6px;
-    animation:float 7s ease-in-out infinite;}
-  /* daqui pra baixo é o produto de verdade: mesmos tokens e mesma escala do app */
-  .shot{position:absolute;top:0;left:0;width:820px;transform-origin:top left;
-    border-radius:var(--r-lg);overflow:hidden;background:var(--panel);
-    border:1px solid var(--line);box-shadow:0 26px 56px -26px rgba(0,0,0,.32);}
-  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-  .bar-top{display:flex;gap:7px;padding:12px 15px;background:var(--canvas);
-    border-bottom:1px solid var(--line);}
-  .bar-top i{width:11px;height:11px;border-radius:50%;background:#e2e2e2;}
-  .dash{display:flex;}
-  .side{width:22%;min-width:22%;padding:15px 12px;border-right:1px solid var(--line);
-    display:flex;flex-direction:column;gap:2px;background:var(--canvas);}
-  .side .vlogo{display:flex;align-items:center;margin-bottom:12px;}
-  .side .vlogo img{height:17px;width:auto;}
-  .side .org{display:flex;align-items:center;gap:7px;padding:8px 9px;border:1px solid var(--line);
-    border-radius:var(--r-sm);font-weight:600;font-size:var(--fs-control);margin-bottom:6px;
-    background:var(--panel);}
-  .side .org b{width:17px;height:17px;border-radius:var(--r-xs);background:var(--accent);color:#fff;
-    display:grid;place-items:center;font-size:9px;flex:none;}
-  /* label de seção da sidebar (§18, papel 11) */
-  .side .grp{font-size:10px;letter-spacing:.1em;color:var(--ink-3);font-weight:600;
-    text-transform:uppercase;margin:10px 0 3px;}
-  .side .it{display:flex;align-items:center;gap:8px;color:var(--ink-2);
-    font-size:var(--fs-control);font-weight:500;padding:6px;border-radius:var(--r-sm);}
-  .side .it b{width:13px;height:13px;border-radius:var(--r-xs);background:#e7e7e7;flex:none;}
-  .side .it.on{color:var(--ink);font-weight:600;background:var(--panel-2);}
-  /* contador na navegação: pílula soft, nunca fundo sólido cheio (DS §7) */
-  .side .it em{margin-left:auto;font-style:normal;font-size:var(--fs-micro);font-weight:500;
-    color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:1px 7px;}
-  .main{flex:1;padding:16px 18px;display:flex;flex-direction:column;gap:11px;min-width:0;}
-  .tabs{display:flex;gap:16px;font-size:var(--fs-control);color:var(--ink-3);font-weight:500;
-    border-bottom:1px solid var(--line);padding-bottom:9px;}
-  .tabs .on{color:var(--ink);font-weight:600;border-bottom:2px solid var(--accent);
-    padding-bottom:9px;margin-bottom:-10px;}
-  .hi{font-size:22px;font-weight:650;letter-spacing:-.025em;margin:3px 0 2px;}
-  .panel{border:1px solid var(--line);border-radius:var(--r);padding:12px 13px;}
-  .panel .pt{font-size:var(--fs-card-title);font-weight:600;margin-bottom:9px;}
-  .funnel{display:flex;gap:12px;}
-  .funnel div{flex:1;min-width:0;}
-  .funnel span{display:block;font-size:var(--fs-label);color:var(--ink-3);white-space:nowrap;
-    overflow:hidden;margin-bottom:2px;}
-  .funnel b{font-size:var(--fs-kpi);font-weight:700;letter-spacing:-.025em;
-    font-variant-numeric:tabular-nums;}
-  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-  .kpi{border:1px solid var(--line);border-radius:var(--r);padding:12px 13px;}
-  .kpi span{font-size:var(--fs-label);color:var(--ink-2);font-weight:500;}
-  .kpi b{display:block;font-size:var(--fs-kpi);font-weight:700;letter-spacing:-.025em;
-    margin-top:2px;font-variant-numeric:tabular-nums;}
-  .kpi small{display:block;font-size:var(--fs-micro);color:var(--ok);margin-top:4px;}
-  .spark{height:28px;margin-top:7px;display:flex;align-items:flex-end;gap:3px;}
-  .spark i{flex:1;background:var(--ok-soft);border-radius:2px;}
-  .bars{display:flex;align-items:flex-end;gap:9px;height:58px;padding-top:6px;}
-  .bars i{flex:1;background:var(--ok);border-radius:3px 3px 0 0;}
+  /* ── Três provas vivas (portadas do bento da /v4) ──────────────────────── */
+  /* No celular vira carrossel com encaixe: o card PARA e a animação dele conta
+     a história. Trilho deslizando junto com o conteúdo animado deixa os dois
+     ilegíveis. A partir de 900px os três cabem lado a lado e o carrossel some. */
+  .feats{width:100%;margin-top:clamp(18px,5vw,34px);}
+  .feats-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+    scroll-behavior:smooth;padding:0 16px 4px;
+    scrollbar-width:none;-ms-overflow-style:none;}
+  .feats-track::-webkit-scrollbar{display:none;}
+  .feat{scroll-snap-align:center;flex:0 0 min(340px,86vw);display:flex;
+    flex-direction:column;padding:20px;border-radius:var(--r-lg);
+    border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);}
+  .feat h3{margin:0;font-size:var(--fs-subtitle);font-weight:650;line-height:1.25;
+    letter-spacing:-.025em;color:var(--d-ink);text-wrap:balance;}
+  .feat-sub{margin:8px 0 0;font-size:var(--fs-control);line-height:1.5;color:var(--d-ink-2);}
+  /* margin-top:auto gruda a legenda no rodapé: os cards têm alturas de conteúdo
+     diferentes e sem isso o mais curto fica com um buraco embaixo */
+  .feat-note{display:flex;align-items:center;gap:7px;margin:auto 0 0;padding-top:14px;
+    font-size:var(--fs-micro);color:var(--d-ink-3);}
+  .feat-dot{width:6px;height:6px;flex:none;border-radius:99px;background:var(--ok);
+    animation:pulso 2.4s ease-out infinite;}
+  @keyframes pulso{
+    0%{box-shadow:0 0 0 0 rgba(21,147,90,.45)}
+    70%,100%{box-shadow:0 0 0 7px rgba(21,147,90,0)}
+  }
+  .feats-dots{display:flex;justify-content:center;gap:7px;margin-top:14px;}
+  .feats-dots button{width:6px;height:6px;padding:0;border:0;border-radius:99px;
+    background:rgba(255,255,255,.22);cursor:pointer;
+    transition:background var(--dur) var(--ease), width var(--dur) var(--ease);}
+  .feats-dots button[aria-current="true"]{width:18px;background:var(--accent);}
+  @media (min-width:900px){
+    .feats-track{display:grid;grid-template-columns:repeat(3,1fr);overflow:visible;
+      gap:14px;padding:0;width:min(1060px,calc(100% - 48px));margin:0 auto;}
+    .feat{flex:auto;}
+    .feats-dots{display:none;}
+  }
+
+  /* 1 · inbox que corre sozinha */
+  .feat-chat{margin-top:16px;}
+  .feat-chat-vp{position:relative;height:250px;overflow:hidden;border-radius:var(--r);
+    border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.22);
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 88%,transparent 100%);
+    mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 88%,transparent 100%);}
+  .feat-chat-track{display:flex;flex-direction:column;will-change:transform;
+    animation:corre 46s linear infinite;}
+  .feat-chat:hover .feat-chat-track{animation-play-state:paused;}
+  .feat-chat-seq{display:flex;flex-direction:column;gap:8px;padding:12px 11px;}
+  @keyframes corre{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+  .ch{position:relative;max-width:88%;padding:8px 11px;border-radius:12px;
+    font-size:12.5px;line-height:1.45;}
+  .ch p{margin:0;color:rgba(255,255,255,.9);}
+  .ch em{display:block;margin-top:3px;font-style:normal;font-size:10px;
+    color:rgba(255,255,255,.38);text-align:right;}
+  .ch.in{align-self:flex-start;background:rgba(255,255,255,.055);
+    border:1px solid rgba(255,255,255,.07);border-bottom-left-radius:4px;}
+  .ch.out{align-self:flex-end;background:rgba(21,147,90,.18);
+    border:1px solid rgba(21,147,90,.32);border-bottom-right-radius:4px;}
+  .ch-pay{align-self:flex-end;display:flex;flex-direction:column;gap:6px;max-width:88%;
+    padding:9px 11px;border-radius:12px;border:1px dashed rgba(21,147,90,.45);
+    background:rgba(255,255,255,.02);}
+  .ch-pay span{font-size:11.5px;color:rgba(255,255,255,.66);}
+  .ch-pay b{font-size:12px;color:#fff;padding:6px 10px;border-radius:var(--r-sm);
+    background:rgba(21,147,90,.32);text-align:center;}
+  .ch-sep{display:flex;align-items:center;gap:8px;margin:4px 0;
+    font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+    color:rgba(255,255,255,.3);}
+  .ch-sep::before,.ch-sep::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.08);}
+
+  /* 2 · funil que anda sozinho */
+  .feat-funil{margin-top:16px;display:flex;flex-direction:column;gap:9px;}
+  .fx{display:flex;align-items:center;gap:10px;}
+  .fx-bar{position:relative;flex:1;height:34px;border-radius:var(--r-sm);
+    border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);
+    display:flex;align-items:center;overflow:hidden;}
+  .fx-bar i{position:absolute;inset:0 auto 0 0;width:40%;
+    background:linear-gradient(90deg,color-mix(in srgb,var(--fc) 62%,transparent),
+      color-mix(in srgb,var(--fc) 24%,transparent));
+    border-right:2px solid var(--fc);
+    transition:width .9s var(--ease);}
+  .fx-bar b{position:relative;padding-left:11px;font-size:var(--fs-label);font-weight:600;
+    color:rgba(255,255,255,.92);white-space:nowrap;}
+  .fx em{font-style:normal;font-size:var(--fs-control);font-weight:700;
+    color:var(--d-ink-2);font-variant-numeric:tabular-nums;min-width:26px;text-align:right;}
+
+  /* 3 · a operação avisando sozinha */
+  .feat-notif{margin-top:16px;height:250px;overflow:hidden;}
+  .feat-notif-stack{display:flex;flex-direction:column;gap:8px;}
+  .nt{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--r);
+    border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.035);
+    animation:entra .42s var(--ease) both;}
+  @keyframes entra{from{opacity:0;transform:translateY(-26px) scale(.95)}
+    to{opacity:1;transform:none}}
+  /* disco do ícone é MONO: cor de categoria não é cor de status (DS §23).
+     Quem distingue é o ícone e o rótulo; a cor fica no selo da direita. */
+  .nt-ic{flex:none;width:32px;height:32px;border-radius:var(--r-sm);display:grid;
+    place-items:center;background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);}
+  .nt-ic svg{width:16px;height:16px;}
+  .nt-tx{flex:1;min-width:0;}
+  .nt-tx strong{display:flex;align-items:center;gap:6px;font-size:var(--fs-label);
+    font-weight:600;color:rgba(255,255,255,.94);}
+  .nt-tx span{display:block;font-size:var(--fs-micro);color:var(--d-ink-3);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .nt-now{font-style:normal;font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+    font-weight:700;color:var(--accent);background:var(--accent-soft);
+    border-radius:999px;padding:1px 6px;}
+  .nt em{font-style:normal;flex:none;font-size:var(--fs-micro);font-weight:600;
+    color:var(--nc);background:color-mix(in srgb,var(--nc) 16%,transparent);
+    border-radius:999px;padding:3px 8px;white-space:nowrap;}
 
   /* dores */
   .pains{display:flex;flex-direction:column;gap:8px;}
@@ -480,68 +518,46 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       <h2>Inteligência artificial que possui o <u>conhecimento real da sua empresa</u></h2>
     </div>
 
-    <div class="band-in">
-    <div class="shotwrap">
-    <div class="shot">
-      <div class="bar-top"><i></i><i></i><i></i></div>
-      <div class="dash">
-        <div class="side">
-          <div class="vlogo"><img src="vos-logo-mono-dark.png" alt="VOS" width="901" height="277"></div>
-          <div class="org"><b>AC</b> Acme Co.</div>
-          <div class="grp">CONTROLE</div>
-          <div class="it on"><b></b> Dashboard</div>
-          <div class="it"><b></b> Automações <em>12</em></div>
-          <div class="grp">COMERCIAL</div>
-          <div class="it"><b></b> Insights</div>
-          <div class="it"><b></b> Prospect</div>
-          <div class="it"><b></b> CRM</div>
-          <div class="it"><b></b> Atendimento <em>67</em></div>
-          <div class="it"><b></b> Orçamentos <em>1</em></div>
-          <div class="it"><b></b> Contatos</div>
-          <div class="it"><b></b> Atividades</div>
-          <div class="grp">OPERAÇÃO</div>
-          <div class="it"><b></b> Catálogo</div>
-          <div class="it"><b></b> Vendas <em>10</em></div>
-          <div class="it"><b></b> Agenda</div>
-          <div class="grp">FINANCEIRO</div>
-          <div class="it"><b></b> Insights</div>
-        </div>
-        <div class="main">
-          <div class="tabs"><span class="on">★ Executivo</span><span>Financeiro</span><span>Vendas</span><span style="color:var(--accent)">+</span></div>
-          <div class="hi">Boa tarde, Marina.</div>
-          <div class="panel">
-            <div class="pt">Funil de venda</div>
-            <div class="funnel">
-              <div><span>● Aberto</span><b style="color:var(--accent)">R$ 168,9k</b></div>
-              <div><span>● Em negociação</span><b style="color:var(--accent)">R$ 57,2k</b></div>
-              <div><span>● Ticket médio</span><b style="color:var(--info)">R$ 866</b></div>
-              <div><span>● Vendas</span><b style="color:var(--ok)">R$ 12,1k</b></div>
+    <!-- Três provas vivas no lugar do dashboard: a conversa, o funil e a
+         operação. Portadas do bento da /v4 (FeaturesBento4 + FunnelLive +
+         GestaoLive) pra HTML puro e re-pintadas nos tokens da LP: preto quase
+         absoluto + laranja. Cor de ESTÁGIO e de STATUS o DS preserva, então o
+         funil mantém os quatro tons e os selos mantêm verde/azul/âmbar. -->
+    <div class="feats" id="feats">
+      <div class="feats-track" id="featsTrack">
+
+        <article class="feat">
+          <h3>O time todo numa inbox só.</h3>
+          <p class="feat-sub">Conversas viram histórico e venda, nada fica preso no celular de uma pessoa.</p>
+          <div class="feat-chat" aria-hidden="true">
+            <div class="feat-chat-vp">
+              <div class="feat-chat-track" id="chatTrack"></div>
             </div>
           </div>
-          <div class="kpis">
-            <div class="kpi"><span>Receita</span><b style="color:var(--ok)">R$ 12,1k</b>
-              <div class="spark"><i style="height:26%"></i><i style="height:70%"></i><i style="height:38%"></i><i style="height:52%"></i><i style="height:100%"></i><i style="height:44%"></i></div>
-              <small>↑ 138,1% vs. anterior</small></div>
-            <div class="kpi"><span>Custo operacional</span><b style="color:var(--accent)">R$ 4,6k</b>
-              <div class="spark"><i style="height:20%;background:var(--accent-soft)"></i><i style="height:46%;background:var(--accent-soft)"></i><i style="height:30%;background:var(--accent-soft)"></i><i style="height:64%;background:var(--accent-soft)"></i><i style="height:36%;background:var(--accent-soft)"></i><i style="height:54%;background:var(--accent-soft)"></i></div>
-              <small style="color:var(--accent)">↑ 503,3% vs. anterior</small></div>
-            <div class="kpi"><span>Margem líquida</span><b style="color:var(--ok)">R$ 7,5k</b>
-              <div class="spark"><i style="height:40%"></i><i style="height:58%"></i><i style="height:34%"></i><i style="height:72%"></i><i style="height:50%"></i><i style="height:66%"></i></div>
-              <small>62,2% · ↓ 22,9 p.p.</small></div>
+          <p class="feat-note"><i class="feat-dot"></i>Inbox ao vivo · respondido em 40s</p>
+        </article>
+
+        <article class="feat">
+          <h3>Funil que se move sozinho.</h3>
+          <p class="feat-sub">Cada conversa vira oportunidade no estágio certo, sem digitar duas vezes.</p>
+          <div class="feat-funil" id="funil" aria-hidden="true">
+            <div class="fx" style="--fc:var(--ai)"><span class="fx-bar"><i></i><b>Novo lead</b></span><em>36</em></div>
+            <div class="fx" style="--fc:var(--accent)"><span class="fx-bar"><i></i><b>Qualificado</b></span><em>29</em></div>
+            <div class="fx" style="--fc:var(--info)"><span class="fx-bar"><i></i><b>Proposta</b></span><em>22</em></div>
+            <div class="fx" style="--fc:var(--ok)"><span class="fx-bar"><i></i><b>Fechado</b></span><em>17</em></div>
           </div>
-          <div class="kpis">
-            <div class="kpi"><span>Assinaturas ativas</span><b style="color:var(--accent)">0</b><small style="color:var(--ink-3)">Planos contínuos ativos</small></div>
-            <div class="kpi"><span>MRR (assinaturas)</span><b style="color:var(--ok)">R$ 0</b><small style="color:var(--ink-3)">Receita recorrente mensal</small></div>
-            <div class="kpi"><span>Churn</span><b style="color:var(--accent)">0%</b><small style="color:var(--ink-3)">Nenhuma cancelada</small></div>
-          </div>
-          <div class="panel">
-            <div class="pt">Fluxo de caixa · 7 dias</div>
-            <div class="bars"><i style="height:88%"></i><i style="height:64%"></i><i style="height:47%"></i><i style="height:30%"></i><i style="height:58%"></i><i style="height:76%"></i><i style="height:41%"></i></div>
-          </div>
-        </div>
+          <p class="feat-note"><i class="feat-dot"></i><span id="funilNota">Deal da Alfa Clima fechado · PIX</span></p>
+        </article>
+
+        <article class="feat">
+          <h3>Produto, serviço e agenda sob controle.</h3>
+          <p class="feat-sub">A venda baixa o estoque, vira ordem de serviço e entra na agenda. Você só acompanha.</p>
+          <div class="feat-notif"><div class="feat-notif-stack" id="notifs" aria-hidden="true"></div></div>
+          <p class="feat-note"><i class="feat-dot"></i>Loja, oficina, clínica ou agenda: tudo avisa aqui</p>
+        </article>
+
       </div>
-    </div>
-    </div>
+      <div class="feats-dots" id="featsDots"></div>
     </div>
 
     <div class="band-head band-head-2">
@@ -611,18 +627,164 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     svg.innerHTML=g+'</g>';
   })();
 
-  /* encaixa o dashboard (desenhado em 820px) na largura disponível, sem cortar nada */
+  /* ── Três provas vivas ──────────────────────────────────────────────────
+     Tudo aqui pausa quando a seção sai da tela: são três animações mais o
+     vídeo, e isso roda em celular no 4G. */
   (function(){
-    var wrap=document.querySelector('.shotwrap'), shot=document.querySelector('.shot');
-    if(!wrap||!shot) return;
-    function encaixa(){
-      var s = wrap.clientWidth / 820;
-      shot.style.transform = 'scale(' + s + ')';
-      wrap.style.height = Math.round(shot.offsetHeight * s) + 'px';
-    }
-    encaixa();
-    addEventListener('resize', encaixa, {passive:true});
-    if(document.fonts && document.fonts.ready) document.fonts.ready.then(encaixa);
+    var reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var timers=[];
+    function cada(ms,fn){ timers.push({ms:ms,fn:fn,id:null}); }
+
+    /* 1 · inbox: a sequência é escrita duas vezes e o trilho anda -50%,
+       então o loop emenda sem salto */
+    (function(){
+      var alvo=document.getElementById('chatTrack'); if(!alvo) return;
+      var CONVERSA=[
+        ['in','Oi! Vocês têm o modelo 42 em estoque?','21:04'],
+        ['out','Temos sim! Separei o seu com link de pagamento.','21:05'],
+        ['pay','Pedido #4812 · R$ 389,90','Pagar com PIX'],
+        ['in','Paguei! Quando chega?','21:07'],
+        ['out','PIX confirmado. Sai pra entrega amanhã até 12h.','21:07'],
+        ['sep','Marina · Instagram'],
+        ['in','Ainda tem o vestido bege no M?','21:12'],
+        ['out','Tem 2 unidades. Quer que eu reserve pra você?','21:13'],
+        ['in','Reserva! Vou buscar hoje.','21:13'],
+        ['out','Reservado por 2h, te mando o endereço do balcão.','21:14'],
+        ['sep','Carlos · WhatsApp'],
+        ['in','Consegue nota no CNPJ 12.345?','21:20'],
+        ['out','NF-e emitida e enviada no e-mail.','21:21']
+      ];
+      function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+      var seq=CONVERSA.map(function(m){
+        if(m[0]==='sep') return '<div class="ch-sep"><span>'+esc(m[1])+'</span></div>';
+        if(m[0]==='pay') return '<div class="ch-pay"><span>'+esc(m[1])+'</span><b>'+esc(m[2])+'</b></div>';
+        return '<div class="ch '+m[0]+'"><p>'+esc(m[1])+'</p><em>'+esc(m[2])+'</em></div>';
+      }).join('');
+      alvo.innerHTML='<div class="feat-chat-seq">'+seq+'</div><div class="feat-chat-seq">'+seq+'</div>';
+    })();
+
+    /* 2 · funil: contadores sobem e o lead caminha de estágio */
+    (function(){
+      var caixa=document.getElementById('funil'), nota=document.getElementById('funilNota');
+      if(!caixa) return;
+      var barras=[].slice.call(caixa.querySelectorAll('.fx-bar i'));
+      var nums=[].slice.call(caixa.querySelectorAll('.fx em'));
+      var n=[36,29,22,17], teto=72, i=0;
+      var NOTAS=['Rafael Duarte acabou de virar lead quente',
+        'Marina Silva entrou em Proposta',
+        'Deal da Alfa Clima fechado · PIX',
+        'Novo lead · Instagram Ads',
+        'Carla Mendes avançou pra Qualificado'];
+      function pinta(){
+        for(var k=0;k<4;k++){
+          barras[k].style.width=Math.max(18,Math.min(100,(n[k]/teto)*100)).toFixed(1)+'%';
+          nums[k].textContent=n[k];
+        }
+      }
+      pinta();
+      cada(2400,function(){
+        var d=Math.random();
+        if(d<.38){ n[0]++; }
+        else {
+          var de=Math.floor(Math.random()*3);
+          // só move se o funil continuar decrescente: estágio de baixo maior que
+          // o de cima não é funil, é dado quebrado
+          if(n[de]>8 && n[de]-1 >= n[de+1]+1){ n[de]--; n[de+1]++; }
+        }
+        if(n[3]>28){ n=[36,29,22,17]; }          // recomeça antes de estourar o teto
+        i=(i+1)%NOTAS.length;
+        if(nota) nota.textContent=NOTAS[i];
+        pinta();
+      });
+    })();
+
+    /* 3 · operação: a notificação nova entra por cima e empurra as outras */
+    (function(){
+      var pilha=document.getElementById('notifs'); if(!pilha) return;
+      var IC={
+        bag:'<path d="M6 8h12l-1 11.5a1.5 1.5 0 0 1-1.5 1.3H8.5A1.5 1.5 0 0 1 7 19.5z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+        box:'<path d="M12 3.2 19 7.1v9.8L12 20.8 5 16.9V7.1z"/><path d="M5 7.1 12 11l7-3.9M12 11v9.8"/>',
+        doc:'<rect x="5" y="3" width="14" height="18" rx="2.6"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4.5"/>',
+        cal:'<rect x="4" y="4.5" width="16" height="16" rx="2.6"/><path d="M4 9.5h16M8.5 2.5v4M15.5 2.5v4"/>',
+        pix:'<path d="M12 3.5 20.5 12 12 20.5 3.5 12z"/><path d="M8.6 8.6l3.4 3.4 3.4-3.4M8.6 15.4l3.4-3.4 3.4 3.4"/>',
+        gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 4v2m0 12v2M4 12h2m12 0h2M6.3 6.3l1.4 1.4m8.6 8.6-1.4-1.4m0-8.6-1.4 1.4m-8.6 8.6 1.4-1.4"/>'
+      };
+      var FEED=[
+        ['bag','Venda no WhatsApp','Tênis Runner 42 · PIX confirmado','R$ 389,90','var(--ok)'],
+        ['box','Estoque atualizado','Tênis Runner 42 baixou sozinho','Restam 8','var(--info)'],
+        ['doc','OS #231 · Instalação Split','Equipe do Caio saiu pra rua','Em rota','var(--warn)'],
+        ['cal','Consulta confirmada','Amanhã 09:30 · lembrete no WhatsApp','Agenda','var(--ok)'],
+        ['pix','PIX recebido','Pedido #4812 · caixa atualizado','+R$ 640','var(--ok)'],
+        ['gear','Orçamento aprovado','Troca de óleo · Civic virou OS','OS aberta','var(--info)'],
+        ['cal','Horário preenchido','Zé encaixou cliente na vaga das 14h','Hoje','var(--ai)'],
+        ['doc','NF-e emitida','Enviada no e-mail do cliente','Fiscal ok','var(--ok)']
+      ];
+      var VISIVEIS=4, topo=0;
+      function cartao(f,nova){
+        var d=document.createElement('div');
+        d.className='nt';
+        d.innerHTML='<span class="nt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
+          'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+IC[f[0]]+'</svg></span>'+
+          '<div class="nt-tx"><strong>'+f[1]+(nova?'<i class="nt-now">Agora</i>':'')+'</strong><span>'+f[2]+'</span></div>'+
+          '<em style="--nc:'+f[4]+'">'+f[3]+'</em>';
+        return d;
+      }
+      for(var k=VISIVEIS-1;k>=0;k--) pilha.appendChild(cartao(FEED[k],false));
+      topo=VISIVEIS;
+      cada(2600,function(){
+        var antiga=pilha.querySelector('.nt-now'); if(antiga) antiga.remove();
+        pilha.insertBefore(cartao(FEED[topo%FEED.length],true),pilha.firstChild);
+        topo++;
+        while(pilha.children.length>VISIVEIS) pilha.removeChild(pilha.lastChild);
+      });
+    })();
+
+    /* carrossel: só no celular. O card fica parado 6s deixando a animação dele
+       contar a história, e o dedo do usuário desliga o automático. */
+    (function(){
+      var trilho=document.getElementById('featsTrack'), pontos=document.getElementById('featsDots');
+      if(!trilho||!pontos) return;
+      var cards=[].slice.call(trilho.children), atual=0, manual=false;
+      cards.forEach(function(_,k){
+        var b=document.createElement('button');
+        b.type='button'; b.setAttribute('aria-label','Card '+(k+1));
+        b.addEventListener('click',function(){ manual=true; vai(k); });
+        pontos.appendChild(b);
+      });
+      function marca(){
+        [].slice.call(pontos.children).forEach(function(b,k){
+          b.setAttribute('aria-current', k===atual?'true':'false');
+        });
+      }
+      function vai(k){
+        atual=(k+cards.length)%cards.length;
+        trilho.scrollTo({left:cards[atual].offsetLeft-trilho.offsetLeft-((trilho.clientWidth-cards[atual].clientWidth)/2), behavior:'smooth'});
+        marca();
+      }
+      marca();
+      trilho.addEventListener('touchstart',function(){ manual=true; },{passive:true});
+      trilho.addEventListener('scroll',function(){
+        var meio=trilho.scrollLeft+trilho.clientWidth/2, perto=0, dist=1e9;
+        cards.forEach(function(c,k){
+          var d=Math.abs(c.offsetLeft+c.clientWidth/2-trilho.offsetLeft-meio);
+          if(d<dist){ dist=d; perto=k; }
+        });
+        if(perto!==atual){ atual=perto; marca(); }
+      },{passive:true});
+      cada(6000,function(){ if(!manual && innerWidth<900) vai(atual+1); });
+    })();
+
+    /* liga e desliga tudo conforme a seção entra e sai da tela */
+    (function(){
+      var secao=document.getElementById('feats'); if(!secao||reduz) return;
+      function liga(){ timers.forEach(function(t){ if(!t.id) t.id=setInterval(t.fn,t.ms); }); }
+      function desliga(){ timers.forEach(function(t){ if(t.id){ clearInterval(t.id); t.id=null; } }); }
+      if('IntersectionObserver' in window){
+        new IntersectionObserver(function(es){
+          es.forEach(function(e){ e.isIntersecting?liga():desliga(); });
+        },{threshold:.15}).observe(secao);
+      } else { liga(); }
+    })();
   })();
 
   var io=new IntersectionObserver(function(es){es.forEach(function(e){
