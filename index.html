@@ -288,6 +288,31 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   .feat h3{margin:0;font-size:var(--fs-subtitle);font-weight:650;line-height:1.25;
     letter-spacing:-.025em;color:var(--d-ink);text-wrap:balance;}
   .feat-sub{margin:8px 0 0;font-size:var(--fs-control);line-height:1.5;color:var(--d-ink-2);}
+
+  /* 3 · o caixa subindo. Número, barra do dia e entrada nova sobem juntos: é a
+     mesma venda contada em três lugares ao mesmo tempo. */
+  .caixa{margin-top:16px;display:flex;flex-direction:column;}
+  .caixa-lb{font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    font-weight:600;color:var(--d-ink-3);}
+  .caixa-n{font-size:30px;font-weight:800;letter-spacing:-.035em;color:#fff;
+    font-variant-numeric:tabular-nums;line-height:1.1;margin-top:3px;}
+  .caixa-n.pulou{animation:sobeNum .5s var(--ease);}
+  @keyframes sobeNum{0%{transform:translateY(6px);opacity:.55}100%{transform:none;opacity:1}}
+  .caixa-barras{display:flex;align-items:flex-end;gap:6px;height:56px;margin-top:14px;}
+  .caixa-barras i{flex:1;border-radius:3px 3px 0 0;background:rgba(21,147,90,.26);
+    transition:height .8s var(--ease), background .8s var(--ease);}
+  .caixa-barras i.hoje{background:var(--ok);}
+  /* altura de exatamente 3 entradas (3×36 + 2×6 de vão): sem ela a terceira
+     ficava cortada, e sem altura fixa o card cresce e empurra o carrossel */
+  .caixa-feed{margin-top:12px;display:flex;flex-direction:column;gap:6px;
+    height:120px;overflow:hidden;}
+  .ent{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r-sm);
+    border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);
+    animation:entra .42s var(--ease) both;}
+  .ent b{flex:none;font-size:var(--fs-label);font-weight:700;color:var(--ok);
+    font-variant-numeric:tabular-nums;}
+  .ent span{flex:1;min-width:0;font-size:var(--fs-micro);color:var(--d-ink-2);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   /* margin-top:auto gruda a legenda no rodapé: os cards têm alturas de conteúdo
      diferentes e sem isso o mais curto fica com um buraco embaixo */
   .feat-note{display:flex;align-items:center;gap:7px;margin:auto 0 0;padding-top:14px;
@@ -697,7 +722,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     <div class="feats" id="feats">
       <div class="feats-track" id="featsTrack">
 
-        <article class="feat feat--wide">
+        <article class="feat">
           <h3>O fluxo trabalha enquanto você dorme.</h3>
           <p class="feat-sub">Monte uma vez e ele roda sozinho: recebe o lead, responde, agenda e lança no funil.</p>
           <div class="flow" id="flow" aria-hidden="true">
@@ -720,22 +745,15 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
         </article>
 
         <article class="feat">
-          <h3>Funil que se move sozinho.</h3>
-          <p class="feat-sub">Cada conversa vira oportunidade no estágio certo, sem digitar duas vezes.</p>
-          <div class="feat-funil" id="funil" aria-hidden="true">
-            <div class="fx" style="--fc:var(--ai)"><span class="fx-bar"><i></i><b>Novo lead</b></span><em>36</em></div>
-            <div class="fx" style="--fc:var(--accent)"><span class="fx-bar"><i></i><b>Qualificado</b></span><em>29</em></div>
-            <div class="fx" style="--fc:var(--info)"><span class="fx-bar"><i></i><b>Agendado</b></span><em>22</em></div>
-            <div class="fx" style="--fc:var(--ok)"><span class="fx-bar"><i></i><b>Fechado</b></span><em>17</em></div>
+          <h3>O caixa sobe a cada conversa.</h3>
+          <p class="feat-sub">Toda venda que nasce no WhatsApp cai no caixa na hora, sem ninguém lançar nada.</p>
+          <div class="caixa" aria-hidden="true">
+            <span class="caixa-lb">Entrou hoje</span>
+            <b class="caixa-n" id="caixaN">R$ 3.899</b>
+            <div class="caixa-barras" id="caixaBarras"></div>
+            <div class="caixa-feed" id="caixaFeed"></div>
           </div>
-          <p class="feat-note"><i class="feat-dot"></i><span id="funilNota">Deal da Alfa Clima fechado · PIX</span></p>
-        </article>
-
-        <article class="feat">
-          <h3>Produto, serviço e agenda sob controle.</h3>
-          <p class="feat-sub">A venda baixa o estoque, vira ordem de serviço e entra na agenda. Você só acompanha.</p>
-          <div class="feat-notif"><div class="feat-notif-stack" id="notifs" aria-hidden="true"></div></div>
-          <p class="feat-note"><i class="feat-dot"></i>Agenda, caixa, estoque e fiscal avisando no mesmo lugar</p>
+          <p class="feat-note"><i class="feat-dot"></i>Consulta, produto e sinal caindo no mesmo caixa</p>
         </article>
 
       </div>
@@ -870,80 +888,60 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       alvo.innerHTML='<div class="feat-chat-seq">'+seq+'</div><div class="feat-chat-seq">'+seq+'</div>';
     })();
 
-    /* 2 · funil: contadores sobem e o lead caminha de estágio */
+    /* 3 · o caixa: cada entrada nova sobe o número, cresce a barra de hoje e
+       entra no feed. Os três movimentos acontecem no mesmo tick de propósito:
+       é a mesma venda sendo contada, não três animações soltas. */
     (function(){
-      var caixa=document.getElementById('funil'), nota=document.getElementById('funilNota');
-      if(!caixa) return;
-      var barras=[].slice.call(caixa.querySelectorAll('.fx-bar i'));
-      var nums=[].slice.call(caixa.querySelectorAll('.fx em'));
-      var n=[36,29,22,17], teto=72, i=0;
-      var NOTAS=['Ana Prado entrou como lead quente · WhatsApp',
-        'Ana Prado avançou pra Agendado',
-        'Marina Costa reservou o sérum · fechado',
-        'Novo lead pelo Instagram da clínica',
-        'Camila confirmou a agenda de amanhã'];
-      function pinta(){
-        for(var k=0;k<4;k++){
-          barras[k].style.width=Math.max(18,Math.min(100,(n[k]/teto)*100)).toFixed(1)+'%';
-          nums[k].textContent=n[k];
-        }
-      }
-      pinta();
-      cada(2400,function(){
-        var d=Math.random();
-        if(d<.38){ n[0]++; }
-        else {
-          var de=Math.floor(Math.random()*3);
-          // só move se o funil continuar decrescente: estágio de baixo maior que
-          // o de cima não é funil, é dado quebrado
-          if(n[de]>8 && n[de]-1 >= n[de+1]+1){ n[de]--; n[de+1]++; }
-        }
-        if(n[3]>28){ n=[36,29,22,17]; }          // recomeça antes de estourar o teto
-        i=(i+1)%NOTAS.length;
-        if(nota) nota.textContent=NOTAS[i];
-        pinta();
-      });
-    })();
+      var alvoN=document.getElementById('caixaN'), barras=document.getElementById('caixaBarras'),
+          feed=document.getElementById('caixaFeed');
+      if(!alvoN||!barras||!feed) return;
 
-    /* 3 · operação: a notificação nova entra por cima e empurra as outras */
-    (function(){
-      var pilha=document.getElementById('notifs'); if(!pilha) return;
-      var IC={
-        bag:'<path d="M6 8h12l-1 11.5a1.5 1.5 0 0 1-1.5 1.3H8.5A1.5 1.5 0 0 1 7 19.5z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
-        box:'<path d="M12 3.2 19 7.1v9.8L12 20.8 5 16.9V7.1z"/><path d="M5 7.1 12 11l7-3.9M12 11v9.8"/>',
-        doc:'<rect x="5" y="3" width="14" height="18" rx="2.6"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4.5"/>',
-        cal:'<rect x="4" y="4.5" width="16" height="16" rx="2.6"/><path d="M4 9.5h16M8.5 2.5v4M15.5 2.5v4"/>',
-        pix:'<path d="M12 3.5 20.5 12 12 20.5 3.5 12z"/><path d="M8.6 8.6l3.4 3.4 3.4-3.4M8.6 15.4l3.4-3.4 3.4 3.4"/>',
-        gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 4v2m0 12v2M4 12h2m12 0h2M6.3 6.3l1.4 1.4m8.6 8.6-1.4-1.4m0-8.6-1.4 1.4m-8.6 8.6 1.4-1.4"/>'
-      };
-      // mesma clínica, mesmas pessoas dos outros três cards
-      var FEED=[
-        ['cal','Consulta agendada','Ana Prado · amanhã 16:30','Agenda','var(--ok)'],
-        ['pix','PIX recebido','Sinal da Ana · caixa atualizado','+R$ 90','var(--ok)'],
-        ['box','Estoque reservado','Sérum vitamina C · Marina Costa','Resta 1','var(--info)'],
-        ['gear','Retorno programado','Ana Prado daqui a 30 dias','Fluxo','var(--ai)'],
-        ['bag','Venda no balcão','Sérum vitamina C retirado','R$ 149,00','var(--ok)'],
-        ['doc','NF-e emitida','Enviada no e-mail da Marina','Fiscal ok','var(--ok)'],
-        ['cal','Horário preenchido','Zé encaixou cliente na vaga das 14h','Hoje','var(--ai)'],
-        ['doc','Orçamento aprovado','Pacote de 4 sessões virou agenda','Aprovado','var(--info)']
+      // mesma clínica, mesmas pessoas dos outros dois cards
+      var ENTRADAS=[
+        [180,'Ana Prado · limpeza de pele'],
+        [149,'Marina Costa · sérum vitamina C'],
+        [90,'Ana Prado · sinal da sessão'],
+        [420,'Pacote de 4 sessões · aprovado'],
+        [180,'Retorno da Ana · reagendou'],
+        [149,'Marina Costa · segunda unidade']
       ];
-      var VISIVEIS=4, topo=0;
-      function cartao(f,nova){
-        var d=document.createElement('div');
-        d.className='nt';
-        d.innerHTML='<span class="nt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
-          'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+IC[f[0]]+'</svg></span>'+
-          '<div class="nt-tx"><strong>'+f[1]+(nova?'<i class="nt-now">Agora</i>':'')+'</strong><span>'+f[2]+'</span></div>'+
-          '<em style="--nc:'+f[4]+'">'+f[3]+'</em>';
-        return d;
+      var SEMANA=[52,64,41,58,73,60], hoje=38, teto=100, total=3899, i=0;
+
+      function moeda(v){ return 'R$ ' + v.toLocaleString('pt-BR'); }
+      function pintaBarras(){
+        barras.innerHTML = SEMANA.map(function(h){ return '<i style="height:'+h+'%"></i>'; }).join('') +
+          '<i class="hoje" style="height:'+Math.min(100,hoje)+'%"></i>';
       }
-      for(var k=VISIVEIS-1;k>=0;k--) pilha.appendChild(cartao(FEED[k],false));
-      topo=VISIVEIS;
-      cada(2600,function(){
-        var antiga=pilha.querySelector('.nt-now'); if(antiga) antiga.remove();
-        pilha.insertBefore(cartao(FEED[topo%FEED.length],true),pilha.firstChild);
-        topo++;
-        while(pilha.children.length>VISIVEIS) pilha.removeChild(pilha.lastChild);
+      pintaBarras();
+      alvoN.textContent = moeda(total);
+
+      // conta de um valor pro outro em vez de trocar seco: o pulo é o ponto
+      function conta(de,ate){
+        var t0=null, dur=620;
+        function passo(ts){
+          if(t0===null) t0=ts;
+          var p=Math.min(1,(ts-t0)/dur), e=1-Math.pow(1-p,3);
+          alvoN.textContent = moeda(Math.round(de+(ate-de)*e));
+          if(p<1) requestAnimationFrame(passo);
+        }
+        requestAnimationFrame(passo);
+      }
+
+      cada(2800,function(){
+        var e=ENTRADAS[i%ENTRADAS.length]; i++;
+        var antes=total; total+=e[0];
+        conta(antes,total);
+        alvoN.classList.remove('pulou'); void alvoN.offsetWidth; alvoN.classList.add('pulou');
+
+        hoje=Math.min(teto, hoje + e[0]/28);
+        var barraHoje=barras.querySelector('.hoje');
+        if(barraHoje) barraHoje.style.height=Math.min(100,hoje)+'%';
+
+        feed.insertAdjacentHTML('afterbegin',
+          '<div class="ent"><b>+'+moeda(e[0])+'</b><span>'+e[1]+'</span></div>');
+        while(feed.children.length>3) feed.removeChild(feed.lastChild);
+
+        if(hoje>=teto){ hoje=38; if(barraHoje) barraHoje.style.height='38%'; total=3899; }
       });
     })();
 
