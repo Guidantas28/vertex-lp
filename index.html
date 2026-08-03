@@ -276,8 +276,11 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
      a história. Trilho deslizando junto com o conteúdo animado deixa os dois
      ilegíveis. A partir de 900px os três cabem lado a lado e o carrossel some. */
   .feats{width:100%;margin-top:clamp(18px,5vw,34px);}
+  /* o respiro lateral é a folga exata pra centralizar: com padding fixo o
+     primeiro e o último card nunca ficavam no meio, porque o scroll não passa
+     de zero nem do fim */
   .feats-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
-    scroll-behavior:smooth;padding:0 16px 4px;
+    scroll-behavior:smooth;padding:0 max(16px,calc((100% - min(340px,86vw)) / 2)) 4px;
     scrollbar-width:none;-ms-overflow-style:none;}
   .feats-track::-webkit-scrollbar{display:none;}
   .feat{scroll-snap-align:center;flex:0 0 min(340px,86vw);display:flex;
@@ -354,6 +357,56 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     color:rgba(255,255,255,.92);white-space:nowrap;}
   .fx em{font-style:normal;font-size:var(--fs-control);font-weight:700;
     color:var(--d-ink-2);font-variant-numeric:tabular-nums;min-width:26px;text-align:right;}
+
+  /* 4 · o fluxo rodando. No celular os nós empilham (é assim que builder de
+     fluxo se lê em tela estreita); do desktop pra cima o card ocupa a linha
+     inteira e o fluxo deita, que é a leitura natural de um fluxo. */
+  .flow{margin-top:16px;display:flex;flex-direction:column;gap:12px;}
+  .flow-tabs{display:flex;gap:6px;flex-wrap:wrap;}
+  .flow-tab{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;
+    border-radius:999px;border:1px solid rgba(255,255,255,.1);background:transparent;
+    font-family:inherit;font-size:var(--fs-micro);font-weight:600;color:var(--d-ink-2);
+    cursor:pointer;transition:color var(--dur) var(--ease), border-color var(--dur) var(--ease),
+      background var(--dur) var(--ease);}
+  .flow-tab i{width:6px;height:6px;border-radius:99px;background:var(--fc);flex:none;}
+  .flow-tab[aria-selected="true"]{color:#fff;border-color:color-mix(in srgb,var(--fc) 55%,transparent);
+    background:color-mix(in srgb,var(--fc) 16%,transparent);}
+  .flow-canvas{display:flex;flex-direction:column;gap:0;}
+  .fn-wrap{display:flex;flex-direction:column;align-items:stretch;}
+  .fn-wire{width:2px;height:14px;margin-left:19px;background:rgba(255,255,255,.12);
+    position:relative;overflow:hidden;flex:none;}
+  .fn-wire::after{content:"";position:absolute;inset:0;background:var(--fc);
+    transform:scaleY(0);transform-origin:top;transition:transform .5s var(--ease);}
+  .fn-wire.on::after{transform:scaleY(1);}
+  .fn{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:var(--r-sm);
+    border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);
+    transition:border-color .35s var(--ease), background .35s var(--ease),
+      box-shadow .35s var(--ease), transform .35s var(--ease);}
+  .fn-ic{flex:none;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;
+    font-size:11px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);}
+  .fn strong{display:block;font-size:var(--fs-label);font-weight:600;color:rgba(255,255,255,.92);}
+  .fn em{display:block;font-style:normal;font-size:var(--fs-micro);color:var(--d-ink-3);}
+  .fn.feito{border-color:color-mix(in srgb,var(--fc) 34%,transparent);}
+  .fn.feito .fn-ic{background:color-mix(in srgb,var(--fc) 20%,transparent);color:#fff;}
+  .fn.ativo{border-color:var(--fc);background:color-mix(in srgb,var(--fc) 12%,transparent);
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--fc) 16%,transparent);transform:translateX(3px);}
+  .fn.ativo .fn-ic{background:var(--fc);color:#fff;}
+  .flow-log{min-height:32px;padding:7px 10px;border-radius:var(--r-sm);
+    border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.25);
+    font-size:var(--fs-micro);line-height:1.5;color:var(--d-ink-2);}
+  .flow-log b{color:var(--fc);font-weight:600;}
+  @media (min-width:900px){
+    .feat--wide{grid-column:1 / -1;}
+    /* stretch, não center: sem isso os nós ficam com alturas diferentes e as
+       caixas desalinham na linha */
+    .flow-canvas{flex-direction:row;align-items:stretch;}
+    .fn-wrap{flex:1;flex-direction:row;align-items:stretch;min-width:0;}
+    .fn-wrap .fn{flex:1;min-width:0;}
+    .fn-wire{align-self:center;width:100%;max-width:34px;height:2px;margin:0 6px;}
+    .fn-wire::after{transform:scaleX(0);transform-origin:left;}
+    .fn-wire.on::after{transform:scaleX(1);}
+    .fn.ativo{transform:translateY(-2px);}
+  }
 
   /* 3 · a operação avisando sozinha */
   .feat-notif{margin-top:16px;height:250px;overflow:hidden;}
@@ -526,6 +579,17 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     <div class="feats" id="feats">
       <div class="feats-track" id="featsTrack">
 
+        <article class="feat feat--wide">
+          <h3>O fluxo trabalha enquanto você dorme.</h3>
+          <p class="feat-sub">Monte uma vez e ele roda sozinho: recebe o lead, responde, agenda e lança no funil.</p>
+          <div class="flow" id="flow" aria-hidden="true">
+            <div class="flow-tabs" id="flowTabs"></div>
+            <div class="flow-canvas" id="flowCanvas"></div>
+            <div class="flow-log" id="flowLog"></div>
+          </div>
+          <p class="feat-note"><i class="feat-dot"></i>Fluxos prontos, ou monte o seu sem programar</p>
+        </article>
+
         <article class="feat">
           <h3>O time todo numa inbox só.</h3>
           <p class="feat-sub">Conversas viram histórico e venda, nada fica preso no celular de uma pessoa.</p>
@@ -543,7 +607,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
           <div class="feat-funil" id="funil" aria-hidden="true">
             <div class="fx" style="--fc:var(--ai)"><span class="fx-bar"><i></i><b>Novo lead</b></span><em>36</em></div>
             <div class="fx" style="--fc:var(--accent)"><span class="fx-bar"><i></i><b>Qualificado</b></span><em>29</em></div>
-            <div class="fx" style="--fc:var(--info)"><span class="fx-bar"><i></i><b>Proposta</b></span><em>22</em></div>
+            <div class="fx" style="--fc:var(--info)"><span class="fx-bar"><i></i><b>Agendado</b></span><em>22</em></div>
             <div class="fx" style="--fc:var(--ok)"><span class="fx-bar"><i></i><b>Fechado</b></span><em>17</em></div>
           </div>
           <p class="feat-note"><i class="feat-dot"></i><span id="funilNota">Deal da Alfa Clima fechado · PIX</span></p>
@@ -553,7 +617,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
           <h3>Produto, serviço e agenda sob controle.</h3>
           <p class="feat-sub">A venda baixa o estoque, vira ordem de serviço e entra na agenda. Você só acompanha.</p>
           <div class="feat-notif"><div class="feat-notif-stack" id="notifs" aria-hidden="true"></div></div>
-          <p class="feat-note"><i class="feat-dot"></i>Loja, oficina, clínica ou agenda: tudo avisa aqui</p>
+          <p class="feat-note"><i class="feat-dot"></i>Agenda, caixa, estoque e fiscal avisando no mesmo lugar</p>
         </article>
 
       </div>
@@ -640,19 +704,19 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     (function(){
       var alvo=document.getElementById('chatTrack'); if(!alvo) return;
       var CONVERSA=[
-        ['in','Oi! Vocês têm o modelo 42 em estoque?','21:04'],
-        ['out','Temos sim! Separei o seu com link de pagamento.','21:05'],
-        ['pay','Pedido #4812 · R$ 389,90','Pagar com PIX'],
-        ['in','Paguei! Quando chega?','21:07'],
-        ['out','PIX confirmado. Sai pra entrega amanhã até 12h.','21:07'],
-        ['sep','Marina · Instagram'],
-        ['in','Ainda tem o vestido bege no M?','21:12'],
-        ['out','Tem 2 unidades. Quer que eu reserve pra você?','21:13'],
-        ['in','Reserva! Vou buscar hoje.','21:13'],
-        ['out','Reservado por 2h, te mando o endereço do balcão.','21:14'],
-        ['sep','Carlos · WhatsApp'],
-        ['in','Consegue nota no CNPJ 12.345?','21:20'],
-        ['out','NF-e emitida e enviada no e-mail.','21:21']
+        ['sep','Ana Prado · WhatsApp'],
+        ['in','Oi, vocês atendem amanhã? Quanto fica a limpeza de pele?','22:47'],
+        ['out','Boa noite! Atendemos sim. A limpeza fica R$ 180 e amanhã eu tenho 14h ou 16h30.','22:47'],
+        ['in','16h30','22:48'],
+        ['out','Fechado, agendei pra amanhã às 16h30 com a Camila.','22:48'],
+        ['pay','Sinal da sessão · R$ 90','Pagar com PIX'],
+        ['in','Paguei!','22:51'],
+        ['out','PIX confirmado. Te mando um lembrete amanhã de manhã.','22:51'],
+        ['sep','Marina Costa · Instagram'],
+        ['in','Ainda tem o sérum de vitamina C?','23:04'],
+        ['out','Tem 2 unidades. Quer que eu reserve pra você?','23:05'],
+        ['in','Reserva! Pego amanhã.','23:05'],
+        ['out','Reservado por 24h. Emito a nota no seu CPF na retirada.','23:06']
       ];
       function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
       var seq=CONVERSA.map(function(m){
@@ -670,11 +734,11 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       var barras=[].slice.call(caixa.querySelectorAll('.fx-bar i'));
       var nums=[].slice.call(caixa.querySelectorAll('.fx em'));
       var n=[36,29,22,17], teto=72, i=0;
-      var NOTAS=['Rafael Duarte acabou de virar lead quente',
-        'Marina Silva entrou em Proposta',
-        'Deal da Alfa Clima fechado · PIX',
-        'Novo lead · Instagram Ads',
-        'Carla Mendes avançou pra Qualificado'];
+      var NOTAS=['Ana Prado entrou como lead quente · WhatsApp',
+        'Ana Prado avançou pra Agendado',
+        'Marina Costa reservou o sérum · fechado',
+        'Novo lead pelo Instagram da clínica',
+        'Camila confirmou a agenda de amanhã'];
       function pinta(){
         for(var k=0;k<4;k++){
           barras[k].style.width=Math.max(18,Math.min(100,(n[k]/teto)*100)).toFixed(1)+'%';
@@ -709,15 +773,16 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
         pix:'<path d="M12 3.5 20.5 12 12 20.5 3.5 12z"/><path d="M8.6 8.6l3.4 3.4 3.4-3.4M8.6 15.4l3.4-3.4 3.4 3.4"/>',
         gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 4v2m0 12v2M4 12h2m12 0h2M6.3 6.3l1.4 1.4m8.6 8.6-1.4-1.4m0-8.6-1.4 1.4m-8.6 8.6 1.4-1.4"/>'
       };
+      // mesma clínica, mesmas pessoas dos outros três cards
       var FEED=[
-        ['bag','Venda no WhatsApp','Tênis Runner 42 · PIX confirmado','R$ 389,90','var(--ok)'],
-        ['box','Estoque atualizado','Tênis Runner 42 baixou sozinho','Restam 8','var(--info)'],
-        ['doc','OS #231 · Instalação Split','Equipe do Caio saiu pra rua','Em rota','var(--warn)'],
-        ['cal','Consulta confirmada','Amanhã 09:30 · lembrete no WhatsApp','Agenda','var(--ok)'],
-        ['pix','PIX recebido','Pedido #4812 · caixa atualizado','+R$ 640','var(--ok)'],
-        ['gear','Orçamento aprovado','Troca de óleo · Civic virou OS','OS aberta','var(--info)'],
+        ['cal','Consulta agendada','Ana Prado · amanhã 16:30','Agenda','var(--ok)'],
+        ['pix','PIX recebido','Sinal da Ana · caixa atualizado','+R$ 90','var(--ok)'],
+        ['box','Estoque reservado','Sérum vitamina C · Marina Costa','Resta 1','var(--info)'],
+        ['gear','Retorno programado','Ana Prado daqui a 30 dias','Fluxo','var(--ai)'],
+        ['bag','Venda no balcão','Sérum vitamina C retirado','R$ 149,00','var(--ok)'],
+        ['doc','NF-e emitida','Enviada no e-mail da Marina','Fiscal ok','var(--ok)'],
         ['cal','Horário preenchido','Zé encaixou cliente na vaga das 14h','Hoje','var(--ai)'],
-        ['doc','NF-e emitida','Enviada no e-mail do cliente','Fiscal ok','var(--ok)']
+        ['doc','Orçamento aprovado','Pacote de 4 sessões virou agenda','Aprovado','var(--info)']
       ];
       var VISIVEIS=4, topo=0;
       function cartao(f,nova){
@@ -739,6 +804,79 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       });
     })();
 
+    /* 4 · fluxo: o nó acende, o fio preenche e o log conta o que aconteceu.
+       Terminado o fluxo, ele troca sozinho pro próximo; clicar na aba escolhe. */
+    (function(){
+      var abas=document.getElementById('flowTabs'), tela=document.getElementById('flowCanvas'),
+          log=document.getElementById('flowLog');
+      if(!abas||!tela||!log) return;
+      // os três fluxos são a MESMA cliente em três momentos: chega, é lembrada
+      // e volta. É o que amarra este card aos outros três.
+      var FLUXOS=[
+        {nome:'Lead novo', cor:'var(--accent)',
+         nos:[['▶','Início','Lead no WhatsApp'],['✦','IA','Lê e qualifica'],
+              ['💬','Agenda','Oferece horário'],['✓','CRM','Entra no funil']],
+         passos:['Gatilho · Ana Prado chamou às 22:47',
+                 'IA leu: limpeza de pele, primeira vez',
+                 'Ofereceu 14h ou 16h30 · Ana escolheu 16h30',
+                 'Agendada e lançada no funil · sinal de R$ 90 pago']},
+        {nome:'Lembrete', cor:'var(--info)',
+         nos:[['▶','Início','24h antes'],['💬','Mensagem','Pede confirmação'],
+              ['◷','Espera','Resposta'],['✓','Agenda','Dia confirmado']],
+         passos:['Gatilho · consulta da Ana amanhã às 16:30',
+                 'Enviou a confirmação no WhatsApp',
+                 'Ana respondeu: confirmado',
+                 'Agenda fechada · nenhum buraco no dia']},
+        {nome:'Retorno', cor:'var(--ai)',
+         nos:[['▶','Início','Sessão concluída'],['◷','Espera','30 dias'],
+              ['💬','Mensagem','Convida pro retorno'],['✓','Venda','Reagendou']],
+         passos:['Gatilho · limpeza da Ana concluída',
+                 'Esperou 30 dias sem contato',
+                 'Convidou pro retorno com horário sugerido',
+                 'Ana reagendou · R$ 180 de volta no caixa']}
+      ];
+      var f=0, passo=-1, id=null;
+      FLUXOS.forEach(function(fl,k){
+        var b=document.createElement('button');
+        b.type='button'; b.className='flow-tab'; b.style.setProperty('--fc',fl.cor);
+        b.setAttribute('aria-selected', k===0?'true':'false');
+        b.innerHTML='<i></i>'+fl.nome;
+        b.addEventListener('click',function(){ escolhe(k); });
+        abas.appendChild(b);
+      });
+      function desenha(){
+        var fl=FLUXOS[f];
+        tela.style.setProperty('--fc',fl.cor); log.style.setProperty('--fc',fl.cor);
+        tela.innerHTML=fl.nos.map(function(n,i){
+          return '<div class="fn-wrap">'+(i?'<span class="fn-wire" data-w="'+i+'"></span>':'')+
+            '<div class="fn" data-n="'+i+'"><span class="fn-ic">'+n[0]+'</span>'+
+            '<div><strong>'+n[1]+'</strong><em>'+n[2]+'</em></div></div></div>';
+        }).join('');
+        [].slice.call(abas.children).forEach(function(b,k){
+          b.setAttribute('aria-selected', k===f?'true':'false');
+        });
+        pinta();
+      }
+      function pinta(){
+        var fl=FLUXOS[f];
+        [].slice.call(tela.querySelectorAll('.fn')).forEach(function(el,i){
+          el.classList.toggle('ativo', i===passo);
+          el.classList.toggle('feito', i<passo);
+        });
+        [].slice.call(tela.querySelectorAll('.fn-wire')).forEach(function(el,i){
+          el.classList.toggle('on', i<passo);
+        });
+        log.innerHTML = passo<0 ? '<b>Pronto pra rodar.</b>' : '<b>'+(passo+1)+'/4</b> '+fl.passos[passo];
+      }
+      function escolhe(k){ f=k; passo=-1; desenha(); }
+      desenha();
+      cada(1500,function(){
+        passo++;
+        if(passo>=FLUXOS[f].nos.length+1){ f=(f+1)%FLUXOS.length; passo=-1; desenha(); return; }
+        if(passo<FLUXOS[f].nos.length) pinta();
+      });
+    })();
+
     /* carrossel: só no celular. O card fica parado 6s deixando a animação dele
        contar a história, e o dedo do usuário desliga o automático. */
     (function(){
@@ -756,12 +894,19 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
           b.setAttribute('aria-current', k===atual?'true':'false');
         });
       }
-      function vai(k){
+      function vai(k,suave){
         atual=(k+cards.length)%cards.length;
-        trilho.scrollTo({left:cards[atual].offsetLeft-trilho.offsetLeft-((trilho.clientWidth-cards[atual].clientWidth)/2), behavior:'smooth'});
+        trilho.scrollTo({left:cards[atual].offsetLeft-trilho.offsetLeft-((trilho.clientWidth-cards[atual].clientWidth)/2),
+          behavior:suave===false?'auto':'smooth'});
         marca();
       }
       marca();
+      // girar o celular muda a largura do card: sem re-centrar, o carrossel fica
+      // parado no meio de dois
+      var t=null;
+      addEventListener('resize',function(){
+        clearTimeout(t); t=setTimeout(function(){ if(innerWidth<900) vai(atual,false); },160);
+      },{passive:true});
       trilho.addEventListener('touchstart',function(){ manual=true; },{passive:true});
       trilho.addEventListener('scroll',function(){
         var meio=trilho.scrollLeft+trilho.clientWidth/2, perto=0, dist=1e9;
