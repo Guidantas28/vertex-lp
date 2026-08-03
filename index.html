@@ -76,7 +76,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   body{background:var(--bg);color:var(--ink);font-family:var(--sans);
     -webkit-font-smoothing:antialiased;line-height:1.5;
     font-size:var(--fs-body);letter-spacing:-.006em;}
-  .wrap{display:flex;flex-direction:column;align-items:center;padding-bottom:92px;}
+  /* a página termina na faixa escura: sem respiro branco embaixo dela */
+  .wrap{display:flex;flex-direction:column;align-items:center;}
   section{width:var(--col);display:flex;flex-direction:column;gap:18px;padding:46px 0;}
   h2{margin:0;font-size:var(--fs-page-title);line-height:1.18;font-weight:650;
     letter-spacing:-.025em;text-wrap:balance;}
@@ -109,8 +110,10 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   h1{margin:0;font-size:var(--fs-display);line-height:1.04;font-weight:800;
     letter-spacing:-.03em;text-wrap:balance;}
   /* palavra que troca dentro da pincelada */
-  .stk{display:block;position:relative;width:fit-content;max-width:100%;margin:4px auto 0;
-    padding:15px clamp(32px,9.5vw,54px) 15px;font-size:clamp(1.05em,calc(0.9em + 1vw),1.3em);}
+  /* margem negativa puxa as linhas de cima e de baixo pra perto: o bloco da
+     pincelada abria um vão grande no meio da manchete */
+  .stk{display:block;position:relative;width:fit-content;max-width:100%;margin:-7px auto -7px;
+    padding:13px clamp(32px,9.5vw,54px) 13px;font-size:clamp(1.05em,calc(0.9em + 1vw),1.3em);}
   /* estica igual dos 4 lados (sem width/height, senão desalinha). A inclinação
      de 1,2° é o que faz parecer traço de marcador e não retângulo. */
   .stk .bg{position:absolute;top:-13px;right:-13px;bottom:-13px;left:-13px;
@@ -200,7 +203,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   /* faixa com divisão curva depois do botão — canvas quase preto do dark (§24) */
   .band{width:100%;position:relative;overflow:hidden;
     background:linear-gradient(104deg,var(--d-panel) 0%,#121212 46%,var(--d-bg) 100%);
-    display:flex;flex-direction:column;align-items:center;padding-bottom:46px;}
+    display:flex;flex-direction:column;align-items:center;
+    padding-bottom:clamp(56px,14vw,80px);}
   /* tudo dentro da faixa escura vira claro */
   .band .eb{color:var(--accent-400);}
   .band-head h2{color:var(--d-ink);}
@@ -358,19 +362,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   .who{display:flex;align-items:center;gap:9px;font-size:var(--fs-control);color:var(--ink-3);}
   .who i{width:29px;height:29px;border-radius:50%;background:var(--panel-2);display:grid;
     place-items:center;font-size:var(--fs-micro);font-weight:700;color:var(--ink-2);font-style:normal;}
-
-  /* planos */
-  /* preço como manchete: eyebrow à mão + valor com risco cinza embaixo */
-  .preco{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;}
-  .preco .frase{font-size:var(--fs-page-title);font-weight:650;letter-spacing:-.025em;
-    line-height:1.25;color:var(--ink-2);text-wrap:balance;}
-  .preco .n{position:relative;display:inline-block;font-weight:800;letter-spacing:-.035em;
-    line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;
-    font-size:clamp(34px,10vw,44px);}
-  .preco .n .risco{position:absolute;left:-3%;bottom:-10px;width:106%;height:11px;overflow:visible;}
-  .preco .n .risco path{fill:none;stroke:var(--ink-3);stroke-width:4;stroke-linecap:round;
-    stroke-dasharray:260;stroke-dashoffset:260;animation:draw .85s .35s ease-out forwards;}
-  .preco .mes{font-size:var(--fs-control);color:var(--ink-2);margin-top:6px;}
 
   /* form */
   .form{background:var(--panel-2);border-radius:var(--r-lg);padding:18px;
@@ -576,15 +567,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     <div class="band-cta"><a href="#agendar" class="cta">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
   </div>
 
-  <section class="reveal">
-    <div class="preco">
-      <div class="eb"><u>sem letra miúda<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
-      <div class="frase">O VOS inteiro a partir de</div>
-      <div class="n">R$ 222,75<svg class="risco" viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M3 7C48 2.6 121 1.6 179 3.2c22 .6 45 2 58 3.9"/></svg></div>
-      <div class="mes">por mês · sem fidelidade</div>
-    </div>
-  </section>
-
 </div>
 
 <div class="bar" id="bar"><a href="#agendar" class="cta">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
@@ -693,8 +675,20 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     });
   })();
 
-  var bar=document.getElementById('bar');
-  addEventListener('scroll',function(){bar.classList.toggle('show',scrollY>480);},{passive:true});
+  /* barra fixa: entra depois do primeiro scroll e SAI quando o CTA de verdade
+     (o do fim da faixa) está na tela, senão a página termina com dois botões
+     laranja idênticos empilhados */
+  (function(){
+    var bar=document.getElementById('bar'), fim=document.querySelector('.band-cta');
+    function atualiza(){
+      var naTela=false;
+      if(fim){ var r=fim.getBoundingClientRect(); naTela = r.top < innerHeight-40 && r.bottom > 0; }
+      bar.classList.toggle('show', scrollY>480 && !naTela);
+    }
+    addEventListener('scroll',atualiza,{passive:true});
+    addEventListener('resize',atualiza,{passive:true});
+    atualiza();
+  })();
 
 </script>
 
