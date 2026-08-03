@@ -182,9 +182,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   .pf-txt{font-size:clamp(var(--fs-micro),3vw,var(--fs-label));font-weight:500;
     letter-spacing:-.006em;white-space:nowrap;}
   .pf-txt b{font-weight:600;color:var(--ink-2);}
-  .pf-vos{width:clamp(15px,4vw,19px);height:auto;flex:none;}
-  .pf-vost{font-weight:700;font-size:clamp(var(--fs-label),3.4vw,var(--fs-card-title));
-    letter-spacing:-.03em;color:var(--ink-2);}
+  /* o lockup oficial já traz a palavra VOS: o texto ao lado saiu, era repetição */
+  .pf-logo{height:clamp(13px,3.6vw,16px);width:auto;flex:none;}
   @media (max-width:330px){ .pf-sep{display:none} }
   .integr{display:flex;flex-direction:column;align-items:center;gap:8px;}
   /* label de seção (§18, papel 11): 10px · 600 · uppercase · 0.1em */
@@ -576,13 +575,13 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   </div>
 
   <section class="hero">
-    <div class="eb"><u>São 22h e o cliente chamou<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
-    <h1>Alguém precisa
+    <div class="eb"><u>A nova era do seu negócio<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
+    <h1>A maneira mais fácil de
       <span class="stk"><svg class="bg" id="pincel" viewBox="0 0 400 120" preserveAspectRatio="none"></svg>
-        <span class="stk-word"><i>conversar</i><i>vender</i><i>gerenciar</i></span>
+        <span class="stk-word"><i>atender</i><i>vender</i><i>gerenciar</i></span>
       </span>
-      e não precisa ser você</h1>
-    <p class="lead">A maioria das ferramentas para na conversa. No VOS ela continua: vira orçamento, vira venda, baixa do estoque, avisa o cliente e ainda gera nota fiscal, tudo na mesma tela.</p>
+      seu negócio em um só lugar.</h1>
+    <p class="lead">O VOS transforma conversas em vendas e conecta agenda, estoque, operação e financeiro no mesmo fluxo.</p>
     <a href="#agendar" class="cta">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
     <p class="atrito">15 minutos, sem cartão e sem instalar nada. Você sai da call com o atendimento do seu negócio já desenhado.</p>
     <div class="badges">
@@ -598,11 +597,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
         <span class="pf-sep" aria-hidden="true"></span>
 
         <div class="pf">
-          <svg class="pf-vos" viewBox="0 0 30 30" aria-hidden="true">
-            <path d="M4.4 2.6h14.9l7.1 7.1v17.7a1.6 1.6 0 0 1-1.6 1.6H4.4a1.6 1.6 0 0 1-1.6-1.6V4.2a1.6 1.6 0 0 1 1.6-1.6Z" fill="currentColor"/>
-            <path d="M8.2 9h4.3l2.9 8.4L18.3 9h4.3l-5.4 13.6h-3.6L8.2 9Z" fill="#fff"/>
-          </svg>
-          <span class="pf-txt pf-vost">VOS</span>
+          <img class="pf-logo" src="vos-logo-mono-dark.png" alt="VOS" width="901" height="277">
         </div>
       </div>
       <div class="integr">
@@ -749,6 +744,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     }
     svg.innerHTML=g+'</g>';
   })();
+
 
   /* ── Três provas vivas ──────────────────────────────────────────────────
      Tudo aqui pausa quando a seção sai da tela: são três animações mais o
