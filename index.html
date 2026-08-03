@@ -1065,7 +1065,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
          acompanham qualquer mudança de largura sem conta de porcentagem */
       var setas=[].slice.call(document.querySelectorAll('.feats-seta'));
       function poeSetas(){
-        if(innerWidth<900 || !setas.length) return;
+        if(!setas.length || innerWidth<900) return;
         var base=trilho.parentElement.getBoundingClientRect();
         setas.forEach(function(s,k){
           var a=cards[k], b=cards[k+1]; if(!a||!b) return;
@@ -1074,9 +1074,13 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
           s.style.top=(ra.top + ra.height/2 - base.top)+'px';
         });
       }
-      poeSetas();
+      /* ResizeObserver, não só o resize da janela: ele dispara no primeiro
+         layout, quando a Inter troca a altura do card e em qualquer mudança de
+         largura. Só com o resize da janela a seta ficava em left:0 pra quem
+         carregasse a página já no desktop. */
+      if('ResizeObserver' in window){ new ResizeObserver(poeSetas).observe(trilho); }
       addEventListener('resize',poeSetas,{passive:true});
-      if(document.fonts && document.fonts.ready) document.fonts.ready.then(poeSetas);
+      poeSetas();
     })();
 
     /* liga e desliga tudo conforme a seção entra e sai da tela */
