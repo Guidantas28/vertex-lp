@@ -432,93 +432,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     .fn.ativo{transform:translateY(-2px);}
   }
 
-  /* ── TESTE · celular com a operação rodando dentro ───────────────────────
-     A tipografia interna é maior do que seria num app de verdade: um celular
-     desenhado dentro de um celular fica com metade da largura, e na escala
-     real o texto viraria 8px. */
-  .fone-palco{display:flex;flex-direction:column;align-items:center;
-    margin-top:clamp(18px,5vw,30px);}
-  .fone{position:relative;width:min(300px,82vw);aspect-ratio:9/19.5;
-    padding:9px;border-radius:44px;
-    background:linear-gradient(160deg,#3a3a3a,#111 42%,#2a2a2a);
-    box-shadow:0 30px 70px -30px rgba(0,0,0,.9), inset 0 0 0 1px rgba(255,255,255,.09);}
-  .fone-tela{position:relative;width:100%;height:100%;border-radius:36px;overflow:hidden;
-    background:#0f0f10;display:flex;flex-direction:column;}
-  .fone-ilha{position:absolute;top:9px;left:50%;transform:translateX(-50%);
-    width:74px;height:21px;border-radius:99px;background:#000;z-index:4;}
-  .fone-status{display:flex;align-items:center;justify-content:space-between;
-    padding:9px 18px 4px;font-size:10px;font-weight:600;color:rgba(255,255,255,.9);}
-  .fone-status .fone-sinais{font-size:8px;color:rgba(255,255,255,.65);letter-spacing:1px;}
-  .fone-status i{font-style:normal;font-size:9px;}
-  .app{flex:1;min-height:0;position:relative;overflow:hidden;background:#0f0f10;}
-  .app-top{display:flex;align-items:center;justify-content:space-between;
-    padding:8px 14px 10px;border-bottom:1px solid rgba(255,255,255,.07);}
-  .app-top b{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.02em;}
-  .app-badge{font-size:9px;font-weight:600;color:var(--accent);
-    background:var(--accent-soft);border-radius:999px;padding:2px 7px;}
-  /* lista e conversa dividem o mesmo palco: uma sai, a outra entra */
-  .app-lista,.app-thread{position:absolute;inset:41px 0 0;overflow:hidden;
-    transition:transform .5s var(--ease), opacity .4s var(--ease);}
-  .app-thread{transform:translateX(100%);opacity:0;display:flex;flex-direction:column;}
-  .app.aberto .app-lista{transform:translateX(-24%);opacity:0;}
-  .app.aberto .app-thread{transform:none;opacity:1;}
-
-  .cv{display:flex;gap:9px;padding:9px 12px;align-items:center;
-    border-bottom:1px solid rgba(255,255,255,.05);transition:background .3s var(--ease);}
-  .cv.mira{background:rgba(255,255,255,.07);}
-  .cv-av{position:relative;flex:none;width:32px;height:32px;border-radius:99px;
-    display:grid;place-items:center;background:rgba(255,255,255,.09);
-    font-size:11px;font-weight:700;color:rgba(255,255,255,.85);}
-  /* selo do canal: identidade reconhecível, DS §35 */
-  .cv-canal{position:absolute;right:-2px;bottom:-2px;width:14px;height:14px;
-    border-radius:99px;display:grid;place-items:center;border:2px solid #0f0f10;}
-  .cv-canal svg{width:8px;height:8px;}
-  .cv-tx{flex:1;min-width:0;}
-  .cv-tx b{display:block;font-size:11.5px;font-weight:600;color:#fff;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .cv-tx span{display:block;font-size:10.5px;color:rgba(255,255,255,.5);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .cv-meta{flex:none;text-align:right;}
-  .cv-meta em{display:block;font-style:normal;font-size:9px;color:rgba(255,255,255,.4);}
-  .cv-meta i{display:inline-grid;place-items:center;min-width:15px;height:15px;
-    margin-top:3px;border-radius:99px;background:var(--accent);color:#fff;
-    font-style:normal;font-size:9px;font-weight:700;padding:0 4px;}
-
-  .th-top{display:flex;align-items:center;gap:8px;padding:8px 12px;
-    border-bottom:1px solid rgba(255,255,255,.07);}
-  .th-top .cv-av{width:26px;height:26px;font-size:10px;}
-  .th-top b{font-size:11.5px;color:#fff;}
-  .th-top span{display:block;font-size:9px;color:var(--ok);}
-  .th-corpo{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;
-    justify-content:flex-end;gap:6px;padding:10px;}
-  .ms{max-width:82%;padding:7px 10px;border-radius:11px;font-size:11px;line-height:1.42;
-    animation:msEntra .34s var(--ease) both;}
-  @keyframes msEntra{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
-  .ms.in{align-self:flex-start;background:rgba(255,255,255,.08);color:rgba(255,255,255,.92);
-    border-bottom-left-radius:3px;}
-  .ms.out{align-self:flex-end;background:rgba(21,147,90,.24);color:#fff;
-    border:1px solid rgba(21,147,90,.34);border-bottom-right-radius:3px;}
-  .ms em{display:block;font-style:normal;font-size:8.5px;margin-top:2px;
-    color:rgba(255,255,255,.42);text-align:right;}
-  /* flex, não inline-flex: como selo em linha ele colava no texto da mensagem */
-  .ms-ia{display:flex;align-items:center;gap:4px;font-size:8px;font-weight:700;
-    letter-spacing:.06em;text-transform:uppercase;color:var(--ai);margin-bottom:3px;}
-  .digitando{align-self:flex-end;display:flex;gap:3px;padding:9px 11px;border-radius:11px;
-    background:rgba(255,255,255,.07);animation:msEntra .3s var(--ease) both;}
-  .digitando i{width:4px;height:4px;border-radius:99px;background:rgba(255,255,255,.5);
-    animation:pisca 1.1s infinite;}
-  .digitando i:nth-child(2){animation-delay:.16s}
-  .digitando i:nth-child(3){animation-delay:.32s}
-  @keyframes pisca{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-2px)}}
-  /* o cartão do agendamento é o clímax: entra por último e fica */
-  .agendado{align-self:stretch;margin-top:2px;padding:9px 10px;border-radius:11px;
-    border:1px solid rgba(21,147,90,.4);background:rgba(21,147,90,.14);
-    animation:msEntra .4s var(--ease) both;}
-  .agendado b{display:flex;align-items:center;gap:5px;font-size:11px;color:#fff;}
-  .agendado b svg{width:12px;height:12px;color:var(--ok);}
-  .agendado span{display:block;font-size:9.5px;color:rgba(255,255,255,.6);margin-top:2px;}
-  @media (min-width:760px){ .fone{width:340px;} }
-
   /* ── Esteira de depoimentos ─────────────────────────────────────────────
      3 pistas subindo em velocidades diferentes pra não sincronizar. No celular
      vira 1 pista: 3 colunas em 375px dariam ~110px cada, ilegível. */
@@ -760,23 +673,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       <div class="feats-dots" id="featsDots"></div>
     </div>
 
-    <!-- TESTE (?v=fone): o celular com a operação acontecendo dentro, no lugar
-         dos quatro cards. Proporção 9:19,5 com ilha dinâmica. -->
-    <div class="fone-palco" id="fonePalco" hidden>
-      <div class="fone">
-        <div class="fone-tela">
-          <span class="fone-ilha"></span>
-          <div class="fone-status"><b id="foneHora">22:47</b><span class="fone-sinais">▮▮▮ <i>100%</i></span></div>
-          <div class="app">
-            <div class="app-top"><b>Atendimento</b><span class="app-badge" id="appNaoLidas">3 novas</span></div>
-            <div class="app-lista" id="appLista"></div>
-            <div class="app-thread" id="appThread"></div>
-          </div>
-        </div>
-      </div>
-      <p class="feat-note"><i class="feat-dot"></i><span id="foneNota">Três canais, uma caixa só</span></p>
-    </div>
-
     <div class="band-head band-head-2">
       <div class="eb"><u>Conheça o VOS<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
       <p>Conecta atendimento, automações, vendas, notas fiscais e a gestão inteira em um único lugar.</p>
@@ -1016,90 +912,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
         if(passo>=FLUXOS[f].nos.length+1){ f=(f+1)%FLUXOS.length; passo=-1; desenha(); return; }
         if(passo<FLUXOS[f].nos.length) pinta();
       });
-    })();
-
-    /* TESTE ?v=fone: o celular no lugar dos quatro cards. Roteiro: a caixa com
-       três canais, o toque numa conversa, a IA respondendo e o agendamento
-       nascendo do zero. Loop de ~22s. */
-    (function(){
-      if(new URLSearchParams(location.search).get('v')!=='fone') return;
-      var palco=document.getElementById('fonePalco'), feats=document.getElementById('feats');
-      if(!palco) return;
-      palco.hidden=false; if(feats) feats.remove();
-
-      var lista=document.getElementById('appLista'), thread=document.getElementById('appThread'),
-          app=document.querySelector('.app'), hora=document.getElementById('foneHora'),
-          nota=document.getElementById('foneNota'), naoLidas=document.getElementById('appNaoLidas');
-      var CANAIS={
-        wa:['#25D366','<path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Z"/>'],
-        ig:['#D6249F','<rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="3.6"/>'],
-        em:['#1F6FEB','<rect x="3" y="5" width="18" height="14" rx="2.4"/><path d="m3.6 6.5 8.4 6 8.4-6"/>']
-      };
-      function selo(c){
-        return '<span class="cv-canal" style="background:'+CANAIS[c][0]+'">'+
-          '<svg viewBox="0 0 24 24" fill="#fff">'+CANAIS[c][1]+'</svg></span>';
-      }
-      var CONVERSAS=[
-        ['AP','Ana Prado','wa','Oi, vocês atendem amanhã?','22:47','2'],
-        ['MC','Marina Costa','ig','Ainda tem o sérum de vitamina C?','23:04','1'],
-        ['CE','Consultório · e-mail','em','Orçamento do pacote de 4 sessões','21:10','']
-      ];
-      lista.innerHTML=CONVERSAS.map(function(c,i){
-        return '<div class="cv" data-i="'+i+'"><span class="cv-av">'+c[0]+selo(c[2])+'</span>'+
-          '<span class="cv-tx"><b>'+c[1]+'</b><span>'+c[3]+'</span></span>'+
-          '<span class="cv-meta"><em>'+c[4]+'</em>'+(c[5]?'<i>'+c[5]+'</i>':'')+'</span></div>';
-      }).join('');
-
-      thread.innerHTML='<div class="th-top"><span class="cv-av">AP'+selo('wa')+'</span>'+
-        '<span><b>Ana Prado</b><span>Respondendo sozinho</span></span></div>'+
-        '<div class="th-corpo" id="thCorpo"></div>';
-      var corpo=document.getElementById('thCorpo');
-
-      var IA='<span class="ms-ia">✦ Zé</span>';
-      var ROTEIRO=[
-        [900,  function(){ lista.querySelector('[data-i="0"]').classList.add('mira'); }],
-        [700,  function(){ app.classList.add('aberto'); }],
-        [600,  function(){ msg('in','Oi, vocês atendem amanhã? Quanto fica a limpeza de pele?','22:47'); }],
-        [900,  digita],
-        [1500, function(){ tiraDigita(); msg('out',IA+'Boa noite! Atendemos sim. A limpeza fica R$ 180 e amanhã eu tenho 14h ou 16h30.','22:47'); }],
-        [1600, function(){ msg('in','16h30','22:48'); }],
-        [700,  digita],
-        [1200, function(){ tiraDigita(); msg('out',IA+'Fechado! Agendei pra amanhã às 16h30 com a Camila.','22:48'); }],
-        [900,  function(){
-          corpo.insertAdjacentHTML('beforeend',
-            '<div class="agendado"><b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '+
-            'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5 9 17.5 20 6.5"/></svg>'+
-            'Consulta agendada</b><span>Amanhã 16:30 · Camila · lembrete programado</span></div>');
-          if(nota) nota.textContent='Do primeiro oi ao horário na agenda, sem ninguém digitar';
-          if(naoLidas) naoLidas.textContent='2 novas';
-        }],
-        [4200, function(){ // volta pro começo
-          app.classList.remove('aberto');
-          setTimeout(function(){ corpo.innerHTML=''; lista.querySelector('[data-i="0"]').classList.remove('mira');
-            if(nota) nota.textContent='Três canais, uma caixa só';
-            if(naoLidas) naoLidas.textContent='3 novas'; },520);
-        }]
-      ];
-      function msg(tipo,txt,h){
-        corpo.insertAdjacentHTML('beforeend','<div class="ms '+tipo+'">'+txt+'<em>'+h+'</em></div>');
-        while(corpo.children.length>5) corpo.removeChild(corpo.firstChild);
-      }
-      function digita(){ corpo.insertAdjacentHTML('beforeend','<div class="digitando" id="dig"><i></i><i></i><i></i></div>'); }
-      function tiraDigita(){ var d=document.getElementById('dig'); if(d) d.remove(); }
-
-      var passo=0, t=null, rodando=false;
-      function toca(){
-        if(!rodando) return;
-        var p=ROTEIRO[passo % ROTEIRO.length];
-        t=setTimeout(function(){ if(!rodando) return; p[1](); passo++; toca(); }, p[0]);
-      }
-      function liga(){ if(rodando) return; rodando=true; toca(); }
-      function desliga(){ rodando=false; clearTimeout(t); }
-      if(!reduz && 'IntersectionObserver' in window){
-        new IntersectionObserver(function(es){
-          es.forEach(function(e){ e.isIntersecting?liga():desliga(); });
-        },{threshold:.25}).observe(palco);
-      } else { ROTEIRO.slice(0,9).forEach(function(p){ p[1](); }); }
     })();
 
     /* esteira de depoimentos: 3 pistas subindo. A fita é escrita duas vezes e

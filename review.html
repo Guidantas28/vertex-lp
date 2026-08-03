@@ -91,14 +91,6 @@
   </div>
 
   <div class="tela">
-    <h2>TESTE · celular no lugar dos cards <span class="tag aberto">A/B</span></h2>
-    <p>Mesma página com <code>?v=fone</code>: a conversa acontecendo dentro de um iPhone.</p>
-    <div class="moldura" style="width:375px;height:760px">
-      <iframe data-lp src="index.html?v=fone" width="375" height="760"></iframe>
-    </div>
-  </div>
-
-  <div class="tela">
     <h2>Celular pequeno · 320 × 720</h2>
     <p>O pior caso. Se passa aqui, passa em qualquer aparelho.</p>
     <div class="moldura" style="width:320px;height:720px">
@@ -159,9 +151,7 @@
 <script>
   document.getElementById('recarrega').addEventListener('click', function(){
     document.querySelectorAll('iframe[data-lp]').forEach(function(f){
-      var base = f.getAttribute('src').split('?')[0];
-      var fone = f.getAttribute('src').indexOf('v=fone') > -1;
-      f.src = base + '?' + (fone ? 'v=fone&' : '') + 't=' + Date.now();
+      f.src = 'index.html?t=' + Date.now();
     });
   });
 </script>
