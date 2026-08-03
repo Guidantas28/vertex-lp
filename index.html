@@ -284,6 +284,15 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
   .feat{scroll-snap-align:center;flex:0 0 min(340px,86vw);display:flex;
     flex-direction:column;padding:20px;border-radius:var(--r-lg);
     border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);}
+  /* nota à mão em cima do card: amarra os três numa história só, em vez de
+     três recursos soltos. O do meio não leva nota de propósito, é o momento
+     em que a venda acontece; os dois lados explicam o antes e o depois. */
+  .feat-eb{font-family:var(--script);font-size:17px;font-weight:700;line-height:1.1;
+    color:var(--accent-400);margin-bottom:9px;}
+  .feat-eb u{position:relative;display:inline-block;text-decoration:none;padding-bottom:2px;}
+  .feat-eb u svg{position:absolute;left:-2%;bottom:-3px;width:104%;height:7px;overflow:visible;}
+  .feat-eb u svg path{fill:none;stroke:currentColor;stroke-width:3.6;stroke-linecap:round;
+    stroke-dasharray:260;stroke-dashoffset:260;animation:draw .85s .35s ease-out forwards;}
   .feat h3{margin:0;font-size:var(--fs-subtitle);font-weight:650;line-height:1.25;
     letter-spacing:-.025em;color:var(--d-ink);text-wrap:balance;}
   .feat-sub{margin:8px 0 0;font-size:var(--fs-control);line-height:1.5;color:var(--d-ink-2);}
@@ -636,6 +645,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       <div class="feats-track" id="featsTrack">
 
         <article class="feat">
+          <div class="feat-eb"><u>como funciona o fluxo<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
           <h3>O fluxo trabalha enquanto você dorme.</h3>
           <p class="feat-sub">Monte uma vez e ele roda sozinho: recebe o lead, responde, agenda e lança no funil.</p>
           <div class="flow" id="flow" aria-hidden="true">
@@ -648,7 +658,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
 
         <article class="feat">
           <h3>O time todo numa inbox só.</h3>
-          <p class="feat-sub">Conversas viram histórico e venda, nada fica preso no celular de uma pessoa.</p>
+          <p class="feat-sub">WhatsApp, Instagram, Telegram, Messenger e e-mail na mesma caixa. Nada fica preso no celular de uma pessoa.</p>
           <div class="feat-chat" aria-hidden="true">
             <div class="feat-chat-vp">
               <div class="feat-chat-track" id="chatTrack"></div>
@@ -658,8 +668,9 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
         </article>
 
         <article class="feat">
+          <div class="feat-eb"><u>venda feita, e agora?<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
           <h3>O caixa sobe a cada conversa.</h3>
-          <p class="feat-sub">Toda venda que nasce no WhatsApp cai no caixa na hora, sem ninguém lançar nada.</p>
+          <p class="feat-sub">Toda venda que nasce numa conversa cai no caixa na hora, sem ninguém lançar nada.</p>
           <div class="caixa" aria-hidden="true">
             <span class="caixa-lb">Entrou hoje</span>
             <b class="caixa-n" id="caixaN">R$ 3.899</b>
@@ -774,7 +785,13 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
         ['in','Ainda tem o sérum de vitamina C?','23:04'],
         ['out','Tem 2 unidades. Quer que eu reserve pra você?','23:05'],
         ['in','Reserva! Pego amanhã.','23:05'],
-        ['out','Reservado por 24h. Emito a nota no seu CPF na retirada.','23:06']
+        ['out','Reservado por 24h. Emito a nota no seu CPF na retirada.','23:06'],
+        ['sep','Bruno Salles · Telegram'],
+        ['in','Vocês fazem pacote de 4 sessões?','23:19'],
+        ['out','Fazemos! Sai R$ 620 e posso já deixar as 4 datas na agenda.','23:20'],
+        ['sep','contato@ · E-mail'],
+        ['in','Preciso do orçamento em PDF pro RH aprovar.','23:31'],
+        ['out','Enviei o PDF agora. Assim que aprovarem, a agenda já abre.','23:33']
       ];
       function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
       var seq=CONVERSA.map(function(m){
