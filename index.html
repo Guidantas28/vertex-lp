@@ -336,6 +336,19 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
     background:rgba(255,255,255,.22);cursor:pointer;
     transition:background var(--dur) var(--ease), width var(--dur) var(--ease);}
   .feats-dots button[aria-current="true"]{width:18px;background:var(--accent);}
+  /* dica de arrastar: sem ela, quem para no primeiro card não descobre os
+     outros dois. Some no primeiro toque, porque depois disso vira ruído. */
+  .feats-dica{display:flex;align-items:center;justify-content:center;gap:8px;
+    margin-top:10px;color:var(--accent-400);
+    transition:opacity .4s var(--ease), transform .4s var(--ease);}
+  .feats-dica u{font-family:var(--script);font-size:16px;font-weight:700;
+    text-decoration:none;}
+  .feats-dica svg{width:34px;height:13px;fill:none;stroke:currentColor;
+    stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+    animation:cutuca 1.8s var(--ease) infinite;}
+  @keyframes cutuca{0%,60%,100%{transform:translateX(0)}30%{transform:translateX(5px)}}
+  .feats-dica.foi{opacity:0;transform:translateY(-4px);pointer-events:none;}
+  @media (min-width:900px){ .feats-dica{display:none;} }
   @media (min-width:900px){
     .feats-track{display:grid;grid-template-columns:repeat(3,1fr);overflow:visible;
       gap:14px;padding:0;width:min(1060px,calc(100% - 48px));margin:0 auto;}
@@ -682,6 +695,10 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
 
       </div>
       <div class="feats-dots" id="featsDots"></div>
+      <div class="feats-dica" id="featsDica">
+        <u>arrasta pro lado</u>
+        <svg viewBox="0 0 44 16" aria-hidden="true"><path d="M2 8h34M29 2.5 37.5 8 29 13.5"/></svg>
+      </div>
     </div>
 
     <div class="band-head band-head-2">
@@ -991,10 +1008,12 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       var trilho=document.getElementById('featsTrack'), pontos=document.getElementById('featsDots');
       if(!trilho||!pontos) return;
       var cards=[].slice.call(trilho.children), atual=0, manual=false;
+      var dica=document.getElementById('featsDica');
+      function some(){ if(dica) dica.classList.add('foi'); }
       cards.forEach(function(_,k){
         var b=document.createElement('button');
         b.type='button'; b.setAttribute('aria-label','Card '+(k+1));
-        b.addEventListener('click',function(){ manual=true; vai(k); });
+        b.addEventListener('click',function(){ manual=true; some(); vai(k); });
         pontos.appendChild(b);
       });
       function marca(){
@@ -1015,7 +1034,11 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}</style>
       addEventListener('resize',function(){
         clearTimeout(t); t=setTimeout(function(){ if(innerWidth<900) vai(atual,false); },160);
       },{passive:true});
-      trilho.addEventListener('touchstart',function(){ manual=true; },{passive:true});
+      /* gesto de verdade, não o scroll: o trilho dispara scroll sozinho no
+         ajuste inicial e isso apagava a dica antes de alguém ver */
+      ['pointerdown','wheel'].forEach(function(ev){
+        trilho.addEventListener(ev,function(){ manual=true; some(); },{passive:true});
+      });
       trilho.addEventListener('scroll',function(){
         var meio=trilho.scrollLeft+trilho.clientWidth/2, perto=0, dist=1e9;
         cards.forEach(function(c,k){
