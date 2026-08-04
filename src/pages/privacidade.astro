@@ -1,0 +1,331 @@
+---
+import Base from "../layouts/Base.astro";
+import Logo from "../components/site/Logo.astro";
+import { FOOTER } from "../data/content";
+
+const updated = "4 de agosto de 2026";
+const contato = "team@voshq.com";
+---
+
+<Base
+  title="Política de Privacidade · VOS"
+  description="Quais dados pessoais o VOS coleta neste site, para que servem, com quem compartilhamos e como você exerce seus direitos pela LGPD."
+  initialTheme="light"
+>
+  <div class="ck">
+    <header class="ck-nav">
+      <div class="ck-wrap ck-nav-inner">
+        <Logo variant="dark" />
+        <a class="ck-back" href="/">← Voltar ao site</a>
+      </div>
+    </header>
+
+    <main class="ck-wrap ck-main">
+      <p class="ck-eyebrow">Jurídico</p>
+      <h1 class="ck-h1">Política de Privacidade</h1>
+      <p class="ck-updated">Última atualização: {updated}</p>
+
+      <div class="ck-prose">
+        <p>
+          Esta política explica quais dados pessoais coletamos neste site, por que
+          coletamos, com quem compartilhamos e como você pode exercer seus direitos.
+          Escrevemos em português claro, sem juridiquês desnecessário.
+        </p>
+
+        <h2>1. Quem é o responsável pelos seus dados</h2>
+        <p>
+          O controlador dos dados é a <strong>{FOOTER.company}</strong>
+          (CNPJ {FOOTER.cnpj}), responsável pela plataforma VOS, nos termos da Lei
+          Geral de Proteção de Dados (LGPD – Lei nº 13.709/2018).
+        </p>
+        <p>
+          Canal para falar sobre privacidade: <a href={`mailto:${contato}`}>{contato}</a>.
+        </p>
+
+        <h2>2. Quais dados coletamos</h2>
+
+        <h3>Dados que você nos entrega</h3>
+        <p>
+          Quando você preenche o formulário para conhecer o VOS ou agendar uma
+          demonstração, coletamos: <strong>nome, e-mail, telefone, país, empresa,
+          segmento de atuação, faixa de faturamento e o desafio</strong> que você
+          descreve. Ao agendar, registramos também a data e o horário escolhidos.
+        </p>
+
+        <h3>Dados coletados automaticamente</h3>
+        <p>
+          Durante a navegação, coletamos dados técnicos e de origem do acesso:
+          endereço IP, informações do navegador e dispositivo, páginas visitadas,
+          data e hora do acesso, e os parâmetros que identificam de onde você veio
+          (UTMs e identificadores de clique de anúncios, como <code>fbclid</code> e
+          <code>gclid</code>), além de identificadores de medição gerados por cookies.
+        </p>
+
+        <h2>3. Para que usamos e com qual base legal</h2>
+
+        <div class="ck-table" role="table" aria-label="Finalidades e bases legais">
+          <div class="ck-row ck-row--head" role="row">
+            <span role="columnheader">Finalidade</span>
+            <span role="columnheader">O que fazemos</span>
+            <span role="columnheader">Base legal (LGPD)</span>
+          </div>
+          <div class="ck-row" role="row">
+            <span role="cell"><strong>Atender seu contato</strong></span>
+            <span role="cell">
+              Responder você, entender sua operação e realizar a demonstração
+              agendada.
+            </span>
+            <span role="cell">Procedimentos preliminares de contrato (art. 7º, V)</span>
+          </div>
+          <div class="ck-row" role="row">
+            <span role="cell"><strong>Medir e melhorar</strong></span>
+            <span role="cell">
+              Entender como o site é usado, corrigir problemas de navegação e medir
+              o desempenho das nossas campanhas de forma agregada.
+            </span>
+            <span role="cell">Legítimo interesse (art. 7º, IX)</span>
+          </div>
+          <div class="ck-row" role="row">
+            <span role="cell"><strong>Segurança</strong></span>
+            <span role="cell">
+              Prevenir fraude, abuso e uso indevido dos nossos formulários.
+            </span>
+            <span role="cell">Legítimo interesse (art. 7º, IX)</span>
+          </div>
+          <div class="ck-row" role="row">
+            <span role="cell"><strong>Comunicação comercial</strong></span>
+            <span role="cell">
+              Enviar informações sobre o VOS a quem demonstrou interesse. Você pode
+              pedir para parar quando quiser.
+            </span>
+            <span role="cell">Legítimo interesse (art. 7º, IX), com oposição garantida</span>
+          </div>
+        </div>
+
+        <p>
+          Não usamos seus dados para tomar decisões automatizadas que afetem seus
+          direitos, e não coletamos dados sensíveis nem dados de crianças e
+          adolescentes por meio deste site.
+        </p>
+
+        <h2>4. Com quem compartilhamos</h2>
+        <p>
+          Compartilhamos apenas o necessário, com fornecedores que nos ajudam a
+          operar o site e a medir resultados:
+        </p>
+        <ul>
+          <li><strong>Plataforma VOS</strong> — onde seu contato é registrado e atendido pelo nosso time.</li>
+          <li><strong>Cal.com</strong> — agendamento e realização da demonstração.</li>
+          <li><strong>Google</strong> (Tag Manager e Analytics) — medição de audiência do site.</li>
+          <li><strong>Meta</strong> (Facebook/Instagram) — medição de desempenho dos anúncios.</li>
+          <li><strong>Microsoft Clarity</strong> — análise de uso do site para melhorias de usabilidade.</li>
+        </ul>
+        <p>
+          Também podemos compartilhar dados quando houver obrigação legal ou
+          determinação de autoridade competente. <strong>Não vendemos seus dados
+          pessoais.</strong>
+        </p>
+
+        <h2>5. Transferência internacional</h2>
+        <p>
+          Alguns dos fornecedores acima processam dados fora do Brasil. Nesses casos,
+          a transferência ocorre com as garantias previstas nos arts. 33 e seguintes
+          da LGPD, incluindo as cláusulas contratuais e compromissos de proteção
+          adotados por esses provedores.
+        </p>
+
+        <h2>6. Por quanto tempo guardamos</h2>
+        <p>
+          Mantemos os dados de contato pelo tempo necessário para o relacionamento
+          comercial e para cumprir obrigações legais. Dados de navegação e medição
+          seguem os prazos de retenção das ferramentas citadas. Encerrada a
+          finalidade, os dados são eliminados ou anonimizados.
+        </p>
+
+        <h2>7. Como protegemos</h2>
+        <p>
+          Adotamos medidas técnicas e administrativas para proteger seus dados, como
+          conexão criptografada (HTTPS), controle de acesso restrito à equipe que
+          precisa dos dados e envio dos formulários por canais protegidos.
+        </p>
+
+        <h2>8. Seus direitos</h2>
+        <p>
+          A LGPD (art. 18) garante a você o direito de: confirmar se tratamos seus
+          dados, acessá-los, corrigi-los, solicitar anonimização ou eliminação,
+          pedir portabilidade, saber com quem compartilhamos, revogar consentimento
+          e se opor a tratamentos baseados em legítimo interesse.
+        </p>
+        <p>
+          Para exercer qualquer um deles, escreva para
+          <a href={`mailto:${contato}`}>{contato}</a>. Respondemos no menor prazo
+          possível, observados os prazos legais. Você também pode apresentar
+          reclamação à <a href="https://www.gov.br/anpd" target="_blank" rel="noopener">ANPD</a>.
+        </p>
+
+        <h2>9. Cookies</h2>
+        <p>
+          O detalhamento de quais cookies usamos, para quê e como desativá-los está
+          na nossa <a href="/cookies">Política de Cookies</a>.
+        </p>
+
+        <h2>10. Alterações nesta política</h2>
+        <p>
+          Podemos atualizar esta política periodicamente. A data no topo indica a
+          última revisão — recomendamos revisitá-la de tempos em tempos.
+        </p>
+      </div>
+
+      <p class="ck-foot">
+        {FOOTER.company} · CNPJ {FOOTER.cnpj} · Feito no Brasil 🇧🇷
+      </p>
+    </main>
+  </div>
+
+</Base>
+
+<style>
+  .ck {
+    min-height: 100vh;
+    background: #f7f6f4;
+    color: #1a202c;
+    font-family: "Geist", "Inter", system-ui, sans-serif;
+  }
+  .ck-wrap {
+    width: min(760px, calc(100vw - 40px));
+    margin-inline: auto;
+  }
+  .ck-nav {
+    border-bottom: 1px solid rgba(20, 19, 28, 0.08);
+    background: rgba(247, 246, 244, 0.85);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .ck-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+  }
+  .ck-back {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #565261;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .ck-back:hover { color: #ed4b00; }
+
+  .ck-main { padding: clamp(40px, 8vh, 80px) 0 clamp(64px, 12vh, 120px); }
+  .ck-eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #ed4b00;
+    margin: 0 0 10px;
+  }
+  .ck-h1 {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-size: clamp(30px, 6vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin: 0;
+  }
+  .ck-updated {
+    margin: 12px 0 0;
+    font-size: 13.5px;
+    color: #8a8696;
+  }
+
+  .ck-prose { margin-top: clamp(28px, 5vh, 44px); }
+  .ck-prose h2 {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 36px 0 12px;
+  }
+  .ck-prose h3 {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 22px 0 8px;
+    color: #1a202c;
+  }
+  .ck-prose p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #3f3b49;
+    margin: 0 0 14px;
+  }
+  .ck-prose ul {
+    margin: 0 0 14px;
+    padding-left: 20px;
+  }
+  .ck-prose li {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #3f3b49;
+    margin-bottom: 8px;
+  }
+  .ck-prose a {
+    color: #ed4b00;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .ck-prose strong { color: #1a202c; font-weight: 600; }
+  .ck-prose code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    background: rgba(20, 19, 28, 0.05);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .ck-table {
+    margin: 6px 0 18px;
+    border: 1px solid rgba(20, 19, 28, 0.1);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .ck-row {
+    display: grid;
+    grid-template-columns: 0.8fr 1.6fr 0.9fr;
+    gap: 14px;
+    padding: 14px 16px;
+    border-top: 1px solid rgba(20, 19, 28, 0.08);
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #3f3b49;
+  }
+  .ck-row:first-child { border-top: none; }
+  .ck-row--head {
+    background: rgba(20, 19, 28, 0.03);
+    font-weight: 700;
+    color: #1a202c;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .ck-row strong { color: #1a202c; }
+
+  .ck-foot {
+    margin-top: clamp(40px, 8vh, 72px);
+    padding-top: 24px;
+    border-top: 1px solid rgba(20, 19, 28, 0.08);
+    font-size: 12.5px;
+    color: #8a8696;
+  }
+
+  @media (max-width: 620px) {
+    .ck-row { grid-template-columns: 1fr; gap: 4px; }
+    .ck-row--head { display: none; }
+    .ck-row span[role="cell"]:first-child { font-size: 15px; }
+  }
+</style>

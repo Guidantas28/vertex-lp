@@ -876,6 +876,7 @@ export const FOOTER = {
   company: "VERTEX GROWTH GESTAO EMPRESARIAL LTDA",
   cnpj: "67.779.810/0001-69",
   legalLinks: [
+    { label: "Política de Privacidade", href: "/privacidade" },
     { label: "Política de Cookies", href: "/cookies" },
   ],
 };
