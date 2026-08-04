@@ -1,0 +1,5 @@
+.env*
+
+references
+scripts/*
+!scripts/patch-vercel-runtime.mjs

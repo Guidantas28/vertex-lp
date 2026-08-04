@@ -1,0 +1,68 @@
+---
+// Foto do PRIMEIRO TOQUE da visita — vai no fim do <body>, em toda página
+// (home e /lp). Compartilhado pra que uma landing nova nunca "esqueça" a
+// atribuição: sem isto, o lead que chega pela /lp perde fbp/fbc/IP.
+---
+
+<!-- Primeiro toque da visita (fbp/fbc/click-ids + IP/UA via /api/first-touch).
+     Guardado em `vos_ft` por 180 dias, PRIMEIRO TOQUE VENCE. Serve pro
+     CallShow, que é offline: no comparecimento não há navegador, então a
+     Meta só liga a call ao anúncio usando estes valores ORIGINAIS. -->
+<script is:inline>
+  (function () {
+    var KEY = "vos_ft";
+    function readCookie(n) {
+      var m = document.cookie.match("(?:^|; )" + n + "=([^;]*)");
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+    if (readCookie(KEY)) return; // já temos o 1º toque: não sobrescreve.
+
+    function capture() {
+      if (readCookie(KEY)) return;
+      var p = new URLSearchParams(location.search);
+      var utm = {};
+      ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"].forEach(function (k) {
+        var v = p.get(k);
+        if (v) utm[k] = v;
+      });
+      // Stape User ID: cookie de 1ª parte do GTM server. É o external_id dos
+      // eventos do site — o comparecimento tem que mandar o MESMO valor, senão
+      // a mesma pessoa vira duas. Se o cookie for HttpOnly o JS não lê; nesse
+      // caso o /api/first-touch pega do header no servidor.
+      var stapeUserId = readCookie("stape_user_id") || readCookie("_stape_user_id") || undefined;
+      // client_id do GA: cookie `_ga` = "GA1.1.<client_id>" → "1234567890.1699999999".
+      var ga = readCookie("_ga");
+      var gaParts = ga ? ga.split(".") : [];
+      var clientId = gaParts.length >= 4 ? gaParts.slice(-2).join(".") : undefined;
+      var payload = {
+        fbclid: p.get("fbclid") || undefined,
+        gclid: p.get("gclid") || undefined,
+        fbp: readCookie("_fbp") || undefined,
+        fbc: readCookie("_fbc") || undefined,
+        clientId: clientId,
+        stapeUserId: stapeUserId,
+        landing: location.href,
+        referrer: document.referrer || undefined,
+        utm: utm,
+      };
+      fetch("/api/first-touch", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (!j || !j.firstTouch || readCookie(KEY)) return;
+          var d = new Date();
+          d.setTime(d.getTime() + 180 * 864e5);
+          document.cookie =
+            KEY + "=" + encodeURIComponent(JSON.stringify(j.firstTouch)) +
+            "; expires=" + d.toUTCString() + "; path=/; SameSite=Lax";
+        })
+        .catch(function () {});
+    }
+
+    // Espera o pixel setar _fbp/_fbc antes de fotografar o 1º toque.
+    window.addEventListener("load", function () { window.setTimeout(capture, 1500); });
+  })();
+</script>

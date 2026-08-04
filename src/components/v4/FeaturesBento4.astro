@@ -1,0 +1,424 @@
+---
+// Bento de features do VOS (estilo ClickUp Brain²): grid escuro com hairlines
+// e mockups vivos. Vive DENTRO do ScrollBand (fundo vem da faixa).
+import FlowLive from "../islands/FlowLive.tsx";
+import FunnelLive from "../islands/FunnelLive.tsx";
+import FinanceLive from "../islands/FinanceLive.tsx";
+import GestaoLive from "../islands/GestaoLive.tsx";
+
+type ChatItem =
+  | { kind: "in" | "out"; text: string; time: string }
+  | { kind: "pay"; order: string; price: string; cta: string }
+  | { kind: "sep"; label: string };
+
+const CHAT: ChatItem[] = [
+  { kind: "in", text: "Oi! Vocês têm o modelo 42 em estoque?", time: "21:04" },
+  { kind: "out", text: "Temos sim! Separei o seu com link de pagamento 👇", time: "21:05" },
+  { kind: "pay", order: "Pedido #4812", price: "R$ 389,90", cta: "Pagar com PIX" },
+  { kind: "in", text: "Paguei! Quando chega?", time: "21:07" },
+  { kind: "out", text: "PIX confirmado ✓ Sai pra entrega amanhã até 12h.", time: "21:07" },
+  { kind: "sep", label: "Marina · Instagram" },
+  { kind: "in", text: "Ainda tem o vestido bege no M?", time: "21:12" },
+  { kind: "out", text: "Tem 2 unidades. Quer que eu reserve pra você?", time: "21:13" },
+  { kind: "in", text: "Reserva! Vou buscar hoje.", time: "21:13" },
+  { kind: "out", text: "Reservado por 2h · te mando o endereço do balcão.", time: "21:14" },
+  { kind: "sep", label: "Carlos · WhatsApp" },
+  { kind: "in", text: "Dá pra parcelar o notebook em 6x?", time: "21:18" },
+  { kind: "out", text: "Sim, 6x de R$ 249 no cartão. Fecho pra você?", time: "21:18" },
+  { kind: "pay", order: "Pedido #4819", price: "R$ 1.494,00", cta: "Pagar no cartão" },
+  { kind: "in", text: "Feito. Nota no CNPJ 12.345?", time: "21:20" },
+  { kind: "out", text: "NF-e emitida e enviada no e-mail ✓", time: "21:21" },
+];
+---
+
+<section class="zx-fbento" id="features">
+  <div class="zx-container">
+    <header class="zx-fbento-head">
+      <h2 class="reveal">Tudo que sua empresa usa,<br />num sistema só.</h2>
+      <p class="reveal reveal-delay-2">
+        Agenda, vendas, ordens de serviço, WhatsApp e financeiro conversando entre si. Você cuida do negócio; o sistema cuida do resto.
+      </p>
+    </header>
+
+    <div class="zx-fgrid">
+      <!-- 1 · ATENDIMENTO (a jornada começa na conversa) -->
+      <article class="zx-fcard reveal">
+        <h3>O time todo numa inbox só.</h3>
+        <p class="zx-fcard-sub">Conversas viram histórico e venda, nada fica preso no celular de uma pessoa.</p>
+        <div class="zx-fchat" aria-hidden="true">
+          <div class="zx-fchat-viewport">
+            <div class="zx-fchat-track">
+              {[0, 1].map((dup) => (
+                <div class="zx-fchat-seq" data-dup={dup}>
+                  {CHAT.map((m, i) => (
+                    m.kind === "sep" ? (
+                      <div class="zx-fchat-sep"><span>{m.label}</span></div>
+                    ) : m.kind === "pay" ? (
+                      <div class="zx-fchat-card">
+                        <span>{m.order} · {m.price}</span>
+                        <b>{m.cta}</b>
+                      </div>
+                    ) : (
+                      <div class={`zx-fchat-msg zx-fchat-msg--${m.kind}`}>
+                        <p>{m.text}</p>
+                        <em>{m.time}</em>
+                      </div>
+                    )
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+          <p class="zx-fcard-note"><i class="zx-fdot"></i>Inbox ao vivo · respondido em 40s</p>
+        </div>
+      </article>
+
+      <!-- 2 · VENDA · a conversa vira negócio no funil -->
+      <article class="zx-fcard reveal reveal-delay-1">
+        <h3>Funil que se move sozinho.</h3>
+        <p class="zx-fcard-sub">Cada conversa vira oportunidade no estágio certo, sem digitar duas vezes.</p>
+        <FunnelLive client:visible />
+      </article>
+
+      <!-- 3 · GESTÃO · produto, serviço e agenda ciclando por segmento -->
+      <article class="zx-fcard reveal reveal-delay-2">
+        <h3>Produto, serviço e agenda sob controle.</h3>
+        <p class="zx-fcard-sub">A venda baixa o estoque, vira ordem de serviço e entra na agenda. Você só acompanha.</p>
+        <GestaoLive client:visible />
+      </article>
+
+      <!-- 4 · AUTOMAÇÃO (wide) · fluxos prontos + agentes seus -->
+      <article class="zx-fcard zx-fcard--wide reveal">
+        <h3>Fluxos prontos. Ou monte seu próprio agente.</h3>
+        <p class="zx-fcard-sub">Ative um fluxo pré-pronto com um clique: cobrança, agendamento, pós-venda. Precisa de algo seu? Crie um agente de IA do zero, sem programar.</p>
+        <FlowLive client:visible />
+      </article>
+
+      <!-- 5 · FINANCEIRO · a jornada termina no caixa -->
+      <article class="zx-fcard reveal reveal-delay-1">
+        <h3>Caixa em tempo real.</h3>
+        <p class="zx-fcard-sub">Cada venda atualiza o fluxo na hora. NF-e e PIX nativos, sem integração.</p>
+        <FinanceLive client:load />
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .zx-fbento {
+    position: relative;
+    padding: clamp(24px, 4vh, 48px) 0 clamp(20px, 3vh, 32px);
+    color: #F2F0FA;
+  }
+
+  .zx-fbento-head {
+    max-width: 720px;
+    margin: 0 auto clamp(36px, 6vh, 56px);
+    text-align: center;
+  }
+  .zx-fbento-head h2 {
+    margin: 0;
+    font-family: var(--zx-display);
+    font-size: var(--zx-fs-title);
+    line-height: var(--zx-lh-title);
+    letter-spacing: var(--zx-ls-title);
+    font-weight: var(--zx-fw-title);
+    color: #fff;
+    text-wrap: balance;
+  }
+  .zx-fbento-head > p:last-child {
+    margin: 16px auto 0;
+    max-width: 540px;
+    font-family: var(--zx-body);
+    font-size: var(--zx-fs-body);
+    font-weight: var(--zx-fw-body);
+    line-height: var(--zx-lh-body);
+    color: rgba(242, 240, 250, 0.62);
+  }
+
+  /* ── Grid 3 + 2 (estilo Brain²) ── */
+  .zx-fgrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .zx-fcard--wide { grid-column: span 3; }
+  @media (min-width: 900px) {
+    .zx-fcard--wide { grid-column: span 1; }
+    .zx-fgrid > .zx-fcard--wide:nth-of-type(4) { grid-column: 1 / span 2; }
+    .zx-fgrid > .zx-fcard--wide:nth-of-type(5) { grid-column: 3 / span 1; }
+  }
+  @media (max-width: 899px) {
+    .zx-fgrid { grid-template-columns: 1fr; }
+    .zx-fcard--wide { grid-column: auto; }
+  }
+
+  .zx-fcard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 420px;
+    padding: clamp(20px, 2.4vw, 28px);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.028);
+    overflow: hidden;
+    transition: transform 0.45s var(--ease-vos, cubic-bezier(0.22, 1, 0.36, 1)),
+      border-color 0.35s ease, background 0.35s ease;
+    will-change: transform;
+  }
+  .zx-fcard:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.045);
+  }
+
+  .zx-fcard h3 {
+    margin: 0;
+    font-family: var(--zx-display);
+    font-size: clamp(18px, 1.8vw, 21px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: #fff;
+    text-wrap: balance;
+  }
+  .zx-fcard-sub {
+    margin: 8px 0 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: rgba(242, 240, 250, 0.6);
+  }
+  .zx-fcard-note {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 14px 0 0;
+    font-size: 11.5px;
+    color: rgba(242, 240, 250, 0.5);
+  }
+
+  .zx-fdot {
+    width: 6px; height: 6px;
+    border-radius: 99px;
+    background: var(--zx-verde);
+    box-shadow: 0 0 0 0 rgba(30, 178, 88, 0.5);
+    animation: zx-fping 2.4s ease-out infinite;
+  }
+  @keyframes zx-fping {
+    0% { box-shadow: 0 0 0 0 rgba(30, 178, 88, 0.45); }
+    70%, 100% { box-shadow: 0 0 0 7px rgba(30, 178, 88, 0); }
+  }
+
+  /* ── 2 · Chat live (scroll infinito) ── */
+  .zx-fchat { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .zx-fchat-viewport {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background:
+      radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1.4px),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%);
+    background-size: 18px 18px, auto;
+    background-color: rgba(0, 0, 0, 0.18);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  }
+  .zx-fchat-track {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+    animation: zx-fchat-scroll 48s linear infinite;
+  }
+  .zx-fchat:hover .zx-fchat-track { animation-play-state: paused; }
+  .zx-fchat-seq {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 12px;
+  }
+  @keyframes zx-fchat-scroll {
+    from { transform: translateY(0); }
+    to { transform: translateY(-50%); }
+  }
+
+  .zx-fchat-msg {
+    position: relative;
+    max-width: 88%;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+  .zx-fchat-msg p { margin: 0; color: rgba(255, 255, 255, 0.9); }
+  .zx-fchat-msg em { display: block; margin-top: 3px; font-style: normal; font-size: 10px; color: rgba(255, 255, 255, 0.38); text-align: right; }
+  .zx-fchat-msg--in {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-bottom-left-radius: 4px;
+  }
+  .zx-fchat-msg--out {
+    align-self: flex-end;
+    background: color-mix(in srgb, var(--zx-verde) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--zx-verde) 30%, transparent);
+    border-bottom-right-radius: 4px;
+  }
+  .zx-fchat-card {
+    align-self: flex-end;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 88%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px dashed color-mix(in srgb, var(--zx-verde) 45%, transparent);
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .zx-fchat-card span { font-size: 11.5px; color: rgba(255, 255, 255, 0.66); }
+  .zx-fchat-card b {
+    font-size: 12px;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--zx-verde) 32%, transparent);
+    text-align: center;
+  }
+  .zx-fchat-sep {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+  }
+  .zx-fchat-sep::before,
+  .zx-fchat-sep::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .zx-fchat-sep span {
+    font-family: var(--zx-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(242, 240, 250, 0.42);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .zx-fcard { transition: none; }
+    .zx-fcard:hover { transform: none; }
+    .zx-fchat-track { animation: none; }
+    .zx-fdot { animation: none; }
+    .zx-fchat-viewport { -webkit-mask-image: none; mask-image: none; overflow: auto; }
+  }
+</style>
+
+<!-- Estilos do GestaoLive (island React → precisa ser global) -->
+<style is:global>
+  .zx-fnotif {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin-top: 16px;
+    min-height: 0;
+  }
+  .zx-fnotif-stack {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    overflow: hidden;
+    /* a mais antiga esvai por baixo, como central de notificações */
+    -webkit-mask-image: linear-gradient(180deg, #000 74%, transparent 99%);
+    mask-image: linear-gradient(180deg, #000 74%, transparent 99%);
+  }
+  .zx-fnotif-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.028));
+    box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+  }
+  .zx-fnotif-ico {
+    display: grid;
+    place-items: center;
+    width: 36px; height: 36px;
+    flex: 0 0 auto;
+    border-radius: 11px;
+    color: var(--c);
+    background: color-mix(in srgb, var(--c) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--c) 34%, transparent);
+  }
+  .zx-fnotif-ico svg { display: block; width: 19px; height: 19px; }
+  .zx-fnotif-txt { min-width: 0; }
+  .zx-fnotif-txt strong {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #F4F2FF;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .zx-fnotif-now {
+    font-style: normal;
+    font-family: var(--zx-mono);
+    font-size: 8.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 999px;
+    color: #8B76FF;
+    background: rgba(109, 74, 255, 0.16);
+    border: 1px solid rgba(139, 118, 255, 0.4);
+  }
+  .zx-fnotif-txt span {
+    display: block;
+    margin-top: 2px;
+    font-size: 11.5px;
+    color: rgba(242, 240, 250, 0.55);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .zx-fnotif-card em {
+    margin-left: auto;
+    flex: 0 0 auto;
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    color: var(--cc);
+    background: color-mix(in srgb, var(--cc) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--cc) 35%, transparent);
+    white-space: nowrap;
+  }
+  .zx-fnotif .zx-fcard-note {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 12px 0 0;
+    font-size: 11.5px;
+    color: rgba(242, 240, 250, 0.5);
+  }
+  .zx-fnotif .zx-fdot {
+    width: 6px; height: 6px;
+    border-radius: 99px;
+    background: var(--zx-verde);
+    animation: zx-fping 2.4s ease-out infinite;
+    flex: 0 0 auto;
+  }
+</style>

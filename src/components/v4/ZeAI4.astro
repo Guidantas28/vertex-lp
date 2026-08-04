@@ -1,0 +1,97 @@
+---
+// Card “Dentro do VOS”: toggle entre delegar (demo) e soluções por time.
+import { SITE, TEAM_SOLUTIONS, SOCIAL } from "../../data/content";
+import VosInsideToggle from "../islands/VosInsideToggle.tsx";
+import { CursorGradient } from "../ui/cursor-gradient";
+
+const avatars = SOCIAL.people.slice(0, 6).map((p) => ({
+  src: p.img,
+  initials: p.name.slice(0, 2).toUpperCase(),
+}));
+---
+
+<section class="zx-zeai" id="solucoes">
+  <div class="zx-zeai-inner">
+    <div class="zx-container">
+      <div class="zx-zeai-memory reveal" data-glow>
+        <CursorGradient client:visible />
+        <VosInsideToggle
+          client:visible
+          signupUrl={SITE.signupUrl}
+          teamTitle={TEAM_SOLUTIONS.title}
+          teamLead="Seus fluxos principais, com IA no comando do VOS."
+          teamCta={TEAM_SOLUTIONS.cta}
+          teamItems={TEAM_SOLUTIONS.items}
+          avatars={avatars}
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .zx-zeai {
+    position: relative;
+    background: transparent;
+    padding: clamp(40px, 6vh, 72px) clamp(16px, 2.5vw, 40px) clamp(64px, 10vh, 120px);
+  }
+  .zx-zeai-inner { position: relative; z-index: 1; }
+  .zx-zeai .zx-container {
+    max-width: min(1320px, 100%);
+    padding-inline: 0;
+  }
+
+  .zx-zeai-memory {
+    position: relative;
+    margin-top: 0;
+    /* Altura travada: abas/animações nunca redimensionam o card */
+    height: clamp(560px, 68vh, 640px);
+    max-height: clamp(560px, 68vh, 640px);
+    padding: clamp(18px, 2.6vw, 32px) clamp(22px, 3.5vw, 44px) clamp(22px, 3.2vw, 36px);
+    border-radius: clamp(28px, 3.5vw, 48px);
+    background:
+      radial-gradient(80% 60% at 88% 92%, rgba(255, 180, 110, 0.55), transparent 60%),
+      radial-gradient(70% 55% at 10% 8%, rgba(91, 40, 170, 0.85), transparent 62%),
+      linear-gradient(158deg, #52309F 0%, #8A3374 30%, #C2452F 58%, #ED4B00 82%, #FF8A3D 100%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow:
+      0 34px 80px -36px rgba(91, 69, 209, 0.5),
+      0 20px 50px -26px rgba(237, 75, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    overflow: hidden;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    container-type: size;
+  }
+  .zx-zeai-memory :global(.vos-in) {
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+  }
+  .zx-zeai-memory::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: 0.16;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+
+  @media (max-width: 900px) {
+    .zx-zeai-memory {
+      height: min(720px, 88dvh);
+      max-height: min(720px, 88dvh);
+    }
+  }
+  @media (max-width: 560px) {
+    .zx-zeai { padding-inline: 12px; }
+    .zx-zeai-memory {
+      height: min(760px, 90dvh);
+      max-height: min(760px, 90dvh);
+    }
+  }
+</style>

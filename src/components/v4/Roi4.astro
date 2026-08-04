@@ -1,0 +1,100 @@
+---
+// Números gigantes com count-up: o que você recebe ao trocar a pilha pelo VOS.
+import { GetStartedButton } from "../ui/get-started-button";
+
+const NUMS = [
+  { value: 22, suffix: "", label: "módulos trabalhando juntos num sistema só", accent: "#ED4B00" },
+  { value: 12, prefix: "até ", suffix: "h", label: "de trabalho braçal devolvidas por semana com o Zé", accent: "#5B45D1" },
+  { value: 30, suffix: " min", label: "pra sair do cadastro e começar a vender", accent: "#2E6BFF" },
+  { value: 100, suffix: "%", label: "em português, com suporte de gente de verdade", accent: "#1EB258" },
+];
+---
+
+<section class="zx-roi">
+  <div class="zx-container">
+    <h2 class="zx-roi-title reveal reveal-delay-1">
+      É como contratar um time inteiro <span class="zx-roi-fade">pagando um só.</span>
+    </h2>
+    <p class="zx-lead reveal reveal-delay-2">
+      Menos assinaturas, menos abas, menos retrabalho. O VOS concentra a operação e o Zé assume o repetitivo.
+    </p>
+
+    <div class="zx-roi-grid">
+      {NUMS.map((n, i) => (
+        <article class={`zx-roi-card reveal reveal-delay-${i % 4}`} style={`--rc:${n.accent}`}>
+          <p class="zx-roi-num">
+            {n.prefix && <span class="zx-roi-prefix">{n.prefix}</span>}
+            <strong data-count={n.value}>0</strong>
+            {n.suffix && <span class="zx-roi-suffix">{n.suffix}</span>}
+          </p>
+          <p class="zx-roi-label">{n.label}</p>
+        </article>
+      ))}
+    </div>
+
+    <div class="zx-roi-cta reveal">
+      <GetStartedButton client:visible label="Quero essa economia" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .zx-roi { padding: clamp(40px, 7vh, 88px) 0 0; }
+  .zx-roi-title {
+    max-width: 900px;
+    font-family: var(--zx-display);
+    font-size: var(--zx-fs-display);
+    line-height: var(--zx-lh-display);
+    letter-spacing: var(--zx-ls-display);
+    font-weight: var(--zx-fw-display);
+    color: var(--zx-ink);
+    text-wrap: balance;
+  }
+  .zx-roi-fade {
+    background: linear-gradient(100deg, var(--zx-ink3), color-mix(in srgb, var(--zx-ink3) 32%, var(--zx-paper)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .zx-roi .zx-lead { max-width: 560px; }
+
+  .zx-roi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+    margin-top: clamp(32px, 5vh, 52px);
+  }
+  .zx-roi-card {
+    padding: 26px 24px 24px;
+    border-radius: 20px;
+    background: var(--zx-panel);
+    border: 1px solid var(--zx-line);
+    border-top: 3px solid var(--rc);
+    transition: transform 0.3s var(--ease-vos, ease), box-shadow 0.3s ease;
+  }
+  .zx-roi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 26px 60px -30px color-mix(in srgb, var(--rc) 55%, transparent);
+  }
+  .zx-roi-num { display: flex; align-items: baseline; }
+  .zx-roi-num strong {
+    font-family: var(--zx-display);
+    font-size: clamp(52px, 6vw, 84px);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: var(--zx-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .zx-roi-prefix { font-size: 18px; font-weight: 700; color: var(--zx-ink3); margin-right: 4px; }
+  .zx-roi-suffix { font-size: clamp(20px, 2.4vw, 30px); font-weight: 800; color: var(--rc); margin-left: 2px; letter-spacing: -0.03em; }
+  .zx-roi-label {
+    margin-top: 12px;
+    font-size: var(--zx-fs-meta);
+    line-height: var(--zx-lh-meta);
+    color: var(--zx-ink2);
+    max-width: 240px;
+  }
+
+  .zx-roi-cta { margin-top: 30px; }
+</style>

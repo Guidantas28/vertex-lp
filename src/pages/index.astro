@@ -1,0 +1,448 @@
+---
+// Landing oficial VOS · Landing VOS estilo "big SaaS": hero de tipografia gigante, faixas dark
+// com bento do Zé, editorial do mascote e CTA em gradiente granulado.
+// Tokens locais no namespace .zx; motion CSS + IntersectionObserver (sem libs).
+import Base from "../layouts/Base.astro";
+import Nav4 from "../components/v4/Nav4.astro";
+import Hero4 from "../components/v4/Hero4.astro";
+import ScrollBand from "../components/site/ScrollBand.astro";
+import SegmentSolutions from "../components/site/SegmentSolutions.astro";
+import FeaturesBento4 from "../components/v4/FeaturesBento4.astro";
+import CtaMid4 from "../components/v4/CtaMid4.astro";
+import ZeHero4 from "../components/v4/ZeHero4.astro";
+import ZeAI4 from "../components/v4/ZeAI4.astro";
+import Roi4 from "../components/v4/Roi4.astro";
+import Results4 from "../components/v4/Results4.astro";
+import Depoimentos4 from "../components/v4/Depoimentos4.astro";
+import Pricing4 from "../components/v4/Pricing4.astro";
+import Faq4 from "../components/v4/Faq4.astro";
+import TestimonialsMarquee4 from "../components/v4/TestimonialsMarquee4.astro";
+import CtaFinal4 from "../components/v4/CtaFinal4.astro";
+import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
+import { SITE } from "../data/content";
+---
+
+<Base
+  title="VOS · Prospecte, automatize, venda e controle. Em um lugar só."
+  description="O sistema completo da sua empresa com o Zé, a IA que executa: prospecta, responde clientes, cobra e agenda por você. CRM, WhatsApp, loja, agenda e financeiro num preço só."
+  initialTheme="light"
+>
+  <script is:inline define:vars={{ signupUrl: SITE.signupUrl }}>
+    window.__VOS_SIGNUP_URL__ = signupUrl;
+  </script>
+  <div class="zx">
+    <Nav4 />
+    <main>
+      <Hero4 />
+      {/* 2 · Resultados por segmento (light) */}
+      <Results4 />
+      {/* Faixa escura: segmentos + features */}
+      <ScrollBand>
+        <SegmentSolutions />
+        <FeaturesBento4 />
+        <CtaMid4 />
+      </ScrollBand>
+      <ZeHero4 />
+      <ZeAI4 />
+      <Roi4 />
+      <Depoimentos4 />
+      <Pricing4 />
+      <Faq4 />
+      <TestimonialsMarquee4 />
+      <CtaFinal4 />
+    </main>
+    <LeadWizardModal client:idle />
+  </div>
+</Base>
+
+<style is:global>
+  /* ─── Tokens da v4 (escopo .zx) ─────────────────────────────────────── */
+  @property --zx-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  .zx {
+    /* Color */
+    --zx-paper: #FFFFFF;
+    --zx-panel: #FFFFFF;
+    --zx-ink: #1A202C;
+    --zx-ink-strong: #202020;
+    --zx-ink2: #646464;
+    --zx-ink3: #8A8696;
+    --zx-line: rgba(26, 32, 44, 0.1);
+    --zx-line-2: rgba(26, 32, 44, 0.18);
+    --zx-hover: rgba(26, 32, 44, 0.05);
+    --zx-lar: #ED4B00;
+    --zx-lar-2: #FF6B2C;
+    --zx-roxo: #5B45D1;
+    --zx-roxo-2: #8B76FF;
+    --zx-azul: #2E6BFF;
+    --zx-verde: #1EB258;
+    --zx-w: 1200px;
+
+    /* Type families — hero source of truth */
+    --zx-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+    --zx-body: "Inter", system-ui, sans-serif;
+    --zx-mono: "JetBrains Mono", ui-monospace, monospace;
+
+    /* Type scale — from Hero4 */
+    --zx-fs-display: clamp(36px, 4.2vw, 52px);
+    --zx-lh-display: 1.1;
+    --zx-ls-display: -0.02em;
+    --zx-fw-display: 700;
+
+    --zx-fs-title: clamp(32px, 3.8vw, 44px);
+    --zx-lh-title: 1.1;
+    --zx-ls-title: -0.02em;
+    --zx-fw-title: 700;
+
+    --zx-fs-body: 16px;
+    --zx-lh-body: 22px;
+    --zx-fw-body: 400;
+    --zx-fw-strong: 600;
+
+    --zx-fs-meta: 13px;
+    --zx-lh-meta: 1.4;
+    --zx-fs-label: 10.5px;
+    --zx-ls-label: 0.16em;
+
+    /* Button — GetStartedButton / hero CTA */
+    --zx-btn-radius: 12px;
+    --zx-btn-fs: 16px;
+    --zx-btn-lh: 22px;
+    --zx-btn-fw: 600;
+    --zx-btn-pad-y: 14px;
+    --zx-btn-pad-x: 22px;
+    --zx-btn-bg: #1A202C;
+    --zx-btn-fg: #fff;
+
+    background: var(--zx-paper);
+    color: var(--zx-ink);
+    font-family: var(--zx-body);
+    font-size: var(--zx-fs-body);
+    line-height: var(--zx-lh-body);
+    overflow-x: clip;
+  }
+  html[data-theme="dark"] .zx {
+    --zx-paper: #0D0C15;
+    --zx-panel: #14121F;
+    --zx-ink: #F2F0FA;
+    --zx-ink2: #B7B3C6;
+    --zx-ink3: #7C7890;
+    --zx-line: rgba(242, 240, 250, 0.09);
+    --zx-line-2: rgba(242, 240, 250, 0.16);
+    --zx-hover: rgba(242, 240, 250, 0.06);
+  }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  .zx-container {
+    max-width: var(--zx-w);
+    margin-inline: auto;
+    padding-inline: clamp(16px, 4vw, 32px);
+  }
+
+  /* Tipografia — padrão da hero */
+  .zx-h1,
+  .zx-h2 {
+    margin-top: 0;
+    font-family: var(--zx-display);
+    font-size: var(--zx-fs-display);
+    line-height: var(--zx-lh-display);
+    letter-spacing: var(--zx-ls-display);
+    font-weight: var(--zx-fw-display);
+    color: var(--zx-ink);
+    text-wrap: balance;
+  }
+  .zx-h2 {
+    font-size: var(--zx-fs-title);
+    line-height: var(--zx-lh-title);
+    letter-spacing: var(--zx-ls-title);
+    font-weight: var(--zx-fw-title);
+  }
+  .zx-lead {
+    margin-top: 16px;
+    max-width: 560px;
+    font-family: var(--zx-body);
+    font-size: var(--zx-fs-body);
+    font-weight: var(--zx-fw-body);
+    line-height: var(--zx-lh-body);
+    color: var(--zx-ink2);
+    text-wrap: balance;
+  }
+  .zx-lead strong,
+  .zx-body strong {
+    font-weight: var(--zx-fw-strong);
+    color: var(--zx-ink-strong);
+  }
+  .zx-body {
+    font-family: var(--zx-body);
+    font-size: var(--zx-fs-body);
+    font-weight: var(--zx-fw-body);
+    line-height: var(--zx-lh-body);
+    color: var(--zx-ink2);
+  }
+  .zx-meta {
+    font-size: var(--zx-fs-meta);
+    line-height: var(--zx-lh-meta);
+    color: var(--zx-ink3);
+  }
+  .zx-label {
+    font-family: var(--zx-mono);
+    font-size: var(--zx-fs-label);
+    letter-spacing: var(--zx-ls-label);
+    text-transform: uppercase;
+    color: var(--zx-ink3);
+  }
+
+  /* Botões — padrão hero (12px, 16/22, 600) */
+  .zx-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: var(--zx-btn-pad-y) var(--zx-btn-pad-x);
+    border-radius: var(--zx-btn-radius);
+    background: var(--zx-btn-bg);
+    color: var(--zx-btn-fg);
+    font-family: var(--zx-body);
+    font-size: var(--zx-btn-fs);
+    font-weight: var(--zx-btn-fw);
+    line-height: var(--zx-btn-lh);
+    letter-spacing: 0;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  }
+  .zx-btn::after { display: none; }
+  .zx-btn:hover {
+    background: #11151c;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px -14px rgba(26, 32, 44, 0.55);
+  }
+  .zx-btn:active { transform: translateY(0); }
+  .zx-btn svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+  }
+  .zx-btn--hero { /* alias do padrão */ }
+  .zx-btn--xl {
+    padding: var(--zx-btn-pad-y) calc(var(--zx-btn-pad-x) + 4px);
+    font-size: var(--zx-btn-fs);
+  }
+  .zx-btn--nav {
+    padding: 10px 16px;
+    font-size: 14px;
+    line-height: 20px;
+    border-radius: 10px;
+  }
+  .zx-btn--ghost {
+    background: transparent;
+    color: var(--zx-ink);
+    border: 1.5px solid var(--zx-line-2);
+  }
+  .zx-btn--ghost:hover {
+    background: transparent;
+    border-color: var(--zx-ink);
+    box-shadow: none;
+  }
+  .zx-btn--roxo {
+    background: linear-gradient(120deg, var(--zx-roxo), #7A5BFF);
+    color: #fff;
+  }
+  .zx-btn--roxo:hover {
+    background: linear-gradient(120deg, var(--zx-roxo), #7A5BFF);
+    box-shadow: 0 16px 36px -14px rgba(91, 69, 209, 0.7);
+  }
+  .zx-btn--white {
+    background: #fff;
+    color: #14131C;
+  }
+  .zx-btn--white:hover {
+    background: #fff;
+    box-shadow: 0 12px 28px -14px rgba(0, 0, 0, 0.45);
+  }
+  .zx-btn--outline-w {
+    background: transparent;
+    color: #fff;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+  }
+  .zx-btn--outline-w:hover {
+    background: transparent;
+    border-color: #fff;
+    box-shadow: none;
+  }
+
+  /* Faixas dark que "abrem" no scroll */
+  .zx-band {
+    position: relative;
+    background:
+      radial-gradient(70% 50% at 18% 0%, rgba(237, 75, 0, 0.13), transparent 60%),
+      radial-gradient(60% 46% at 85% 4%, rgba(91, 69, 209, 0.16), transparent 62%),
+      #0B0A12;
+    border-radius: 34px;
+    transform: scale(0.96);
+    transition: transform 0.9s var(--ease-vos, cubic-bezier(0.22, 1, 0.36, 1)), border-radius 0.9s ease;
+    will-change: transform;
+  }
+  .zx-band.is-open { transform: scale(1); border-radius: 26px; }
+  .zx-band--deep {
+    background-image:
+      radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1.4px),
+      radial-gradient(56% 40% at 50% 0%, rgba(91, 69, 209, 0.2), transparent 65%),
+      radial-gradient(40% 30% at 12% 40%, rgba(237, 75, 0, 0.1), transparent 60%),
+      radial-gradient(46% 34% at 92% 70%, rgba(46, 107, 255, 0.1), transparent 60%);
+    background-size: 26px 26px, auto, auto, auto;
+    background-color: #0A0912;
+    padding: clamp(48px, 8vh, 88px) 0 clamp(48px, 8vh, 80px);
+    max-width: 1440px;
+    margin-inline: auto;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-band { transform: none; transition: none; }
+  }
+
+  /* Traços animados (conectores) */
+  .zx-dash {
+    stroke-dashoffset: 0;
+    animation: zx-dashmove 2.6s linear infinite;
+  }
+  @keyframes zx-dashmove { to { stroke-dashoffset: -16; } }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-dash { animation: none; }
+  }
+
+  .zx .reveal { will-change: transform, opacity; }
+</style>
+
+<script>
+  // ── CTAs → mesma modal de lead ────────────────────────────────────────
+  document.addEventListener("click", (e) => {
+    const el = e.target instanceof Element ? e.target.closest("[data-action='lead']") : null;
+    if (!el) return;
+    e.preventDefault();
+    window.dispatchEvent(new CustomEvent("vos:open-lead"));
+  });
+
+  // ── Nav: estado ao rolar + menu mobile ────────────────────────────────
+  const nav = document.getElementById("zx-nav");
+  const onScroll = () => nav?.classList.toggle("is-scrolled", window.scrollY > 8);
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  const burger = document.getElementById("zx-burger");
+  const mobile = document.getElementById("zx-mobile");
+  burger?.addEventListener("click", () => {
+    const open = burger.getAttribute("aria-expanded") === "true";
+    burger.setAttribute("aria-expanded", String(!open));
+    burger.setAttribute("aria-label", open ? "Abrir menu" : "Fechar menu");
+    if (mobile) {
+      mobile.hidden = open;
+      mobile.classList.toggle("is-open", !open);
+    }
+  });
+  mobile?.querySelectorAll("a").forEach((a) =>
+    a.addEventListener("click", () => {
+      burger?.setAttribute("aria-expanded", "false");
+      if (mobile) { mobile.hidden = true; mobile.classList.remove("is-open"); }
+    })
+  );
+
+  // ── IO genérico: bandas, staggers e funis ─────────────────────────────
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const el = e.target as HTMLElement;
+        if (el.hasAttribute("data-band")) el.classList.add("is-open");
+        else el.classList.add("is-in");
+        io.unobserve(el);
+      }
+    },
+    { threshold: 0.18 }
+  );
+  document
+    .querySelectorAll("[data-band], [data-stagger], [data-funnel]")
+    .forEach((el) => io.observe(el));
+
+  // ── Tabs dos segmentos ────────────────────────────────────────────────
+  document.querySelectorAll<HTMLElement>('[role="tablist"]').forEach((list) => {
+    const tabs = Array.from(list.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const select = (tab: HTMLButtonElement) => {
+      tabs.forEach((t) => {
+        const panel = document.getElementById(t.getAttribute("aria-controls") || "");
+        const on = t === tab;
+        t.setAttribute("aria-selected", String(on));
+        if (panel) panel.hidden = !on;
+      });
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => select(t));
+      t.addEventListener("keydown", (ev) => {
+        if (ev.key !== "ArrowRight" && ev.key !== "ArrowLeft") return;
+        ev.preventDefault();
+        const next = tabs[(i + (ev.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+        next.focus();
+        select(next);
+      });
+    });
+  });
+
+  // ── Tilt 3D nos cards (só ponteiro fino, sem reduced motion) ──────────
+  const fine = matchMedia("(pointer: fine)").matches;
+  const noMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (fine && !noMotion) {
+    document.querySelectorAll<HTMLElement>("[data-tilt]").forEach((card) => {
+      let raf = 0;
+      card.addEventListener("pointermove", (ev) => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const r = card.getBoundingClientRect();
+          const px = (ev.clientX - r.left) / r.width - 0.5;
+          const py = (ev.clientY - r.top) / r.height - 0.5;
+          card.style.transform = `perspective(900px) rotateX(${(-py * 6).toFixed(2)}deg) rotateY(${(px * 8).toFixed(2)}deg) translateY(-2px)`;
+        });
+      });
+      card.addEventListener("pointerleave", () => {
+        cancelAnimationFrame(raf);
+        card.style.transform = "";
+      });
+    });
+  }
+
+  // ── Parallax do Zé no editorial ───────────────────────────────────────
+  if (!noMotion) {
+    const targets = document.querySelectorAll<HTMLElement>("[data-parallax]");
+    if (targets.length) {
+      let ticking = false;
+      const update = () => {
+        ticking = false;
+        const vh = innerHeight;
+        targets.forEach((el) => {
+          const r = el.getBoundingClientRect();
+          if (r.bottom < 0 || r.top > vh) return;
+          const p = (r.top + r.height / 2 - vh / 2) / vh; // -0.5..0.5
+          el.style.transform = `translateY(${(p * -42).toFixed(1)}px)`;
+        });
+      };
+      addEventListener(
+        "scroll",
+        () => {
+          if (!ticking) { ticking = true; requestAnimationFrame(update); }
+        },
+        { passive: true }
+      );
+      update();
+    }
+  }
+</script>

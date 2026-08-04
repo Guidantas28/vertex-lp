@@ -1,0 +1,360 @@
+---
+// Hero: texto à esquerda (typewriter na caixa tracejada), pills clicáveis de
+// módulo e, à direita, a tela do produto sangrando pra fora da viewport com
+// borda infinita (mask) e transição de fumaça ao trocar de tela.
+import HeroAvatars from "../islands/HeroAvatars.tsx";
+import { GetStartedButton } from "../ui/get-started-button";
+import { HeroPill } from "../ui/hero-pill";
+
+// 3 telas reais capturadas em 4x (6400px) do app demo, rotacionando no palco
+const HERO_SHOTS = [
+  { label: "Dashboard", shot: "/assets/hero/dashboard.webp", zoom: 1.55, origin: "0% 0%" },
+];
+---
+
+<section class="zx-hero" id="top">
+  <div class="zx-container zx-hero-grid">
+    <div class="zx-hero-left">
+      <div class="zx-hero-pill reveal">
+        <HeroPill
+          client:visible
+          href="#features"
+          announcement="Novo"
+          label="Conheça a nova experiência VOS"
+        />
+      </div>
+
+      <h1 class="zx-hero-title reveal">
+        A plataforma que<br />
+        <span class="zx-rotate-wrap">conversa</span> vende e gerencia por você
+      </h1>
+
+      <ul class="zx-hero-checks reveal reveal-delay-1">
+        <li>
+          <span class="zx-hero-check" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3.5 8.2 6.4 11l6.1-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span><strong>Venda enquanto conversa.</strong> O cliente chama no WhatsApp, a IA responde, cobra no PIX e a venda cai no caixa.</span>
+        </li>
+        <li>
+          <span class="zx-hero-check" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3.5 8.2 6.4 11l6.1-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span><strong>Gerencie tudo num lugar só.</strong> Agenda, vendas, ordens de serviço, estoque e financeiro conversando entre si.</span>
+        </li>
+        <li>
+          <span class="zx-hero-check" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M3.5 8.2 6.4 11l6.1-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span><strong>Crie seus próprios agentes.</strong> Comece com fluxos prontos ou monte um agente de IA do jeito da sua empresa, sem programar.</span>
+        </li>
+      </ul>
+
+      <div class="zx-hero-cta reveal reveal-delay-2">
+        <GetStartedButton client:visible label="Começar Agora" />
+        <div class="zx-hero-trust">
+          <HeroAvatars client:visible />
+          <p><strong>4.8</strong> <span class="zx-stars" aria-hidden="true">★★★★★</span></p>
+        </div>
+      </div>
+
+      <div class="zx-hero-integr reveal reveal-delay-3">
+        <span class="zx-hero-integr-label">Integrações oficiais</span>
+        <div class="zx-hero-integr-icons">
+          <img class="is-wa" src="/assets/integrations/whatsapp.svg" alt="WhatsApp" width="24" height="24" loading="lazy" />
+          <img class="is-ig" src="/assets/integrations/instagram.png" alt="Instagram" width="24" height="24" loading="lazy" />
+          <img class="is-msg" src="/assets/integrations/messenger.svg" alt="Messenger" width="24" height="24" loading="lazy" />
+          <img class="is-meta" src="/assets/integrations/meta.png" alt="Meta" width="36" height="24" loading="lazy" />
+          <img class="is-tt" src="/assets/icons/tiktok.svg" alt="TikTok" width="24" height="24" loading="lazy" />
+          <img class="is-tg" src="/assets/icons/telegram.svg" alt="Telegram" width="24" height="24" loading="lazy" />
+          <img class="is-claude" src="/assets/integrations/claude.svg" alt="Claude" width="24" height="24" loading="lazy" />
+        </div>
+      </div>
+    </div>
+
+    <div class="zx-hero-right reveal reveal-delay-2">
+      <div class="zx-stage" id="zx-stage">
+        <div class="zx-stage-smoke" aria-hidden="true"></div>
+        <div class="zx-stage-frame">
+          {HERO_SHOTS.map((s, i) => (
+            <img
+              src={s.shot}
+              alt={`Tela do VOS: ${s.label}`}
+              class={i === 0 ? "is-on" : ""}
+              style={`--z:${s.zoom}; --o:${s.origin}`}
+              loading={i === 0 ? "eager" : "lazy"}
+              decoding="async"
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .zx-hero {
+    position: relative;
+    padding: clamp(40px, 6vh, 72px) 0 clamp(48px, 8vh, 88px);
+    overflow: visible;
+  }
+  .zx-hero > * { position: relative; }
+
+  .zx-hero-grid {
+    display: grid;
+    grid-template-columns: 0.94fr 1.06fr;
+    gap: clamp(28px, 4vw, 56px);
+    align-items: center;
+    text-align: left;
+  }
+
+  /* ── Coluna esquerda (copy) ──────────────────────────────────────── */
+  .zx-hero-pill { display: flex; }
+
+  .zx-hero-title {
+    margin-top: clamp(14px, 2vh, 20px);
+    max-width: 560px;
+    font-family: var(--zx-display);
+    font-size: var(--zx-fs-display);
+    line-height: var(--zx-lh-display);
+    letter-spacing: var(--zx-ls-display);
+    font-weight: var(--zx-fw-display);
+    color: var(--zx-ink);
+    text-wrap: balance;
+  }
+
+  /* Bullets — body scale do design system */
+  .zx-hero-checks {
+    list-style: none;
+    margin: clamp(18px, 2.6vh, 26px) 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 520px;
+  }
+  .zx-hero-checks li {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    font-family: var(--zx-body);
+    font-size: var(--zx-fs-body);
+    font-weight: var(--zx-fw-body);
+    line-height: var(--zx-lh-body);
+    color: var(--zx-ink2);
+  }
+  .zx-hero-checks strong {
+    font-weight: var(--zx-fw-strong);
+    color: var(--zx-ink-strong);
+  }
+  :global(html[data-theme="dark"]) .zx-hero-checks li { color: var(--zx-ink2); }
+  :global(html[data-theme="dark"]) .zx-hero-checks strong { color: var(--zx-ink); }
+  .zx-hero-check {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--zx-roxo) 14%, transparent);
+    color: var(--zx-roxo);
+  }
+  .zx-hero-check svg { width: 11px; height: 11px; }
+  .zx-rotate-wrap {
+    position: relative;
+    display: inline-block;
+    padding: 0 12px;
+    margin-inline: 4px;
+    color: var(--zx-lar);
+    white-space: nowrap;
+  }
+  /* caixa de seleção (estilo “editando”) */
+  .zx-rotate-wrap::before {
+    content: "";
+    position: absolute;
+    inset: -3px -8px;
+    border: 2px dashed color-mix(in srgb, var(--zx-lar) 70%, transparent);
+    border-radius: 10px;
+    pointer-events: none;
+  }
+  /* handles nos 4 cantos (centrados na borda, estilo Figma) */
+  .zx-rotate-wrap::after {
+    content: "";
+    position: absolute;
+    inset: -6.5px -11.5px;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--zx-ink), var(--zx-ink)) 0 0 / 7px 7px no-repeat,
+      linear-gradient(var(--zx-ink), var(--zx-ink)) 100% 0 / 7px 7px no-repeat,
+      linear-gradient(var(--zx-ink), var(--zx-ink)) 0 100% / 7px 7px no-repeat,
+      linear-gradient(var(--zx-ink), var(--zx-ink)) 100% 100% / 7px 7px no-repeat;
+  }
+
+  .zx-hero-cta {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-top: clamp(22px, 3.2vh, 30px);
+    flex-wrap: wrap;
+  }
+  .zx-hero-trust {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .zx-hero-trust p { font-size: var(--zx-fs-meta); color: var(--zx-ink3); margin: 0; line-height: var(--zx-lh-meta); }
+  .zx-hero-trust strong { color: var(--zx-ink); font-weight: var(--zx-fw-strong); }
+  .zx-stars { color: #EFB008; letter-spacing: 0.12em; }
+
+  .zx-hero-integr {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--zx-line);
+    max-width: 520px;
+    flex-wrap: wrap;
+  }
+  .zx-hero-integr-label {
+    font-family: var(--zx-mono);
+    font-size: var(--zx-fs-label);
+    letter-spacing: var(--zx-ls-label);
+    text-transform: uppercase;
+    color: var(--zx-ink3);
+  }
+  .zx-hero-integr-icons {
+    display: flex;
+    align-items: center;
+    padding-right: 4px;
+  }
+  .zx-hero-integr-icons img {
+    height: 30px;
+    width: 30px;
+    object-fit: contain;
+    padding: 5px;
+    margin-left: -10px;
+    border-radius: 11px;
+    background: var(--zx-panel, #fff);
+    border: 1.5px solid var(--brand, var(--zx-line));
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.65) inset,
+      0 6px 14px -10px rgba(26, 32, 44, 0.4);
+    opacity: 0.97;
+    transition:
+      transform 0.32s var(--ease-vos, ease),
+      margin 0.32s var(--ease-vos, ease),
+      box-shadow 0.32s ease,
+      filter 0.32s ease;
+    position: relative;
+    transform: rotate(var(--tilt, 0deg));
+  }
+  .zx-hero-integr-icons img:first-child { margin-left: 0; }
+  .zx-hero-integr-icons img.is-wa { z-index: 7; --tilt: -6deg; --brand: #25D366; }
+  .zx-hero-integr-icons img.is-ig { z-index: 6; --tilt: 5deg; --brand: #E1306C; }
+  .zx-hero-integr-icons img.is-msg { z-index: 5; --tilt: -4deg; --brand: #0084FF; }
+  .zx-hero-integr-icons img.is-meta { z-index: 4; --tilt: 3deg; --brand: #0668E1; width: 36px; }
+  .zx-hero-integr-icons img.is-tt { z-index: 3; --tilt: -5deg; --brand: #111111; }
+  .zx-hero-integr-icons img.is-tg { z-index: 2; --tilt: 6deg; --brand: #2AABEE; }
+  .zx-hero-integr-icons img.is-claude { z-index: 1; --tilt: -3deg; --brand: #D97757; }
+
+  /* Hover no grupo: abre o leque e cada ícone se mexe */
+  .zx-hero-integr-icons:hover img {
+    margin-left: 2px;
+    box-shadow: 0 12px 24px -12px rgba(26, 32, 44, 0.48);
+  }
+  .zx-hero-integr-icons:hover img:first-child { margin-left: 0; }
+  .zx-hero-integr-icons:hover img:nth-child(1) { transform: translateY(-8px) rotate(-10deg); }
+  .zx-hero-integr-icons:hover img:nth-child(2) { transform: translateY(-5px) rotate(8deg); }
+  .zx-hero-integr-icons:hover img:nth-child(3) { transform: translateY(-10px) rotate(-7deg); }
+  .zx-hero-integr-icons:hover img:nth-child(4) { transform: translateY(-4px) rotate(5deg); }
+  .zx-hero-integr-icons:hover img:nth-child(5) { transform: translateY(-9px) rotate(-9deg); }
+  .zx-hero-integr-icons:hover img:nth-child(6) { transform: translateY(-6px) rotate(9deg); }
+  .zx-hero-integr-icons:hover img:nth-child(7) { transform: translateY(-8px) rotate(-4deg); }
+
+  .zx-hero-integr-icons img:hover {
+    z-index: 12;
+    filter: brightness(1.04);
+    transform: translateY(-12px) scale(1.16) rotate(0deg) !important;
+  }
+
+  /* ── Palco à direita: sangra pra fora com borda infinita ─────────── */
+  .zx-hero-right { position: relative; min-height: 100%; }
+  .zx-stage {
+    position: relative;
+    /* sangra até a borda da viewport */
+    width: calc(100% + max(24px, (100vw - var(--zx-w)) / 2 + 32px));
+    margin-top: clamp(8px, 2vh, 24px);
+  }
+  .zx-stage-smoke {
+    display: none;
+  }
+  .zx-stage-frame {
+    position: relative;
+    border-radius: 18px;
+    background: var(--zx-panel);
+    border: 1px solid var(--zx-line);
+    box-shadow: 0 34px 90px -38px rgba(20, 19, 28, 0.5);
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    /* borda infinita: some suave no lado direito */
+    -webkit-mask-image: linear-gradient(to right, #000 74%, rgba(0, 0, 0, 0.35) 92%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 74%, rgba(0, 0, 0, 0.35) 92%, transparent 100%);
+  }
+  .zx-stage-frame img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: left top;
+    opacity: 0;
+    transform: scale(calc(var(--z, 1) * 0.99)) translateY(10px);
+    transform-origin: var(--o, 0% 0%);
+    transition: opacity 0.5s ease, transform 0.6s var(--ease-vos, ease);
+    will-change: opacity, transform;
+  }
+  .zx-stage-frame img.is-on {
+    opacity: 1;
+    transform: scale(var(--z, 1));
+    position: relative;
+  }
+
+  /* ── Responsivo ──────────────────────────────────────────────────── */
+  @media (max-width: 1000px) {
+    .zx-hero-grid { grid-template-columns: 1fr; }
+    .zx-hero-title { max-width: 640px; }
+    .zx-stage { width: 100%; margin-top: clamp(20px, 4vh, 36px); }
+    .zx-stage-frame {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-topbar-dot, .zx-type-caret { animation: none; }
+    .zx-stage-frame img { transition: opacity 0.2s ease; transform: scale(var(--z, 1)); }
+    .zx-hero-integr-icons img,
+    .zx-hero-integr-icons:hover img,
+    .zx-hero-integr-icons img:hover {
+      transition: none;
+      transform: none !important;
+      margin-left: -12px;
+    }
+    .zx-hero-integr-icons img:first-child { margin-left: 0; }
+  }
+</style>
+
+<script>
+  // Rotação das telas do palco: crossfade suave (o efeito já vive no CSS via .is-on)
+  (() => {
+    const frame = document.querySelector("#zx-stage .zx-stage-frame");
+    if (!frame) return;
+    const shots = Array.from(frame.querySelectorAll("img"));
+    if (shots.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let i = 0;
+    setInterval(() => {
+      shots[i].classList.remove("is-on");
+      i = (i + 1) % shots.length;
+      shots[i].classList.add("is-on");
+    }, 4600);
+  })();
+</script>
+

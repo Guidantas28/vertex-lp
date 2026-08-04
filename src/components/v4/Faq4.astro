@@ -1,0 +1,102 @@
+---
+// FAQ em details estilizados + chamada final de dúvida.
+import { FAQ } from "../../data/content";
+---
+
+<section class="zx-faq" id="faq">
+  <div class="zx-container">
+    <div class="zx-faq-grid">
+      <header class="zx-faq-head">
+        <h2 class="zx-h2 reveal">O que todo mundo<br />pergunta antes de migrar.</h2>
+        <p class="zx-lead reveal reveal-delay-2">Se a sua dúvida não estiver aqui, chama no WhatsApp que a gente responde de verdade, sem robô de menu.</p>
+      </header>
+      <div class="zx-faq-list">
+        {FAQ.items.map((f, i) => (
+          <details class={`zx-faq-item reveal reveal-delay-${i % 3}`} {...(i === 0 ? { open: true } : {})}>
+            <summary>
+              {f.q}
+              <span class="zx-faq-plus" aria-hidden="true"></span>
+            </summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .zx-faq { padding: clamp(72px, 12vh, 130px) 0 0; }
+  .zx-faq-grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: clamp(28px, 5vw, 72px);
+    align-items: start;
+  }
+  .zx-faq-head { position: sticky; top: 96px; }
+  .zx-faq-list { display: grid; gap: 10px; }
+  .zx-faq-item {
+    border: 1px solid var(--zx-line);
+    border-radius: 16px;
+    background: var(--zx-panel);
+    overflow: hidden;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .zx-faq-item[open] {
+    border-color: color-mix(in srgb, var(--zx-lar) 40%, var(--zx-line));
+    box-shadow: 0 18px 44px -26px rgba(237, 75, 0, 0.35);
+  }
+  .zx-faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 17px 20px;
+    font-family: var(--zx-body);
+    font-size: var(--zx-fs-body);
+    font-weight: var(--zx-fw-strong);
+    line-height: var(--zx-lh-body);
+    letter-spacing: 0;
+    color: var(--zx-ink);
+    cursor: pointer;
+    list-style: none;
+  }
+  .zx-faq-item summary::-webkit-details-marker { display: none; }
+  .zx-faq-plus {
+    position: relative;
+    flex: 0 0 auto;
+    width: 26px; height: 26px;
+    border-radius: 99px;
+    border: 1px solid var(--zx-line-2);
+    transition: transform 0.3s var(--ease-vos, ease), background 0.25s ease, border-color 0.25s ease;
+  }
+  .zx-faq-plus::before, .zx-faq-plus::after {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 10px; height: 1.8px;
+    background: var(--zx-ink2);
+    transform: translate(-50%, -50%);
+    transition: background 0.25s ease;
+  }
+  .zx-faq-plus::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .zx-faq-item[open] .zx-faq-plus {
+    transform: rotate(45deg);
+    background: var(--zx-lar);
+    border-color: var(--zx-lar);
+  }
+  .zx-faq-item[open] .zx-faq-plus::before, .zx-faq-item[open] .zx-faq-plus::after { background: #fff; }
+  .zx-faq-item > p {
+    padding: 0 20px 18px;
+    font-family: var(--zx-body);
+    font-size: var(--zx-fs-meta);
+    line-height: 1.55;
+    color: var(--zx-ink2);
+    max-width: 60ch;
+  }
+
+  @media (max-width: 900px) {
+    .zx-faq-grid { grid-template-columns: 1fr; }
+    .zx-faq-head { position: static; }
+  }
+</style>

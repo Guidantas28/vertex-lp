@@ -1,0 +1,33 @@
+---
+// Depoimentos em cards escuros com foto (testimonial.tsx) + dados de content.ts.
+import { TESTIMONIALS } from "../../data/content";
+import TestimonialCards from "../ui/testimonial";
+
+const ITEMS = TESTIMONIALS.items.slice(0, 3).map((t) => ({
+  text: t.text,
+  name: t.name,
+  biz: t.biz,
+  city: t.city,
+  photo: t.photo,
+  metric: t.metric,
+}));
+---
+
+<section class="zx-depo" id="depoimentos">
+  <div class="zx-container">
+    <h2 class="zx-h2 reveal">Quem entrou, não voltou<br />pra planilha.</h2>
+
+    <div class="zx-depo-cards reveal reveal-delay-2">
+      <TestimonialCards client:visible items={ITEMS} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .zx-depo {
+    padding: clamp(72px, 12vh, 130px) 0 0;
+  }
+  .zx-depo-cards {
+    margin-top: clamp(28px, 4.5vh, 44px);
+  }
+</style>

@@ -1,0 +1,205 @@
+---
+import "../styles/global.css";
+import GtmHead from "../components/tracking/GtmHead.astro";
+import GtmNoScript from "../components/tracking/GtmNoScript.astro";
+import FirstTouch from "../components/tracking/FirstTouch.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  lang?: string;
+  ogLocale?: string;
+  initialTheme?: "light" | "dark";
+}
+
+const {
+  title = "VOS · O sistema operacional da sua empresa",
+  description =
+    "Um sistema. Os módulos que você escolher. Core com Dashboard, WhatsApp, CRM, Assinaturas e Tarefas, ative Commerce, Services e Financeiro quando crescer. Em português, com NF-e e PIX nativos.",
+  lang = "pt-BR",
+  ogLocale = "pt_BR",
+  initialTheme = "light",
+} = Astro.props;
+
+const ogImage = new URL("/og.png", Astro.site ?? "https://osvertex.com").toString();
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <GtmHead />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#F7F6F4" />
+    <script is:inline define:vars={{ initialTheme }}>
+      (function(){try{var saved=localStorage.getItem('vos-theme-v2');var dark=saved?saved==='dark':initialTheme==='dark';document.documentElement.dataset.theme=dark?'dark':'light';document.querySelector('meta[name="theme-color"]').setAttribute('content',dark?'#000000':'#F7F6F4')}catch(e){}})();
+    </script>
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Fontes: Geist (UI, estilo Vercel) · JetBrains Mono (labels) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "VOS",
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        description,
+        url: "https://osvertex.com",
+        offers: { "@type": "Offer", category: "SaaS" },
+      })}
+    />
+  </head>
+  <body>
+    <GtmNoScript />
+    <div class="scroll-progress" aria-hidden="true"></div>
+    <slot />
+
+    <!-- Scroll reveal: robusto no mobile — nada fica invisível pra sempre. -->
+    <script is:inline>
+      (function () {
+        var els = Array.prototype.slice.call(document.querySelectorAll(".reveal"));
+        if (!els.length) return;
+        var show = function (el) { el.classList.add("is-visible"); };
+
+        if (!("IntersectionObserver" in window)) {
+          els.forEach(show);
+          return;
+        }
+
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) {
+                show(e.target);
+                io.unobserve(e.target);
+              }
+            });
+          },
+          // threshold 0: qualquer pixel visível dispara (mais confiável em cards
+          // altos empilhados no mobile, onde 0.12 podia nunca ser atingido).
+          { threshold: 0, rootMargin: "0px 0px -10% 0px" },
+        );
+
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        els.forEach(function (el) {
+          // Já visível no load → mostra na hora (evita blank inicial no mobile).
+          if (el.getBoundingClientRect().top < vh * 0.95) show(el);
+          else io.observe(el);
+        });
+
+        // Rede de segurança: se o IO não disparar (bug de scroll no Chrome
+        // mobile), revela tudo depois de um tempo em vez de deixar branco.
+        window.setTimeout(function () { els.forEach(show); }, 2600);
+      })();
+    </script>
+
+    <!-- Progresso de scroll + contadores + botões magnéticos -->
+    <script>
+      (function () {
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        const bar = document.querySelector(".scroll-progress");
+        if (bar) {
+          let ticking = false;
+          const update = () => {
+            const h = document.documentElement;
+            const max = h.scrollHeight - h.clientHeight;
+            bar.style.width = max > 0 ? (h.scrollTop / max) * 100 + "%" : "0%";
+            ticking = false;
+          };
+          window.addEventListener(
+            "scroll",
+            () => {
+              if (!ticking) {
+                ticking = true;
+                requestAnimationFrame(update);
+              }
+            },
+            { passive: true },
+          );
+          update();
+        }
+
+        const counts = document.querySelectorAll("[data-count]");
+        if (counts.length) {
+          const io = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((e) => {
+                if (!e.isIntersecting) return;
+                io.unobserve(e.target);
+                const el = e.target;
+                const num = parseFloat(el.getAttribute("data-count") || "0");
+                const suffix = el.getAttribute("data-suffix") || "";
+                if (reduce || isNaN(num)) {
+                  el.textContent = num + suffix;
+                  return;
+                }
+                const dur = 1100;
+                const start = performance.now();
+                const step = (now) => {
+                  const t = Math.min(1, (now - start) / dur);
+                  const eased = 1 - Math.pow(1 - t, 3);
+                  el.textContent = Math.round(num * eased) + suffix;
+                  if (t < 1) requestAnimationFrame(step);
+                };
+                requestAnimationFrame(step);
+              });
+            },
+            { threshold: 0.6 },
+          );
+          counts.forEach((c) => io.observe(c));
+        }
+
+        if (reduce) return;
+
+        document.querySelectorAll(".btn-primary").forEach((btn) => {
+          btn.addEventListener("pointermove", (e) => {
+            const r = btn.getBoundingClientRect();
+            const x = (e.clientX - r.left - r.width / 2) * 0.2;
+            const y = (e.clientY - r.top - r.height / 2) * 0.3;
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+          });
+          btn.addEventListener("pointerleave", () => {
+            btn.style.transform = "";
+          });
+        });
+      })();
+
+      document.addEventListener("click", (e) => {
+        const btn = e.target instanceof Element ? e.target.closest("[data-theme-toggle]") : null;
+        if (!btn) return;
+        const dark = document.documentElement.dataset.theme !== "dark";
+        document.documentElement.dataset.theme = dark ? "dark" : "light";
+        try { localStorage.setItem("vos-theme-v2", dark ? "dark" : "light"); } catch (_) {}
+        btn.setAttribute("aria-label", dark ? "Ativar modo claro" : "Ativar modo escuro");
+        document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#000000" : "#F7F6F4");
+      });
+    </script>
+
+    <FirstTouch />
+  </body>
+</html>

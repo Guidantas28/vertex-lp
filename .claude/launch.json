@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "autoPort": false,
+  "configurations": [
+    {
+      "name": "vertex-landing",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 4321
+    },
+    {
+      "name": "vos2-static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["-y", "serve", "public", "-l", "4331"],
+      "port": 4331
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+---
+// Logo VOS (PNG). dark = fundo claro | light = fundo escuro (rodapé).
+interface Props {
+  variant?: "dark" | "light";
+  class?: string;
+  showOS?: boolean;
+}
+const { variant = "dark", class: cls = "" } = Astro.props;
+const src =
+  variant === "light"
+    ? "/assets/brand/vos-logo-light.png"
+    : "/assets/brand/vos-logo-dark.png";
+---
+<a href="/#top" class={`inline-flex items-center ${cls}`} aria-label="VOS, início">
+  <img
+    src={src}
+    alt="VOS"
+    width="112"
+    height="31"
+    decoding="async"
+    class="vos-logo block h-[1.65rem] w-auto select-none"
+  />
+</a>
