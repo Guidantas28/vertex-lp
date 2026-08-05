@@ -60,12 +60,6 @@ const ogImage = `${SITE_URL}/og.png`;
 </head>
 <body>
 <GtmNoScript />
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-  <filter id="t3" x="-30%" y="-80%" width="160%" height="260%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.03 0.07" numOctaves="3" seed="77" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
-</defs></svg>
 
 <div class="wrap">
   <div class="hdr">
@@ -77,7 +71,7 @@ const ogImage = `${SITE_URL}/og.png`;
   <section class="hero">
     <div class="eb"><u>A nova era do seu negócio<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
     <h1>A maneira mais fácil de
-      <span class="stk"><svg class="bg" id="pincel" viewBox="0 0 400 120" preserveAspectRatio="none"></svg>
+      <span class="stk">
         <span class="stk-word"><i>atender</i><i>vender</i><i>gerenciar</i></span>
       </span>
       seu negócio em um só lugar.</h1>
@@ -216,44 +210,6 @@ const ogImage = `${SITE_URL}/og.png`;
 <div class="bar" id="bar"><a href="#agendar" class="cta" data-action="lead">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
 
 <script is:inline>
-  /* pincelada laranja gerada em SVG (traço limpo). Arte decorativa de
-     marketing: hex sancionado pelo CLAUDE.md (tinta do --accent), fora da
-     regra de token da UI de produto. */
-  (function(){
-    function rng(s){return function(){s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;}}
-    var svg=document.getElementById('pincel'); if(!svg) return;
-    var C=getComputedStyle(document.documentElement).getPropertyValue('--stk-brush').trim()||'#ED4B00';
-    var r=rng(83), g='<g filter="url(#t3)" fill="'+C+'">';
-    var x0=48,x1=352,topo=34,base=86,N=18,cima='',baixo='';
-    var meio=(topo+base)/2, metade=(base-topo)/2;
-    // afina de leve só nas pontas (expoente baixo): dá começo e fim de traço,
-    // sem virar formato de folha
-    function afina(u){ return .86+.14*Math.pow(Math.sin(u*Math.PI),.45); }
-    for(var i=0;i<=N;i++){
-      var u=i/N, x=x0+(x1-x0)*u;
-      cima+=(i?'L':'M')+x.toFixed(1)+' '+(meio-metade*afina(u)+(r()-.5)*2.2).toFixed(1)+' ';
-    }
-    for(var j=N;j>=0;j--){
-      var v=j/N, xb=x0+(x1-x0)*v;
-      baixo+='L'+xb.toFixed(1)+' '+(meio+metade*afina(v)+(r()-.5)*2.2).toFixed(1)+' ';
-    }
-    g+='<path d="'+cima+baixo+'Z"/>';
-    // cerdas das pontas: poucas, curtas e finas. Antes eram 12 de cada lado,
-    // grossas, e liam como barras quebradas em vez de pincel
-    [-1,1].forEach(function(dir){
-      for(var k=0;k<5;k++){
-        var y=topo+7+r()*(base-topo-14), len=7+r()*11, h=1.6+r()*2.4;
-        var x=dir<0? x0-len+5 : x1-5;
-        g+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+len.toFixed(1)+
-           '" height="'+h.toFixed(1)+'" rx="'+(h/2).toFixed(1)+'"/>';
-      }
-    });
-    for(var p=0;p<2;p++){
-      var d=r()>.5?1:-1, cx=d>0? x1+7+r()*22 : x0-7-r()*22, cy=topo+4+r()*(base-topo-8);
-      g+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(1+r()*1.9).toFixed(1)+'"/>';
-    }
-    svg.innerHTML=g+'</g>';
-  })();
 
 
   /* ── Três provas vivas ──────────────────────────────────────────────────
