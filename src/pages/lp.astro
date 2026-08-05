@@ -207,6 +207,11 @@ const ogImage = `${SITE_URL}/og.png`;
 
 </div>
 
+<footer class="lp-foot">
+  <span>© 2026 VOS · Vertex Growth Gestão Empresarial LTDA · CNPJ 67.779.810/0001-69</span>
+  <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>
+</footer>
+
 <div class="bar" id="bar"><a href="#agendar" class="cta" data-action="lead">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
 
 <script is:inline>
@@ -579,21 +584,28 @@ const ogImage = `${SITE_URL}/og.png`;
       if(fim){ var r=fim.getBoundingClientRect(); naTela = r.top < innerHeight-40 && r.bottom > 0; }
       bar.classList.toggle('show', scrollY>480 && !naTela);
     }
-    addEventListener('scroll',atualiza,{passive:true});
-    addEventListener('resize',atualiza,{passive:true});
+    /* getBoundingClientRect a cada scroll força layout; coalesce num rAF */
+    var raf=0;
+    function agenda(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=0; atualiza(); }); }
+    addEventListener('scroll',agenda,{passive:true});
+    addEventListener('resize',agenda,{passive:true});
     atualiza();
   })();
 
 </script>
 
-<LeadWizardModal client:idle />
+<LeadWizardModal client:load />
 
 <script is:inline>
-  /* CTA -> modal de lead (mesmo contrato da home: [data-action='lead']). */
+  /* CTA -> modal de lead (mesmo contrato da home: [data-action='lead']).
+     __vosLeadPending cobre o clique que chega ANTES da ilha hidratar (4G):
+     a modal consome a flag no mount e abre sozinha — nenhum toque no CTA
+     principal pode se perder em silêncio. */
   document.addEventListener("click", function (e) {
     var el = e.target instanceof Element ? e.target.closest("[data-action='lead']") : null;
     if (!el) return;
     e.preventDefault();
+    window.__vosLeadPending = true;
     window.dispatchEvent(new CustomEvent("vos:open-lead"));
   });
 </script>
