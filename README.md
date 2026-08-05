@@ -1,42 +1,42 @@
-# VOS · Landing de anúncio
+# Vertex OS — Landing Page
 
-Landing de campanha do VOS. Página única, estática, sem build: o `index.html` já é o site inteiro (CSS e JS inline).
+Landing page de marketing do **Vertex OS** (o "sistema operacional do seu negócio").
+Astro + ilhas React + Tailwind. Deploy na Vercel.
 
-## Rodar local
-
-```bash
-python3 -m http.server 3251 --directory .
-```
-
-Depois abra http://localhost:3251.
-
-## Arquivos
-
-- `index.html` · a landing completa (hero, faixa escura com o dashboard, player, preço e CTA fixo).
-- `broll.mp4` · vídeo vertical 1080×1920 do player, 39s, H.264 + AAC, 7,7 MB.
-- `broll-poster.jpg` · primeiro quadro, mostrado enquanto o vídeo carrega.
-- `vos-logo-mono-dark.png` / `vos-logo-mono-white.png` · lockup mono oficial (o chrome foi aposentado em 24/07).
-
-### Trocar o vídeo
-
-O original é `.mov` HEVC de 52 MB, que Chrome e Android não tocam. Receita do que está no repo:
+## Rodar localmente
 
 ```bash
-ffmpeg -i entrada.mov -c:v libx264 -preset medium -crf 25 -profile:v high -pix_fmt yuv420p -c:a aac -b:a 96k -movflags +faststart broll.mp4
+cp .env.example .env   # ajuste as variáveis
+npm install
+npm run dev            # http://localhost:4321
 ```
 
-Depois o pôster:
+## Variáveis de ambiente
 
-```bash
-ffmpeg -ss 1.2 -i broll.mp4 -frames:v 1 -vf scale=540:960 -q:v 5 broll-poster.jpg
+| Var | Descrição |
+|-----|-----------|
+| `VOS_LEAD_ENDPOINT` | Endpoint público de lead no backend do vos (`/public/marketing-lead`). |
+| `VOS_LEAD_SECRET` | (opcional) segredo compartilhado enviado em `X-Lead-Secret`. |
+| `PUBLIC_CAL_LINK` | Slug do event-type no Cal.com (ex.: `vertex/demo`). |
+| `PUBLIC_CAL_ORIGIN` | Origem do Cal self-hosted (`https://cal.osvertex.com`). |
+| `PUBLIC_SIGNUP_URL` | Destino após virar lead (signup do app). |
+
+## Fluxo dos CTAs
+
+- **Começar / Criar conta** → modal de lead → `POST /api/lead` (serverless) → repassa pro vos → redireciona pro signup.
+- **Agendar demo** → rola até o embed do Cal.com (seção `#agendar`).
+
+## Estrutura
+
+```
+src/
+├─ layouts/Base.astro        SEO/OG, fontes, scroll-reveal
+├─ pages/index.astro         compõe as seções + delegação dos CTAs
+├─ pages/api/lead.ts         serverless proxy → vos
+├─ components/*.astro        seções (Nav, Hero, Pains, Turn, Modules, …)
+├─ components/islands/*.tsx  LeadModal, CalEmbed (React)
+├─ data/content.ts           toda a copy PT-BR
+└─ styles/global.css         tokens, aurora, animações
 ```
 
-Precisa ser 9:16 e ter **legenda queimada**: o vídeo toca sozinho e mudo quando entra na tela (nenhum navegador permite autoplay com som), e o som só liga se a pessoa tocar no chip.
-
-## Deploy
-
-Site estático: basta apontar o host (Vercel, Netlify, Cloudflare Pages, GitHub Pages) pra raiz do repo. Não tem passo de build.
-
-## Dependências externas
-
-Só a Inter, do Google Fonts. Todo o resto é local. O design segue o `docs/DESIGN-SYSTEM.md` do vertex-saas, com uma exceção de campanha registrada no topo do CSS: a ação primária é laranja em vez de mono.
+> ⚠️ Falta: `public/og.png` (1200×630) e screenshots reais do produto (hoje mockups CSS de alta fidelidade).

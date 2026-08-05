@@ -1,0 +1,278 @@
+---
+import Base from "../layouts/Base.astro";
+import Logo from "../components/site/Logo.astro";
+import { FOOTER } from "../data/content";
+
+const updated = "4 de agosto de 2026";
+---
+
+<Base
+  title="Política de Cookies · VOS"
+  description="Como o VOS usa cookies e tecnologias semelhantes, quais categorias existem e como você pode gerenciar suas preferências."
+  initialTheme="light"
+>
+  <div class="ck">
+    <header class="ck-nav">
+      <div class="ck-wrap ck-nav-inner">
+        <Logo variant="dark" />
+        <a class="ck-back" href="/">← Voltar ao site</a>
+      </div>
+    </header>
+
+    <main class="ck-wrap ck-main">
+      <p class="ck-eyebrow">Jurídico</p>
+      <h1 class="ck-h1">Política de Cookies</h1>
+      <p class="ck-updated">Última atualização: {updated}</p>
+
+      <div class="ck-prose">
+        <p>
+          Esta Política de Cookies explica como a <strong>{FOOTER.company}</strong>
+          (CNPJ {FOOTER.cnpj}), responsável pela plataforma VOS, utiliza cookies e
+          tecnologias semelhantes neste site, em conformidade com a Lei Geral de
+          Proteção de Dados (LGPD – Lei nº 13.709/2018).
+        </p>
+
+        <h2>1. O que são cookies</h2>
+        <p>
+          Cookies são pequenos arquivos de texto armazenados no seu dispositivo
+          quando você visita um site. Eles permitem que o site lembre suas ações e
+          preferências, entenda como você navega e meça o desempenho das nossas
+          campanhas. Também usamos tecnologias semelhantes, como pixels e
+          armazenamento local (localStorage).
+        </p>
+
+        <h2>2. Como usamos os cookies</h2>
+        <p>Utilizamos cookies para as seguintes finalidades:</p>
+
+        <div class="ck-table" role="table" aria-label="Categorias de cookies">
+          <div class="ck-row ck-row--head" role="row">
+            <span role="columnheader">Categoria</span>
+            <span role="columnheader">Para que serve</span>
+            <span role="columnheader">Base legal</span>
+          </div>
+          <div class="ck-row" role="row">
+            <span role="cell"><strong>Essenciais</strong></span>
+            <span role="cell">
+              Fazem o site funcionar: segurança e preferências básicas, como o tema
+              claro/escuro.
+            </span>
+            <span role="cell">Necessários para prestar o serviço</span>
+          </div>
+          <div class="ck-row" role="row">
+            <span role="cell"><strong>Desempenho e análise</strong></span>
+            <span role="cell">
+              Ajudam a entender como o site é usado (páginas visitadas, origem do
+              tráfego) para melhorarmos a experiência. Ex.: Google Analytics via
+              Google Tag Manager e Microsoft Clarity.
+            </span>
+            <span role="cell">Legítimo interesse (art. 7º, IX)</span>
+          </div>
+          <div class="ck-row" role="row">
+            <span role="cell"><strong>Marketing</strong></span>
+            <span role="cell">
+              Medem e otimizam nossas campanhas e podem personalizar anúncios em
+              plataformas de terceiros. Ex.: Meta (Facebook/Instagram) e Google Ads.
+            </span>
+            <span role="cell">Legítimo interesse (art. 7º, IX), com oposição garantida</span>
+          </div>
+        </div>
+
+        <p>
+          A medição de audiência é reconhecida pela ANPD como hipótese em que o
+          legítimo interesse pode amparar o uso de cookies. Você pode se opor a
+          qualquer momento — veja como na seção 4.
+        </p>
+
+        <h2>3. Cookies de terceiros</h2>
+        <p>
+          Alguns cookies são definidos por serviços parceiros que utilizamos para
+          medição e marketing. Cada um tem sua própria política de privacidade:
+        </p>
+        <ul>
+          <li>
+            <strong>Google</strong> (Tag Manager, Analytics, Ads) —
+            <a href="https://policies.google.com/technologies/cookies" target="_blank" rel="noopener">política de cookies do Google</a>.
+          </li>
+          <li>
+            <strong>Meta</strong> (Facebook/Instagram) —
+            <a href="https://www.facebook.com/policies/cookies/" target="_blank" rel="noopener">política de cookies da Meta</a>.
+          </li>
+        </ul>
+
+        <h2>4. Como gerenciar suas preferências</h2>
+        <p>Você tem três caminhos, todos sob seu controle:</p>
+        <ul>
+          <li>
+            <strong>No navegador</strong> — bloquear ou apagar cookies nas
+            configurações de privacidade. Desativar os essenciais pode afetar o
+            funcionamento do site.
+          </li>
+          <li>
+            <strong>Nas próprias plataformas</strong> — desativar anúncios
+            personalizados em
+            <a href="https://myadcenter.google.com" target="_blank" rel="noopener">Meus anúncios do Google</a>
+            e nas preferências de anúncios da
+            <a href="https://www.facebook.com/adpreferences" target="_blank" rel="noopener">Meta</a>.
+          </li>
+          <li>
+            <strong>Direto com a gente</strong> — escreva para
+            <a href="mailto:team@voshq.com">team@voshq.com</a> pedindo para se opor
+            ao uso de cookies de análise e marketing.
+          </li>
+        </ul>
+
+        <h2>5. Seus direitos (LGPD)</h2>
+        <p>
+          Você tem direito a acessar, corrigir, portar e solicitar a exclusão dos
+          seus dados pessoais, além de se opor a tratamentos baseados em legítimo
+          interesse. Para exercer esses direitos, escreva para
+          <a href="mailto:team@voshq.com">team@voshq.com</a>. O detalhamento de
+          quais dados coletamos está na nossa
+          <a href="/privacidade">Política de Privacidade</a>.
+        </p>
+
+        <h2>6. Alterações nesta política</h2>
+        <p>
+          Podemos atualizar esta Política de Cookies periodicamente. A data no topo
+          indica a última revisão. Recomendamos revisitá-la de tempos em tempos.
+        </p>
+      </div>
+
+      <p class="ck-foot">
+        {FOOTER.company} · CNPJ {FOOTER.cnpj} · Feito no Brasil 🇧🇷
+      </p>
+    </main>
+  </div>
+
+</Base>
+
+<style>
+  .ck {
+    min-height: 100vh;
+    background: #f7f6f4;
+    color: #1a202c;
+    font-family: "Geist", "Inter", system-ui, sans-serif;
+  }
+  .ck-wrap {
+    width: min(760px, calc(100vw - 40px));
+    margin-inline: auto;
+  }
+  .ck-nav {
+    border-bottom: 1px solid rgba(20, 19, 28, 0.08);
+    background: rgba(247, 246, 244, 0.85);
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .ck-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+  }
+  .ck-back {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #565261;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .ck-back:hover { color: #ed4b00; }
+
+  .ck-main { padding: clamp(40px, 8vh, 80px) 0 clamp(64px, 12vh, 120px); }
+  .ck-eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #ed4b00;
+    margin: 0 0 10px;
+  }
+  .ck-h1 {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-size: clamp(30px, 6vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin: 0;
+  }
+  .ck-updated {
+    margin: 12px 0 0;
+    font-size: 13.5px;
+    color: #8a8696;
+  }
+
+  .ck-prose { margin-top: clamp(28px, 5vh, 44px); }
+  .ck-prose h2 {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 36px 0 12px;
+  }
+  .ck-prose p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #3f3b49;
+    margin: 0 0 14px;
+  }
+  .ck-prose ul {
+    margin: 0 0 14px;
+    padding-left: 20px;
+  }
+  .ck-prose li {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #3f3b49;
+    margin-bottom: 8px;
+  }
+  .ck-prose a {
+    color: #ed4b00;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .ck-prose strong { color: #1a202c; font-weight: 600; }
+
+  .ck-table {
+    margin: 6px 0 18px;
+    border: 1px solid rgba(20, 19, 28, 0.1);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .ck-row {
+    display: grid;
+    grid-template-columns: 0.8fr 1.6fr 0.9fr;
+    gap: 14px;
+    padding: 14px 16px;
+    border-top: 1px solid rgba(20, 19, 28, 0.08);
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #3f3b49;
+  }
+  .ck-row:first-child { border-top: none; }
+  .ck-row--head {
+    background: rgba(20, 19, 28, 0.03);
+    font-weight: 700;
+    color: #1a202c;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .ck-row strong { color: #1a202c; }
+
+  .ck-foot {
+    margin-top: clamp(40px, 8vh, 72px);
+    padding-top: 24px;
+    border-top: 1px solid rgba(20, 19, 28, 0.08);
+    font-size: 12.5px;
+    color: #8a8696;
+  }
+
+  @media (max-width: 620px) {
+    .ck-row { grid-template-columns: 1fr; gap: 4px; }
+    .ck-row--head { display: none; }
+    .ck-row span[role="cell"]:first-child { font-size: 15px; }
+  }
+</style>

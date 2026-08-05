@@ -1,0 +1,30 @@
+---
+// Colunas de depoimentos com scroll infinito (testimonial-v2) — após o FAQ.
+import { SOCIAL } from "../../data/content";
+import TestimonialV2 from "../ui/testimonial-v2";
+
+// 15 depoimentos únicos do SOCIAL (evita a mesma pessoa repetida em colunas vizinhas)
+const ITEMS = SOCIAL.people.map((t) => ({
+  text: t.text,
+  image: t.img,
+  name: t.name,
+  role: t.biz,
+}));
+---
+
+<section class="zx-tstm2" id="depoimentos-mais">
+  <div class="zx-container">
+    <TestimonialV2
+      client:visible
+      items={ITEMS}
+      title="Quem usa, recomenda."
+      lead="Mais histórias de quem organizou a operação no VOS."
+    />
+  </div>
+</section>
+
+<style>
+  .zx-tstm2 {
+    padding: clamp(56px, 10vh, 110px) 0 0;
+  }
+</style>

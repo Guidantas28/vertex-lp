@@ -1,0 +1,20 @@
+---
+// Carrossel de resultados por segmento — segundo bloco, tema light.
+import ResultsCarousel from "../islands/ResultsCarousel.tsx";
+---
+
+<section class="zx-results" id="resultados" aria-label="Resultados por segmento">
+  <div class="zx-results-inner">
+    <ResultsCarousel client:visible />
+  </div>
+</section>
+
+<style>
+  .zx-results {
+    padding: clamp(48px, 8vh, 88px) 0 clamp(40px, 6vh, 64px);
+    background: transparent;
+  }
+  .zx-results-inner {
+    width: 100%;
+  }
+</style>

@@ -1,0 +1,188 @@
+---
+/**
+ * ScrollBand, faixa escura reutilizável estilo ClickUp "Brain²".
+ * O fundo escuro entra arredondado e "encaixotado" (margem nas laterais),
+ * ABRE pras bordas (full-bleed) conforme o scroll, e no fim fecha SÓ UM POUCO
+ * (efeito sutil de cantos) — light e dark.
+ *
+ * Aceita qualquer conteúdo via <slot/>, pode envolver 1 ou mais blocos.
+ * Cores: escuro da marca + brilho laranja (inspirado no gradiente do ClickUp).
+ */
+interface Props {
+  class?: string;
+  /** Sem soft-close no fim — abre até as bordas (ideal p/ CTAs curtos no rodapé). */
+  fullBleed?: boolean;
+}
+const { class: klass = "", fullBleed = false } = Astro.props;
+---
+
+<section
+  data-scrollband
+  data-scrollband-full={fullBleed ? "" : undefined}
+  class={`scrollband ${klass}`}
+>
+  <div data-scrollband-skin class="scrollband__skin" aria-hidden="true">
+    <div class="scrollband__dots"></div>
+    <div class="scrollband__grain"></div>
+  </div>
+  <div class="scrollband__inner">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .scrollband {
+    position: relative;
+    background: transparent;
+    /* estado inicial = fechado (arredondado, com borda). O JS assume a partir daqui. */
+    --ix: 120px;
+    --iy: 64px;
+    --r: 110px;
+    isolation: isolate;
+  }
+
+  /* pele escura, absoluta, animada por inset+raio (não causa reflow do conteúdo) */
+  .scrollband__skin {
+    position: absolute;
+    top: var(--iy);
+    right: var(--ix);
+    bottom: var(--iy);
+    left: var(--ix);
+    border-radius: var(--r);
+    overflow: hidden;
+    z-index: 0;
+    background:
+      radial-gradient(48% 38% at 14% 8%, rgba(237, 75, 0, 0.22), transparent 62%),
+      radial-gradient(46% 36% at 88% 18%, rgba(109, 74, 255, 0.22), transparent 62%),
+      radial-gradient(60% 42% at 50% 50%, rgba(31, 111, 235, 0.14), transparent 66%),
+      radial-gradient(52% 40% at 18% 84%, rgba(109, 74, 255, 0.18), transparent 64%),
+      radial-gradient(64% 46% at 78% 96%, rgba(237, 75, 0, 0.24), transparent 60%),
+      radial-gradient(120% 90% at 50% -10%, rgba(255, 255, 255, 0.06), transparent 42%),
+      linear-gradient(155deg, #15132c 0%, #0e0c1d 46%, #0a0914 100%);
+    box-shadow:
+      0 50px 130px -60px rgba(109, 74, 255, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    will-change: top, right, bottom, left, border-radius;
+  }
+
+  /* textura de pontos concentrada no brilho de baixo (como o dashed do ClickUp) */
+  .scrollband__dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1.4px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(120% 100% at 50% 50%, #000 35%, transparent 80%);
+    mask-image: radial-gradient(120% 100% at 50% 50%, #000 35%, transparent 80%);
+    opacity: 0.5;
+  }
+
+  .scrollband__grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .scrollband__inner {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* mobile: sem efeito abre/fecha, faixa escura full-bleed, senão o conteúdo
+     (vídeo/texto) sobra pra fora da caixa recuada. */
+  @media (max-width: 767px) {
+    .scrollband {
+      --ix: 0px;
+      --iy: 0px;
+      --r: 0px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scrollband {
+      --ix: 0px;
+      --iy: 0px;
+      --r: 0px;
+    }
+  }
+</style>
+
+<script>
+  const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, n));
+
+  function initBand(band: HTMLElement) {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+
+    let ticking = false;
+
+    const update = () => {
+      ticking = false;
+      // mobile: efeito desligado, remove os inline styles p/ a media query (0) valer
+      if (window.innerWidth < 768) {
+        band.style.removeProperty("--ix");
+        band.style.removeProperty("--iy");
+        band.style.removeProperty("--r");
+        return;
+      }
+      const rect = band.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const Tt = vh * 0.35; // distância de abertura (entrada)
+      const topOpen = clamp((vh - rect.top) / Tt, 0, 1);
+      const wantFull = band.hasAttribute("data-scrollband-full");
+
+      let open = topOpen;
+      if (!wantFull) {
+        // Fecha só um pouco no fim (efeito sutil), sem “afinar” demais a faixa.
+        // Em faixas curtas (CTA) isso impede o full-bleed — por isso fullBleed pula.
+        const closeEnd = vh * 0.9;
+        const closeSpan = vh * 0.4;
+        const botOpen = clamp((rect.bottom - closeEnd) / closeSpan, 0, 1);
+        const softClose = (1 - botOpen) * 0.22; // no máx. ~22% fechado
+        open = Math.min(topOpen, 1 - softClose);
+      }
+
+      const c = 1 - open; // 0 = full-bleed, 1 = fechado/arredondado
+      const maxX = Math.max(16, (window.innerWidth - 1280) / 2);
+      const maxY = 28; // inset vertical discreto
+      const maxR = 36; // cantos leves
+
+      band.style.setProperty("--ix", (maxX * c).toFixed(1) + "px");
+      band.style.setProperty("--iy", (maxY * c).toFixed(1) + "px");
+      band.style.setProperty("--r", (maxR * c).toFixed(1) + "px");
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            window.addEventListener("scroll", onScroll, { passive: true });
+            window.addEventListener("resize", onScroll);
+            update();
+          } else {
+            window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("resize", onScroll);
+          }
+        }
+      },
+      { rootMargin: "300px 0px" },
+    );
+
+    io.observe(band);
+    update();
+
+    // Recalcula ao alternar light/dark
+    const mo = new MutationObserver(update);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-scrollband]").forEach(initBand);
+</script>

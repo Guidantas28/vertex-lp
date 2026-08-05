@@ -1,3 +1,24 @@
-.DS_Store
+# build / deps
 node_modules/
+dist/
+.vercel/
+.astro/
+
+# env
+.env
+.env.*
+!.env.example
+
+# os / editor
+.DS_Store
+*.log
+.vscode/
+.idea/
 .vercel
+
+# design references (HTML exports) — fora do repo
+references/
+
+# Render de vídeo (pesado, não versionar)
+video-build/
+video-src/

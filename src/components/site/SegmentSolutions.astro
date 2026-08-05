@@ -1,0 +1,71 @@
+---
+/**
+ * "Solução por segmento", tabs por tipo de negócio com pitch + recursos + depoimento.
+ * Vive dentro da faixa escura (ScrollBand): tema dark + prova social dos nichos atendidos.
+ */
+import SegmentTabs from "../islands/SegmentTabs.tsx";
+import { SEGMENTS, SITE, SOCIAL } from "../../data/content";
+const avatars = SOCIAL.people.slice(0, 5);
+---
+<section id="segmentos" class="relative overflow-hidden pt-24 pb-16 lg:pt-32">
+  <div class="container-vos relative z-10">
+    <div class="mx-auto max-w-2xl text-center reveal">
+      <p class="seg-hand" aria-hidden="true">
+        feito pra você
+        <svg class="seg-hand-line" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none"><path d="M3 8c40-6 120-7 194-3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </p>
+      <h2 class="zx-h2 text-balance" style="color:var(--slate-ink)">{SEGMENTS.title}</h2>
+      <p class="zx-lead mx-auto mt-4 max-w-lg" style="color:var(--slate-ink-2); margin-inline:auto">{SEGMENTS.lead}</p>
+
+      <!-- prova social: nichos atendidos -->
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <div class="flex -space-x-2.5">
+          {avatars.map((a) => (
+            <img src={a.img} alt={a.name} class="h-8 w-8 rounded-full border-2 object-cover" style="border-color:var(--slate)" loading="lazy" />
+          ))}
+        </div>
+        <p class="text-[0.82rem]" style="color:var(--slate-ink-2)">
+          <strong style="color:var(--slate-ink)">Negócios de todos os segmentos</strong> já rodam o dia a dia no VOS
+        </p>
+      </div>
+    </div>
+
+    <SegmentTabs segments={SEGMENTS.items} cta={SEGMENTS.cta} signupUrl={SITE.signupUrl} client:visible />
+  </div>
+</section>
+
+<style>
+  /* manuscrita da marca (Caveat) destacando o título, com write-on no reveal */
+  .seg-hand {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 6px;
+    font-family: "Caveat", cursive;
+    font-weight: 700;
+    font-size: clamp(26px, 3.4vw, 40px);
+    line-height: 0.9;
+    color: var(--accent, #ED4B00);
+    transform: rotate(-3.5deg);
+    /* sem clip no estado base: se a animação falhar, o texto fica INTEIRO */
+  }
+  .seg-hand-line {
+    position: absolute;
+    left: -2%;
+    bottom: -0.34em;
+    width: 104%;
+    height: 0.42em;
+    color: color-mix(in srgb, var(--accent, #ED4B00) 78%, transparent);
+    overflow: visible;
+  }
+  :global(.reveal.is-visible) .seg-hand {
+    animation: seg-write 1.3s cubic-bezier(0.66, 0, 0.34, 1) 0.15s both;
+  }
+  @keyframes seg-write {
+    from { clip-path: inset(-24% 100% -34% -6%); }
+    to   { clip-path: inset(-24% -10% -34% -6%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .seg-hand { clip-path: none; animation: none; }
+  }
+
+</style>

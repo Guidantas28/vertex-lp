@@ -1,0 +1,60 @@
+---
+// CTA final + footer: uma faixa ScrollBand contínua (mesmo fundo/efeito).
+import ScrollBand from "../site/ScrollBand.astro";
+import Footer4 from "./Footer4.astro";
+import { GetStartedButton } from "../ui/get-started-button";
+---
+
+<section class="zx-ctafinal">
+  <ScrollBand class="zx-ctafinal-band" fullBleed>
+    <div class="zx-ctafinal-inner">
+      <div class="zx-container">
+        <h2 class="reveal">
+          Toda a sua empresa.<br />Em um lugar só.
+        </h2>
+        <p class="reveal reveal-delay-1">
+          E o Zé cuidando do braçal, enquanto você cuida do crescimento.
+        </p>
+        <div class="zx-ctafinal-actions reveal reveal-delay-2">
+          <GetStartedButton client:visible variant="white" label="Começar Agora" />
+          <GetStartedButton client:visible variant="outline" label="Ver a plataforma" href="#features" />
+        </div>
+      </div>
+    </div>
+    <Footer4 />
+  </ScrollBand>
+</section>
+
+<style>
+  .zx-ctafinal { padding: 0; }
+  .zx-ctafinal-inner {
+    padding-block: clamp(96px, 16vh, 160px) clamp(32px, 5vh, 48px);
+    text-align: center;
+  }
+  .zx-ctafinal-inner h2 {
+    margin: 0;
+    font-family: var(--zx-display);
+    font-size: var(--zx-fs-display);
+    line-height: var(--zx-lh-display);
+    letter-spacing: var(--zx-ls-display);
+    font-weight: var(--zx-fw-display);
+    color: #F2F0FA;
+    text-wrap: balance;
+  }
+  .zx-ctafinal-inner p {
+    margin: 16px auto 0;
+    max-width: 440px;
+    font-family: var(--zx-body);
+    font-size: var(--zx-fs-body);
+    font-weight: var(--zx-fw-body);
+    line-height: var(--zx-lh-body);
+    color: rgba(242, 240, 250, 0.72);
+  }
+  .zx-ctafinal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+</style>

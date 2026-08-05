@@ -1,0 +1,218 @@
+---
+// Nav da v4: topbar de anúncio + navegação fixa com blur ao rolar.
+import Logo from "../site/Logo.astro";
+import { SITE } from "../../data/content";
+import { GetStartedButton } from "../ui/get-started-button";
+
+const LINKS = [
+  { href: "#features", label: "Plataforma" },
+  { href: "#segmentos", label: "Soluções" },
+  { href: "#precos", label: "Preços" },
+  { href: "#faq", label: "Dúvidas" },
+];
+---
+
+<div class="zx-topbar" id="zx-topbar">
+  <a href="#features">
+    <strong>NOVO</strong>
+    <span class="zx-topbar-dot" aria-hidden="true"></span>
+    <span class="zx-topbar-msg">
+      <span class="zx-topbar-full">Agora você conecta o VOS com seu</span>
+      <span class="zx-topbar-short">Conecta o VOS com seu</span>
+      <em>Claude</em>
+      <img class="zx-topbar-claude" src="/assets/integrations/claude.svg" alt="" width="18" height="18" aria-hidden="true" />
+    </span>
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+</div>
+
+<header class="zx-nav" id="zx-nav">
+  <div class="zx-nav-inner">
+    <Logo />
+    <nav class="zx-nav-links" aria-label="Seções da página">
+      {LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+    <div class="zx-nav-actions">
+      <a class="zx-nav-login" href={SITE.loginUrl}>Entrar</a>
+      <span class="zx-nav-cta">
+        <GetStartedButton client:visible label="Criar Conta" className="!py-2.5 !pl-4 !pr-3 !text-[14px] !leading-5" />
+      </span>
+    </div>
+    <button class="zx-nav-burger" id="zx-burger" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="zx-mobile">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="zx-mobile" id="zx-mobile" hidden>
+    {LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+    <div class="zx-mobile-cta">
+      <GetStartedButton client:visible label="Criar Conta" className="w-full justify-center" />
+    </div>
+  </div>
+</header>
+
+<style>
+  .zx-topbar {
+    position: relative;
+    z-index: 60;
+    background: #F8F9FA;
+    color: #14131C;
+    font-size: 13px;
+    letter-spacing: 0.01em;
+    box-shadow: inset 0 -1px 0 rgba(20, 19, 28, 0.06);
+  }
+  :global(html[data-theme="dark"]) .zx-topbar {
+    background: #F8F9FA;
+    color: #14131C;
+    box-shadow: inset 0 -1px 0 rgba(20, 19, 28, 0.06);
+  }
+  .zx-topbar a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding: 9px 16px;
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .zx-topbar strong {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    flex: 0 0 auto;
+  }
+  .zx-topbar-dot {
+    width: 5px; height: 5px; border-radius: 999px;
+    background: var(--zx-lar-2);
+    box-shadow: 0 0 10px var(--zx-lar-2);
+    animation: zx-blink 2.2s ease infinite;
+    flex: 0 0 auto;
+  }
+  .zx-topbar-msg {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .zx-topbar-short { display: none; }
+  .zx-topbar-msg em {
+    font-style: normal;
+    font-weight: 650;
+    color: #D97757;
+  }
+  .zx-topbar-claude {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    flex: 0 0 auto;
+    display: block;
+  }
+  .zx-topbar a > svg { transition: transform 0.25s var(--ease-vos, ease); flex: 0 0 auto; }
+  .zx-topbar a:hover > svg { transform: translateX(3px); }
+  @keyframes zx-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  @media (max-width: 520px) {
+    .zx-topbar { font-size: 12px; }
+    .zx-topbar a { gap: 6px; padding: 8px 12px; }
+    .zx-topbar-full { display: none; }
+    .zx-topbar-short { display: inline; }
+  }
+  @media (max-width: 360px) {
+    .zx-topbar strong,
+    .zx-topbar-dot { display: none; }
+    .zx-topbar a { gap: 5px; padding: 8px 10px; }
+  }
+
+  .zx-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: transparent;
+    transition: background 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+  }
+  .zx-nav.is-scrolled {
+    background: color-mix(in srgb, var(--zx-paper) 82%, transparent);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    backdrop-filter: saturate(1.4) blur(14px);
+    box-shadow: 0 1px 0 var(--zx-line), 0 12px 32px rgba(20, 19, 28, 0.06);
+  }
+  .zx-nav-inner {
+    max-width: var(--zx-w);
+    margin-inline: auto;
+    padding: 14px clamp(16px, 4vw, 32px);
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  .zx-nav-links {
+    display: flex;
+    gap: 4px;
+    margin-inline: auto;
+  }
+  .zx-nav-links a {
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 550;
+    color: var(--zx-ink2);
+    text-decoration: none;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .zx-nav-links a:hover { color: var(--zx-ink); background: var(--zx-hover); }
+  .zx-nav-actions { display: flex; align-items: center; gap: 14px; }
+  .zx-nav-login {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--zx-ink);
+    text-decoration: none;
+  }
+  .zx-nav-login:hover { color: var(--zx-lar); }
+
+  .zx-nav-burger {
+    display: none;
+    flex-direction: column;
+    gap: 4.5px;
+    padding: 10px 8px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .zx-nav-burger span {
+    width: 20px; height: 2px;
+    border-radius: 2px;
+    background: var(--zx-ink);
+    transition: transform 0.25s ease, opacity 0.2s ease;
+  }
+  .zx-nav-burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .zx-nav-burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .zx-nav-burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  .zx-mobile {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 20px 20px;
+    background: var(--zx-paper);
+    border-bottom: 1px solid var(--zx-line);
+  }
+  .zx-mobile a:not(.zx-btn) {
+    padding: 12px 4px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--zx-ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--zx-line);
+  }
+  .zx-mobile-cta { margin-top: 14px; }
+  .zx-mobile-cta :global(button) { width: 100%; }
+
+  @media (max-width: 900px) {
+    .zx-nav-links, .zx-nav-login { display: none; }
+    .zx-nav-burger { display: flex; }
+    .zx-mobile.is-open { display: flex; }
+    .zx-nav-cta { display: none; }
+  }
+</style>

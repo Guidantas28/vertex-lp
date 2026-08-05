@@ -1,0 +1,306 @@
+=============================================================================
+AUDITORIA DE TIPOGRAFIA: DASHBOARD GERAL vs COMÉRCIO/SMART SHOP
+=============================================================================
+Data: 2026-07-04
+Projeto: /Users/victorsouza/landing-page-vertex/public/_proto/vos2/
+
+=============================================================================
+1. RENDERIZAÇÃO E ESTILOS DO DASHBOARD GERAL (Comércio - COM_KPIS)
+=============================================================================
+
+ARQUIVO: vos2-modules.js
+LINHAS: 301-307
+
+Estrutura de renderização:
+```javascript
+const COM_KPIS = `
+  <div class="kpis" style="margin-bottom:22px">
+    <div class="kpi feat" style="--accent:var(--m-commerce);background:linear-gradient(180deg,var(--info-soft),transparent 70%),var(--panel);border-color:color-mix(in oklab,var(--m-commerce) 30%,transparent)"><div class="k">Vendas · hoje</div><div class="v" style="color:var(--m-commerce)">R$ 12<small>k</small></div><div class="d up">38 pedidos</div></div>
+    <div class="kpi"><div class="k">Online vs Loja</div><div class="v">64<small>/36%</small></div><div class="d">canal de venda</div></div>
+    <div class="kpi"><div class="k">Ticket médio</div><div class="v">R$ 316</div><div class="d up">↑ 5%</div></div>
+    <div class="kpi"><div class="k">SKUs ativos</div><div class="v">214</div><div class="d" style="color:var(--warn)">3 sem estoque</div></div>
+  </div>`;
+```
+
+Classes CSS aplicadas ao Dashboard:
+- .kpis (container de grid)
+- .kpi (card individual)
+- .kpi.feat (card destacado com gradiente)
+- .k (rótulo do KPI - "Vendas · hoje")
+- .v (valor grande do KPI - "R$ 12k")
+- .v small (unidade menor - "k")
+- .d (delta/mudança - "38 pedidos")
+- .d.up (positivo - "↑ 5%")
+
+=============================================================================
+2. TOKENS GLOBAIS DE TIPOGRAFIA (vos2.css)
+=============================================================================
+
+ARQUIVO: vos2.css
+
+Custom Properties declaradas em :root (linhas 29-31):
+```css
+--display:"Archivo Expanded","Archivo",sans-serif;
+--sans:"Archivo",-apple-system,system-ui,sans-serif;
+--mono:"JetBrains Mono",ui-monospace,monospace;
+```
+
+Aplicações globais:
+
+a) BODY (linha 63):
+   ```css
+   body{font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--ink);
+        background:var(--bg);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+   ```
+
+b) Classes utilitárias (linhas 72-73):
+   ```css
+   .mono{font-family:var(--mono);}
+   .display{font-family:var(--display);font-weight:800;letter-spacing:-0.03em;}
+   ```
+
+c) VIEW-HEAD H1 (Títulos de página) - linha 168:
+   ```css
+   .view-head h1{font-family:var(--sans);font-weight:600;letter-spacing:-0.015em;
+                 font-size:22px;line-height:1.2;margin:0;}
+   ```
+
+d) SECT-H H2 (Títulos de seção/card) - linha 196:
+   ```css
+   .sect-h h2{font-family:var(--sans);font-weight:600;font-size:15px;
+              letter-spacing:-0.01em;}
+   ```
+
+e) KPI NÚMEROS GRANDES (.kpi .v) - linhas 215-216:
+   ```css
+   .kpi .v{font-family:var(--sans);font-weight:600;font-size:24px;
+           letter-spacing:-0.02em;line-height:1.1;margin-top:12px;}
+   .kpi .v small{font-family:var(--sans);font-weight:500;font-size:.42em;
+                 color:var(--ink-3);letter-spacing:0;}
+   ```
+
+f) KPI RÓTULO (.kpi .k) - linha 205:
+   ```css
+   .kpi .k{font-family:var(--mono);font-size:10.5px;letter-spacing:0.02em;
+           text-transform:capitalize;color:var(--ink-3);display:flex;
+           align-items:center;gap:7px;}
+   ```
+
+g) KPI DELTA (.kpi .d) - linha 217:
+   ```css
+   .kpi .d{font-family:var(--mono);font-size:10.5px;margin-top:8px;
+           color:var(--ink-3);}
+   ```
+
+=============================================================================
+3. TIPOGRAFIA ATUAL DO COMÉRCIO/SMART SHOP
+=============================================================================
+
+ARQUIVO: vos2-ext.css
+
+Títulos de PÁGINA (Smart Shop - "Projetos") - linhas 707-708:
+```css
+.shop-pages-head{display:flex;align-items:baseline;gap:12px;margin:22px 0 12px;}
+.shop-pages-head h3{font-family:var(--display);font-weight:800;
+                    font-size:16px;letter-spacing:-.01em;}
+```
+
+Cabeçalho de CARD (Commerce Insights) - linhas 402-403:
+```css
+.ci-head{margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.ci-head h2{font-family:var(--display);font-weight:800;font-size:20px;
+            letter-spacing:-.02em;}
+```
+
+NÚMEROS GRANDES de KPI (Commerce Insights) - linha 441:
+```css
+.ci-v{font-family:var(--display);font-weight:800;font-size:30px;
+      letter-spacing:-.02em;margin-top:10px;line-height:1;}
+```
+
+CABEÇALHO/EYEBROW do Comércio - linhas 316-317:
+```css
+.shop-eyebrow{display:inline-flex;align-items:center;gap:7px;
+              font-family:var(--mono);font-size:10px;
+              letter-spacing:.14em;text-transform:uppercase;
+              color:var(--m-commerce);}
+```
+
+KPIS NO COMÉRCIO - linhas 434-441:
+```css
+.ci-kpis{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:14px;
+         margin-bottom:16px;}
+...
+.ci-kpi{background:var(--panel);border:1px solid var(--line);
+        border-radius:var(--r);padding:15px 17px;overflow:hidden;}
+.ci-kpi.feat{border-color:color-mix(in oklab,var(--m-commerce) 30%,transparent);
+             background:linear-gradient(180deg,
+             color-mix(in oklab,var(--m-commerce) 6%,var(--panel)),var(--panel));}
+```
+
+=============================================================================
+4. ANÁLISE COMPARATIVA: DIFERENÇAS CONCRETAS
+=============================================================================
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ ELEMENTO              │ DASHBOARD GERAL      │ COMÉRCIO/SMART SHOP     │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Títulos de Página (h1)                                                   │
+│ Classe: .view-head h1 | .shop-pages-head h3                             │
+│ Font-Family:          var(--sans)           | var(--display)            │
+│ Font-Weight:          600                    | 800                       │
+│ Font-Size:            22px                   | 16px                      │
+│ Letter-Spacing:       -0.015em               | -0.01em                   │
+│ DIFERENÇA:            ✗ --sans é leve       | ✓ --display é bold       │
+│                       | Comércio NÃO usa     | Comércio DEVERIA usar    │
+│                       | --display premium    | --sans para harmonia     │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Cabeçalho de Card (h2)                                                   │
+│ Classe: .sect-h h2    | .ci-head h2                                     │
+│ Font-Family:          var(--sans)           | var(--display)            │
+│ Font-Weight:          600                    | 800                       │
+│ Font-Size:            15px                   | 20px                      │
+│ Letter-Spacing:       -0.01em                | -0.02em                   │
+│ DIFERENÇA:            ✗ Dashboard usa       | ✓ Comércio já usa        │
+│                       | --sans 600 (leve)    | --display 800 (bold)    │
+├─────────────────────────────────────────────────────────────────────────┤
+│ NÚMEROS GRANDES de KPI (.v)                                             │
+│ Dashboard KPI (.kpi .v)     | Commerce KPI (.ci-v)                      │
+│ Font-Family:        var(--sans)      | var(--display)                    │
+│ Font-Weight:        600               | 800                              │
+│ Font-Size:          24px              | 30px                             │
+│ Letter-Spacing:     -0.02em           | -0.02em                          │
+│ DIFERENÇA:          ✗ --sans 600    | ✓ --display 800 ← PREMIUM       │
+│                     | (não impactante)| Comércio tem visual mais forte  │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Rótulo KPI (.k)                                                          │
+│ Dashboard:          .kpi .k          | Comércio:   Não definido          │
+│ Font-Family:        var(--mono)      | (herda de .ci-kpi ou global)     │
+│ Font-Size:          10.5px           | (sem estilo explícito em .ci-k)   │
+│ Letter-Spacing:     0.02em           | (utiliza --mono como padrão)      │
+│ Text-Transform:     capitalize       |                                   │
+│ DIFERENÇA:          ✓ Coerente      | ✗ Comércio não tem estilo       │
+│                                      | explícito (cai em default)       │
+└─────────────────────────────────────────────────────────────────────────┘
+
+=============================================================================
+5. DIFF CONCRETO: O QUE MUDAR NO COMÉRCIO PARA ALINHAR AO DASHBOARD
+=============================================================================
+
+RECOMENDAÇÃO 1: TÍTULOS DE PÁGINA (Smart Shop "Projetos")
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Arquivo: vos2-ext.css, linha 708
+Classe: .shop-pages-head h3
+
+ATUAL:
+  .shop-pages-head h3{font-family:var(--display);font-weight:800;
+                      font-size:16px;letter-spacing:-.01em;}
+
+DEVERIA SER (para alinhar ao Dashboard .view-head h1):
+  .shop-pages-head h3{font-family:var(--sans);font-weight:600;
+                      font-size:22px;letter-spacing:-0.015em;}
+
+Justificativa: O Dashboard usa .view-head h1 com var(--sans) 600/22px
+para hierarquia visual coerente. Comércio deveria seguir o mesmo padrão.
+
+─────────────────────────────────────────────────────────────────────
+
+RECOMENDAÇÃO 2: CABEÇALHO DE SEÇÃO/CARD (Commerce Insights)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Arquivo: vos2-ext.css, linha 403
+Classe: .ci-head h2
+
+ATUAL:
+  .ci-head h2{font-family:var(--display);font-weight:800;font-size:20px;
+              letter-spacing:-.02em;}
+
+DEVERIA SER (para alinhar ao Dashboard .sect-h h2):
+  .ci-head h2{font-family:var(--sans);font-weight:600;font-size:15px;
+              letter-spacing:-0.01em;}
+
+Justificativa: Dashboard usa .sect-h h2 com var(--sans) 600/15px
+para subsections. Comércio deveria usar a mesma tipografia.
+
+─────────────────────────────────────────────────────────────────────
+
+RECOMENDAÇÃO 3: NÚMEROS GRANDES DE KPI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Arquivo: vos2-ext.css, linha 441
+Classe: .ci-v
+
+ATUAL (Commerce Insights):
+  .ci-v{font-family:var(--display);font-weight:800;font-size:30px;
+        letter-spacing:-.02em;margin-top:10px;line-height:1;}
+
+COMPARAÇÃO ao Dashboard:
+  .kpi .v{font-family:var(--sans);font-weight:600;font-size:24px;
+          letter-spacing:-0.02em;line-height:1.1;margin-top:12px;}
+
+DIVERGÊNCIA: Commerce usa --display 800/30px (mais impactante)
+            Dashboard usa --sans 600/24px (mais restrito)
+
+Se você quer "MESMA tipografia em TODAS as páginas do Comércio":
+→ Use var(--sans) 600/24px em .ci-v (igualar ao Dashboard)
+
+OU se quer manter Comércio premium e elevado:
+→ Elevar .kpi .v do Dashboard para --display 800/30px (nivelação para cima)
+
+RECOMENDAÇÃO: Usar --sans 600/24px em .ci-v para alinhar ao Dashboard.
+
+─────────────────────────────────────────────────────────────────────
+
+RECOMENDAÇÃO 4: RÓTULO/EYEBROW DO COMÉRCIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Arquivo: vos2-ext.css, linhas 316-317
+Classe: .shop-eyebrow
+
+ATUAL:
+  .shop-eyebrow{display:inline-flex;align-items:center;gap:7px;
+                font-family:var(--mono);font-size:10px;
+                letter-spacing:.14em;text-transform:uppercase;
+                color:var(--m-commerce);}
+
+STATUS: ✓ CORRETO
+Isso já alinha ao Dashboard (usa --mono, 10px, uppercase).
+Dashboard também usa .kpi .k com var(--mono) 10.5px uppercase.
+
+─────────────────────────────────────────────────────────────────────
+
+RESUMO DE MUDANÇAS NECESSÁRIAS (vos2-ext.css):
+
+Linha 708:   Mudar .shop-pages-head h3 de --display 800/16px
+            para --sans 600/22px
+
+Linha 403:   Mudar .ci-head h2 de --display 800/20px
+            para --sans 600/15px
+
+Linha 441:   Mudar .ci-v de --display 800/30px
+            para --sans 600/24px
+
+=============================================================================
+6. RESUMO: TOKENS TIPOGRÁFICOS GLOBAIS APLICADOS
+=============================================================================
+
+Padrão DASHBOARD GERAL (Comércio - COM_KPIS):
+├─ Títulos página:     .view-head h1      → var(--sans), 600, 22px, -0.015em
+├─ Seção/Card:        .sect-h h2         → var(--sans), 600, 15px, -0.01em
+├─ Números KPI:       .kpi .v            → var(--sans), 600, 24px, -0.02em
+├─ KPI Rótulo:        .kpi .k            → var(--mono), 10.5px, 0.02em
+└─ KPI Delta:         .kpi .d            → var(--mono), 10.5px
+
+Padrão COMÉRCIO/SMART SHOP HOJE (DIVERGENTE):
+├─ Títulos página:     .shop-pages-head h3 → var(--display), 800, 16px ✗
+├─ Card:              .ci-head h2        → var(--display), 800, 20px ✗
+├─ Números KPI:       .ci-v              → var(--display), 800, 30px ✗
+├─ Eyebrow:           .shop-eyebrow      → var(--mono), 10px ✓
+└─ Rótulo:            (sem estilo)       → (herda global)
+
+PROBLEMA IDENTIFICADO:
+Comércio usa --display (Archivo Expanded) com weight 800 em demasia,
+enquanto Dashboard usa --sans (Archivo regular) com weight 600.
+
+Isso cria inconsistência VISUAL entre os módulos.
+
+=============================================================================
+FIM DO RELATÓRIO
+=============================================================================
