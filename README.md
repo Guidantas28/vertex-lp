@@ -21,6 +21,16 @@ npm run dev            # http://localhost:4321
 | `PUBLIC_CAL_ORIGIN` | Origem do Cal self-hosted (`https://cal.osvertex.com`). |
 | `PUBLIC_SIGNUP_URL` | Destino após virar lead (signup do app). |
 
+### Webhook de lead ads do Meta (`/api/meta-leads`)
+
+| Var | Descrição |
+|-----|-----------|
+| `META_WEBHOOK_VERIFY_TOKEN` | Token do handshake `GET` que o Meta usa ao salvar o webhook. |
+| `META_APP_SECRET` | App Secret — valida a assinatura `X-Hub-Signature-256`. Sem ele a rota responde `503`. |
+| `META_PAGE_TOKEN` | Page Access Token usado pra buscar o lead completo na Graph API. |
+| `VHQ_TOKEN` | (opcional) token do Data Client do GTM server. Sem ele o lead ainda vai pro CRM, só não vira linha na planilha de auditoria. |
+| `VHQ_ENDPOINT` | (opcional) padrão `https://vx.voshq.com/vhq`. |
+
 ## Fluxo dos CTAs
 
 - **Começar / Criar conta** → modal de lead → `POST /api/lead` (serverless) → repassa pro vos → redireciona pro signup.
