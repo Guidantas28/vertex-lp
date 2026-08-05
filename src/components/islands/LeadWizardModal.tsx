@@ -354,7 +354,9 @@ export default function LeadWizardModal() {
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-end justify-center p-3 sm:items-center sm:p-6"
+      /* Centralizada em toda largura. Antes era items-end abaixo de sm, e no
+         celular a modal nascia colada no rodapé, em cima do fim do hero. */
+      className="fixed inset-0 z-[80] flex items-center justify-center p-3 sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="lead-wizard-title"
@@ -628,14 +630,17 @@ export default function LeadWizardModal() {
                   </p>
                 )}
 
-                <div className="flex items-center gap-2 pt-0.5">
+                {/* Em tela estreita os dois empilham e o principal vai em cima:
+                    lado a lado, "Escolher o melhor horário" não cabia e o
+                    rótulo encostava nas bordas. */}
+                <div className="flex flex-col-reverse gap-2 pt-0.5 sm:flex-row sm:items-center">
                   <button
                     type="button"
                     onClick={() => {
                       setError(null);
                       setStep(1);
                     }}
-                    className="shrink-0 rounded-[12px] border border-black/12 px-4 py-[11px] text-[13px] font-semibold text-[#646464] transition hover:border-black/25 hover:text-[#1A202C]"
+                    className="w-full shrink-0 rounded-[12px] border border-black/12 px-4 py-[11px] text-[13px] font-semibold text-[#646464] transition hover:border-black/25 hover:text-[#1A202C] sm:w-auto"
                   >
                     Voltar
                   </button>
@@ -643,7 +648,7 @@ export default function LeadWizardModal() {
                     type="submit"
                     disabled={submitting}
                     label={submitting ? "Enviando…" : "Escolher o melhor horário"}
-                    className="!flex-1 !justify-center !py-[11px] !pl-4 !pr-3 !text-[14px] !leading-5"
+                    className="!w-full !flex-1 !justify-center !py-[11px] !pl-4 !pr-3 !text-[14px] !leading-5"
                   />
                 </div>
               </motion.form>
