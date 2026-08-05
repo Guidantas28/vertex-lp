@@ -129,7 +129,15 @@ const inputCls =
 
 function formatPhone(raw: string, country: string) {
   const c = COUNTRIES.find((x) => x.code === country) ?? COUNTRIES[0];
-  const d = raw.replace(/\D/g, "").slice(0, c.max);
+  let d = raw.replace(/\D/g, "");
+  // Quem digita/cola o número COM o DDI ("5562998649558") estourava o máximo
+  // nacional e o slice comia os últimos dígitos — daí o pushLeadEvent prefixava
+  // 55 de novo e a Meta/CRM recebiam telefone corrompido (caso real de 05/08).
+  // Só removemos o DDI quando o total passa do máximo: "(55) 9xxxx-xxxx"
+  // legítimo (DDD 55 existe) tem no máximo 11 dígitos e não entra aqui.
+  const dial = c.dial.replace("+", "");
+  if (d.startsWith(dial) && d.length > c.max) d = d.slice(dial.length);
+  d = d.slice(0, c.max);
   if (country === "BR") {
     if (d.length <= 2) return d.length ? `(${d}` : "";
     if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
@@ -285,8 +293,8 @@ export default function LeadWizardModal() {
       return;
     }
     const digits = form.phone.replace(/\D/g, "");
-    if (digits.length < country.min) {
-      setError("Informe um WhatsApp válido com DDD.");
+    if (digits.length < country.min || digits.length > country.max) {
+      setError("Informe um WhatsApp válido: só DDD + número, sem o +55.");
       return;
     }
     if (form.company.trim().length < 2) {
