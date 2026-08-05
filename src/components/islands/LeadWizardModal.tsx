@@ -424,7 +424,17 @@ export default function LeadWizardModal() {
               const done = step > s.n;
               const on = step === s.n;
               return (
-                <li key={s.n} className="flex min-w-0 flex-1 items-center gap-1.5">
+                <li
+                  key={s.n}
+                  /* Em tela estreita só o passo ATUAL ocupa espaço; os outros
+                     encolhem pro número. Com os quatro rótulos lado a lado
+                     sobravam 44px pra textos de 61 a 68px e três dos quatro
+                     apareciam cortados ("Seus d…", "Sua e…", "Confirm…"). */
+                  className={[
+                    "flex min-w-0 items-center gap-1.5",
+                    on ? "flex-1" : "flex-none",
+                  ].join(" ")}
+                >
                   <span
                     className={[
                       "grid h-6 w-6 shrink-0 place-items-center rounded-full text-[10px] font-bold transition",
@@ -440,6 +450,11 @@ export default function LeadWizardModal() {
                   <span
                     className={[
                       "truncate text-[11px] font-semibold",
+                      /* Rótulo só no passo ATUAL, em qualquer tamanho de tela.
+                         A modal tem largura fixa de 480px, então o espaço do
+                         stepper não cresce com a viewport: com os quatro
+                         rótulos, dois ficavam cortados até no desktop. */
+                      on ? "inline" : "hidden",
                       on || done ? "text-[#1A202C]" : "text-[#8A8696]",
                     ].join(" ")}
                   >
