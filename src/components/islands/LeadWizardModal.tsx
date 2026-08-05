@@ -106,24 +106,26 @@ const CHALLENGE_OPTS = [
 const QUALIFIED_REVENUE = new Set(REVENUE_OPTS.slice(3)); // ≥ "De R$ 20 mil a R$ 50 mil"
 
 const COUNTRIES = [
-  { code: "BR", dial: "+55", flag: "🇧🇷", label: "Brasil", max: 11 },
-  { code: "PT", dial: "+351", flag: "🇵🇹", label: "Portugal", max: 9 },
-  { code: "US", dial: "+1", flag: "🇺🇸", label: "Estados Unidos", max: 10 },
-  { code: "AR", dial: "+54", flag: "🇦🇷", label: "Argentina", max: 10 },
-  { code: "MX", dial: "+52", flag: "🇲🇽", label: "México", max: 10 },
-  { code: "CO", dial: "+57", flag: "🇨🇴", label: "Colômbia", max: 10 },
-  { code: "CL", dial: "+56", flag: "🇨🇱", label: "Chile", max: 9 },
-  { code: "PE", dial: "+51", flag: "🇵🇪", label: "Peru", max: 9 },
-  { code: "UY", dial: "+598", flag: "🇺🇾", label: "Uruguai", max: 8 },
-  { code: "PY", dial: "+595", flag: "🇵🇾", label: "Paraguai", max: 9 },
-  { code: "ES", dial: "+34", flag: "🇪🇸", label: "Espanha", max: 9 },
-  { code: "GB", dial: "+44", flag: "🇬🇧", label: "Reino Unido", max: 10 },
+  { code: "BR", dial: "+55", flag: "🇧🇷", label: "Brasil", min: 10, max: 11 },
+  { code: "PT", dial: "+351", flag: "🇵🇹", label: "Portugal", min: 9, max: 9 },
+  { code: "US", dial: "+1", flag: "🇺🇸", label: "Estados Unidos", min: 10, max: 10 },
+  { code: "AR", dial: "+54", flag: "🇦🇷", label: "Argentina", min: 10, max: 10 },
+  { code: "MX", dial: "+52", flag: "🇲🇽", label: "México", min: 10, max: 10 },
+  { code: "CO", dial: "+57", flag: "🇨🇴", label: "Colômbia", min: 10, max: 10 },
+  { code: "CL", dial: "+56", flag: "🇨🇱", label: "Chile", min: 9, max: 9 },
+  { code: "PE", dial: "+51", flag: "🇵🇪", label: "Peru", min: 9, max: 9 },
+  { code: "UY", dial: "+598", flag: "🇺🇾", label: "Uruguai", min: 8, max: 8 },
+  { code: "PY", dial: "+595", flag: "🇵🇾", label: "Paraguai", min: 9, max: 9 },
+  { code: "ES", dial: "+34", flag: "🇪🇸", label: "Espanha", min: 9, max: 9 },
+  { code: "GB", dial: "+44", flag: "🇬🇧", label: "Reino Unido", min: 10, max: 10 },
 ] as const;
 
 type Country = (typeof COUNTRIES)[number];
 
+// 16px é o piso: o iOS Safari dá auto-zoom em qualquer campo focado com fonte
+// menor que isso — era o zoom que quebrava o modal no celular.
 const inputCls =
-  "w-full rounded-[10px] border border-black/10 bg-[#F7F6FA] px-3 py-2.5 text-[13.5px] text-[#1A202C] outline-none transition placeholder:text-[#A8A3B3] focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12";
+  "w-full rounded-[10px] border border-black/10 bg-[#F7F6FA] px-3 py-2.5 text-[16px] text-[#1A202C] outline-none transition placeholder:text-[#A8A3B3] focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12";
 
 function formatPhone(raw: string, country: string) {
   const c = COUNTRIES.find((x) => x.code === country) ?? COUNTRIES[0];
@@ -191,8 +193,15 @@ export default function LeadWizardModal() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
+  const [leadApiFailed, setLeadApiFailed] = useState(false);
   const firstRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const honeypotRef = useRef<HTMLInputElement>(null);
+  const isBotRef = useRef(false);
+  // Dedupe por e-mail: "Voltar" + re-submeter não pode duplicar o POST nem o
+  // evento `lead`; trocar o e-mail conta como lead novo e libera os dois.
+  const sentEmailRef = useRef<string | null>(null);
+  const eventEmailRef = useRef<string | null>(null);
 
   const calLink = import.meta.env.PUBLIC_CAL_LINK || "vos/diagnostico";
   const calOrigin = import.meta.env.PUBLIC_CAL_ORIGIN || "https://cal.osvertex.com";
@@ -202,6 +211,9 @@ export default function LeadWizardModal() {
     .filter(Boolean);
 
   const country = COUNTRIES.find((c) => c.code === form.country) ?? COUNTRIES[0];
+  // Dois formatos, cada um no seu lugar: E.164 só dígitos pro CRM e pra
+  // atribuição (match da Meta espera assim); o mascarado é só leitura humana.
+  const phoneE164 = `${country.dial}${form.phone}`.replace(/[^\d+]/g, "");
   const fullPhone = `${country.dial} ${form.phone}`.trim();
 
   const reset = () => {
@@ -209,19 +221,33 @@ export default function LeadWizardModal() {
     setSubmitting(false);
     setError(null);
     setForm(emptyForm());
+    setLeadApiFailed(false);
+    isBotRef.current = false;
+    sentEmailRef.current = null;
+    eventEmailRef.current = null;
   };
 
   const close = () => {
     setOpen(false);
-    window.setTimeout(reset, 280);
+    // Só zera depois do fluxo concluído. Fechar no meio (inclusive toque
+    // acidental no backdrop) preserva o que a pessoa já digitou.
+    if (step === 4) window.setTimeout(reset, 280);
   };
 
   useEffect(() => {
     const onOpen = () => {
-      reset();
+      (window as unknown as { __vosLeadPending?: boolean }).__vosLeadPending = false;
+      setError(null);
       setOpen(true);
     };
     window.addEventListener("vos:open-lead", onOpen);
+    // Clique no CTA antes desta ilha hidratar (4G): o script inline da página
+    // guarda a intenção em __vosLeadPending e a gente abre assim que montar.
+    const w = window as unknown as { __vosLeadPending?: boolean };
+    if (w.__vosLeadPending) {
+      w.__vosLeadPending = false;
+      setOpen(true);
+    }
     return () => window.removeEventListener("vos:open-lead", onOpen);
   }, []);
 
@@ -232,16 +258,24 @@ export default function LeadWizardModal() {
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
-    if (step === 1) firstRef.current?.focus();
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
+    // O lock de scroll vive só de `open`: com `step` aqui ele piscava a cada
+    // troca de passo (remove/re-aplica o overflow no meio da navegação).
+  }, [open]);
+
+  useEffect(() => {
+    if (open && step === 1) firstRef.current?.focus();
   }, [open, step]);
 
   // Etapa 1 → 2: valida dados pessoais + empresa.
   function goToCompanyStep() {
     setError(null);
+    // Honeypot preenchido = bot. Deixa "passar" (sem denunciar o campo), mas
+    // marca pra não enviar nada ao CRM nem disparar evento lá na frente.
+    if (honeypotRef.current?.value) isBotRef.current = true;
     if (form.name.trim().length < 2) {
       setError("Informe seu nome completo.");
       return;
@@ -251,8 +285,7 @@ export default function LeadWizardModal() {
       return;
     }
     const digits = form.phone.replace(/\D/g, "");
-    const minLen = form.country === "BR" ? 10 : 8;
-    if (digits.length < minLen) {
+    if (digits.length < country.min) {
       setError("Informe um WhatsApp válido com DDD.");
       return;
     }
@@ -323,28 +356,58 @@ export default function LeadWizardModal() {
     const stapeUserId = ft.stapeUserId || readCookie("stape_user_id") || readCookie("_stape_user_id");
     if (stapeUserId) clickIds.stapeUserId = stapeUserId;
 
-    try {
-      await fetch("/api/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          email: normEmail(form.email),
-          phone: fullPhone,
-          company: form.company.trim(),
-          segment: form.segment,
-          country: form.country,
-          utm,
-          ...clickIds,
-        }),
-      });
-    } catch {
-      /* best-effort */
+    const emailNow = normEmail(form.email);
+    const payload = JSON.stringify({
+      name: form.name.trim(),
+      email: emailNow,
+      phone: phoneE164,
+      company: form.company.trim(),
+      segment: form.segment,
+      country: form.country,
+      utm,
+      ...clickIds,
+    });
+
+    // Timeout de 10s + 1 retry: cold start da Vercel não pode travar o botão
+    // em "Enviando…" nem falhar em silêncio. Se ainda assim falhar, seguimos
+    // pro calendário — call agendada vale mais que o registro imediato (o Cal
+    // notifica o time) — e a falha viaja na metadata do booking pra auditoria.
+    const postLead = async () => {
+      const ctrl = new AbortController();
+      const timer = window.setTimeout(() => ctrl.abort(), 10000);
+      try {
+        const res = await fetch("/api/lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+          signal: ctrl.signal,
+        });
+        return res.ok;
+      } catch {
+        return false;
+      } finally {
+        window.clearTimeout(timer);
+      }
+    };
+
+    if (!isBotRef.current && sentEmailRef.current !== emailNow) {
+      let ok = await postLead();
+      if (!ok) ok = await postLead();
+      if (ok) {
+        sentEmailRef.current = emailNow;
+        setLeadApiFailed(false);
+      } else {
+        setLeadApiFailed(true);
+        console.error("[lead] /api/lead falhou após retry — seguindo pro agendamento mesmo assim");
+      }
     }
 
-    // GTM — evento 'lead' no submit VALIDADO. Dispara UMA vez.
+    // GTM — evento 'lead' no submit VALIDADO. Dispara UMA vez por e-mail.
     // NÃO disparamos dataLayer no agendamento — o GTM escuta o Cal sozinho.
-    pushLeadEvent(form, country);
+    if (!isBotRef.current && eventEmailRef.current !== emailNow) {
+      pushLeadEvent(form, country);
+      eventEmailRef.current = emailNow;
+    }
 
     setSubmitting(false);
     setStep(3);
@@ -393,9 +456,9 @@ export default function LeadWizardModal() {
           <div className="relative flex items-start justify-between gap-3">
             <div>
               <p className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-[#8A8696]">
-                {step === 1 && "Etapa 1 de 2"}
-                {step === 2 && "Etapa 2 de 2"}
-                {step === 3 && "Agende sua demonstração"}
+                {step === 1 && "Etapa 1 de 4"}
+                {step === 2 && "Etapa 2 de 4"}
+                {step === 3 && "Etapa 3 de 4"}
                 {step === 4 && "Tudo certo"}
               </p>
               <h2
@@ -412,10 +475,10 @@ export default function LeadWizardModal() {
             <button
               type="button"
               onClick={close}
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-black/10 text-[#8A8696] transition hover:border-black/20 hover:text-[#1A202C]"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-black/10 text-[#8A8696] transition hover:border-black/20 hover:text-[#1A202C]"
               aria-label="Fechar"
             >
-              <X size={14} strokeWidth={2.2} />
+              <X size={16} strokeWidth={2.2} />
             </button>
           </div>
 
@@ -476,6 +539,7 @@ export default function LeadWizardModal() {
                 }}
               >
                 <input
+                  ref={honeypotRef}
                   type="text"
                   name="company_url"
                   tabIndex={-1}
@@ -519,7 +583,7 @@ export default function LeadWizardModal() {
                           phone: formatPhone(f.phone, e.target.value),
                         }))
                       }
-                      className="w-[118px] shrink-0 appearance-none rounded-[10px] border border-black/10 bg-[#F7F6FA] px-2 py-2.5 text-[12.5px] text-[#1A202C] outline-none transition focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12"
+                      className="w-[128px] shrink-0 appearance-none rounded-[10px] border border-black/10 bg-[#F7F6FA] px-2 py-2.5 text-[16px] text-[#1A202C] outline-none transition focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12"
                     >
                       {COUNTRIES.map((c) => (
                         <option key={c.code} value={c.code}>
@@ -561,7 +625,7 @@ export default function LeadWizardModal() {
                   <GetStartedButton
                     type="submit"
                     label="Continuar"
-                    className="!w-full !justify-center !py-[11px] !pl-4 !pr-3 !text-[14px] !leading-5"
+                    className="!w-full !justify-center !py-[13px] !pl-4 !pr-3 !text-[14px] !leading-5"
                   />
                 </div>
                 <p className="text-center text-[11px] leading-snug text-[#8A8696]">
@@ -620,7 +684,7 @@ export default function LeadWizardModal() {
                       setError(null);
                       setStep(1);
                     }}
-                    className="shrink-0 rounded-[12px] border border-black/12 px-4 py-[11px] text-[13px] font-semibold text-[#646464] transition hover:border-black/25 hover:text-[#1A202C]"
+                    className="shrink-0 rounded-[12px] border border-black/12 px-4 py-[13px] text-[13px] font-semibold text-[#646464] transition hover:border-black/25 hover:text-[#1A202C]"
                   >
                     Voltar
                   </button>
@@ -628,7 +692,7 @@ export default function LeadWizardModal() {
                     type="submit"
                     disabled={submitting}
                     label={submitting ? "Enviando…" : "Escolher o melhor horário"}
-                    className="!flex-1 !justify-center !py-[11px] !pl-4 !pr-3 !text-[14px] !leading-5"
+                    className="!flex-1 !justify-center !py-[13px] !pl-4 !pr-3 !text-[14px] !leading-5"
                   />
                 </div>
               </motion.form>
@@ -654,10 +718,13 @@ export default function LeadWizardModal() {
                   name={form.name}
                   email={normEmail(form.email)}
                   guests={calGuests}
-                  metadata={firstTouchMetadata(fullPhone)}
+                  metadata={{
+                    ...firstTouchMetadata(phoneE164),
+                    ...(leadApiFailed ? { lead_api_falhou: "1" } : {}),
+                  }}
                   notes={`Empresa: ${form.company} · Segmento: ${form.segment} · Faturamento: ${form.revenue} · Desafio: ${form.challenge} · WhatsApp: ${fullPhone}`}
                   onBookingSuccess={() => setStep(4)}
-                  className="min-h-[520px] w-full rounded-xl border border-black/[0.06] bg-[#FAFAFC]"
+                  className="min-h-[min(520px,62dvh)] w-full rounded-xl border border-black/[0.06] bg-[#FAFAFC]"
                 />
                 <div className="mt-2.5 flex items-center justify-between gap-3 px-1 sm:px-2">
                   <button

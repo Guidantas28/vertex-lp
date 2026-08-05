@@ -13,7 +13,9 @@ export default defineConfig({
   // hybrid = páginas estáticas por padrão; só /api/lead (prerender=false) vira
   // função serverless na Vercel.
   output: "hybrid",
-  adapter: vercel({ webAnalytics: { enabled: true } }),
+  // Web Analytics fica desligado até ser ativado no painel da Vercel — com a
+  // flag ligada sem o produto ativo, toda página carregava um script 404.
+  adapter: vercel(),
   integrations: [
     react(),
     tailwind({ applyBaseStyles: false }),
