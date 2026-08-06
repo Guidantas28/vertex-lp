@@ -1,12 +1,15 @@
 import type { APIRoute } from "astro";
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { contatoPorEmail, criarContato, criarEmpresa, criarLead, leadJaExiste } from "../../lib/vos";
 
 // Webhook de leads do Meta (formulários instantâneos / lead ads).
 // GET  = verificação do webhook (hub.challenge) na configuração do app.
 // POST = Meta empurra o leadgen em tempo real → buscamos o lead completo na
-//        Graph API e entregamos no MESMO pipeline do formulário do site
-//        (VOS_LEAD_ENDPOINT), pra lead de anúncio e lead de site entrarem
-//        pela mesma porta do CRM.
+//        Graph API e criamos um LEAD no vos (status "new"), pela API
+//        autenticada. Antes usávamos o endpoint público, que cria **Deal** —
+//        e Deal é negociação ativa num pipeline, então o lead nascia dentro do
+//        funil (coluna AGENDADO) e aparecia como "Negociação" em Clientes.
+//        Em 06/08 o `GET /leads` do vos devolvia `total: 0`.
 // Não disparamos evento de pixel aqui de propósito: lead ad já conta como
 // conversão nativa no Meta; mandar um Lead de site duplicaria a métrica.
 //
@@ -87,14 +90,13 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   }
 
   const pageToken = import.meta.env.META_PAGE_TOKEN;
-  const endpoint = import.meta.env.VOS_LEAD_ENDPOINT;
-  if (!pageToken || !endpoint) {
-    console.error("[meta-leads] META_PAGE_TOKEN ou VOS_LEAD_ENDPOINT ausente");
+  if (!pageToken || !import.meta.env.VOS_API_TOKEN) {
+    console.error("[meta-leads] META_PAGE_TOKEN ou VOS_API_TOKEN ausente");
     return json({ ok: false }, 503);
   }
 
   // Um POST pode agrupar vários leads; falha em qualquer um → 500, e o Meta
-  // reentrega o lote (a criação no vos é idempotente por e-mail).
+  // reentrega o lote (a criação é idempotente — ver leadJaExiste()).
   let falhas = 0;
 
   for (const entry of payload?.entry ?? []) {
@@ -139,39 +141,53 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
         if (!email && !phone) throw new Error("lead sem email e sem telefone");
 
-        // 3) Mesmo pipeline do formulário do site.
-        const fwd = request.headers.get("x-forwarded-for") ?? clientAddress ?? "";
-        const vos = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            "x-forwarded-for": fwd,
-            ...(import.meta.env.VOS_LEAD_SECRET
-              ? { "x-lead-secret": import.meta.env.VOS_LEAD_SECRET }
-              : {}),
-          },
-          body: JSON.stringify({
-            name: name || email || phone,
+        // 3) Entrega no vos como LEAD (status "new"), não como negócio.
+        //    O endpoint público criava Deal — e Deal é negociação ativa: o lead
+        //    nascia dentro do funil, na coluna AGENDADO, sem ter agendado.
+        const nomeCompleto = (name || email || phone || "").trim();
+        const partes = nomeCompleto.split(/\s+/);
+
+        let contato = email ? await contatoPorEmail(email) : null;
+        let companyId = contato?.companyId ?? null;
+
+        if (!contato) {
+          // Empresa primeiro, pra o contato já nascer amarrado a ela — contato
+          // solto é o que deixou "Beto Borrachas · 0 contatos" no CRM.
+          companyId = company ? await criarEmpresa(company) : null;
+          const contactId = await criarContato({
+            firstName: partes[0] ?? "(sem nome)",
+            lastName: partes.slice(1).join(" "),
             email,
             phone,
-            company,
-            sourceDetail: "meta-lead-ad",
-            utm: {
-              utm_source: "meta",
-              utm_medium: "lead-ad",
-              ...(lead?.campaign_name ? { utm_campaign: String(lead.campaign_name).slice(0, 200) } : {}),
-              ...(lead?.adset_name ? { utm_term: String(lead.adset_name).slice(0, 200) } : {}),
-              ...(lead?.ad_name ? { utm_content: String(lead.ad_name).slice(0, 200) } : {}),
-              leadgen_id: String(leadgenId),
-              ...(lead?.form_id ? { form_id: String(lead.form_id) } : {}),
-              ...extras,
-            },
-          }),
-        });
-        if (!vos.ok) {
-          const detail = await vos.text().catch(() => "");
-          throw new Error(`vos ${vos.status} ${detail.slice(0, 200)}`);
+            companyId,
+          });
+          if (!contactId) throw new Error("vos: falhou ao criar o contato");
+          contato = { id: contactId, email, companyId };
         }
+
+        // Reenvio (vigia a cada 10min, reentrega do Meta) não pode duplicar.
+        if (await leadJaExiste(contato.id, email, String(leadgenId))) {
+          console.info("[meta-leads] lead já existe, nada a fazer", leadgenId);
+          continue;
+        }
+
+        const { id: leadId, erro } = await criarLead({
+          contactId: contato.id,
+          companyId,
+          title: `Meta Ads — ${nomeCompleto}`,
+          tags: ["meta-lead-ad"],
+          customFields: {
+            leadgen_id: String(leadgenId),
+            utm_source: "meta",
+            utm_medium: "lead-ad",
+            ...(lead?.campaign_name ? { utm_campaign: String(lead.campaign_name).slice(0, 200) } : {}),
+            ...(lead?.adset_name ? { utm_term: String(lead.adset_name).slice(0, 200) } : {}),
+            ...(lead?.ad_name ? { utm_content: String(lead.ad_name).slice(0, 200) } : {}),
+            ...(lead?.form_id ? { form_id: String(lead.form_id) } : {}),
+            ...extras,
+          },
+        });
+        if (!leadId) throw new Error(`vos: falhou ao criar o lead — ${erro ?? "sem detalhe"}`);
 
       } catch (err) {
         falhas++;
