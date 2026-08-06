@@ -55,7 +55,13 @@ async function chamar<T>(caminho: string, init?: RequestInit): Promise<Resp<T>> 
 }
 
 type Contato = { id: string; email?: string | null; companyId?: string | null };
-type Lead = { id: string; contactId?: string; customFields?: Record<string, unknown> };
+type Lead = {
+  id: string;
+  contactId?: string;
+  customFields?: Record<string, unknown>;
+  tags?: string[];
+  source?: string;
+};
 type Pagina<T> = { items?: T[] };
 
 /** Busca exata por e-mail. O `search` da API é texto livre, então conferimos o
@@ -115,12 +121,60 @@ export async function leadJaExiste(
   );
 }
 
+/** Lead ainda aberto (`status: "new"`) daquele contato, se houver.
+ *
+ *  Devolve o registro inteiro, não só o id: quem for atualizá-lo precisa
+ *  devolver campos à API pra não perdê-los — ver `enriquecerLead`. */
+export async function leadAbertoDoContato(
+  contactId: string,
+  email: string,
+): Promise<Lead | null> {
+  const q = email.trim() ? `search=${encodeURIComponent(email.trim())}&` : "";
+  const r = await chamar<Pagina<Lead>>(
+    `/leads?${q}status=new&pageSize=50&sort=createdAt&direction=desc`,
+  );
+  if (!r.ok) return null;
+  return (r.data?.items ?? []).find((l) => l.contactId === contactId) ?? null;
+}
+
+/** Junta dados novos num lead que já existe, em vez de criar um segundo.
+ *
+ *  O caso real: a pessoa preenche o formulário do Meta (vira Lead com segmento,
+ *  faturamento e desafio) e depois preenche a landing (que traz fbc, fbp, ip e
+ *  user_agent). São a mesma pessoa — o certo é somar, não duplicar.
+ *
+ *  ⚠️ O `PATCH /leads/{id}` do vos NÃO é um patch: o schema declara `default`
+ *  em `customFields` ({}), `tags` ([]), `source` ("manual") e `status` ("new"),
+ *  então tudo que não for enviado é sobrescrito pelo default em vez de ficar
+ *  como está. Confirmado contra a API em 06/08: mandar só `{status}` zerou as
+ *  11 respostas do formulário de um lead real. Por isso devolvemos os quatro
+ *  campos junto — se o vos ganhar campo novo com default, ele entra aqui. */
+export async function enriquecerLead(
+  lead: Lead,
+  novo: { customFields: Record<string, string>; tags?: string[] },
+): Promise<boolean> {
+  const tags = new Set([...(lead.tags ?? []), ...(novo.tags ?? [])]);
+  const r = await chamar(`/leads/${lead.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      status: "new",
+      source: lead.source ?? "ads",
+      tags: [...tags],
+      // O que já estava vem primeiro: dado novo só preenche buraco, não
+      // sobrescreve resposta que a pessoa já tinha dado.
+      customFields: { ...novo.customFields, ...(lead.customFields ?? {}) },
+    }),
+  });
+  return r.ok;
+}
+
 export async function criarLead(l: {
   contactId: string;
   companyId?: string | null;
   title: string;
   customFields: Record<string, string>;
   tags?: string[];
+  source?: string;
 }): Promise<{ id: string | null; erro?: string }> {
   const r = await chamar<{ id: string }>("/leads", {
     method: "POST",
@@ -129,7 +183,7 @@ export async function criarLead(l: {
       ...(l.companyId ? { companyId: l.companyId } : {}),
       title: l.title.slice(0, 200),
       status: "new", // topo de funil — NÃO é negociação
-      source: "ads", // veio de anúncio; o vos aceita este valor
+      source: l.source ?? "ads", // veio de anúncio; o vos aceita este valor
       tags: l.tags ?? [],
       customFields: l.customFields,
     }),

@@ -1,8 +1,32 @@
 import type { APIRoute } from "astro";
+import {
+  contatoPorEmail,
+  criarContato,
+  criarEmpresa,
+  criarLead,
+  enriquecerLead,
+  leadAbertoDoContato,
+} from "../../lib/vos";
 
-// Serverless (Vercel). Proxy server-to-server pro endpoint público do vos:
-// esconde a URL/segredo do backend, normaliza o payload e repassa o IP do
-// cliente pro rate-limit do vos. Roda como função (não estática).
+// Serverless (Vercel). Recebe o formulário da landing e cria um **Lead** no vos.
+//
+// Antes isto repassava pro endpoint público `/public/marketing-lead`, que cria
+// um **Negócio** com `stage: "booked"` chumbado. Resultado: quem preenchia o
+// formulário e ia embora sem agendar caía no funil na coluna AGENDADO, como se
+// tivesse marcado reunião.
+//
+// Não precisa mais criar negócio: em 06/08 medimos que o `/public/cal-booking`
+// do vos — para onde o Cal.com manda a reserva — cria contato, empresa,
+// negócio em `booked` e a atividade de reunião sozinho, e **reaproveita** o
+// contato quando já existe. Ou seja, o negócio nasce no momento certo (quando
+// há reunião de verdade) sem nós fazermos nada.
+//
+// O desenho fica:
+//   preencheu e não agendou  → Lead na aba Leads, fora do kanban
+//   preencheu e agendou      → o Cal cria o negócio, reusando este contato
+//   agendou sem preencher    → o Cal cria tudo (já funcionava)
+//
+// É o mesmo caminho que `/api/meta-leads` já usa pro lead de anúncio.
 export const prerender = false;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -12,6 +36,12 @@ function json(body: unknown, status = 200) {
     status,
     headers: { "content-type": "application/json" },
   });
+}
+
+// customFields do vos é record de string. Descarta vazio e corta o que for
+// grande demais (o user_agent passa de 500 chars com folga).
+function campo(alvo: Record<string, string>, chave: string, valor: unknown, limite = 300) {
+  if (typeof valor === "string" && valor.trim()) alvo[chave] = valor.trim().slice(0, limite);
 }
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
@@ -25,80 +55,88 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const name = typeof data?.name === "string" ? data.name.trim() : "";
   // E-mail minúsculo é a chave de recuperação do banco de atribuição do tracking.
   const email = typeof data?.email === "string" ? data.email.trim().toLowerCase() : "";
-  const company = typeof data?.company === "string" ? data.company.trim() : undefined;
-  const phone = typeof data?.phone === "string" ? data.phone.trim() : undefined;
-  const segment = typeof data?.segment === "string" ? data.segment.trim() : undefined;
+  const company = typeof data?.company === "string" ? data.company.trim() : "";
+  const phone = typeof data?.phone === "string" ? data.phone.trim() : "";
+  const segment = typeof data?.segment === "string" ? data.segment.trim() : "";
   const rawUtm = data?.utm && typeof data.utm === "object" ? data.utm : {};
-  // O schema público do vos é .strict(): só name/email/company/phone/sourceDetail/utm.
-  // Campos extras (segmento, faturamento, desafio) vão dentro de `utm` (record livre
-  // → viram customFields no CRM).
-  const utm = { ...rawUtm, ...(segment ? { segmento: segment } : {}) };
-
-  // Click-ids de 1º toque (o vos aceita como campos top-level opcionais).
-  const clip = (v: unknown) => (typeof v === "string" && v ? v.slice(0, 500) : undefined);
-  const fbclid = clip(data?.fbclid);
-  const fbc = clip(data?.fbc);
-  const fbp = clip(data?.fbp);
-  const gclid = clip(data?.gclid);
-  // client_id do GA (cookie `_ga`) — o vos guarda junto da atribuição de 1º toque.
-  const clientId = clip(data?.clientId);
-  // Stape User ID: external_id dos eventos, costura site → comparecimento → venda.
-  const stapeUserId =
-    clip(data?.stapeUserId) ||
-    /(?:^|;\s*)_?stape_user_id=([^;]*)/.exec(request.headers.get("cookie") ?? "")?.[1];
-  // userAgent original do browser (EMQ). O IP vai no x-forwarded-for abaixo.
-  const userAgent = request.headers.get("user-agent")?.slice(0, 600) || undefined;
 
   if (name.length < 2) return json({ ok: false, message: "Informe seu nome" }, 422);
   if (!EMAIL_RE.test(email)) return json({ ok: false, message: "E-mail inválido" }, 422);
 
-  const endpoint = import.meta.env.VOS_LEAD_ENDPOINT;
-  if (!endpoint) {
-    // Sem backend configurado: não trava o funil, loga e devolve ok “best effort”.
-    console.warn("[lead] VOS_LEAD_ENDPOINT ausente; lead não persistido", { email });
+  if (!import.meta.env.VOS_API_TOKEN) {
+    // Sem token não dá pra persistir. Não trava o funil: a pessoa segue pro
+    // agendamento, e o Cal cria o registro no vos de qualquer forma.
+    console.error("[lead] VOS_API_TOKEN ausente; lead não persistido", { email });
     return json({ ok: true, persisted: false });
   }
 
-  const fwd =
-    request.headers.get("x-forwarded-for") ?? clientAddress ?? "";
+  // Tudo que descreve a origem vira customFields do Lead. Os click-ids são o
+  // que costura este preenchimento com o evento de agendamento no Meta.
+  const customFields: Record<string, string> = {
+    source: "landing",
+    source_detail: "landing-page-wizard",
+  };
+  for (const [k, v] of Object.entries(rawUtm)) campo(customFields, k.toLowerCase().slice(0, 60), v);
+  campo(customFields, "segmento", segment);
+  campo(customFields, "fbclid", data?.fbclid, 500);
+  campo(customFields, "fbc", data?.fbc, 500);
+  campo(customFields, "fbp", data?.fbp, 500);
+  campo(customFields, "gclid", data?.gclid, 500);
+  campo(customFields, "client_id", data?.clientId);
+  campo(
+    customFields,
+    "stape_user_id",
+    data?.stapeUserId ||
+      /(?:^|;\s*)_?stape_user_id=([^;]*)/.exec(request.headers.get("cookie") ?? "")?.[1],
+  );
+  campo(customFields, "user_agent", request.headers.get("user-agent"), 600);
+  campo(customFields, "ip", request.headers.get("x-forwarded-for") ?? clientAddress);
+
+  // Tráfego pago do Meta é a origem real hoje; sem utm, trata como orgânico.
+  const origem = String(rawUtm?.utm_source ?? "").toLowerCase() === "meta" ? "ads" : "organic";
 
   try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-forwarded-for": fwd,
-        ...(import.meta.env.VOS_LEAD_SECRET
-          ? { "x-lead-secret": import.meta.env.VOS_LEAD_SECRET }
-          : {}),
-      },
-      body: JSON.stringify({
-        name,
-        email,
-        company,
-        phone,
-        sourceDetail: "landing-page-wizard",
-        utm,
-        fbclid,
-        fbc,
-        fbp,
-        gclid,
-        clientId,
-        stapeUserId,
-        userAgent,
-      }),
-    });
+    let contato = await contatoPorEmail(email);
+    let companyId = contato?.companyId ?? null;
 
-    if (res.status === 429) return json({ ok: false, message: "Muitas tentativas. Tente em instantes." }, 429);
-    if (!res.ok) {
-      const detail = await res.text().catch(() => "");
-      console.error("[lead] vos respondeu", res.status, detail.slice(0, 300));
-      return json({ ok: false, message: "Não foi possível registrar agora." }, 502);
+    if (!contato) {
+      // Empresa primeiro, pra o contato já nascer amarrado a ela — contato
+      // solto é o que deixa empresa com "0 contatos" no CRM.
+      companyId = company ? await criarEmpresa(company) : null;
+      const partes = name.split(/\s+/);
+      const contactId = await criarContato({
+        firstName: partes[0] ?? "(sem nome)",
+        lastName: partes.slice(1).join(" "),
+        email,
+        phone,
+        companyId,
+      });
+      if (!contactId) throw new Error("vos: falhou ao criar o contato");
+      contato = { id: contactId, email, companyId };
     }
+
+    // Quem já veio pelo formulário do Meta tem Lead aberto. Preencher a landing
+    // não faz dele outra pessoa: soma o tracking no lead que existe.
+    const aberto = await leadAbertoDoContato(contato.id, email);
+    if (aberto) {
+      const ok = await enriquecerLead(aberto, { customFields, tags: ["landing"] });
+      console.info("[lead] lead existente enriquecido", aberto.id, ok);
+      return json({ ok: true, persisted: true });
+    }
+
+    const { id: leadId, erro } = await criarLead({
+      contactId: contato.id,
+      companyId,
+      title: `Landing — ${name}`,
+      tags: ["landing"],
+      source: origem,
+      customFields,
+    });
+    if (!leadId) throw new Error(`vos: falhou ao criar o lead — ${erro ?? "sem detalhe"}`);
 
     return json({ ok: true, persisted: true });
   } catch (err) {
-    console.error("[lead] erro ao chamar vos", err);
-    return json({ ok: false, message: "Serviço indisponível. Tente novamente." }, 502);
+    console.error("[lead] erro ao registrar no vos", err);
+    return json({ ok: false, message: "Não foi possível registrar agora." }, 502);
   }
 };
