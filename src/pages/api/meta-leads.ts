@@ -23,6 +23,26 @@ function json(body: unknown, status = 200) {
   });
 }
 
+// A ferramenta de lead de teste do Meta preenche todo campo com um texto entre
+// < >, inclusive o telefone (40 chars). Ingerir isso sujaria o CRM, e devolver
+// erro faria o Meta reentregar o mesmo lote pra sempre. Reconhecemos, damos 200
+// e não criamos nada — é o que mantém a ferramenta de teste utilizável.
+function ehLeadDeTeste(lead: any) {
+  const vals = (lead?.field_data ?? []).map((f: any) => String((f?.values ?? [])[0] ?? ""));
+  if (!vals.length) return false;
+  const marcados = vals.filter((v: string) => v.startsWith("<") && v.endsWith(">")).length;
+  return marcados >= Math.ceil(vals.length / 2);
+}
+
+// O endpoint do vos recusa telefone acima de 30 chars. Antes, um telefone ruim
+// derrubava o lead inteiro — e junto ia o e-mail, que estava bom. Melhor
+// entregar sem telefone do que perder o lead.
+function telefonePlausivel(v?: string) {
+  if (!v) return undefined;
+  const d = v.replace(/\D/g, "");
+  return d.length >= 8 && d.length <= 15 ? v.slice(0, 30) : undefined;
+}
+
 // Data e hora no fuso de SP — é o que preenche a coluna A da planilha.
 function dataHoraSP(iso?: string) {
   const d = iso ? new Date(iso) : new Date();
@@ -153,6 +173,12 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         if (!res.ok) throw new Error(`graph ${res.status}`);
         const lead = await res.json();
 
+        // Lead da ferramenta de teste do Meta: aceita e ignora, sem reentrega.
+        if (ehLeadDeTeste(lead)) {
+          console.info("[meta-leads] lead de teste ignorado", leadgenId);
+          continue;
+        }
+
         // 2) field_data → campos do vos. Perguntas custom viram entradas de
         //    `utm` (o endpoint público trata o record livre como customFields).
         let name = "";
@@ -167,7 +193,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           if (!value) continue;
           if (key === "full_name" || key === "nome" || key === "nome_completo") name = value;
           else if (key === "email") email = value.toLowerCase();
-          else if (key === "phone_number" || key === "telefone" || key === "whatsapp") phone = value;
+          else if (key === "phone_number" || key === "telefone" || key === "whatsapp")
+            phone = telefonePlausivel(value);
           else if (key === "company_name" || key === "empresa") company = value;
           else extras[key.slice(0, 60)] = value.slice(0, 300);
         }
