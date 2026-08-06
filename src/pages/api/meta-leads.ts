@@ -150,10 +150,21 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         let contato = email ? await contatoPorEmail(email) : null;
         let companyId = contato?.companyId ?? null;
 
+        // O vos passou a EXIGIR empresa no Lead — em 06/08 às 22:20 o
+        // `POST /leads` começou a devolver 400 "Empresa obrigatória — vincule
+        // uma empresa ao contato ou informe companyId". Antes disso o mesmo
+        // payload passava (Ivane, Elenice, Anderson entraram sem empresa).
+        //
+        // O formulário instantâneo do Meta não tem campo de empresa, então o
+        // nome da pessoa vira o nome da empresa. É feio, mas é exatamente o
+        // que já existe na base ("Elenice Ferreira", "Delicia Tananta") e
+        // perder o lead é muito pior. Quem vender renomeia depois.
+        const nomeEmpresa = company || nomeCompleto || email || "(sem nome)";
+
         if (!contato) {
           // Empresa primeiro, pra o contato já nascer amarrado a ela — contato
           // solto é o que deixou "Beto Borrachas · 0 contatos" no CRM.
-          companyId = company ? await criarEmpresa(company) : null;
+          companyId = await criarEmpresa(nomeEmpresa);
           const contactId = await criarContato({
             firstName: partes[0] ?? "(sem nome)",
             lastName: partes.slice(1).join(" "),
@@ -164,6 +175,11 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           if (!contactId) throw new Error("vos: falhou ao criar o contato");
           contato = { id: contactId, email, companyId };
         }
+
+        // Contato antigo, de antes desta regra, pode estar sem empresa. Cria
+        // uma só pro lead — não dá PATCH no contato pra não esbarrar no outro
+        // defeito, o de campo omitido voltar pro default.
+        if (!companyId) companyId = await criarEmpresa(nomeEmpresa);
 
         // Reenvio (vigia a cada 10min, reentrega do Meta) não pode duplicar.
         if (await leadJaExiste(contato.id, email, String(leadgenId))) {

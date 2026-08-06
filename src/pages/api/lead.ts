@@ -99,10 +99,15 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     let contato = await contatoPorEmail(email);
     let companyId = contato?.companyId ?? null;
 
+    // O vos passou a EXIGIR empresa no Lead (400 "Empresa obrigatória"), a
+    // partir de 06/08 22:20. O campo é obrigatório no formulário da landing,
+    // mas o fallback existe pro caso de contato antigo sem empresa.
+    const nomeEmpresa = company || name;
+
     if (!contato) {
       // Empresa primeiro, pra o contato já nascer amarrado a ela — contato
       // solto é o que deixa empresa com "0 contatos" no CRM.
-      companyId = company ? await criarEmpresa(company) : null;
+      companyId = await criarEmpresa(nomeEmpresa);
       const partes = name.split(/\s+/);
       const contactId = await criarContato({
         firstName: partes[0] ?? "(sem nome)",
@@ -114,6 +119,10 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       if (!contactId) throw new Error("vos: falhou ao criar o contato");
       contato = { id: contactId, email, companyId };
     }
+
+    // Contato antigo pode estar sem empresa. Cria uma só pro lead — sem PATCH
+    // no contato, pra não esbarrar no defeito de campo omitido voltar pro default.
+    if (!companyId) companyId = await criarEmpresa(nomeEmpresa);
 
     // Quem já veio pelo formulário do Meta tem Lead aberto. Preencher a landing
     // não faz dele outra pessoa: soma o tracking no lead que existe.
