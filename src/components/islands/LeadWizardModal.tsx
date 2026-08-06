@@ -101,10 +101,6 @@ const CHALLENGE_OPTS = [
   "Outro",
 ];
 
-// Faturamento a partir do qual consideramos o lead qualificado (placeholder;
-// TODO(Orlando): regra definitiva vive no GTM de qualquer forma).
-const QUALIFIED_REVENUE = new Set(REVENUE_OPTS.slice(3)); // ≥ "De R$ 20 mil a R$ 50 mil"
-
 const COUNTRIES = [
   { code: "BR", dial: "+55", flag: "🇧🇷", label: "Brasil", min: 10, max: 11 },
   { code: "PT", dial: "+351", flag: "🇵🇹", label: "Portugal", min: 9, max: 9 },
@@ -155,6 +151,21 @@ function isValidEmail(v: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
+// Empresa é opcional: parte do público ainda não tem CNPJ ("ainda não estamos
+// faturando"). Quando era obrigatória, essa gente digitava número pra passar da
+// validação — e o vos criava uma EMPRESA chamada "987654" no CRM (caso real de
+// 06/08). Vazio vira o nome da pessoa, que é um registro utilizável.
+function empresaOuNome(company: string, name: string) {
+  const c = company.trim();
+  return c || name.trim();
+}
+
+// Só dígitos = quase certamente CNPJ, telefone ou lixo pra passar do campo.
+function pareceLixo(v: string) {
+  const c = v.trim();
+  return c.length > 0 && /^[\d\s.\-/]+$/.test(c);
+}
+
 const emptyForm = (): FormData => ({
   name: "",
   email: "",
@@ -189,8 +200,6 @@ function pushLeadEvent(form: FormData, country: Country) {
       resposta_2: form.challenge, // pergunta qualificatória 2 = desafio
       faturamento: form.revenue,
       desafio: form.challenge,
-      // TODO(Orlando): regra de qualificação definitiva (ajustável no GTM).
-      qualificado: QUALIFIED_REVENUE.has(form.revenue),
     },
   });
 }
@@ -297,8 +306,10 @@ export default function LeadWizardModal() {
       setError("Informe um WhatsApp válido: só DDD + número, sem o +55.");
       return;
     }
-    if (form.company.trim().length < 2) {
-      setError("Informe o nome da empresa.");
+    // Empresa não é mais obrigatória — ver empresaOuNome(). Mas se preencheram
+    // com número, avisamos, porque isso vira nome de empresa no CRM.
+    if (pareceLixo(form.company)) {
+      setError("Coloque o nome da empresa, não um número. Se ainda não tem, deixe em branco.");
       return;
     }
     setStep(2);
@@ -369,7 +380,7 @@ export default function LeadWizardModal() {
       name: form.name.trim(),
       email: emailNow,
       phone: phoneE164,
-      company: form.company.trim(),
+      company: empresaOuNome(form.company, form.name),
       segment: form.segment,
       country: form.country,
       utm,
@@ -413,7 +424,9 @@ export default function LeadWizardModal() {
     // GTM — evento 'lead' no submit VALIDADO. Dispara UMA vez por e-mail.
     // NÃO disparamos dataLayer no agendamento — o GTM escuta o Cal sozinho.
     if (!isBotRef.current && eventEmailRef.current !== emailNow) {
-      pushLeadEvent(form, country);
+      // Mesma empresa resolvida que foi pro CRM — senão o dataLayer e o vos
+      // discordariam sobre o nome da empresa do mesmo lead.
+      pushLeadEvent({ ...form, company: empresaOuNome(form.company, form.name) }, country);
       eventEmailRef.current = emailNow;
     }
 
@@ -630,11 +643,10 @@ export default function LeadWizardModal() {
                 </label>
 
                 <Field
-                  label="Nome da empresa"
-                  required
+                  label="Nome da empresa (opcional)"
                   value={form.company}
                   onChange={(v) => setForm((f) => ({ ...f, company: v }))}
-                  placeholder="Empresa Ltda"
+                  placeholder="Se ainda não tem, deixe em branco"
                   autoComplete="organization"
                 />
 
