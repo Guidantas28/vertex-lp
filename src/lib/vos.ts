@@ -1,0 +1,138 @@
+// Cliente da API do vos (https://vos.mintlify.site).
+//
+// Por que existe: o endpoint público `/public/marketing-lead` cria um **Deal**.
+// No modelo do vos, Deal é negociação ativa num pipeline — então todo lead do
+// formulário nascia dentro do funil (coluna AGENDADO, sem ter agendado) e
+// aparecia como "Negociação" na tela de Clientes. Em 06/08 o `GET /leads`
+// devolvia `total: 0`: não existia UM lead no CRM inteiro.
+//
+// A entidade certa pra quem acabou de preencher formulário é **Lead**, com
+// `status: "new"`. Vira Deal só quando qualifica (`POST /leads/{id}/convert`).
+//
+// O preço de sair do endpoint público é que a deduplicação e a criação da
+// empresa passam a ser nossas. É o que as funções abaixo fazem.
+
+const BASE_PADRAO = "https://api.osvertex.com";
+
+type Resp<T> = { ok: boolean; status: number; data: T | null; erro?: string };
+
+async function chamar<T>(caminho: string, init?: RequestInit): Promise<Resp<T>> {
+  const token = import.meta.env.VOS_API_TOKEN;
+  if (!token) return { ok: false, status: 0, data: null, erro: "VOS_API_TOKEN ausente" };
+  const base = (import.meta.env.VOS_API_BASE || BASE_PADRAO).replace(/\/$/, "");
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const r = await fetch(`${base}${caminho}`, {
+      ...init,
+      signal: ctrl.signal,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        ...(init?.headers ?? {}),
+      },
+    });
+    const txt = await r.text();
+    let corpo: any = null;
+    try {
+      corpo = txt ? JSON.parse(txt) : null;
+    } catch {
+      /* resposta não-JSON: mantemos o texto no erro */
+    }
+    // A API embrulha tudo em { data: ... }.
+    return {
+      ok: r.ok,
+      status: r.status,
+      data: (corpo?.data ?? corpo) as T,
+      erro: r.ok ? undefined : txt.slice(0, 300),
+    };
+  } catch (e) {
+    return { ok: false, status: 0, data: null, erro: String(e).slice(0, 200) };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+type Contato = { id: string; email?: string | null; companyId?: string | null };
+type Lead = { id: string; contactId?: string; customFields?: Record<string, unknown> };
+type Pagina<T> = { items?: T[] };
+
+/** Busca exata por e-mail. O `search` da API é texto livre, então conferimos o
+ *  e-mail no retorno — senão um homônimo viraria "contato já existe". */
+export async function contatoPorEmail(email: string): Promise<Contato | null> {
+  const e = email.trim().toLowerCase();
+  if (!e) return null;
+  const r = await chamar<Pagina<Contato>>(`/contacts?search=${encodeURIComponent(e)}&pageSize=20`);
+  if (!r.ok) return null;
+  return (r.data?.items ?? []).find((c) => (c.email ?? "").toLowerCase() === e) ?? null;
+}
+
+export async function criarEmpresa(nome: string): Promise<string | null> {
+  const r = await chamar<{ id: string }>("/companies", {
+    method: "POST",
+    body: JSON.stringify({ name: nome.slice(0, 200) }),
+  });
+  return r.ok ? (r.data?.id ?? null) : null;
+}
+
+export async function criarContato(c: {
+  firstName: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  companyId?: string | null;
+}): Promise<string | null> {
+  const r = await chamar<{ id: string }>("/contacts", {
+    method: "POST",
+    body: JSON.stringify({
+      firstName: c.firstName.slice(0, 100) || "(sem nome)",
+      ...(c.lastName ? { lastName: c.lastName.slice(0, 100) } : {}),
+      ...(c.email ? { email: c.email } : {}),
+      ...(c.phone ? { phone: c.phone.slice(0, 30) } : {}),
+      ...(c.companyId ? { companyId: c.companyId } : {}),
+    }),
+  });
+  return r.ok ? (r.data?.id ?? null) : null;
+}
+
+/** Idempotência: o vigia reenvia o mesmo lead a cada ciclo e o Meta reentrega
+ *  lote em erro. Sem esta checagem, cada reenvio criaria um Lead novo.
+ *
+ *  Busca-se pelo E-MAIL, não pelo leadgen_id: testado em 06/08 contra a API,
+ *  `search` cobre o e-mail do contato (total 1) e **não** cobre customFields
+ *  (total 0). O leadgen_id serve pra filtrar o retorno. */
+export async function leadJaExiste(
+  contactId: string,
+  email: string,
+  leadgenId: string,
+): Promise<boolean> {
+  const q = email.trim() ? `search=${encodeURIComponent(email.trim())}&` : "";
+  const r = await chamar<Pagina<Lead>>(`/leads?${q}pageSize=50&sort=createdAt&direction=desc`);
+  if (!r.ok) return false; // na dúvida, deixa criar: perder lead é pior que duplicar
+  return (r.data?.items ?? []).some(
+    (l) => l.contactId === contactId && String(l.customFields?.leadgen_id ?? "") === leadgenId,
+  );
+}
+
+export async function criarLead(l: {
+  contactId: string;
+  companyId?: string | null;
+  title: string;
+  customFields: Record<string, string>;
+  tags?: string[];
+}): Promise<{ id: string | null; erro?: string }> {
+  const r = await chamar<{ id: string }>("/leads", {
+    method: "POST",
+    body: JSON.stringify({
+      contactId: l.contactId,
+      ...(l.companyId ? { companyId: l.companyId } : {}),
+      title: l.title.slice(0, 200),
+      status: "new", // topo de funil — NÃO é negociação
+      source: "ads", // veio de anúncio; o vos aceita este valor
+      tags: l.tags ?? [],
+      customFields: l.customFields,
+    }),
+  });
+  return { id: r.ok ? (r.data?.id ?? null) : null, erro: r.erro };
+}
