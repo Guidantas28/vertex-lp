@@ -42,6 +42,28 @@ function ehLeadDeTeste(lead: any) {
   return marcados >= Math.ceil(vals.length / 2);
 }
 
+// O formulário do Meta não tem campo de empresa, mas tem o Instagram — e
+// quando ele vem como @, costuma ser o nome do NEGÓCIO, não da pessoa
+// (@sertaoadentro, Sigarastreamento). Vira um nome de empresa muito melhor
+// que o nome do dono.
+//
+// Só aceita o que parece perfil: uma palavra só, sem espaço. Isso descarta os
+// casos podres que já apareceram na prática — gente que escreveu o próprio
+// nome completo no campo, e um que escreveu "Quero falar no WhatsApp meu
+// parceiro". E descarta também o primeiro nome da própria pessoa, que não
+// acrescenta nada.
+function empresaPeloInstagram(valor: string | undefined, nome: string) {
+  const h = String(valor ?? "")
+    .trim()
+    .replace(/^https?:\/\/(www\.)?instagram\.com\//i, "")
+    .replace(/^@/, "")
+    .replace(/[/?#].*$/, "")
+    .trim();
+  if (!h || /\s/.test(h) || h.length < 3 || h.length > 40) return null;
+  if (nome.toLowerCase().split(/\s+/).includes(h.toLowerCase())) return null;
+  return h;
+}
+
 // O endpoint do vos recusa telefone acima de 30 chars. Antes, um telefone ruim
 // derrubava o lead inteiro — e junto ia o e-mail, que estava bom. Melhor
 // entregar sem telefone do que perder o lead.
@@ -159,7 +181,12 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         // nome da pessoa vira o nome da empresa. É feio, mas é exatamente o
         // que já existe na base ("Elenice Ferreira", "Delicia Tananta") e
         // perder o lead é muito pior. Quem vender renomeia depois.
-        const nomeEmpresa = company || nomeCompleto || email || "(sem nome)";
+        const nomeEmpresa =
+          company ||
+          empresaPeloInstagram(extras.instagram, nomeCompleto) ||
+          nomeCompleto ||
+          email ||
+          "(sem nome)";
 
         if (!contato) {
           // Empresa primeiro, pra o contato já nascer amarrado a ela — contato
