@@ -151,15 +151,6 @@ function isValidEmail(v: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
-// Empresa é opcional: parte do público ainda não tem CNPJ ("ainda não estamos
-// faturando"). Quando era obrigatória, essa gente digitava número pra passar da
-// validação — e o vos criava uma EMPRESA chamada "987654" no CRM (caso real de
-// 06/08). Vazio vira o nome da pessoa, que é um registro utilizável.
-function empresaOuNome(company: string, name: string) {
-  const c = company.trim();
-  return c || name.trim();
-}
-
 // Só dígitos = quase certamente CNPJ, telefone ou lixo pra passar do campo.
 function pareceLixo(v: string) {
   const c = v.trim();
@@ -306,10 +297,15 @@ export default function LeadWizardModal() {
       setError("Informe um WhatsApp válido: só DDD + número, sem o +55.");
       return;
     }
-    // Empresa não é mais obrigatória — ver empresaOuNome(). Mas se preencheram
-    // com número, avisamos, porque isso vira nome de empresa no CRM.
+    // Empresa é OBRIGATÓRIA de propósito: quem não tem empresa não é público do
+    // VOS. O campo é filtro, não cadastro (decisão do Orlando, 06/08).
+    if (form.company.trim().length < 2) {
+      setError("Informe o nome da empresa.");
+      return;
+    }
+    // Só dígitos é o jeito de furar o filtro — foi o caso real do "987654".
     if (pareceLixo(form.company)) {
-      setError("Coloque o nome da empresa, não um número. Se ainda não tem, deixe em branco.");
+      setError("Coloque o nome da empresa, não um número.");
       return;
     }
     setStep(2);
@@ -380,7 +376,7 @@ export default function LeadWizardModal() {
       name: form.name.trim(),
       email: emailNow,
       phone: phoneE164,
-      company: empresaOuNome(form.company, form.name),
+      company: form.company.trim(),
       segment: form.segment,
       country: form.country,
       utm,
@@ -424,9 +420,7 @@ export default function LeadWizardModal() {
     // GTM — evento 'lead' no submit VALIDADO. Dispara UMA vez por e-mail.
     // NÃO disparamos dataLayer no agendamento — o GTM escuta o Cal sozinho.
     if (!isBotRef.current && eventEmailRef.current !== emailNow) {
-      // Mesma empresa resolvida que foi pro CRM — senão o dataLayer e o vos
-      // discordariam sobre o nome da empresa do mesmo lead.
-      pushLeadEvent({ ...form, company: empresaOuNome(form.company, form.name) }, country);
+      pushLeadEvent(form, country);
       eventEmailRef.current = emailNow;
     }
 
@@ -643,10 +637,11 @@ export default function LeadWizardModal() {
                 </label>
 
                 <Field
-                  label="Nome da empresa (opcional)"
+                  label="Nome da empresa"
+                  required
                   value={form.company}
                   onChange={(v) => setForm((f) => ({ ...f, company: v }))}
-                  placeholder="Se ainda não tem, deixe em branco"
+                  placeholder="Empresa Ltda"
                   autoComplete="organization"
                 />
 
