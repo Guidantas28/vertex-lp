@@ -168,6 +168,22 @@ export async function enriquecerLead(
   return r.ok;
 }
 
+/** Resposta de "desafio" → tag de roteamento do fluxo de automação do vos.
+ *
+ *  O builder de fluxos só consegue condicionar em `lead.tags` (não lê
+ *  customFields), então o desafio vira tag pra cadência escolher a variante
+ *  do primeiro toque (M0). Casa por substring porque o texto vem levemente
+ *  diferente do form do Meta e da landing. Sempre devolve algo — "outro" é a
+ *  variante genérica, não um erro. */
+export function tagDesafio(desafio: unknown): string {
+  const d = String(desafio ?? "").toLowerCase();
+  if (d.includes("centralizar")) return "desafio-centralizar";
+  if (d.includes("atendimento") || d.includes("automatizar")) return "desafio-atendimento";
+  if (d.includes("custo") || d.includes("assinatura")) return "desafio-custos";
+  if (d.includes("processo") || d.includes("equipe")) return "desafio-processos";
+  return "desafio-outro";
+}
+
 export async function criarLead(l: {
   contactId: string;
   companyId?: string | null;

@@ -753,7 +753,17 @@ export default function LeadWizardModal() {
                     ...(leadApiFailed ? { lead_api_falhou: "1" } : {}),
                   }}
                   notes={`Empresa: ${form.company} · Segmento: ${form.segment} · Faturamento: ${form.revenue} · Desafio: ${form.challenge} · WhatsApp: ${fullPhone}`}
-                  onBookingSuccess={() => setStep(4)}
+                  onBookingSuccess={() => {
+                    // Tag `vos-agendado` no Lead — é o que roteia o fluxo de
+                    // automação (Ramo A cadência ✕ Ramo B lembretes). Fire and
+                    // forget: falha aqui não pode travar a confirmação na tela.
+                    fetch("/api/agendou", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ email: normEmail(form.email) }),
+                    }).catch(() => {});
+                    setStep(4);
+                  }}
                   className="min-h-[min(520px,62dvh)] w-full rounded-xl border border-black/[0.06] bg-[#FAFAFC]"
                 />
                 <div className="mt-2.5 flex items-center justify-between gap-3 px-1 sm:px-2">

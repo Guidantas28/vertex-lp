@@ -6,6 +6,7 @@ import {
   criarLead,
   enriquecerLead,
   leadAbertoDoContato,
+  tagDesafio,
 } from "../../lib/vos";
 
 // Serverless (Vercel). Recebe o formulário da landing e cria um **Lead** no vos.
@@ -126,9 +127,13 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
     // Quem já veio pelo formulário do Meta tem Lead aberto. Preencher a landing
     // não faz dele outra pessoa: soma o tracking no lead que existe.
+    // A tag desafio-* roteia a variante do primeiro toque (M0) no fluxo de
+    // automação do vos — o builder só condiciona em lead.tags.
+    const tags = ["landing", tagDesafio((rawUtm as Record<string, unknown>)?.desafio)];
+
     const aberto = await leadAbertoDoContato(contato.id, email);
     if (aberto) {
-      const ok = await enriquecerLead(aberto, { customFields, tags: ["landing"] });
+      const ok = await enriquecerLead(aberto, { customFields, tags });
       console.info("[lead] lead existente enriquecido", aberto.id, ok);
       return json({ ok: true, persisted: true });
     }
@@ -137,7 +142,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       contactId: contato.id,
       companyId,
       title: `Landing — ${name}`,
-      tags: ["landing"],
+      tags,
       source: origem,
       customFields,
     });

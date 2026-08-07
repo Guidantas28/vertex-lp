@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { contatoPorEmail, criarContato, criarEmpresa, criarLead, leadJaExiste } from "../../lib/vos";
+import { contatoPorEmail, criarContato, criarEmpresa, criarLead, leadJaExiste, tagDesafio } from "../../lib/vos";
 
 // Webhook de leads do Meta (formulários instantâneos / lead ads).
 // GET  = verificação do webhook (hub.challenge) na configuração do app.
@@ -218,7 +218,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           contactId: contato.id,
           companyId,
           title: `Meta Ads — ${nomeCompleto}`,
-          tags: ["meta-lead-ad"],
+          // A tag desafio-* roteia a variante do M0 no fluxo de automação —
+          // o builder só condiciona em lead.tags, não em customFields.
+          tags: ["meta-lead-ad", tagDesafio(extras.desafio)],
           customFields: {
             leadgen_id: String(leadgenId),
             utm_source: "meta",
