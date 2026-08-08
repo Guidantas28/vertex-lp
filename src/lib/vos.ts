@@ -74,6 +74,31 @@ export async function contatoPorEmail(email: string): Promise<Contato | null> {
   return (r.data?.items ?? []).find((c) => (c.email ?? "").toLowerCase() === e) ?? null;
 }
 
+/** Marca o CONTATO com uma tag, preservando as que já existem.
+ *
+ *  Por que no contato e não (só) no lead: as CONDIÇÕES dos fluxos do vos leem
+ *  as tags do contato — a tag no lead é invisível pra automação (provado em
+ *  teste real 08/08: lead com `vos-agendado` na row recebeu a cadência mesmo
+ *  assim). O `/api/agendou` grava nos dois: lead (relatório) + contato (fluxo).
+ *
+ *  ⚠️ PATCH de contato tem o mesmo defeito dos outros: campo omitido volta pro
+ *  default (`tags: []`, `customFields: {}`). Por isso lê antes e devolve junto. */
+export async function marcarContatoTag(contactId: string, tag: string): Promise<boolean> {
+  const r0 = await chamar<{ id: string; tags?: string[]; customFields?: Record<string, unknown> }>(
+    `/contacts/${contactId}`,
+  );
+  if (!r0.ok || !r0.data) return false;
+  const tags = new Set([...(r0.data.tags ?? []), tag]);
+  const r = await chamar(`/contacts/${contactId}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      tags: [...tags],
+      customFields: r0.data.customFields ?? {},
+    }),
+  });
+  return r.ok;
+}
+
 export async function criarEmpresa(nome: string): Promise<string | null> {
   const r = await chamar<{ id: string }>("/companies", {
     method: "POST",
