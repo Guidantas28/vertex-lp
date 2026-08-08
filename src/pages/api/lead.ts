@@ -79,6 +79,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   };
   for (const [k, v] of Object.entries(rawUtm)) campo(customFields, k.toLowerCase().slice(0, 60), v);
   campo(customFields, "segmento", segment);
+  // O @ da empresa (opcional na landing) — mesmo campo que o formulário do Meta
+  // preenche; o vigia de agendamento lê daqui pro aviso no grupo.
+  campo(customFields, "instagram", data?.instagram, 60);
   campo(customFields, "fbclid", data?.fbclid, 500);
   campo(customFields, "fbc", data?.fbc, 500);
   campo(customFields, "fbp", data?.fbp, 500);

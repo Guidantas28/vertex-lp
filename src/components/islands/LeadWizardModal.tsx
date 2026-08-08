@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, ChevronRight, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import CalEmbed from "./CalEmbed";
@@ -18,7 +18,18 @@ type FormData = {
   segment: string;
   revenue: string;
   challenge: string;
+  instagram: string;
 };
+
+/** Handle limpo: aceita colado com @, URL inteira ou espaço perdido — handle de
+ *  Instagram não tem espaço, então dá pra remover enquanto digita sem atrapalhar. */
+const normInstagram = (v: string) =>
+  v
+    .replace(/^https?:\/\/(www\.)?instagram\.com\//i, "")
+    .replace(/^@+/, "")
+    .replace(/[/?#].*$/, "")
+    .replace(/\s+/g, "")
+    .slice(0, 60);
 
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"] as const;
 
@@ -166,6 +177,7 @@ const emptyForm = (): FormData => ({
   segment: "",
   revenue: "",
   challenge: "",
+  instagram: "",
 });
 
 // Contrato de dataLayer do GTM do VOS (servido por vx.voshq.com). Ver brief.
@@ -191,6 +203,7 @@ function pushLeadEvent(form: FormData, country: Country) {
       resposta_2: form.challenge, // pergunta qualificatória 2 = desafio
       faturamento: form.revenue,
       desafio: form.challenge,
+      ...(form.instagram ? { instagram: normInstagram(form.instagram) } : {}),
     },
   });
 }
@@ -199,7 +212,9 @@ export default function LeadWizardModal() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>(1);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Erro POR CAMPO: a mensagem aparece embaixo do campo que falhou e o foco vai
+  // pra ele (Baymard/NN/g — erro global no rodapé é o que o usuário não vê).
+  const [error, setError] = useState<{ field: string; msg: string } | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [leadApiFailed, setLeadApiFailed] = useState(false);
   const firstRef = useRef<HTMLInputElement>(null);
@@ -278,6 +293,16 @@ export default function LeadWizardModal() {
     if (open && step === 1) firstRef.current?.focus();
   }, [open, step]);
 
+  // Marca o erro no campo e leva o foco até ele (o rodapé não basta: em tela
+  // pequena a mensagem longe do campo passa batida).
+  function failAt(field: string, msg: string) {
+    setError({ field, msg });
+    window.setTimeout(() => {
+      const el = panelRef.current?.querySelector<HTMLElement>(`[data-field="${field}"]`);
+      el?.focus();
+    }, 0);
+  }
+
   // Etapa 1 → 2: valida dados pessoais + empresa.
   function goToCompanyStep() {
     setError(null);
@@ -285,27 +310,27 @@ export default function LeadWizardModal() {
     // marca pra não enviar nada ao CRM nem disparar evento lá na frente.
     if (honeypotRef.current?.value) isBotRef.current = true;
     if (form.name.trim().length < 2) {
-      setError("Informe seu nome completo.");
+      failAt("name", "Informe seu nome completo.");
       return;
     }
     if (!isValidEmail(normEmail(form.email))) {
-      setError("E-mail inválido.");
+      failAt("email", "E-mail inválido.");
       return;
     }
     const digits = form.phone.replace(/\D/g, "");
     if (digits.length < country.min || digits.length > country.max) {
-      setError("Informe um WhatsApp válido: só DDD + número, sem o +55.");
+      failAt("phone", "Informe um WhatsApp válido: só DDD + número, sem o +55.");
       return;
     }
     // Empresa é OBRIGATÓRIA de propósito: quem não tem empresa não é público do
     // VOS. O campo é filtro, não cadastro (decisão do Orlando, 06/08).
     if (form.company.trim().length < 2) {
-      setError("Informe o nome da empresa.");
+      failAt("company", "Informe o nome da empresa.");
       return;
     }
     // Só dígitos é o jeito de furar o filtro — foi o caso real do "987654".
     if (pareceLixo(form.company)) {
-      setError("Coloque o nome da empresa, não um número.");
+      failAt("company", "Coloque o nome da empresa, não um número.");
       return;
     }
     setStep(2);
@@ -315,15 +340,15 @@ export default function LeadWizardModal() {
   async function submitAndSchedule() {
     setError(null);
     if (!form.segment) {
-      setError("Selecione o segmento da sua empresa.");
+      failAt("segment", "Selecione o segmento da sua empresa.");
       return;
     }
     if (!form.revenue) {
-      setError("Selecione a faixa de faturamento.");
+      failAt("revenue", "Selecione a faixa de faturamento.");
       return;
     }
     if (!form.challenge) {
-      setError("Selecione o principal desafio.");
+      failAt("challenge", "Selecione o principal desafio.");
       return;
     }
 
@@ -372,6 +397,7 @@ export default function LeadWizardModal() {
     if (stapeUserId) clickIds.stapeUserId = stapeUserId;
 
     const emailNow = normEmail(form.email);
+    const instagramNow = normInstagram(form.instagram);
     const payload = JSON.stringify({
       name: form.name.trim(),
       email: emailNow,
@@ -379,6 +405,7 @@ export default function LeadWizardModal() {
       company: form.company.trim(),
       segment: form.segment,
       country: form.country,
+      ...(instagramNow ? { instagram: instagramNow } : {}),
       utm,
       ...clickIds,
     });
@@ -427,6 +454,21 @@ export default function LeadWizardModal() {
     setSubmitting(false);
     setStep(3);
   }
+
+  // Marca `vos-agendado` (contato + lead) e avança pra confirmação. É UM
+  // callback estável de propósito: como arrow inline, ele entrava nas deps do
+  // effect do CalEmbed e re-registrava o listener a cada render — risco de
+  // /api/agendou duplicado. Usado pelo booking do Cal E pelo "Já agendei"
+  // (que antes pulava a tag e jogava quem agendou na cadência de não-agendou).
+  const marcarAgendadoEConfirmar = useCallback(() => {
+    fetch("/api/agendou", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: normEmail(form.email) }),
+    }).catch(() => {});
+    setStep(4);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.email]);
 
   if (!open) return null;
 
@@ -586,16 +628,24 @@ export default function LeadWizardModal() {
                   onChange={(v) => setForm((f) => ({ ...f, name: v }))}
                   placeholder="Maria Silva"
                   autoComplete="name"
+                  autoCorrect="off"
+                  field="name"
+                  error={error?.field === "name" ? error.msg : undefined}
                 />
 
                 <Field
                   label="E-mail profissional"
                   required
                   type="email"
+                  inputMode="email"
                   value={form.email}
                   onChange={(v) => setForm((f) => ({ ...f, email: v }))}
                   placeholder="maria@empresa.com"
                   autoComplete="email"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  field="email"
+                  error={error?.field === "email" ? error.msg : undefined}
                 />
 
                 <label className="block">
@@ -631,9 +681,17 @@ export default function LeadWizardModal() {
                       placeholder={form.country === "BR" ? "(11) 99999-9999" : "Número com DDD"}
                       inputMode="tel"
                       autoComplete="tel-national"
-                      className={inputCls}
+                      autoCorrect="off"
+                      data-field="phone"
+                      aria-invalid={error?.field === "phone" ? true : undefined}
+                      className={`${inputCls}${error?.field === "phone" ? " border-[#D32F2F]" : ""}`}
                     />
                   </div>
+                  {error?.field === "phone" && (
+                    <p className="mt-1 text-[12px] font-medium text-[#D32F2F]" role="alert">
+                      {error.msg}
+                    </p>
+                  )}
                 </label>
 
                 <Field
@@ -643,13 +701,9 @@ export default function LeadWizardModal() {
                   onChange={(v) => setForm((f) => ({ ...f, company: v }))}
                   placeholder="Empresa Ltda"
                   autoComplete="organization"
+                  field="company"
+                  error={error?.field === "company" ? error.msg : undefined}
                 />
-
-                {error && (
-                  <p className="text-[12px] font-medium text-[#D32F2F]" role="alert">
-                    {error}
-                  </p>
-                )}
 
                 <div className="pt-0.5">
                   <GetStartedButton
@@ -683,6 +737,8 @@ export default function LeadWizardModal() {
                   onChange={(v) => setForm((f) => ({ ...f, segment: v }))}
                   placeholder="Selecione uma opção"
                   options={SEGMENT_OPTS}
+                  field="segment"
+                  error={error?.field === "segment" ? error.msg : undefined}
                 />
 
                 <SelectField
@@ -691,6 +747,8 @@ export default function LeadWizardModal() {
                   onChange={(v) => setForm((f) => ({ ...f, revenue: v }))}
                   placeholder="Selecione uma opção"
                   options={REVENUE_OPTS}
+                  field="revenue"
+                  error={error?.field === "revenue" ? error.msg : undefined}
                 />
 
                 <SelectField
@@ -699,13 +757,23 @@ export default function LeadWizardModal() {
                   onChange={(v) => setForm((f) => ({ ...f, challenge: v }))}
                   placeholder="Selecione uma opção"
                   options={CHALLENGE_OPTS}
+                  field="challenge"
+                  error={error?.field === "challenge" ? error.msg : undefined}
                 />
 
-                {error && (
-                  <p className="text-[12px] font-medium text-[#D32F2F]" role="alert">
-                    {error}
-                  </p>
-                )}
+                <Field
+                  label="Instagram da empresa"
+                  optional
+                  value={form.instagram}
+                  onChange={(v) => setForm((f) => ({ ...f, instagram: normInstagram(v) }))}
+                  placeholder="suaempresa"
+                  prefix="@"
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  hint="A gente dá uma olhada no seu perfil antes da conversa."
+                  field="instagram"
+                />
 
                 <div className="flex items-center gap-2 pt-0.5">
                   <button
@@ -752,18 +820,8 @@ export default function LeadWizardModal() {
                     ...firstTouchMetadata(phoneE164),
                     ...(leadApiFailed ? { lead_api_falhou: "1" } : {}),
                   }}
-                  notes={`Empresa: ${form.company} · Segmento: ${form.segment} · Faturamento: ${form.revenue} · Desafio: ${form.challenge} · WhatsApp: ${fullPhone}`}
-                  onBookingSuccess={() => {
-                    // Tag `vos-agendado` no Lead — é o que roteia o fluxo de
-                    // automação (Ramo A cadência ✕ Ramo B lembretes). Fire and
-                    // forget: falha aqui não pode travar a confirmação na tela.
-                    fetch("/api/agendou", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ email: normEmail(form.email) }),
-                    }).catch(() => {});
-                    setStep(4);
-                  }}
+                  notes={`Empresa: ${form.company} · Segmento: ${form.segment} · Faturamento: ${form.revenue} · Desafio: ${form.challenge}${normInstagram(form.instagram) ? ` · Instagram: @${normInstagram(form.instagram)}` : ""} · WhatsApp: ${fullPhone}`}
+                  onBookingSuccess={marcarAgendadoEConfirmar}
                   className="min-h-[min(520px,62dvh)] w-full rounded-xl border border-black/[0.06] bg-[#FAFAFC]"
                 />
                 <div className="mt-2.5 flex items-center justify-between gap-3 px-1 sm:px-2">
@@ -776,7 +834,7 @@ export default function LeadWizardModal() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setStep(4)}
+                    onClick={marcarAgendadoEConfirmar}
                     className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-[#ED4B00] hover:underline"
                   >
                     Já agendei
@@ -860,6 +918,17 @@ export default function LeadWizardModal() {
   );
 }
 
+/** Mensagem de erro SOB o campo que falhou (Baymard/NN/g: erro global no
+ *  rodapé passa batido; junto do campo, com aria, não passa). */
+function FieldError({ msg }: { msg?: string }) {
+  if (!msg) return null;
+  return (
+    <p className="mt-1 text-[12px] font-medium text-[#D32F2F]" role="alert">
+      {msg}
+    </p>
+  );
+}
+
 function Field({
   label,
   value,
@@ -869,7 +938,14 @@ function Field({
   type = "text",
   inputMode,
   autoComplete,
+  autoCapitalize,
+  autoCorrect,
   inputRef,
+  field,
+  error,
+  hint,
+  optional,
+  prefix,
 }: {
   label: string;
   value: string;
@@ -879,25 +955,50 @@ function Field({
   type?: string;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   autoComplete?: string;
+  autoCapitalize?: string;
+  autoCorrect?: string;
   inputRef?: React.Ref<HTMLInputElement>;
+  /** id do campo pro foco-no-erro (data-field). */
+  field?: string;
+  error?: string;
+  hint?: string;
+  optional?: boolean;
+  /** Prefixo visual dentro do input (ex.: "@" do Instagram). */
+  prefix?: string;
 }) {
   return (
     <label className="block">
       <span className="mb-1 block text-[11.5px] font-medium text-[#646464]">
         {label}
         {required ? <span className="text-[#ED4B00]"> *</span> : null}
+        {optional ? <span className="font-normal text-[#8A8696]"> (opcional)</span> : null}
       </span>
-      <input
-        ref={inputRef}
-        type={type}
-        required={required}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        inputMode={inputMode}
-        autoComplete={autoComplete}
-        className={inputCls}
-      />
+      <div className="relative">
+        {prefix ? (
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-[#8A8696]">
+            {prefix}
+          </span>
+        ) : null}
+        <input
+          ref={inputRef}
+          type={type}
+          required={required}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          inputMode={inputMode}
+          autoComplete={autoComplete}
+          autoCapitalize={autoCapitalize}
+          autoCorrect={autoCorrect}
+          data-field={field}
+          aria-invalid={error ? true : undefined}
+          className={`${inputCls}${prefix ? " pl-8" : ""}${error ? " border-[#D32F2F]" : ""}`}
+        />
+      </div>
+      {hint && !error ? (
+        <p className="mt-1 text-[11px] leading-snug text-[#8A8696]">{hint}</p>
+      ) : null}
+      <FieldError msg={error} />
     </label>
   );
 }
@@ -908,12 +1009,16 @@ function SelectField({
   onChange,
   placeholder,
   options,
+  field,
+  error,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
   options: string[];
+  field?: string;
+  error?: string;
 }) {
   return (
     <label className="block">
@@ -924,7 +1029,9 @@ function SelectField({
         required
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={inputCls}
+        data-field={field}
+        aria-invalid={error ? true : undefined}
+        className={`${inputCls}${error ? " border-[#D32F2F]" : ""}`}
       >
         <option value="" disabled>
           {placeholder}
@@ -935,6 +1042,7 @@ function SelectField({
           </option>
         ))}
       </select>
+      <FieldError msg={error} />
     </label>
   );
 }
