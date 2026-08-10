@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, ChevronRight, X } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig, useReducedMotion } from "framer-motion";
 import CalEmbed from "./CalEmbed";
 import ConfettiBurst from "./ConfettiBurst";
 import { GetStartedButton } from "../ui/get-started-button";
@@ -210,6 +210,9 @@ function pushLeadEvent(form: FormData, country: Country) {
 
 export default function LeadWizardModal() {
   const [open, setOpen] = useState(false);
+  // Quem pede menos movimento no sistema não ganha confete nem slide de painel
+  // (o MotionConfig lá embaixo cuida dos motion.*; este flag cuida do canvas).
+  const reduceMotion = useReducedMotion();
   const [step, setStep] = useState<Step>(1);
   const [submitting, setSubmitting] = useState(false);
   // Erro POR CAMPO: a mensagem aparece embaixo do campo que falhou e o foco vai
@@ -277,7 +280,34 @@ export default function LeadWizardModal() {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
+      if (e.key === "Escape") {
+        close();
+        return;
+      }
+      // Trap de foco manual: Tab circula dentro do painel — sem ele, o Tab
+      // vazava pra página bloqueada atrás do modal (a lista é lida na hora
+      // porque os campos mudam a cada etapa).
+      if (e.key !== "Tab") return;
+      const panel = panelRef.current;
+      if (!panel) return;
+      const focusables = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((el) => el.tabIndex !== -1 && el.offsetParent !== null);
+      if (!focusables.length) return;
+      const first = focusables[0]!;
+      const last = focusables[focusables.length - 1]!;
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey) {
+        if (active === first || !panel.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !panel.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -290,7 +320,11 @@ export default function LeadWizardModal() {
   }, [open]);
 
   useEffect(() => {
-    if (open && step === 1) firstRef.current?.focus();
+    // Autofocus só no desktop: no celular ele abria o teclado junto com o
+    // modal e escondia metade do formulário antes da pessoa ver onde estava.
+    if (open && step === 1 && window.matchMedia("(pointer: fine)").matches) {
+      firstRef.current?.focus();
+    }
   }, [open, step]);
 
   // Marca o erro no campo e leva o foco até ele (o rodapé não basta: em tela
@@ -314,7 +348,7 @@ export default function LeadWizardModal() {
       return;
     }
     if (!isValidEmail(normEmail(form.email))) {
-      failAt("email", "E-mail inválido.");
+      failAt("email", "Digite um e-mail válido (ex.: nome@empresa.com).");
       return;
     }
     const digits = form.phone.replace(/\D/g, "");
@@ -474,7 +508,10 @@ export default function LeadWizardModal() {
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-end justify-center p-3 sm:items-center sm:p-6"
+      // Mobile = bottom sheet DE VERDADE: colado no fundo, cantos só em cima.
+      // Antes (p-3) o painel flutuava a 12px do fundo — nem card nem sheet,
+      // parecia bug e brigava com a barra de gesto do iPhone.
+      className="fixed inset-0 z-[80] flex items-end justify-center p-0 sm:items-center sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="lead-wizard-title"
@@ -486,13 +523,16 @@ export default function LeadWizardModal() {
         onClick={close}
       />
 
+      <MotionConfig reducedMotion="user">
       <motion.div
         ref={panelRef}
         initial={{ opacity: 0, y: 18, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
         className={[
-          "relative z-10 flex max-h-[min(92dvh,860px)] w-full flex-col overflow-hidden rounded-[24px] bg-white transition-[max-width] duration-300",
+          "relative z-10 flex max-h-[min(92dvh,860px)] w-full flex-col overflow-hidden rounded-t-[24px] rounded-b-none bg-white transition-[max-width] duration-300 sm:rounded-[24px]",
+          // Home indicator do iPhone: vira 0 onde a barra não existe.
+          "pb-[env(safe-area-inset-bottom)]",
           "border-2 border-white/90",
           "shadow-[0_0_0_1px_rgba(20,19,28,0.14),0_0_0_6px_rgba(255,255,255,0.08),0_40px_100px_-36px_rgba(20,19,28,0.72)]",
           "ring-1 ring-black/10",
@@ -512,7 +552,7 @@ export default function LeadWizardModal() {
 
           <div className="relative flex items-start justify-between gap-3">
             <div>
-              <p className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-[#8A8696]">
+              <p className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-[#6E6A79]">
                 {step === 1 && "Etapa 1 de 4"}
                 {step === 2 && "Etapa 2 de 4"}
                 {step === 3 && "Etapa 3 de 4"}
@@ -532,7 +572,7 @@ export default function LeadWizardModal() {
             <button
               type="button"
               onClick={close}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-black/10 text-[#8A8696] transition hover:border-black/20 hover:text-[#1A202C]"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-black/10 text-[#6E6A79] transition hover:border-black/20 hover:text-[#1A202C] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#ED4B00]/40"
               aria-label="Fechar"
             >
               <X size={16} strokeWidth={2.2} />
@@ -546,6 +586,7 @@ export default function LeadWizardModal() {
               return (
                 <li
                   key={s.n}
+                  aria-current={on ? "step" : undefined}
                   /* Em tela estreita só o passo ATUAL ocupa espaço; os outros
                      encolhem pro número. Com os quatro rótulos lado a lado
                      sobravam 44px pra textos de 61 a 68px e três dos quatro
@@ -562,7 +603,7 @@ export default function LeadWizardModal() {
                         ? "bg-[#1EB258] text-white"
                         : on
                           ? "bg-[#1A202C] text-white"
-                          : "bg-black/[0.06] text-[#8A8696]",
+                          : "bg-black/[0.06] text-[#6E6A79]",
                     ].join(" ")}
                   >
                     {done ? <Check size={12} strokeWidth={2.6} /> : s.n}
@@ -575,7 +616,7 @@ export default function LeadWizardModal() {
                          stepper não cresce com a viewport: com os quatro
                          rótulos, dois ficavam cortados até no desktop. */
                       on ? "inline" : "hidden",
-                      on || done ? "text-[#1A202C]" : "text-[#8A8696]",
+                      on || done ? "text-[#1A202C]" : "text-[#6E6A79]",
                     ].join(" ")}
                   >
                     {s.label}
@@ -712,7 +753,7 @@ export default function LeadWizardModal() {
                     className="!w-full !justify-center !py-[13px] !pl-4 !pr-3 !text-[14px] !leading-5"
                   />
                 </div>
-                <p className="text-center text-[11px] leading-snug text-[#8A8696]">
+                <p className="text-center text-[11px] leading-snug text-[#6E6A79]">
                   Leva menos de 1 minuto. Sem spam.
                 </p>
               </motion.form>
@@ -828,14 +869,15 @@ export default function LeadWizardModal() {
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="text-[12px] font-semibold text-[#646464] underline-offset-2 hover:text-[#1A202C] hover:underline"
+                    // -m/p: alvo de toque ≥44px sem deslocar o layout.
+                    className="-m-3 p-3 text-[12px] font-semibold text-[#646464] underline-offset-2 hover:text-[#1A202C] hover:underline"
                   >
                     Voltar
                   </button>
                   <button
                     type="button"
                     onClick={marcarAgendadoEConfirmar}
-                    className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-[#ED4B00] hover:underline"
+                    className="-m-3 inline-flex items-center gap-0.5 p-3 text-[12px] font-semibold text-[#ED4B00] hover:underline"
                   >
                     Já agendei
                     <ChevronRight size={13} strokeWidth={2.4} />
@@ -853,7 +895,7 @@ export default function LeadWizardModal() {
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                 className="relative overflow-hidden px-5 py-8 text-center sm:px-8 sm:py-9"
               >
-                <ConfettiBurst />
+                {!reduceMotion && <ConfettiBurst />}
                 <div
                   className="pointer-events-none absolute inset-0 opacity-80"
                   style={{
@@ -885,7 +927,7 @@ export default function LeadWizardModal() {
                   </p>
 
                   <div className="mx-auto mt-5 max-w-sm rounded-xl border border-black/[0.06] bg-[#F7F6FA] px-3.5 py-3 text-left">
-                    <p className="font-mono text-[9.5px] uppercase tracking-[0.14em] text-[#8A8696]">
+                    <p className="font-mono text-[9.5px] uppercase tracking-[0.14em] text-[#6E6A79]">
                       Durante a call, vamos
                     </p>
                     <ul className="mt-1.5 space-y-1 text-[12.5px] leading-[17px] text-[#1A202C]">
@@ -896,7 +938,7 @@ export default function LeadWizardModal() {
                       <li>· Explicar os próximos passos para implementação.</li>
                     </ul>
                   </div>
-                  <p className="mx-auto mt-3 max-w-[320px] text-[11.5px] leading-snug text-[#8A8696]">
+                  <p className="mx-auto mt-3 max-w-[320px] text-[11.5px] leading-snug text-[#6E6A79]">
                     Reserve o horário na sua agenda e participe em um ambiente tranquilo.
                   </p>
 
@@ -914,6 +956,7 @@ export default function LeadWizardModal() {
           </AnimatePresence>
         </div>
       </motion.div>
+      </MotionConfig>
     </div>
   );
 }
@@ -971,11 +1014,11 @@ function Field({
       <span className="mb-1 block text-[11.5px] font-medium text-[#646464]">
         {label}
         {required ? <span className="text-[#ED4B00]"> *</span> : null}
-        {optional ? <span className="font-normal text-[#8A8696]"> (opcional)</span> : null}
+        {optional ? <span className="font-normal text-[#6E6A79]"> (opcional)</span> : null}
       </span>
       <div className="relative">
         {prefix ? (
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-[#8A8696]">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-[#6E6A79]">
             {prefix}
           </span>
         ) : null}
@@ -996,7 +1039,7 @@ function Field({
         />
       </div>
       {hint && !error ? (
-        <p className="mt-1 text-[11px] leading-snug text-[#8A8696]">{hint}</p>
+        <p className="mt-1 text-[11px] leading-snug text-[#6E6A79]">{hint}</p>
       ) : null}
       <FieldError msg={error} />
     </label>
