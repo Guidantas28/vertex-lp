@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import {
   contatoPorEmail,
+  contatoPorTelefone,
   criarContato,
   criarEmpresa,
   criarLead,
@@ -100,7 +101,11 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const origem = String(rawUtm?.utm_source ?? "").toLowerCase() === "meta" ? "ads" : "organic";
 
   try {
+    // E-mail primeiro; TELEFONE como segunda chave. A mesma pessoa preenche o
+    // form do Meta com um e-mail e a landing com outro — sem a segunda chave
+    // ela virava dois contatos e o fluxo de boas-vindas saía em dobro (15/08).
     let contato = await contatoPorEmail(email);
+    if (!contato && phone) contato = await contatoPorTelefone(phone);
     let companyId = contato?.companyId ?? null;
 
     // O vos passou a EXIGIR empresa no Lead (400 "Empresa obrigatória"), a
@@ -134,7 +139,10 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     // automação do vos — o builder só condiciona em lead.tags.
     const tags = ["landing", tagDesafio((rawUtm as Record<string, unknown>)?.desafio)];
 
-    const aberto = await leadAbertoDoContato(contato.id, email);
+    // A busca de lead cobre o e-mail do CONTATO — que pode não ser o que a
+    // pessoa digitou agora (contato achado pelo telefone). Buscar pelo e-mail
+    // errado deixaria o lead aberto invisível e criaria o segundo.
+    const aberto = await leadAbertoDoContato(contato.id, contato.email || email);
     if (aberto) {
       const ok = await enriquecerLead(aberto, { customFields, tags });
       console.info("[lead] lead existente enriquecido", aberto.id, ok);

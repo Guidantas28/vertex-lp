@@ -54,7 +54,13 @@ async function chamar<T>(caminho: string, init?: RequestInit): Promise<Resp<T>> 
   }
 }
 
-type Contato = { id: string; email?: string | null; companyId?: string | null };
+type Contato = {
+  id: string;
+  email?: string | null;
+  companyId?: string | null;
+  phone?: string | null;
+  whatsapp?: string | null;
+};
 type Lead = {
   id: string;
   contactId?: string;
@@ -72,6 +78,51 @@ export async function contatoPorEmail(email: string): Promise<Contato | null> {
   const r = await chamar<Pagina<Contato>>(`/contacts?search=${encodeURIComponent(e)}&pageSize=20`);
   if (!r.ok) return null;
   return (r.data?.items ?? []).find((c) => (c.email ?? "").toLowerCase() === e) ?? null;
+}
+
+/** Dígitos com DDI: "43 98888-7777" e "+55 (43) 98888-7777" viram a mesma chave. */
+function chaveTelefone(v: string): string {
+  const d = v.replace(/\D/g, "");
+  if (d.startsWith("55") && (d.length === 12 || d.length === 13)) return d;
+  if (d.length === 10 || d.length === 11) return `55${d}`;
+  return d;
+}
+
+/** As formas equivalentes de um número BR: com e sem o 9º dígito. */
+function variantesTelefone(v: string): string[] {
+  const d = chaveTelefone(v);
+  if (!d.startsWith("55")) return [d];
+  const ddd = d.slice(2, 4);
+  const resto = d.slice(4);
+  if (!/^\d{2}$/.test(ddd)) return [d];
+  if (resto.length === 9 && resto.startsWith("9")) return [d, `55${ddd}${resto.slice(1)}`];
+  if (resto.length === 8) return [d, `55${ddd}9${resto}`];
+  return [d];
+}
+
+/** Busca exata por TELEFONE — a outra metade da deduplicação de contato.
+ *
+ *  Era só por e-mail, e foi assim que a mesma pessoa virou duas no CRM: form
+ *  do Meta com um e-mail, landing com outro, MESMO telefone — dois contatos,
+ *  dois leads, e o fluxo de boas-vindas saiu em dobro no WhatsApp (caso real,
+ *  15/08). O telefone é a identidade que os dois formulários compartilham.
+ *
+ *  O `search` do vos compara os DÍGITOS das colunas phone/whatsapp por
+ *  substring; buscamos pelos 8 dígitos finais (acha o número em qualquer
+ *  formato salvo, com e sem o 9) e conferimos EXATO no retorno, pelas
+ *  variantes — substring sozinha casaria um número dentro de outro. */
+export async function contatoPorTelefone(phone: string): Promise<Contato | null> {
+  const digitos = (phone ?? "").replace(/\D/g, "");
+  if (digitos.length < 10) return null; // sem DDD não há como afirmar identidade
+  const finais = digitos.slice(-8);
+  const r = await chamar<Pagina<Contato>>(`/contacts?search=${encodeURIComponent(finais)}&pageSize=20`);
+  if (!r.ok) return null;
+  const alvos = new Set(variantesTelefone(digitos));
+  return (
+    (r.data?.items ?? []).find((c) =>
+      [c.phone, c.whatsapp].some((t) => t && alvos.has(chaveTelefone(String(t)))),
+    ) ?? null
+  );
 }
 
 /** Marca o CONTATO com uma tag, preservando as que já existem.

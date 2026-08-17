@@ -1,6 +1,16 @@
 import type { APIRoute } from "astro";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { contatoPorEmail, criarContato, criarEmpresa, criarLead, leadJaExiste, tagDesafio } from "../../lib/vos";
+import {
+  contatoPorEmail,
+  contatoPorTelefone,
+  criarContato,
+  criarEmpresa,
+  criarLead,
+  enriquecerLead,
+  leadAbertoDoContato,
+  leadJaExiste,
+  tagDesafio,
+} from "../../lib/vos";
 
 // Webhook de leads do Meta (formulários instantâneos / lead ads).
 // GET  = verificação do webhook (hub.challenge) na configuração do app.
@@ -169,7 +179,11 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         const nomeCompleto = (name || email || phone || "").trim();
         const partes = nomeCompleto.split(/\s+/);
 
+        // E-mail primeiro; TELEFONE como segunda chave. A pessoa usa um e-mail
+        // no form do Meta e outro na landing — sem a segunda chave ela virava
+        // dois contatos e o fluxo de boas-vindas saía em dobro (15/08).
         let contato = email ? await contatoPorEmail(email) : null;
+        if (!contato && phone) contato = await contatoPorTelefone(phone);
         let companyId = contato?.companyId ?? null;
 
         // O vos passou a EXIGIR empresa no Lead — em 06/08 às 22:20 o
@@ -209,8 +223,36 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         if (!companyId) companyId = await criarEmpresa(nomeEmpresa);
 
         // Reenvio (vigia a cada 10min, reentrega do Meta) não pode duplicar.
-        if (await leadJaExiste(contato.id, email, String(leadgenId))) {
+        // O e-mail da busca é o do CONTATO quando ele foi achado pelo telefone
+        // — buscar pelo e-mail do form deixaria o lead existente invisível.
+        const emailDaBusca = contato.email || email;
+        if (await leadJaExiste(contato.id, emailDaBusca, String(leadgenId))) {
           console.info("[meta-leads] lead já existe, nada a fazer", leadgenId);
+          continue;
+        }
+
+        // Quem já tem lead ABERTO (veio pela landing primeiro) não vira outro:
+        // soma as respostas do Meta no lead que existe — o espelho exato do que
+        // o /api/lead já faz no sentido contrário. Era o buraco que criava o
+        // segundo lead no MESMO contato (casos Diana/Vanessa, 08/08) e re-rodava
+        // o fluxo de boas-vindas. De quebra o leadgen_id entra no lead, então o
+        // reenvio do vigia passa a casar no `leadJaExiste` de cima.
+        const aberto = await leadAbertoDoContato(contato.id, emailDaBusca);
+        if (aberto) {
+          const ok = await enriquecerLead(aberto, {
+            customFields: {
+              leadgen_id: String(leadgenId),
+              utm_source: "meta",
+              utm_medium: "lead-ad",
+              ...(lead?.campaign_name ? { utm_campaign: String(lead.campaign_name).slice(0, 200) } : {}),
+              ...(lead?.adset_name ? { utm_term: String(lead.adset_name).slice(0, 200) } : {}),
+              ...(lead?.ad_name ? { utm_content: String(lead.ad_name).slice(0, 200) } : {}),
+              ...(lead?.form_id ? { form_id: String(lead.form_id) } : {}),
+              ...extras,
+            },
+            tags: ["meta-lead-ad", tagDesafio(extras.desafio)],
+          });
+          console.info("[meta-leads] lead aberto enriquecido", aberto.id, ok);
           continue;
         }
 
