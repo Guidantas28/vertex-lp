@@ -16,7 +16,6 @@ export const NAV_LINKS = [
   { href: "/#segmentos", label: "Soluções" },
   { href: "/#solucoes", label: "Funcionalidades" },
   { href: "/#economia", label: "Economia" },
-  { href: "/#precos", label: "Preços" },
 ];
 
 // Cores de módulo (wayfinding)
@@ -867,7 +866,7 @@ export const FOOTER = {
     ] },
     { title: "Recursos", links: [
       { label: "Central de ajuda", href: "#" },
-      { label: "Preços", href: "/#precos" },
+      { label: "Dúvidas", href: "/#faq" },
       { label: "Status", href: "#" },
       { label: "API", href: "#" },
     ] },
