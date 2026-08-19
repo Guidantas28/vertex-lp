@@ -122,3 +122,69 @@ A trava hoje funciona (testada: `exit 1`, hash dos arquivos idêntico depois da 
    gostam de resposta automática no WhatsApp**, e a página abre com "Atendimento automático é
    só o começo". O Control dele vende exatamente isso e funciona — os dois fatos coexistem e
    a decisão é dele.
+
+---
+
+# Fecho — 19/08, noite (o estado real, depois de tudo)
+
+O relatório acima foi escrito às 12h05. Depois dele aconteceram três coisas que mudam o placar, e
+elas ficam registradas aqui para o relatório não continuar descrevendo uma página que não existe.
+
+## 1 · A página foi ao ar
+
+`www.voshq.com/lp` roda o commit **`f39f844`**, deploy `vertex-landing-9kjf7d699`, publicado às
+17h50 com autorização explícita do Orlando. O item 1 do "o que depende do Orlando" está fechado.
+
+Subiu junto o que estava no branch e nunca esteve no ar: roteamento da cadência, `vos-agendado`
+no contato, campo Instagram, bottom sheet mobile e dedupe por telefone.
+
+## 2 · Três blocos saíram a pedido dele
+
+No fim do dia o Orlando mandou remover **o bloco de problema, a faixa do mecanismo e as três
+provas vivas**. A área ficou vazia de propósito, marcada em comentário no `lp.astro`.
+
+Isso não deixa a spec em aberto: as seções 2, 3 e 6 passam a ser cumpridas pela CADEIA
+("Fluxo Contínuo VOS"), e a justificativa está escrita seção por seção no `LP_ARCHITECTURE.md`,
+em "Desvio da spec §5". A spec permite ajustar a ordem com justificativa baseada no audit — o que
+ela não permite é o desvio **sem registro**.
+
+## 3 · A limpeza que veio atrás
+
+A remoção tirou o markup e deixou o motor: ~250 linhas de JavaScript procurando 9 ids que não
+existiam mais, e a família inteira de CSS que os estilizava. Removidos agora — 256 linhas no
+`lp.astro` e 129 cortes no `lp.css`, com a esteira de depoimentos preservada (ela estava aninhada
+dentro do bloco morto). Verificação completa em `VERIFICATION.md`, seção "Rodada 3".
+
+## O placar do Big Black Book, hoje
+
+- **§5 (10 seções):** 6 ✅ · 3 absorvidas pela CADEIA, com justificativa registrada · **1 em
+  dívida** (S7, depoimentos fictícios)
+- **§10 (13 verificações):** 11 ✅ · a11y reprova **WCAG 2.2.2 A** por decisão do dono (laço eterno
+  da cena sem botão de pausar, com o custo escrito no CSS) · o item 13 ("não publicar") foi
+  superado pela autorização dele
+- **§13 (entregáveis):** documentação 6/6 ✅ · frontend ✅ · **criativos: entregue-e-revertido** —
+  16 masters foram feitos e apagados a pedido dele, item encerrado, não pendente
+- **§14 (critérios A–N):** A–J e N ✅ · K encerrado como acima · L e M ✅ **a partir desta revisão**
+  (eram os dois itens que a remoção tinha deixado desatualizados)
+
+## 🔴 O que continua dependendo do Orlando
+
+1. **Depoimentos fictícios** — o único ponto em que a página contraria a spec de frente. Trocar
+   por prova de mecanismo/processo (que a spec lista **acima** de depoimento) ou remover a esteira.
+2. **Lista do Scale** cortada no print de preço — pode faltar item na LP.
+3. **`plan-limits.ts`** desatualizado no SaaS (repo do Gui).
+4. **FAQ resposta 4** — histórico de conversas pela API oficial: confirmar com o Guilherme.
+5. **Claim "respondido em 40s"** no card da inbox — sem fonte. *(Saiu da página junto com as
+   provas vivas na remoção de 19/08; volta a valer se o bloco voltar.)*
+6. **Posicionamento** — Opinion Box (jun/2025, N=1.126) mede que 59% dos brasileiros não gostam de
+   resposta automática no WhatsApp, e a página abre com "Atendimento automático é só o começo". O
+   Control dele vende exatamente isso e funciona; os dois fatos coexistem e a decisão é dele.
+
+## 🔴 Duas dívidas técnicas que não são da LP, mas mordem se ninguém olhar
+
+- **O fonte da cena de vídeo não está versionado.** No git do `D:\VIDEO-FACTORY`,
+  `LpCenaTrabalho.tsx` está *untracked* e `Root.tsx` modificado sem commit. O vídeo está em
+  produção e o código que o gera existe só na árvore de trabalho.
+- **O espelho "Com o VOS" nunca foi começado.** Não existe `LpCenaVos`. Naquele estado o CSS
+  esconde o vídeo e a página cai no desenho em `<span>`, ao lado de uma peça cinematográfica no
+  estado manual.

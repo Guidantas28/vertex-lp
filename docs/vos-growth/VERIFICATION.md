@@ -235,3 +235,85 @@ também é: para incompleta, publicar só o que é legível e registrar a lacuna
 inventada, não publicar.
 
 O que falta é o Orlando conferir o print e dizer se há item do Scale depois do "PDV".
+
+---
+
+# Rodada 3 — a limpeza de 19/08 (noite)
+
+Esta seção **corrige** o que envelheceu acima e registra a verificação da limpeza. Nada da
+rodada 2 foi reescrito: o que está lá era verdade quando foi escrito.
+
+## 🔴 O que a rodada 2 afirma e deixou de valer no mesmo dia
+
+A tabela da rodada 2 diz: *"motores animados ✅ todos os ids preservados (`#flow`, `#chatTrack`,
+`#caixaN`, `#vid`, `#bar`…)"*. Isso era verdade às 11h54. **Horas depois**, o Orlando mandou
+remover o bloco de problema, a faixa do mecanismo e as três provas vivas — e com o markup foram
+embora `#flow`, `#chatTrack`, `#caixaN`, `#caixaBarras`, `#caixaFeed`, `#flowCanvas`, `#flowLog`,
+`#feats`, `#featsTrack`, `#featsDots` e `#featsDica`. Sobreviveram `#vid`, `#bar`, `#depos` e o
+motor da CADEIA.
+
+O JavaScript daqueles motores **ficou no arquivo**, procurando ids que não existiam mais. Com
+guarda de `null`, então não quebrava nada — e era exatamente por isso que ninguém notava.
+
+## O que a limpeza tirou
+
+| onde | o quê |
+|---|---|
+| `src/pages/lp.astro` | **256 linhas**: o IIFE das três provas vivas (inbox `CONVERSA`, caixa/feed, motor `FLUXOS`), o carrossel `feats` e o `IntersectionObserver` que ligava o registrador de `timers` |
+| `src/styles/lp.css` | **129 cortes**: as famílias `.feats/.feat*`, `.caixa*`, `.ch*`, `.fn*`/`.flow-*`, `.nt*`, `.pain*`, mais `.form/.slot*`, `.nums/.num`, `.quote/.who`, `.micro`, `.band-in/.band-foot*`, `.st`, `.ze`, `.shot`, `.zx` — 3 `@media` que ficaram vazios e 5 `@keyframes` órfãos (`sobeNum`, `pulso`, `cutuca`, `corre`, `entra`) |
+
+O bloco de depoimentos estava **aninhado dentro** do IIFE morto — cortar o intervalo inteiro teria
+matado a esteira. Ele foi preservado e promovido a bloco de primeiro nível.
+
+Uma regra precisou de bisturi em vez de corte: `.feat-chat-track,.depo-fita` no bloco de
+`prefers-reduced-motion`. A primeira metade morreu, a segunda é a esteira de depoimentos. Ficou
+`.depo-fita`.
+
+## Verificação executada
+
+| prova | resultado |
+|---|---|
+| `npm run build` | ✅ Complete |
+| `node --check` nos dois scripts `is:inline` | ✅ os dois parseiam |
+| chaves `{` / `}` do CSS | ✅ 387/387 (era 525/525) |
+| classes vivas que perderam TODAS as regras | ✅ **nenhuma** (cruzamento das 186 classes do CSS contra `class=`, `class={}`, `classList.*` e seletores de `querySelector`) |
+| regras 100% mortas restantes | ✅ **0** |
+| `dataLayer` evento `lead` | ✅ as mesmas **10 chaves**, desktop e mobile |
+| `[data-action="lead"]` | ✅ 7 (inalterado) |
+| chamadas de rede | ✅ `POST /api/first-touch` + `POST /api/lead` — as mesmas |
+| console | ✅ só o aviso pré-existente do Meta pixel; zero erro |
+| **altura da página** | ✅ **idêntica ao pixel** — 11128px no desktop, 13636px no mobile |
+| captura `hero` desktop e mobile | ✅ **0,0000%** de diferença |
+| captura `modal` 1 e 2, desktop e mobile | ✅ **0,0000%** de diferença |
+| captura `modal` 3 (embed do Cal) | 0,005% desktop / 0,02% mobile — **dentro do ruído medido** |
+| captura `full` | 1,5% desktop / 1,45% mobile — **dentro do ruído**: a esteira de depoimentos e os 9 vídeos estão animando durante a captura |
+| DOM ao vivo | ✅ 30 depoimentos em 3 pistas com `animation: sobe 38s` · 9 cartões, 9 vídeos, `com-video`, 18 selos, 2 relógios · 3 planos · 7 FAQ · botão e balão do WhatsApp |
+| arquivos tocados | ✅ só `src/pages/lp.astro`, `src/styles/lp.css` e `docs/vos-growth/` — zero backend |
+
+**Como o ruído foi medido:** capturando a mesma versão duas vezes e comparando. Deu 1,42% no
+`full` desktop e 1,23% no mobile, e ~0% no modal. É a régua que separa "mudou" de "estava
+animando".
+
+## 🔴 Um incidente no meio da verificação, e o que ele ensinou
+
+Rodei `pnpm` para diagnosticar o lançador do servidor local. Ele **reestruturou o `node_modules`
+da LP** para o layout dele (`.pnpm`), deixou `esbuild` e `sharp` sem rodar os scripts de build, e
+criou `pnpm-lock.yaml` e `pnpm-workspace.yaml`. Desfeito: os dois arquivos apagados e `npm ci`
+rodado a partir do `package-lock.json` — que ficou **byte a byte idêntico** (md5 conferido antes e
+depois).
+
+Depois disso, o modal aparecia **sem estilo nenhum** nas capturas — 60% a 94% de diferença. A
+causa não era o `pnpm` nem a limpeza: era o **lançador do servidor local**. A entrada
+`lp-voshq-4321` do `.claude/launch.json` não subia (`npm` mora em `C:\Program Files\...` e o
+espaço no caminho quebra o spawn), e a correção que tentei — `astro dev --root <pasta>` — subia o
+servidor com o **cwd errado**. Os globs `content` do `tailwind.config.ts` são relativos ao cwd:
+`./src/**` não casava com nada e o Tailwind gerava uma folha praticamente vazia. Só em dev — no
+build de produção o CSS sai correto.
+
+Corrigido com `cwd` explícito na entrada do `launch.json`. Depois disso o código original passou a
+bater com a baseline de ontem (modal **0,0000%**), o que é o que torna a medição da limpeza
+confiável.
+
+**A lição, para não custar de novo:** captura visual só vale contra uma referência que você
+acabou de reproduzir. Antes de acusar o próprio trabalho, reproduza a referência com o código
+original — foi isso que separou "eu quebrei" de "o instrumento estava torto".
