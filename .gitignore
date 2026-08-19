@@ -22,3 +22,6 @@ references/
 # Render de vídeo (pesado, não versionar)
 video-build/
 video-src/
+
+# saida gerada pelo scripts/baseline-lp.mjs: 6,9 MB de capturas, re-geraveis
+baseline/

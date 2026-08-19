@@ -7,6 +7,33 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
+// ⛔ TRAVA (18/08/2026). Este gerador SOBRESCREVE lp.astro e lp.css inteiros,
+// fatiando lp-source/index.html por número de linha fixo. Depois da reforma do
+// Big Black Book, os gerados têm ~180 linhas que NÃO existem no lp-source
+// (problema, mecanismo, preços, objeções) — rodar isto apaga tudo em silêncio.
+// Pior: o passo de CTA só casa `<a href="#agendar" class="cta">`, então os
+// botões dos planos (class="cta plano-cta") sairiam SEM data-action="lead" e
+// parariam de abrir a modal — a captura de lead morreria.
+// Para voltar a usar: reconcilie lp-source/index.html com o lp.astro atual e
+// então rode com --forcar.
+if (!process.argv.includes("--forcar")) {
+  console.error(
+    [
+      "",
+      "gen-lp.mjs esta TRAVADO.",
+      "",
+      "  Ele sobrescreve src/pages/lp.astro e src/styles/lp.css a partir do",
+      "  lp-source/index.html, que esta DEFASADO: nao tem as secoes de problema,",
+      "  mecanismo, precos e objecoes, e nao poria data-action=lead nos botoes",
+      "  dos planos (a modal de captura pararia de abrir).",
+      "",
+      "  Reconcilie o lp-source/index.html antes. Para ignorar: --forcar",
+      "",
+    ].join("\n"),
+  );
+  process.exit(1);
+}
+
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const SRC = `${ROOT}lp-source/index.html`;
 const DEST = ROOT.replace(/\/$/, "");
