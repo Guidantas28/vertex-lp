@@ -1,8 +1,8 @@
 # Arquitetura da /lp
 
-> Estado de **19/08/2026, noite** — depois da remoção de três blocos pedida pelo Orlando e da
-> limpeza que veio atrás dela. Antes desta versão, este documento descrevia uma página que já
-> não existia: ele listava seções que tinham saído do ar horas antes.
+> Estado de **19/08/2026, 22h** — depois da remoção da CADEIA (commit `0447816`). Este documento
+> já descreveu uma página que não existia duas vezes; ambas as vezes porque o código andou e ele
+> não. Se a página mudar de novo, esta é a primeira coisa a atualizar.
 
 A rodada 1 enxertou seções na página velha e falhou: o hero continuou vendendo "a maneira mais
 fácil de … em um só lugar" enquanto a seção seguinte dizia "o problema não é falta de
@@ -12,55 +12,83 @@ A rodada 2 refez a mensagem. A /lp continua **documento autônomo** (decisão do
 componente da home importado.
 
 Em **19/08, no fim do dia**, o Orlando mandou remover o bloco de problema, a faixa do mecanismo e
-as três provas vivas. A área ficou vazia de propósito. Este documento registra o que sobrou e por
-que isso ainda fecha a spec.
+as três provas vivas. A área ficou vazia de propósito. **Mais tarde, no mesmo dia, ele mandou
+remover também a CADEIA** ("Fluxo Contínuo VOS") — sobrou só a copy do cabeçalho dela. Este
+documento registra o que a página tem hoje e o que essa segunda remoção reabriu.
 
 ## As 10 seções da spec × o que a página tem hoje
 
 | # | Seção da spec | Estado | Onde |
 |---|---|---|---|
 | 1 | Hero / message match com o Control | ✅ | H1 `Atendimento automático é só o começo.` · eyebrow `para empresas que vivem de WhatsApp` (DNA do Control) · CTA `Agendar demonstração` |
-| 2 | Problema / Core Complex | ⤳ absorvido pela CADEIA | ver "Desvio da spec §5" abaixo |
-| 3 | Mechanism | ✅ pela CADEIA | `Fluxo Contínuo VOS` — 9 etapas em 3 fases, dois estados, selo por cartão, relógio no cartão 3 e uma cena animada por cartão |
+| 2 | Problema / Core Complex | 🔴 **reaberta** | não tem dono desde a remoção da CADEIA — ver "O que a remoção da CADEIA reabriu" |
+| 3 | Mechanism | 🔴 **reaberta** | resta a copy do `band-head-2`: `Sua empresa continua andando sem depender de alguém lembrar do próximo passo.` Afirmação, não demonstração |
 | 4 | Product proof | ⚠️ uma tela, não três | `hero-tela` com `/assets/hero/dashboard.webp` — tela real do produto, não mockup |
 | 5 | IA | ⤳ vive no FAQ | resposta 6, `O que a IA faz, na prática?` |
-| 6 | Do primeiro oi ao caixa | ⤳ absorvido pela CADEIA | mais o bloco de vídeo "Conheça o VOS" |
+| 6 | Do primeiro oi ao caixa | ⚠️ **só o vídeo** | o bloco de vídeo "Conheça o VOS" (`#vid`, `/lp/broll.mp4`) sobreviveu; a narrativa em etapas, não |
 | 7 | Proof / clientes | 🔴 **em dívida com a spec** | 15 depoimentos **fictícios**, `ehRascunho = false` |
 | 8 | Preços | ✅ | value stack antes do número; 3 planos vindos do array `PLANOS` do frontmatter |
 | 9 | Objeções | ✅ | 7 itens, cobrindo as 6 objeções centrais da spec |
 | 10 | Fecho | ✅ | `uma ação puxa a próxima` · `Agora veja isso acontecendo na sua empresa.` |
 
 Fora da grade da spec, mas na página: barra fixa e **botão flutuante de WhatsApp** com balão
-dispensável (`Prefere sem formulário? Chama no WhatsApp.`).
+dispensável (`Prefere sem formulário? Chama no WhatsApp.`). Desde o `0447816` o botão leva o
+**rosto do Orlando** — avatar de 34px (32 no mobile) com selo de WhatsApp de 16px — no lugar do
+glifo verde. O ponto de status `.zap-on` saiu junto: com o selo verde virava um segundo ponto
+verde ao lado do primeiro.
 
-## Desvio da spec §5 — o que a CADEIA absorveu
+## O que a remoção da CADEIA reabriu
 
-A spec permite ajustar a ordem das seções **"somente com justificativa baseada no audit"**. Este
-é o registro dessa justificativa, seção por seção. Sem ele, daqui a um mês isto vira "seção
-faltando" numa auditoria — foi exatamente o que aconteceu com os 15 depoimentos.
+A spec permite ajustar a ordem das seções **"somente com justificativa baseada no audit"**. Até o
+commit `d3ce2f2` este documento carregava essa justificativa: a CADEIA cobria S2, S3 e S6, e
+estava escrito aqui por quê. **O commit `0447816` removeu a CADEIA a pedido do Orlando.** A
+justificativa perdeu o objeto — e as três seções voltaram a ficar sem dono.
 
-**S2 (Problema) e S3 (Mechanism) colapsam na CADEIA.** O estado "Do jeito manual" *é* o problema:
-nove etapas travando, cada uma com o selo do que está esperando alguém, e o relógio parando em
-42 h no único elo que tem fonte. O argumento da fragmentação deixou de ser afirmado num bloco
-próprio e passou a ser **visto** — que é o que a spec pede de S3 ("os cards precisam parecer uma
-única história causal"). Dois blocos dizendo a mesma coisa em sequência era repetição, e foi por
-isso que ele mandou tirar um.
+Este trecho não inventa uma justificativa nova para o vazio. Ele registra o estado, para que a
+próxima auditoria (inclusive uma minha) não descubra isso do zero.
+
+**S2 (Problema) ficou sem dono.** O estado "Do jeito manual" era o problema mostrado — nove etapas
+travando, cada uma com o selo do que está esperando alguém, e o relógio parando em 42 h no único
+elo com fonte pública. Nada na página faz esse trabalho hoje. O bloco de problema próprio já tinha
+saído na remoção anterior, justamente porque a CADEIA o repetia.
+
+**S3 (Mechanism) fica sustentada só pela copy.** Sobrou o `band-head-2`: eyebrow `fluxo contínuo
+VOS`, o h2 `Sua empresa continua andando sem depender de alguém lembrar do próximo passo.` e um
+parágrafo. Isso **afirma** o mecanismo; a spec pede que os cards *"pareçam uma única história
+causal"*, ou seja, que ele seja **visto**. É a distância entre o que a página diz e o que ela
+mostra.
+
+**S6 (Do primeiro oi ao caixa) fica só com o vídeo.** As três fases — entrada, venda, fechamento —
+eram a tese da CADEIA. O bloco "Conheça o VOS" sobreviveu e continua narrando o percurso em vídeo,
+mas a continuidade em etapas na própria página acabou.
 
 **S4 (Product proof) fica com uma tela real, não três.** A spec proíbe dashboard fictício; não
 exige quantidade. A tela que ficou é exportada do app. É economia de prova, e é escolha — não
-esquecimento.
+esquecimento. *(Independe da CADEIA; segue valendo.)*
 
 **S5 (IA) vive na resposta 6 do FAQ.** A própria spec manda que *"a IA não deve carregar a Big
-Idea principal"* e que ela entre como mecanismo/proof. A resposta do FAQ cobre as quatro
-perguntas que a spec exige: que contexto ela conhece, em que tarefas ajuda, qual a consequência
-operacional e onde ela sai de cena. Seção própria daria à IA um peso que a spec justamente nega.
+Idea principal"* e que ela entre como mecanismo/proof. A resposta do FAQ cobre as quatro perguntas
+que a spec exige: que contexto ela conhece, em que tarefas ajuda, qual a consequência operacional
+e onde ela sai de cena. Seção própria daria à IA um peso que a spec justamente nega.
+*(Independe da CADEIA; segue valendo.)*
 
-**S6 (Do primeiro oi ao caixa) é a tese da CADEIA inteira** — entrada, venda e fechamento são as
-três fases dela — e sobrevive também no bloco de vídeo.
+**S7 (Proof) continua em dívida.** Os 15 depoimentos fictícios (`ehRascunho = false`) são o único
+ponto em que a página contraria a spec **de frente** (`Nenhum depoimento fictício`), e isso não se
+resolve com justificativa — resolve com prova real ou com a remoção da esteira. Decisão do
+Orlando, ainda não tomada.
 
-**O que continua em dívida:** só a S7. Os depoimentos fictícios são o único ponto em que a página
-contraria a spec de frente (`Nenhum depoimento fictício`), e isso não se resolve com justificativa
-— resolve com prova real ou com a remoção da esteira. Decisão do Orlando, ainda não tomada.
+### O placar hoje
+
+| situação | seções |
+|---|---|
+| ✅ cumpridas | S1, S8, S9, S10 |
+| ⤳ cumpridas fora da grade, com justificativa | S4 (uma tela), S5 (no FAQ) |
+| 🔴 **reabertas pela remoção da CADEIA** | **S2, S3, S6** |
+| 🔴 em dívida de frente com a spec | S7 (depoimentos fictícios) |
+
+**Decisão pendente do Orlando:** o que ocupa o lugar da CADEIA — se é para reconstruir alguma
+forma de mostrar o mecanismo, ou se S2/S3/S6 ficam abertas de propósito e este documento passa a
+registrar isso como escolha, e não como buraco.
 
 ## As correções que a auditoria independente cobrou (rodada 2)
 

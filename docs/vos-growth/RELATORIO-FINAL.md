@@ -1,6 +1,8 @@
 # Relatório final — VOS Big Black Book
 
-18–19/08/2026 · base `bd2818b` · **nada publicado em produção**
+18–19/08/2026 · base `bd2818b` · atualizado em **19/08, 22h**, depois da remoção da CADEIA
+(`0447816`) · a reforma **está** em produção desde as 17h50, no `f39f844`; o `d3ce2f2` e o
+`0447816` são **locais** — não foram empurrados nem publicados
 
 ## 1. Arquivos alterados
 
@@ -26,12 +28,8 @@
 | `[data-action="lead"]` | 7 (era 3) — aditivo: 3 planos + "Me ajuda a escolher" |
 | Overflow horizontal | nenhum em 390 / 900 / 1440 |
 | Acessibilidade | 1 `<h1>`, ordem de headings sem pulo, foco por teclado no FAQ, zero imagem sem `alt`, CTAs são `<a>` reais |
-| Seção do fluxo — só compositor | animam apenas `transform`, `opacity` e cor |
-| Seção do fluxo — duração | maior transição **320 ms** (limite 500) |
-| Seção do fluxo — sem loop | **0** `setInterval` (WCAG 2.2.2) |
-| Seção do fluxo — `prefers-reduced-motion` | 12 etapas visíveis, com texto, nenhuma apagada |
-| Seção do fluxo — **sem JavaScript** | 12 etapas renderizam em ordem, com texto |
-| Seção do fluxo — altura no mobile | 1,2 viewport (limite 3) |
+| ~~Seção do fluxo~~ (6 verificações) | ⚰️ **encerradas por remoção** no `0447816` — mediam a CADEIA, que saiu da página. Ficam como histórico; não são mais régua. *(Divergiam entre si, aliás: 12 etapas aqui, 9 no `LP_ARCHITECTURE`.)* |
+| Corte do CSS morto da CADEIA | ✅ `baseline.json` idêntico antes × depois; altura idêntica ao pixel (4820 CSS px desktop / 5327 mobile); hero e modal 1–2 com **0,0000%** |
 
 ## 3. Control validado — intacto
 
@@ -143,25 +141,38 @@ no contato, campo Instagram, bottom sheet mobile e dedupe por telefone.
 No fim do dia o Orlando mandou remover **o bloco de problema, a faixa do mecanismo e as três
 provas vivas**. A área ficou vazia de propósito, marcada em comentário no `lp.astro`.
 
-Isso não deixa a spec em aberto: as seções 2, 3 e 6 passam a ser cumpridas pela CADEIA
-("Fluxo Contínuo VOS"), e a justificativa está escrita seção por seção no `LP_ARCHITECTURE.md`,
-em "Desvio da spec §5". A spec permite ajustar a ordem com justificativa baseada no audit — o que
-ela não permite é o desvio **sem registro**.
+Na hora, isso não deixou a spec em aberto: as seções 2, 3 e 6 passaram a ser cumpridas pela CADEIA
+("Fluxo Contínuo VOS"), com justificativa escrita seção por seção no `LP_ARCHITECTURE.md`.
+
+⚠️ **Isso durou algumas horas.** Ainda em 19/08 ele mandou remover a CADEIA também (commit
+`0447816`) — sobrou só a copy do cabeçalho. Com ela fora, **S2, S3 e S6 voltaram a ficar sem
+dono**, e a justificativa que as cobria perdeu o objeto. O registro atualizado está no
+`LP_ARCHITECTURE.md`, em "O que a remoção da CADEIA reabriu". A spec permite ajustar a ordem com
+justificativa baseada no audit — o que ela não permite é o desvio **sem registro**.
 
 ## 3 · A limpeza que veio atrás
 
 A remoção tirou o markup e deixou o motor: ~250 linhas de JavaScript procurando 9 ids que não
-existiam mais, e a família inteira de CSS que os estilizava. Removidos agora — 256 linhas no
-`lp.astro` e 129 cortes no `lp.css`, com a esteira de depoimentos preservada (ela estava aninhada
-dentro do bloco morto). Verificação completa em `VERIFICATION.md`, seção "Rodada 3".
+existiam mais, e a família inteira de CSS que os estilizava. Removidos no `d3ce2f2` — 256 linhas
+no `lp.astro` e 129 cortes no `lp.css`, com a esteira de depoimentos preservada (ela estava
+aninhada dentro do bloco morto). Verificação em `VERIFICATION.md`, "Rodada 3".
+
+**A remoção da CADEIA repetiu o padrão, em escala menor.** Dessa vez o motor (JS) saiu junto com o
+markup, mas **36 linhas de CSS ficaram** no fim do `lp.css`: `.fluxo`, `.fluxo.reveal`, o `@media`
+de 900px e as `@keyframes cn-braco-ciclo` / `cn-tela-ciclo`, órfãs desde que as 7 linhas que as
+chamavam saíram. Limpas no `0447816`. Verificação em `VERIFICATION.md`, "Rodada 4".
 
 ## O placar do Big Black Book, hoje
 
-- **§5 (10 seções):** 6 ✅ · 3 absorvidas pela CADEIA, com justificativa registrada · **1 em
-  dívida** (S7, depoimentos fictícios)
-- **§10 (13 verificações):** 11 ✅ · a11y reprova **WCAG 2.2.2 A** por decisão do dono (laço eterno
-  da cena sem botão de pausar, com o custo escrito no CSS) · o item 13 ("não publicar") foi
-  superado pela autorização dele
+- **§5 (10 seções):** 4 ✅ (S1, S8, S9, S10) · 2 cumpridas fora da grade, com justificativa (S4, S5)
+  · **3 reabertas pela remoção da CADEIA** (S2, S3, S6) · **1 em dívida de frente** (S7,
+  depoimentos fictícios). Detalhe seção por seção no `LP_ARCHITECTURE.md`.
+- **§10 (13 verificações):** 11 ✅ · a11y **continua reprovando WCAG 2.2.2 A**, mas o dono mudou:
+  não é mais o laço da cena da CADEIA, que saiu — é a **esteira de depoimentos**. `.depo-fita` roda
+  `animation: sobe 38s linear infinite` e a única pausa é `:hover`, que não alcança quem navega
+  por teclado e está em container `aria-hidden="true"`. O `prefers-reduced-motion` pausa de vez, e
+  essa é a única atenuação real. Segue decisão do dono, com o custo escrito no CSS · o item 13
+  ("não publicar") foi superado pela autorização dele
 - **§13 (entregáveis):** documentação 6/6 ✅ · frontend ✅ · **criativos: entregue-e-revertido** —
   16 masters foram feitos e apagados a pedido dele, item encerrado, não pendente
 - **§14 (critérios A–N):** A–J e N ✅ · K encerrado como acima · L e M ✅ **a partir desta revisão**
@@ -183,8 +194,11 @@ dentro do bloco morto). Verificação completa em `VERIFICATION.md`, seção "Ro
 ## 🔴 Duas dívidas técnicas que não são da LP, mas mordem se ninguém olhar
 
 - **O fonte da cena de vídeo não está versionado.** No git do `D:\VIDEO-FACTORY`,
-  `LpCenaTrabalho.tsx` está *untracked* e `Root.tsx` modificado sem commit. O vídeo está em
-  produção e o código que o gera existe só na árvore de trabalho.
-- **O espelho "Com o VOS" nunca foi começado.** Não existe `LpCenaVos`. Naquele estado o CSS
-  esconde o vídeo e a página cai no desenho em `<span>`, ao lado de uma peça cinematográfica no
-  estado manual.
+  `LpCenaTrabalho.tsx` está *untracked* e `Root.tsx` modificado sem commit. ⚠️ **Mudou de
+  natureza no `0447816`:** as cenas saíram da página, então o vídeo **não está mais em produção** e
+  a dívida deixou de ser urgente — mas não deixou de existir: o código que gera uma peça já
+  publicada segue existindo só numa árvore de trabalho. Os arquivos
+  `public/lp/cena-trabalho.{webm,mp4,png}` continuam no disco da LP, sem referência, caso a cadeia
+  volte.
+- ~~**O espelho "Com o VOS" nunca foi começado.**~~ ⚰️ **Encerrado por remoção.** Não existe
+  `LpCenaVos` e deixou de fazer sentido: a cena que ele espelharia saiu junto com a CADEIA.

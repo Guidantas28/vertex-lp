@@ -252,6 +252,10 @@ embora `#flow`, `#chatTrack`, `#caixaN`, `#caixaBarras`, `#caixaFeed`, `#flowCan
 `#feats`, `#featsTrack`, `#featsDots` e `#featsDica`. Sobreviveram `#vid`, `#bar`, `#depos` e o
 motor da CADEIA.
 
+> ⚠️ **A última frase deixou de valer horas depois.** Ainda em 19/08 o Orlando mandou remover a
+> CADEIA também: o `#fluxo`, as abas, os 9 cartões, os 9 vídeos e o motor dela saíram no commit
+> `0447816`. Restaram `#vid`, `#bar` e `#depos`. Ver **Rodada 4**.
+
 O JavaScript daqueles motores **ficou no arquivo**, procurando ids que não existiam mais. Com
 guarda de `null`, então não quebrava nada — e era exatamente por isso que ninguém notava.
 
@@ -317,3 +321,81 @@ confiável.
 **A lição, para não custar de novo:** captura visual só vale contra uma referência que você
 acabou de reproduzir. Antes de acusar o próprio trabalho, reproduza a referência com o código
 original — foi isso que separou "eu quebrei" de "o instrumento estava torto".
+
+---
+
+# Rodada 4 — a remoção da CADEIA e a limpeza que ela deixou (19/08, 22h)
+
+Mesma regra das anteriores: nada acima foi reescrito. O que envelheceu ganhou marcação e a
+verificação nova entra aqui.
+
+## O que saiu da página
+
+A pedido do Orlando, a seção **"Fluxo Contínuo VOS"** (a CADEIA) foi removida inteira — as 9
+etapas em 3 fases, os dois estados (`Do jeito manual` × `Com o VOS`), os selos, o relógio de 42h
+do cartão 3 e as 9 cenas em vídeo. Ficou só a copy do cabeçalho: eyebrow, `<h2>` e parágrafo.
+
+Desta vez o motor saiu junto com o markup — a IIFE de ~155 linhas (`travaEm`, `RELOGIO`, `pinta`,
+`marcaVideo`, `tocaAtivo`, `passo`, `reinicia`, os listeners das abas e o `IntersectionObserver`
+de `threshold: .3`). **Mas o CSS ficou pela metade**, repetindo em escala menor o erro que a
+rodada 3 tinha acabado de corrigir:
+
+| onde | o que sobrou morto | limpo em |
+|---|---|---|
+| fim do `src/styles/lp.css` | `.fluxo`, `.fluxo.reveal`, o `@media (min-width:900px)` da `.fluxo`, e as `@keyframes cn-braco-ciclo` / `cn-tela-ciclo` — órfãs desde que as 7 linhas `.fluxo[data-estado="hoje"] .fx-no.ativo .cn-*` saíram | `0447816` (36 linhas) |
+| `src/pages/lp.astro` | dois comentários que afirmavam o contrário do código: *"Os motores animados continuam no script do fim do body"* (falso desde o `d3ce2f2`) e *"o motor e o CSS dela saíram junto"* (o CSS não tinha saído) | `0447816` |
+
+## ⚠️ A nota de WCAG 2.2.2 trocou de dono — não foi apagada
+
+O bloco removido carregava a nota 🔴 *"LAÇO ETERNO, SEM BOTÃO DE PAUSAR"*, escrita sobre a cena
+animada da CADEIA. **A cena acabou; a reprovação não.** Quem se move sozinho na página hoje é a
+esteira de depoimentos:
+
+- `.depo-fita` roda `animation: sobe var(--v,38s) linear infinite` — começa sem ação do usuário,
+  passa de 5s, divide a tela com texto e não para nunca;
+- a única pausa é `.depos:hover`, que **não alcança quem navega por teclado**, e o container está
+  `aria-hidden="true"`;
+- `prefers-reduced-motion` pausa de vez — é a única atenuação que resolve de fato.
+
+A nota foi reescrita e movida para junto do `.depo-fita`, apontando o dono real. É registro de
+estado: a decisão continua sendo do Orlando, e não foi reaberta aqui.
+
+## Verificação executada
+
+| prova | resultado |
+|---|---|
+| `npm run build` | ✅ **Complete!** |
+| chaves `{` / `}` do CSS | ✅ 248/248 (era 260/260 antes do corte) |
+| `baseline.json` antes × depois do corte | ✅ **byte a byte idêntico**, fora do `capturadoEm` — contrato de DOM, `dataLayer`, rede e console iguais nos dois viewports |
+| `dataLayer` evento `lead` | ✅ as mesmas **10 chaves**, desktop e mobile |
+| `[data-action="lead"]` | ✅ **7** em runtime (4 estáticos + 3 do `.map()` dos planos) — inalterado |
+| chamadas de rede | ✅ `POST /api/first-touch` + `POST /api/lead` — as mesmas |
+| console | ✅ só os 2 avisos pré-existentes do Meta pixel; zero erro |
+| **altura da página** | ✅ **idêntica ao pixel** antes × depois — 9640 px de imagem no desktop (**4820 CSS px** @2x) e 10654 no mobile (**5327 CSS px**) |
+| captura `hero` desktop e mobile | ✅ **0,0000%** |
+| captura `modal` 1 e 2, desktop e mobile | ✅ **0,0000%** |
+| captura `modal` 3 | 0,0041% desktop / 0,0153% mobile — **dentro do ruído** |
+| captura `full` | 1,2877% desktop / 1,5129% mobile — **dentro do ruído** |
+| arquivos tocados | ✅ só `src/pages/lp.astro`, `src/styles/lp.css` e `public/lp/orlando.webp` — **zero backend** |
+
+**Como o ruído foi medido, de novo:** capturando **duas vezes o mesmo código, sem mudar nada**.
+Deu **1,6695%** no `full` desktop e **1,5815%** no mobile — ou seja, **maior** que a diferença
+antes × depois. Prova direta de que o `full` não mediu o corte: mediu fase de animação.
+
+**E onde a diferença ficou:** varrendo a imagem em faixas horizontais, os pixels que diferem estão
+confinados a **uma faixa contígua** — y 4669–5474 no desktop (≈ y 2334–2737 em CSS px), que é
+exatamente a esteira de depoimentos, sob o título *"não é a gente falando"*. O resto da página não
+muda um pixel. A diferença do `modal 3` é um spinner animando no passo do embed.
+
+⚠️ **A altura mudou em relação à rodada 3** (11128 / 13636) porque a CADEIA saiu da página — isso
+é o efeito pretendido, não regressão. A régua de não-regressão desta rodada é **antes × depois do
+corte de CSS**, não rodada 3 × rodada 4.
+
+## Estado no fim da rodada
+
+- Commit **`0447816`** no branch `fecha-lead-ao-agendar`, **local** — sem `push`, sem PR, sem deploy.
+- **Produção não mudou:** `www.voshq.com/lp` segue no `f39f844`.
+- Os arquivos `public/lp/cena-trabalho.{webm,mp4,png}` continuam no disco, **sem referência**, caso
+  a cadeia volte.
+- Entra no commit o `public/lp/orlando.webp` (160×160, 2,6 KB), que estava *untracked* e é
+  referenciado pelo botão de WhatsApp — sem ele versionado, um clone novo builda com a foto quebrada.
