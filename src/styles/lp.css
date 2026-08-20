@@ -221,52 +221,7 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
   .band-head p{font-size:var(--fs-body);color:var(--ink-2);text-wrap:balance;}
   .band > section{padding-top:8px;padding-bottom:10px;}
 
-  /* ── Esteira de depoimentos ─────────────────────────────────────────────
-     3 pistas subindo em velocidades diferentes pra não sincronizar. No celular
-     vira 1 pista: 3 colunas em 375px dariam ~110px cada, ilegível. */
-  .depos{width:100%;margin-top:6px;display:grid;gap:12px;grid-template-columns:1fr;
-    height:clamp(300px,52vw,360px);overflow:hidden;padding:0 16px;
-    -webkit-mask-image:linear-gradient(180deg,transparent,#000 14%,#000 86%,transparent);
-    mask-image:linear-gradient(180deg,transparent,#000 14%,#000 86%,transparent);}
-  .depo-pista{overflow:hidden;}
-  /* 🔴 LACO ETERNO, SEM BOTAO DE PAUSAR — WCAG 2.2.2, nivel A.
-     Esta nota vivia junto da cena animada do "Fluxo Continuo VOS"; a cena saiu
-     em 19/08 e a reprovacao NAO saiu com ela — so trocou de dono. Quem move
-     sozinho agora e esta esteira: comeca sem acao do usuario, passa de 5s,
-     divide a tela com texto e nao para nunca. Isso exige um controle de pausar.
-     E decisao do Orlando, tomada com o custo na mesa; nao e descuido.
-     As duas atenuacoes que sobraram, e que NAO se mexe:
-       1. .depos:hover pausa a fita — mas hover nao alcanca quem navega por
-          teclado, e o container esta aria-hidden="true", entao isso atenua,
-          nao resolve;
-       2. prefers-reduced-motion pausa a fita de vez (bloco la embaixo) — e a
-          unica saida real pra quem tem sensibilidade vestibular.
-     So transform anima. */
-  .depo-fita{display:flex;flex-direction:column;gap:12px;
-    animation:sobe var(--v,38s) linear infinite;will-change:transform;}
-  .depos:hover .depo-fita{animation-play-state:paused;}
-  @keyframes sobe{from{transform:translateY(0)}to{transform:translateY(-50%)}}
-  .depo{padding:15px;border-radius:var(--r-lg);border:1px solid rgba(255,255,255,.09);
-    background:rgba(255,255,255,.035);}
-  .depo-estrelas{display:flex;align-items:center;gap:6px;color:var(--accent);
-    font-size:11px;letter-spacing:.06em;}
-  .depo-estrelas em{font-style:normal;font-size:var(--fs-micro);font-weight:700;
-    color:var(--d-ink-2);letter-spacing:0;}
-  .depo p{margin:8px 0 0;font-size:var(--fs-control);line-height:1.55;color:var(--d-ink);}
-  .depo-quem{display:flex;align-items:center;gap:9px;margin-top:12px;
-    padding-top:11px;border-top:1px solid rgba(255,255,255,.07);}
-  .depo-av{flex:none;width:32px;height:32px;border-radius:99px;object-fit:cover;
-    background:rgba(255,255,255,.08);}
-  .depo-quem b{display:block;font-size:var(--fs-label);font-weight:600;color:rgba(255,255,255,.92);}
-  .depo-quem span{display:block;font-size:var(--fs-micro);color:var(--d-ink-3);}
-  /* enquanto for rascunho o bloco se denuncia, pra ninguém publicar sem trocar */
-  .depos.rascunho .depo{border-style:dashed;border-color:rgba(237,75,0,.4);}
-  .depos-aviso{width:var(--col);margin:10px auto 0;text-align:center;
-    font-size:var(--fs-micro);color:var(--accent);}
-  @media (min-width:760px){
-    .depos{grid-template-columns:repeat(3,1fr);width:min(1060px,calc(100% - 48px));
-      margin-left:auto;margin-right:auto;padding:0;}
-  }
+
   label{font-size:var(--fs-label);font-weight:500;color:var(--ink-2);display:block;margin-bottom:6px;}
   /* input padrão do DS §21 adaptado pro toque: 44px de alvo e 16px de fonte —
      abaixo de 16px o iOS Safari dá auto-zoom no foco (era o bug do modal) */
@@ -398,9 +353,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     .bar{transition:none}
     .zap{transition:none}
     .zap:hover{transform:none}
-    /* esteiras (chat e depoimentos) param — movimento infinito é o pior caso
-       pra quem pediu menos movimento */
-    .depo-fita{animation-play-state:paused}
   }
 
   /* =======================================================================
@@ -540,19 +492,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     :root{ --col:min(720px, calc(100% - 48px)); }
     .planos,.faq,.ajuda{width:min(1120px,calc(100% - 48px));}
     .hero-tela{width:min(1120px,calc(100% - 48px));}
-    .depos{width:min(1120px,calc(100% - 48px));}
-  }
-
-  /* 2 · depoimentos legíveis. Prova que não dá pra ler é prova que não existe. */
-  .depo{padding:20px;}
-  .depo p{font-size:var(--fs-body);line-height:1.6;}
-  .depo-av{width:40px;height:40px;}
-  .depo-quem b{font-size:var(--fs-control);}
-  .depo-quem span{font-size:var(--fs-label);}
-  .depo-estrelas{font-size:var(--fs-control);}
-  @media (min-width:900px){
-    .depo{padding:24px;}
-    .depo p{font-size:var(--fs-subtitle);line-height:1.55;}
   }
 
   /* 3 · respiro entre a prova e o preço: "ok, funciona → agora quanto custa?" */
@@ -610,8 +549,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
 
   /* check das listas de plano: informação, não decisão */
   .plano-itens li::before{border-left-color:var(--d-ink-3);border-bottom-color:var(--d-ink-3);}
-  /* estrelas dos depoimentos: 30 cards × 5 estrelas era o maior vazamento */
-  .depo-estrelas{color:var(--d-ink-2);}
   /* o +/− do FAQ é affordance, não destaque */
   .faq-sinal::before,.faq-sinal::after{background:var(--d-ink-2);}
   .faq-item[open] .faq-sinal::before,.faq-item[open] .faq-sinal::after{background:var(--accent);}

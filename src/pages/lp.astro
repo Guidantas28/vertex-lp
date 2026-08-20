@@ -194,9 +194,9 @@ const PLANOS = [
          Os videos /lp/cena-trabalho.{webm,mp4,png} continuam no disco, sem
          referencia, caso a cadeia volte. -->
     <div class="band-head band-head-2">
-      <div class="eb"><u>fluxo contínuo VOS<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
-      <h2>Sua empresa continua andando <u>sem depender de alguém lembrar</u> do próximo passo.</h2>
-      <p>O processo é o mesmo. A diferença é que, com o VOS, o cliente avança e a empresa avança junto — sem ficar esperando alguém perceber.</p>
+      <div class="eb"><u>o que ele vê / o que você vê<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
+      <h2>Do lado dele, é só uma conversa no WhatsApp. <u>Do seu, saiu orçamento, pedido e nota fiscal.</u></h2>
+      <p>A mesma mensagem cai em dois lugares ao mesmo tempo: a resposta sai, o contato entra no CRM, o orçamento nasce e o negócio muda de etapa. Ninguém digitou nada duas vezes.</p>
     </div>
 
     <!-- 6 | DO PRIMEIRO OI AO CAIXA. A spec pede continuidade, nao
@@ -221,29 +221,25 @@ const PLANOS = [
       </div>
     </div>
 
-    <!-- ⚠️ ATENÇÃO: os 15 depoimentos abaixo são FICTÍCIOS — nome, cidade,
-         nota e a frase são inventados, e há número de resultado fabricado
-         ("+R$ 32 mil"). O aviso de rascunho está DESLIGADO (ehRascunho=false).
-         Foram removidos em 19/08 e o Orlando mandou restaurar, porque é o que
-         está em produção hoje. Fica registrado: isto é prova fabricada, e sai
-         no dia em que houver cliente real citável. Não é descuido — é decisão
-         do dono, tomada com o risco na mesa. -->
-
-    <!-- Seção 8 da spec — Pricing. Valores e itens vêm SÓ do
-         PRECOS_VOS_ATUAL.png. O que não estava legível na fonte não foi
-         inventado (ver docs/vos-growth/LP_ARCHITECTURE.md). -->
-
-    <div class="band-head band-head-2">
-      <div class="eb"><u>não é a gente falando<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
-      <p>O que muda quando o VOS entra na rotina da empresa.</p>
-    </div>
-    <!-- Esteira de depoimentos: 3 pistas subindo em velocidades diferentes.
-         CONTEÚDO É RASCUNHO. Trocar pelos depoimentos reais no array
-         DEPOIMENTOS lá embaixo (frase, nome, negócio e cidade). -->
-    <div class="depos" id="depos" aria-hidden="true"></div>
+    <!-- ⚰️ Aqui vivia a esteira de 15 depoimentos. Eles eram FICTICIOS — nome,
+         cidade, nota e frase inventados, com numero de resultado fabricado
+         ("+R$ 32 mil") — e estavam no ar com ehRascunho=false. Saem a pedido do
+         Orlando em 19/08. Era o unico ponto em que a pagina contrariava a spec
+         DE FRENTE ("Nenhum depoimento ficticio"); no lugar entra prova de
+         mecanismo, que a spec lista ACIMA de depoimento: a cena la em cima
+         mostra a venda inteira acontecendo, em vez de alguem afirmar que ela
+         acontece.
+         Sai junto a ultima animacao infinita da pagina (.depo-fita, 38s em
+         loop, com pausa so no :hover) — com ela, a reprovacao em WCAG 2.2.2 A
+         deixa de existir.
+         ⚠️ As mesmas 15 fotos e os mesmos depoimentos seguem em
+         src/data/content.ts, alimentando a HOME (ResultsCarousel, HeroAvatars).
+         Outra superficie, outra decisao. -->
 
     <!-- 8 | PRECOS. Value stack antes do numero, e os planos saem do array
-         PLANOS do frontmatter - fonte unica, como a spec exige. -->
+         PLANOS do frontmatter - fonte unica, como a spec exige. Valores e
+         itens vem SO do PRECOS_VOS_ATUAL.png; o que nao estava legivel na
+         fonte nao foi inventado (ver docs/vos-growth/LP_ARCHITECTURE.md). -->
     <div class="band-head band-head-2 planos-sep">
       <div class="eb"><u>quanto custa<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
       <h2>Um sistema para a empresa inteira.</h2>
@@ -389,57 +385,6 @@ const PLANOS = [
 <script is:inline>
 
 
-  /* esteira de depoimentos: 3 pistas subindo. A fita é escrita duas vezes e
-     anda -50%, então o loop emenda sem salto. */
-  (function(){
-    var caixa=document.getElementById('depos'); if(!caixa) return;
-
-    /* Clientes, mesma base da /v4 (src/data/content.ts) e as mesmas fotos.
-       [arquivo, nome, negócio, cidade, nota, frase] */
-    var DEPOIMENTOS=[
-      ['social-16','Tiago Moraes','Oficina Forte','Belo Horizonte, MG','4,8','Fechei o mês com +R$ 32 mil organizando peça, serviço e nota num lugar só. Antes eram três sistemas e uma planilha.'],
-      ['social-17','Vanessa Lopes','Supermercado Bom Dia','Curitiba, PR','4,7','Parei de perder venda por falta de controle. O estoque bate com o caixa todo dia, sem conferência no domingo.'],
-      ['social-18','Fernando Reis','Engefort Engenharia','São Paulo, SP','4,6','Orçamento vira OS, a equipe vê no celular e o cliente acompanha. Obra atrasada por falta de informação acabou.'],
-      ['social-19','Carla Mendes','Café Aroma','Porto Alegre, RS','4,5','O fluxo de caixa atualiza sozinho a cada venda. Sei exatamente quanto entra e sai antes de fechar o dia.'],
-      ['social-20','Diego Prado','Prime Elétrica','Recife, PE','4,8','Migrei num fim de semana. Segunda já estava vendendo dentro do VOS e o time não precisou de treinamento longo.'],
-      ['social-12','Patrícia Nunes','Ello Calçados','Fortaleza, CE','4,7','Catálogo no WhatsApp, pedido automático e estoque baixando sozinho. Vende mais sem contratar ninguém.'],
-      ['social-21','Aline Costa','Adega Premium','Rio de Janeiro, RJ','4,6','Pedido, PIX e notificação pro estoque, tudo no automático. O cliente compra de madrugada e eu acordo com tudo organizado.'],
-      ['social-11','Eduardo Pires','Construla Obras','Brasília, DF','4,8','Orçamento aceito vira OS na hora. Cliente assina digital e a obra já entra na agenda da equipe.'],
-      ['social-22','Marcos Vieira','Alfa Climatização','Campinas, SP','4,7','A equipe sai pra rua com tudo no celular. Resposta na hora e nada se perde no caminho entre visita e escritório.'],
-      ['social-14','Sandra Moraes','Empório Sabor','Salvador, BA','4,5','NF-e sai junto com a venda. Fim de mês sem correria com contador por nota que faltou emitir.'],
-      ['social-23','Letícia Ramos','Agro Campo Verde','Goiânia, GO','4,6','Proposta, contrato e cobrança no mesmo fluxo. Parei de digitar os mesmos dados em três lugares diferentes.'],
-      ['social-13','Renato Alves','Auto Peças Brasil','Manaus, AM','4,8','Alerta de estoque baixo antes de faltar peça. Cliente não vai embora porque o sistema avisou a tempo.'],
-      ['social-24','Rodrigo Santos','Alta Fitness','Florianópolis, SC','4,7','Confirmação automática no WhatsApp reduziu faltas. A agenda enche e o time sabe quem vem antes de abrir a academia.'],
-      ['social-25','Juliana Reis','Studio Bella','Belém, PA','4,8','As faltas caíram demais com a confirmação automática. A agenda vive lotada e o salão não fica com horário vazio.'],
-      ['social-15','André Andrade','Andrade Contabilidade','São Paulo, SP','4,6','Tudo num lugar só. O time parou de digitar a mesma coisa em três sistemas e os clientes sentem a diferença.']
-    ];
-    var ehRascunho = false;
-
-    function cartao(d){
-      return '<div class="depo"><div class="depo-estrelas">★★★★★<em>'+d[4]+'</em></div><p>'+d[5]+'</p>'+
-        '<div class="depo-quem"><img class="depo-av" src="/lp/pessoas/'+d[0]+'.webp" alt="" loading="lazy" width="56" height="56">'+
-        '<span><b>'+d[1]+'</b><span>'+d[2]+' · '+d[3]+'</span></span></div></div>';
-    }
-    var pistas=innerWidth>=760?3:1, veloc=['38s','46s','42s'];
-    function monta(){
-      var n=innerWidth>=760?3:1;
-      if(n===pistas && caixa.children.length) return;   // só remonta se mudou de faixa
-      pistas=n; caixa.innerHTML='';
-      for(var p=0;p<n;p++){
-        var lista=DEPOIMENTOS.filter(function(_,i){ return n===1 || i%n===p; });
-        var fita=lista.map(cartao).join('');
-        caixa.insertAdjacentHTML('beforeend',
-          '<div class="depo-pista"><div class="depo-fita" style="--v:'+veloc[p]+'">'+fita+fita+'</div></div>');
-      }
-    }
-    monta();
-    addEventListener('resize',monta,{passive:true});
-    if(ehRascunho){
-      caixa.classList.add('rascunho');
-      caixa.insertAdjacentHTML('afterend',
-        '<p class="depos-aviso">Rascunho: trocar pelos depoimentos reais antes de publicar.</p>');
-    }
-  })();
 
   var io=new IntersectionObserver(function(es){es.forEach(function(e){
     if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.14});
