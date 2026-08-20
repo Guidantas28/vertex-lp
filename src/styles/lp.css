@@ -563,3 +563,44 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
      Vem por último de propósito — .band-head h2 e .fecho h2 empatam em
      especificidade, então quem vence é a ordem. */
   .band-head.fecho h2{font-size:clamp(34px,8vw,46px);line-height:1.06;letter-spacing:-.03em;}
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     A cena: a conversa de um lado, os módulos do outro.
+     Vídeo, não animação de DOM — ver o comentário no lp.astro.
+     ═══════════════════════════════════════════════════════════════════════ */
+  .band-cena{width:var(--col);margin:clamp(18px,4vw,26px) auto clamp(6px,2vw,12px);}
+  .cena{position:relative;width:100%;border-radius:var(--r-xl);overflow:hidden;
+    background:#000;box-shadow:0 26px 56px -26px rgba(0,0,0,.6);
+    /* o corte mobile é 2:3; o desktop entra no breakout lá embaixo */
+    aspect-ratio:2/3;}
+  .cena-v{width:100%;height:100%;display:block;object-fit:cover;background:#000;}
+
+  /* Controle de pausar. Fica SEMPRE visível (não some no hover) porque a
+     obrigação de WCAG 2.2.2 é existir um mecanismo alcançável, não um que
+     apareça quando o ponteiro passa por cima — ponteiro é o que quem navega
+     por teclado não tem. */
+  .cena-btn{position:absolute;right:10px;bottom:10px;z-index:2;
+    display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;
+    border:0;border-radius:999px;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);
+    color:#fff;font-family:inherit;font-size:var(--fs-label);font-weight:600;
+    cursor:pointer;transition:background var(--dur) var(--ease);}
+  .cena-btn:hover{background:rgba(0,0,0,.8);}
+  .cena-btn:focus-visible{outline:2px solid #fff;outline-offset:2px;}
+  .cena-btn svg{width:13px;height:13px;flex:none;fill:currentColor;}
+  /* o ícone segue o estado real do vídeo, não o clique */
+  .cena-btn .ic-pause{display:none;}
+  .cena.tocando .cena-btn .ic-play{display:none;}
+  .cena.tocando .cena-btn .ic-pause{display:block;}
+
+  @media (prefers-reduced-motion:reduce){
+    .cena-btn{transition:none;}
+  }
+
+  /* O corte largo entra a partir de 900px, onde cabe painel + aparelho lado
+     a lado. Esta regra mora AQUI, e não junto dos outros breakouts lá em
+     cima, porque o bloco base da .cena é o último do arquivo — declarada
+     antes, ela empataria em especificidade e perderia por ordem. */
+  @media (min-width:900px){
+    .band-cena{width:min(1120px,calc(100% - 48px));}
+    .cena{aspect-ratio:8/5;}
+  }
