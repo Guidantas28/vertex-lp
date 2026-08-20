@@ -1,8 +1,9 @@
 # Arquitetura da /lp
 
-> Estado de **19/08/2026, 22h** — depois da remoção da CADEIA (commit `0447816`). Este documento
-> já descreveu uma página que não existia duas vezes; ambas as vezes porque o código andou e ele
-> não. Se a página mudar de novo, esta é a primeira coisa a atualizar.
+> Estado de **20/08/2026, 01h** — depois de a CENA entrar no lugar da CADEIA (commit `e045dfa`) e
+> de a esteira de depoimentos sair (`3da2a6f`). Este documento já descreveu uma página que não
+> existia duas vezes; ambas as vezes porque o código andou e ele não. Se a página mudar de novo,
+> esta é a primeira coisa a atualizar.
 
 A rodada 1 enxertou seções na página velha e falhou: o hero continuou vendendo "a maneira mais
 fácil de … em um só lugar" enquanto a seção seguinte dizia "o problema não é falta de
@@ -21,12 +22,12 @@ documento registra o que a página tem hoje e o que essa segunda remoção reabr
 | # | Seção da spec | Estado | Onde |
 |---|---|---|---|
 | 1 | Hero / message match com o Control | ✅ | H1 `Atendimento automático é só o começo.` · eyebrow `para empresas que vivem de WhatsApp` (DNA do Control) · CTA `Agendar demonstração` |
-| 2 | Problema / Core Complex | 🔴 **reaberta** | não tem dono desde a remoção da CADEIA — ver "O que a remoção da CADEIA reabriu" |
-| 3 | Mechanism | 🔴 **reaberta** | resta a copy do `band-head-2`: `Sua empresa continua andando sem depender de alguém lembrar do próximo passo.` Afirmação, não demonstração |
+| 2 | Problema / Core Complex | 🔴 **em aberto** | a CENA mostra a solução, não o problema. Ninguém nomeia a dor antes dela |
+| 3 | Mechanism | ✅ **demonstrado** | a CENA: 14 mensagens do "oi" à nota fiscal, e o painel dos 7 módulos acendendo na ordem dos eventos. O mecanismo é **visto**, não afirmado |
 | 4 | Product proof | ⚠️ uma tela, não três | `hero-tela` com `/assets/hero/dashboard.webp` — tela real do produto, não mockup |
 | 5 | IA | ⤳ vive no FAQ | resposta 6, `O que a IA faz, na prática?` |
-| 6 | Do primeiro oi ao caixa | ⚠️ **só o vídeo** | o bloco de vídeo "Conheça o VOS" (`#vid`, `/lp/broll.mp4`) sobreviveu; a narrativa em etapas, não |
-| 7 | Proof / clientes | 🔴 **em dívida com a spec** | 15 depoimentos **fictícios**, `ehRascunho = false` |
+| 6 | Do primeiro oi ao caixa | ✅ **literalmente** | é o roteiro da CENA, do primeiro "oi" à NF-e — mais o bloco de vídeo "Conheça o VOS" |
+| 7 | Proof / clientes | ⚠️ **sem prova de cliente** | a esteira dos 15 depoimentos fictícios **saiu** (`3da2a6f`). A página deixou de contrariar a spec de frente; o que ficou no lugar é prova **demonstrativa**, não prova de cliente |
 | 8 | Preços | ✅ | value stack antes do número; 3 planos vindos do array `PLANOS` do frontmatter |
 | 9 | Objeções | ✅ | 7 itens, cobrindo as 6 objeções centrais da spec |
 | 10 | Fecho | ✅ | `uma ação puxa a próxima` · `Agora veja isso acontecendo na sua empresa.` |
@@ -37,58 +38,77 @@ dispensável (`Prefere sem formulário? Chama no WhatsApp.`). Desde o `0447816` 
 glifo verde. O ponto de status `.zap-on` saiu junto: com o selo verde virava um segundo ponto
 verde ao lado do primeiro.
 
-## O que a remoção da CADEIA reabriu
+## A CENA, e o que ela fechou
 
-A spec permite ajustar a ordem das seções **"somente com justificativa baseada no audit"**. Até o
-commit `d3ce2f2` este documento carregava essa justificativa: a CADEIA cobria S2, S3 e S6, e
-estava escrito aqui por quê. **O commit `0447816` removeu a CADEIA a pedido do Orlando.** A
-justificativa perdeu o objeto — e as três seções voltaram a ficar sem dono.
+A CADEIA saiu em 19/08 e levou junto as seções **S2, S3 e S6**, que ela cobria.
+Em 20/08 entrou a **CENA** (`e045dfa`) — e este trecho registra o que ela fecha, o que ela não
+fecha, e por quê. É o mesmo lugar onde antes morava a justificativa da CADEIA: quando o objeto
+muda, o registro muda com ele, senão vira arqueologia.
 
-Este trecho não inventa uma justificativa nova para o vazio. Ele registra o estado, para que a
-próxima auditoria (inclusive uma minha) não descubra isso do zero.
+**O que a CENA é.** Um vídeo de 29,8 s, embutido na seção. À esquerda o painel dos 7 módulos; à
+direita um aparelho com uma conversa completa — 14 mensagens, do primeiro "oi" até a nota fiscal,
+passando por orçamento em PDF, link de pagamento e confirmação. Cada etapa acende o módulo
+correspondente. Fonte da composição em `D:VIDEO-FACTORY` (`VosPainelWhats`, commit `f545473`).
 
-**S2 (Problema) ficou sem dono.** O estado "Do jeito manual" era o problema mostrado — nove etapas
-travando, cada uma com o selo do que está esperando alguém, e o relógio parando em 42 h no único
-elo com fonte pública. Nada na página faz esse trabalho hoje. O bloco de problema próprio já tinha
-saído na remoção anterior, justamente porque a CADEIA o repetia.
+**S3 (Mechanism) — fechada, e por demonstração.** A spec pede que os cards *"pareçam uma única
+história causal"*. A CENA não *parece*: ela **é** a história, em ordem, com causa e efeito visíveis
+lado a lado. A base classifica isso como prova **Demonstrative**, um dos quatro tipos que Ford
+lista, e registra a hierarquia: *"demonstrar > mostrar terceiro > afirmar — o criativo que demonstra
+vence o que afirma, porque o espectador não precisa acreditar; ele vê"*.
 
-**S3 (Mechanism) fica sustentada só pela copy.** Sobrou o `band-head-2`: eyebrow `fluxo contínuo
-VOS`, o h2 `Sua empresa continua andando sem depender de alguém lembrar do próximo passo.` e um
-parágrafo. Isso **afirma** o mecanismo; a spec pede que os cards *"pareçam uma única história
-causal"*, ou seja, que ele seja **visto**. É a distância entre o que a página diz e o que ela
-mostra.
+**S6 (Do primeiro oi ao caixa) — fechada literalmente.** O nome da seção é o roteiro da peça. Mais
+o bloco de vídeo "Conheça o VOS", que já existia.
 
-**S6 (Do primeiro oi ao caixa) fica só com o vídeo.** As três fases — entrada, venda, fechamento —
-eram a tese da CADEIA. O bloco "Conheça o VOS" sobreviveu e continua narrando o percurso em vídeo,
-mas a continuidade em etapas na própria página acabou.
+**S7 (Proof) — parou de contrariar a spec.** Os 15 depoimentos fictícios saíram (`3da2a6f`). A
+página **não tem mais prova fabricada** — que era a única coisa que ela fazia contra a spec de
+frente. O que não tem é prova de **cliente**: a CENA prova o mecanismo, não que alguém comprou.
+Isso não se resolve com redação; resolve com cliente real citável. Continua na mesa dele.
+
+**S2 (Problema) — continua aberta, e é a única.** A CENA mostra a solução funcionando; ela não
+nomeia a dor de quem ainda não tem o VOS. O bloco de problema saiu na remoção de 19/08 e nada
+ocupou o lugar. É a decisão pendente: escrever de novo o problema antes da CENA, ou assumir que a
+página entra pela solução — o que é uma escolha legítima para público de consciência alta, mas
+precisa estar escrita, e não acontecer por omissão.
 
 **S4 (Product proof) fica com uma tela real, não três.** A spec proíbe dashboard fictício; não
 exige quantidade. A tela que ficou é exportada do app. É economia de prova, e é escolha — não
-esquecimento. *(Independe da CADEIA; segue valendo.)*
+esquecimento. *(Independe da CENA; segue valendo.)*
 
 **S5 (IA) vive na resposta 6 do FAQ.** A própria spec manda que *"a IA não deve carregar a Big
 Idea principal"* e que ela entre como mecanismo/proof. A resposta do FAQ cobre as quatro perguntas
-que a spec exige: que contexto ela conhece, em que tarefas ajuda, qual a consequência operacional
-e onde ela sai de cena. Seção própria daria à IA um peso que a spec justamente nega.
-*(Independe da CADEIA; segue valendo.)*
-
-**S7 (Proof) continua em dívida.** Os 15 depoimentos fictícios (`ehRascunho = false`) são o único
-ponto em que a página contraria a spec **de frente** (`Nenhum depoimento fictício`), e isso não se
-resolve com justificativa — resolve com prova real ou com a remoção da esteira. Decisão do
-Orlando, ainda não tomada.
+que a spec exige. Seção própria daria à IA um peso que a spec justamente nega.
+*(Independe da CENA; segue valendo.)*
 
 ### O placar hoje
 
 | situação | seções |
 |---|---|
-| ✅ cumpridas | S1, S8, S9, S10 |
+| ✅ cumpridas | S1, **S3**, **S6**, S8, S9, S10 |
 | ⤳ cumpridas fora da grade, com justificativa | S4 (uma tela), S5 (no FAQ) |
-| 🔴 **reabertas pela remoção da CADEIA** | **S2, S3, S6** |
-| 🔴 em dívida de frente com a spec | S7 (depoimentos fictícios) |
+| ⚠️ sem prova de cliente, mas sem prova fabricada | S7 |
+| 🔴 **em aberto** | **S2 (Problema)** — a única |
 
-**Decisão pendente do Orlando:** o que ocupa o lugar da CADEIA — se é para reconstruir alguma
-forma de mostrar o mecanismo, ou se S2/S3/S6 ficam abertas de propósito e este documento passa a
-registrar isso como escolha, e não como buraco.
+Para comparar com o que este documento dizia há três horas: era `4 ✅ · 2 fora da grade · 3
+reabertas · 1 em dívida de frente`. A CENA fechou duas das três reabertas e a remoção da esteira
+tirou a dívida frontal.
+
+### A copy da seção, e por que ela mudou junto
+
+A CENA não entrou embaixo da copy antiga. A anterior — *"Sua empresa continua andando sem depender
+de alguém lembrar do próximo passo"* — falhava em três testes: não tinha promessa falsificável
+(não existe resultado que prove que "continua andando" não aconteceu), não tinha mecanismo, e
+reprovava no teste **título × CTA**, porque contava uma ideia diferente da que a peça mostra. Duas
+ideias na mesma seção não somam; o leitor escolhe a mais fraca.
+
+A copy de hoje diz o que a CENA mostra, com os mesmos substantivos:
+
+> **o que ele vê / o que você vê**
+> Do lado dele, é só uma conversa no WhatsApp. **Do seu, saiu orçamento, pedido e nota fiscal.**
+
+⚠️ **Uma trava de redação que não se mexe:** a copy diz **"saiu"**, nunca **"saiu sozinho"**. A
+claim do criativo vencedor é *"tudo na mesma tela"* — e essa é verdadeira independentemente de qual
+botão do produto é automático e qual precisa de alguém. Trocar por "sem ninguém encostar" mudaria
+a natureza do que está sendo afirmado.
 
 ## As correções que a auditoria independente cobrou (rodada 2)
 

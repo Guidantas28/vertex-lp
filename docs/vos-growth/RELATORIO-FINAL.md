@@ -164,15 +164,16 @@ chamavam saíram. Limpas no `0447816`. Verificação em `VERIFICATION.md`, "Roda
 
 ## O placar do Big Black Book, hoje
 
-- **§5 (10 seções):** 4 ✅ (S1, S8, S9, S10) · 2 cumpridas fora da grade, com justificativa (S4, S5)
-  · **3 reabertas pela remoção da CADEIA** (S2, S3, S6) · **1 em dívida de frente** (S7,
-  depoimentos fictícios). Detalhe seção por seção no `LP_ARCHITECTURE.md`.
-- **§10 (13 verificações):** 11 ✅ · a11y **continua reprovando WCAG 2.2.2 A**, mas o dono mudou:
-  não é mais o laço da cena da CADEIA, que saiu — é a **esteira de depoimentos**. `.depo-fita` roda
-  `animation: sobe 38s linear infinite` e a única pausa é `:hover`, que não alcança quem navega
-  por teclado e está em container `aria-hidden="true"`. O `prefers-reduced-motion` pausa de vez, e
-  essa é a única atenuação real. Segue decisão do dono, com o custo escrito no CSS · o item 13
-  ("não publicar") foi superado pela autorização dele
+- **§5 (10 seções):** 6 ✅ (S1, **S3**, **S6**, S8, S9, S10) · 2 fora da grade, com justificativa
+  (S4, S5) · S7 ⚠️ sem prova de cliente, mas **sem prova fabricada** · **1 em aberto: S2
+  (Problema)**. A CENA (`e045dfa`) fechou S3 e S6 por demonstração; a saída da esteira (`3da2a6f`)
+  encerrou a dívida frontal da S7. Detalhe seção por seção no `LP_ARCHITECTURE.md`.
+- **§10 (13 verificações):** 🎉 **12 ✅ — a reprovação em WCAG 2.2.2 A ACABOU.** Ela vinha do laço
+  eterno da cena da CADEIA; com a CADEIA fora passou para a esteira de depoimentos; com a esteira
+  fora (`3da2a6f`), `grep infinite src/styles/lp.css` passou a devolver **zero**. A CENA que entrou
+  no lugar é vídeo com **controle de pausar** sempre visível, alcançável por teclado (verificado:
+  foco + Enter), e o `prefers-reduced-motion` não dispara o autoplay · o item 13 ("não publicar")
+  foi superado pela autorização dele
 - **§13 (entregáveis):** documentação 6/6 ✅ · frontend ✅ · **criativos: entregue-e-revertido** —
   16 masters foram feitos e apagados a pedido dele, item encerrado, não pendente
 - **§14 (critérios A–N):** A–J e N ✅ · K encerrado como acima · L e M ✅ **a partir desta revisão**
@@ -180,8 +181,13 @@ chamavam saíram. Limpas no `0447816`. Verificação em `VERIFICATION.md`, "Roda
 
 ## 🔴 O que continua dependendo do Orlando
 
-1. **Depoimentos fictícios** — o único ponto em que a página contraria a spec de frente. Trocar
-   por prova de mecanismo/processo (que a spec lista **acima** de depoimento) ou remover a esteira.
+1. ~~**Depoimentos fictícios**~~ ⚰️ **RESOLVIDO em 20/08** — a esteira saiu (`3da2a6f`) e no lugar
+   entrou prova de mecanismo, que é justamente o que a spec lista **acima** de depoimento. Fica o
+   que não se resolve com redação: **a página não tem prova de cliente**, porque não há cliente
+   real citável. ⚠️ Os mesmos 15 depoimentos seguem em `src/data/content.ts` alimentando a
+   **home** — outra superfície, mesma dívida.
+1b. 🔴 **S2 (Problema) em aberto** — a CENA mostra a solução; ninguém nomeia a dor antes dela.
+   Escrever o problema de volta, ou assumir por escrito que a página entra pela solução.
 2. **Lista do Scale** cortada no print de preço — pode faltar item na LP.
 3. **`plan-limits.ts`** desatualizado no SaaS (repo do Gui).
 4. **FAQ resposta 4** — histórico de conversas pela API oficial: confirmar com o Guilherme.
