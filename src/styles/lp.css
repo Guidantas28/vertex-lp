@@ -569,38 +569,26 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
      Vídeo, não animação de DOM — ver o comentário no lp.astro.
      ═══════════════════════════════════════════════════════════════════════ */
   .band-cena{width:var(--col);margin:clamp(18px,4vw,26px) auto clamp(6px,2vw,12px);}
+  /* Proporção única: a peça é uma só desde 20/08 (972x1458 ≈ 2:3). O corte
+     deitado morreu por geometria — num quadro largo o aparelho já ocupava toda
+     a altura, então o painel lateral não dava espaço à tela, só aumentava o
+     vazio dos lados. */
   .cena{position:relative;width:100%;border-radius:var(--r-xl);overflow:hidden;
     background:#000;box-shadow:0 26px 56px -26px rgba(0,0,0,.6);
-    /* o corte mobile é 2:3; o desktop entra no breakout lá embaixo */
     aspect-ratio:2/3;}
   .cena-v{width:100%;height:100%;display:block;object-fit:cover;background:#000;}
+  /* 🔴 Não existe controle de pausar. Movimento que começa sozinho, passa de 5s
+     e divide a tela com texto exige um mecanismo de pausar (WCAG 2.2.2, nível
+     A) — sem ele a página REPROVA nesse critério, e ela tinha acabado de passar
+     a cumprir quando a esteira de depoimentos saiu. É decisão do Orlando,
+     tomada com o custo na mesa: a cena tem que ler como GIF. A única atenuação
+     que sobra é o prefers-reduced-motion, no script, que não dispara o
+     autoplay. Não é descuido; é escolha do dono. */
 
-  /* Controle de pausar. Fica SEMPRE visível (não some no hover) porque a
-     obrigação de WCAG 2.2.2 é existir um mecanismo alcançável, não um que
-     apareça quando o ponteiro passa por cima — ponteiro é o que quem navega
-     por teclado não tem. */
-  .cena-btn{position:absolute;right:10px;bottom:10px;z-index:2;
-    display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;
-    border:0;border-radius:999px;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);
-    color:#fff;font-family:inherit;font-size:var(--fs-label);font-weight:600;
-    cursor:pointer;transition:background var(--dur) var(--ease);}
-  .cena-btn:hover{background:rgba(0,0,0,.8);}
-  .cena-btn:focus-visible{outline:2px solid #fff;outline-offset:2px;}
-  .cena-btn svg{width:13px;height:13px;flex:none;fill:currentColor;}
-  /* o ícone segue o estado real do vídeo, não o clique */
-  .cena-btn .ic-pause{display:none;}
-  .cena.tocando .cena-btn .ic-play{display:none;}
-  .cena.tocando .cena-btn .ic-pause{display:block;}
-
-  @media (prefers-reduced-motion:reduce){
-    .cena-btn{transition:none;}
-  }
-
-  /* O corte largo entra a partir de 900px, onde cabe painel + aparelho lado
-     a lado. Esta regra mora AQUI, e não junto dos outros breakouts lá em
-     cima, porque o bloco base da .cena é o último do arquivo — declarada
-     antes, ela empataria em especificidade e perderia por ordem. */
+  /* No desktop a peça vira uma coluna centrada mais larga — a proporção é a
+     mesma, só a largura muda. A regra mora AQUI, e não junto dos outros
+     breakouts lá em cima, porque o bloco base da .cena é o último do arquivo:
+     declarada antes, ela empataria em especificidade e perderia por ordem. */
   @media (min-width:900px){
-    .band-cena{width:min(1120px,calc(100% - 48px));}
-    .cena{aspect-ratio:8/5;}
+    .band-cena{width:min(480px,calc(100% - 48px));}
   }

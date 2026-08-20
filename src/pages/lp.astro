@@ -191,8 +191,10 @@ const PLANOS = [
          A nota de WCAG 2.2.2 que morava naquele bloco NAO foi apagada: ela
          trocou de dono e hoje esta junto da esteira de depoimentos, que e
          quem move sozinho agora.
-         Os videos /lp/cena-trabalho.{webm,mp4,png} continuam no disco, sem
-         referencia, caso a cadeia volte. -->
+         Os renders /lp/cena-trabalho.{webm,mp4,png} foram APAGADOS em 20/08:
+         eram 1,1 MB sem referencia nenhuma, indo junto em todo deploy. O fonte
+         que os gera segue versionado (LpCenaTrabalho, commit e7ef105 do
+         D:VIDEO-FACTORY) — se a cadeia voltar, e so renderizar de novo. -->
     <div class="band-head band-head-2">
       <div class="eb"><u>o que ele vê / o que você vê<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
       <h2>Do lado dele, é só uma conversa no WhatsApp. <u>Do seu, saiu orçamento, pedido e nota fiscal.</u></h2>
@@ -206,28 +208,27 @@ const PLANOS = [
          limpeza de 19/08 pagou. Fonte da peca versionado em
          D:VIDEO-FACTORY (composicao VosPainelWhats).
 
-         ⚠️ O <source media> NAO funciona em <video> — o atributo so vale
-         dentro de <picture>, e Chrome e Firefox o ignoram aqui. O HTML nasce
-         com o corte MOBILE — a maior parte do trafego desta pagina e celular,
-         entao quem cai aqui sem JS ja recebe o corte certo — e o script troca
-         pro corte largo quando a tela passa de 900px.
+         Desde 20/08 e UM arquivo so, entao os <source> voltaram a ser
+         estaticos: nao existe mais troca por matchMedia, e quem esta sem JS
+         recebe a peca certa. O corte deitado morreu por geometria — num quadro
+         largo o aparelho ja ocupava toda a altura, entao o painel lateral nao
+         dava espaco a tela, so aumentava o vazio dos lados.
 
-         O botao de pausar NAO e enfeite: movimento que comeca sozinho, passa
-         de 5s e divide a tela com texto exige controle de pausar (WCAG 2.2.2,
-         nivel A). A pagina passou a cumprir esse criterio quando a esteira de
-         depoimentos saiu; nao vai voltar a reprovar por causa desta cena. -->
+         🔴 SEM BOTAO DE PAUSAR, e isso tem custo. Movimento que comeca sozinho,
+         passa de 5s e divide a tela com texto exige um mecanismo de pausar
+         (WCAG 2.2.2, nivel A). Sem o botao nao existe mecanismo nenhum, e a
+         pagina REPROVA nesse criterio — ela tinha acabado de passar a cumprir,
+         em 20/08, quando a esteira de depoimentos saiu. E decisao do Orlando,
+         tomada com o custo na mesa: ele quer que leia como GIF. A unica
+         atenuacao que sobra e o prefers-reduced-motion, que nao dispara o
+         autoplay. Nao e descuido; e escolha do dono. -->
     <div class="band-cena">
       <div class="cena" id="cena">
-        <video id="cenaVid" class="cena-v" poster="/lp/vos-cena-m-poster.webp"
+        <video id="cenaVid" class="cena-v" poster="/lp/vos-cena-poster.webp"
                playsinline muted loop preload="none" aria-label="Uma conversa de WhatsApp do primeiro contato ate a nota fiscal, com os modulos do VOS acendendo a cada etapa">
-          <source src="/lp/vos-cena-m.webm" type="video/webm">
-          <source src="/lp/vos-cena-m.mp4" type="video/mp4">
+          <source src="/lp/vos-cena.webm" type="video/webm">
+          <source src="/lp/vos-cena.mp4" type="video/mp4">
         </video>
-        <button type="button" class="cena-btn" id="cenaBtn" aria-pressed="false">
-          <svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12 8 5.2Z"/></svg>
-          <svg class="ic-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.4v14H7zM13.6 5H17v14h-3.4z"/></svg>
-          <span class="cena-btn-t">Pausar</span>
-        </button>
       </div>
     </div>
 
@@ -419,64 +420,30 @@ const PLANOS = [
 
 
   /* ── A cena ────────────────────────────────────────────────────────────
-     Três coisas acontecem aqui, nesta ordem de importância:
+     Um arquivo so desde 20/08, entao aqui sobrou o essencial: tocar quando
+     entra na tela, parar quando sai. A escolha de corte por matchMedia morreu
+     junto com o corte deitado, e o botao de pausar saiu a pedido dele — a cena
+     tem que ler como GIF.
 
-     1. ESCOLHA DE CORTE. O <source media> não funciona em <video> (só vale
-        dentro de <picture>), então quem decide é o matchMedia. O HTML nasce
-        no corte mobile — a maior parte do tráfego desta página é celular, e é
-        ele que quem está sem JS recebe.
-     2. CONTROLE DE PAUSAR. Obrigatório: o movimento começa sozinho, passa de
-        5s e divide a tela com texto (WCAG 2.2.2, nível A). O botão reflete o
-        estado REAL do vídeo — ouve play/pause em vez de confiar no clique.
-     3. ECONOMIA. preload="none" e o vídeo só é buscado quando entra na tela.
-        Um visitante baixa UM arquivo: 587 kB (webm desktop) a 1,8 MB (mp4 do
-        Safari no celular). O broll que já está nesta página pesa 2,0 MB. */
+     🔴 Sem o botao a pagina REPROVA em WCAG 2.2.2 nivel A. Esta escrito no
+     comentario do markup, no LP_ARCHITECTURE.md e no RELATORIO-FINAL.md. A
+     unica atenuacao que sobra e a linha do prefers-reduced-motion aqui embaixo.
+
+     preload="none" + IntersectionObserver: nada e buscado ate a secao entrar
+     na tela. Um visitante baixa UM arquivo — 594 kB no webm (Chrome, Firefox,
+     Edge e Safari 14.1+) ou 1615 kB no mp4, que e a queda pra quem nao toca
+     webm. O broll que ja esta nesta pagina pesa 2013 kB. */
   (function(){
-    var cena=document.getElementById('cena'), vid=document.getElementById('cenaVid'),
-        btn=document.getElementById('cenaBtn');
-    if(!cena||!vid||!btn) return;
-
-    var estreito=matchMedia('(max-width: 899px)');
-    var atual=null;
-    function monta(){
-      var corte=estreito.matches?'m':'d';
-      if(corte===atual) return;
-      atual=corte;
-      var tocava=!vid.paused;
-      vid.poster='/lp/vos-cena-'+corte+'-poster.webp';
-      vid.innerHTML='<source src="/lp/vos-cena-'+corte+'.webm" type="video/webm">'+
-                    '<source src="/lp/vos-cena-'+corte+'.mp4" type="video/mp4">';
-      vid.load();
-      if(tocava) vid.play().catch(function(){});
-    }
-    monta();
-    estreito.addEventListener('change',monta);
-
-    /* o rótulo e o ícone seguem o vídeo, não o clique: se o navegador recusar
-       o autoplay, o botão precisa dizer "Assistir", e não "Pausar" */
-    function pinta(){
-      var tocando=!vid.paused && !vid.ended;
-      cena.classList.toggle('tocando',tocando);
-      btn.setAttribute('aria-pressed',String(tocando));
-      btn.querySelector('.cena-btn-t').textContent=tocando?'Pausar':'Assistir';
-      btn.setAttribute('aria-label',tocando?'Pausar a animação':'Assistir à animação');
-    }
-    vid.addEventListener('play',pinta);
-    vid.addEventListener('pause',pinta);
-    btn.addEventListener('click',function(){
-      if(vid.paused) vid.play().catch(function(){}); else vid.pause();
-    });
-    pinta();
-
-    var reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(!reduz && 'IntersectionObserver' in window){
-      new IntersectionObserver(function(es){
-        es.forEach(function(e){
-          if(e.isIntersecting){ vid.play().catch(function(){}); }
-          else if(!vid.paused){ vid.pause(); }
-        });
-      },{threshold:.35}).observe(cena);
-    }
+    var cena=document.getElementById('cena'), vid=document.getElementById('cenaVid');
+    if(!cena||!vid) return;
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches) return; // fica o poster
+    if(!('IntersectionObserver' in window)) return;
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ vid.play().catch(function(){}); }
+        else if(!vid.paused){ vid.pause(); }
+      });
+    },{threshold:.35}).observe(cena);
   })();
 
   var io=new IntersectionObserver(function(es){es.forEach(function(e){
