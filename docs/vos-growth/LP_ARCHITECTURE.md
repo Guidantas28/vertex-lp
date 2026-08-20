@@ -1,9 +1,9 @@
 # Arquitetura da /lp
 
-> Estado de **20/08/2026, 01h** — depois de a CENA entrar no lugar da CADEIA (commit `e045dfa`) e
-> de a esteira de depoimentos sair (`3da2a6f`). Este documento já descreveu uma página que não
-> existia duas vezes; ambas as vezes porque o código andou e ele não. Se a página mudar de novo,
-> esta é a primeira coisa a atualizar.
+> Estado de **20/08/2026, 03h** — depois de a CENA virar **uma peça só** (commit `c6206d6`), com a
+> trilha de módulos no topo, o roteiro do próprio VOS e **sem botão de pausar**. Este documento já
+> descreveu uma página que não existia três vezes; sempre porque o código andou e ele não. Se a
+> página mudar de novo, esta é a primeira coisa a atualizar.
 
 A rodada 1 enxertou seções na página velha e falhou: o hero continuou vendendo "a maneira mais
 fácil de … em um só lugar" enquanto a seção seguinte dizia "o problema não é falta de
@@ -45,10 +45,29 @@ Em 20/08 entrou a **CENA** (`e045dfa`) — e este trecho registra o que ela fech
 fecha, e por quê. É o mesmo lugar onde antes morava a justificativa da CADEIA: quando o objeto
 muda, o registro muda com ele, senão vira arqueologia.
 
-**O que a CENA é.** Um vídeo de 29,8 s, embutido na seção. À esquerda o painel dos 7 módulos; à
-direita um aparelho com uma conversa completa — 14 mensagens, do primeiro "oi" até a nota fiscal,
-passando por orçamento em PDF, link de pagamento e confirmação. Cada etapa acende o módulo
-correspondente. Fonte da composição em `D:VIDEO-FACTORY` (`VosPainelWhats`, commit `f545473`).
+**O que a CENA é.** Um vídeo de 30,4 s, embutido na seção, em **uma peça só** (972×1458). No topo,
+uma trilha com os 7 módulos; embaixo, o aparelho com a tela em largura cheia e uma conversa
+completa — 14 mensagens, do primeiro "oi" até a nota fiscal, passando por orçamento em PDF, link de
+pagamento e confirmação. Cada etapa acende o módulo correspondente. Fonte em
+`D:\VIDEO-FACTORY` (`VosLpCena`, commits `f545473` e `8698380`).
+
+O corte deitado que existia até 20/08 **morreu por geometria**, não por gosto: nele o aparelho já
+ocupava 1072 dos 1200 px de altura, então o painel lateral de 760 px não dava espaço à tela — só
+aumentava o vazio dos lados. Com o quadro estreito, uma peça serve os dois destinos, e a tela da
+conversa dobra de largura.
+
+**Quem vende na cena é o próprio VOS.** A fala do plano sai da tabela de preços desta mesma página
+(o array `PLANOS`): Scale = 15 usuários, 20 canais. O valor do link é R$ 797,00, que é o preço do
+Scale. Nada de "implantação inclusa", que não existe em plano nenhum — e "entrega" virou "call de
+ativação", porque software não é entregue.
+
+🔴 **A CENA não tem controle de pausar, e isso reprova em WCAG 2.2.2 nível A.** A página tinha
+acabado de passar a cumprir esse critério, quando a esteira de depoimentos saiu. Movimento que
+começa sozinho, passa de 5 s e divide a tela com texto exige um mecanismo de pausar; sem o botão
+não existe mecanismo. Foi oferecida a saída que dava o mesmo visual sem o custo — botão invisível,
+voltando no hover e no Tab — e ele escolheu tirar de vez, para a peça ler como GIF. **É escolha do
+dono, com o custo na mesa**, e está escrita também no `lp.astro` e no `lp.css`. A única atenuação
+que sobra é o `prefers-reduced-motion`, que não dispara o autoplay.
 
 **S3 (Mechanism) — fechada, e por demonstração.** A spec pede que os cards *"pareçam uma única
 história causal"*. A CENA não *parece*: ela **é** a história, em ordem, com causa e efeito visíveis

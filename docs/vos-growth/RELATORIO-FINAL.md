@@ -168,12 +168,16 @@ chamavam saíram. Limpas no `0447816`. Verificação em `VERIFICATION.md`, "Roda
   (S4, S5) · S7 ⚠️ sem prova de cliente, mas **sem prova fabricada** · **1 em aberto: S2
   (Problema)**. A CENA (`e045dfa`) fechou S3 e S6 por demonstração; a saída da esteira (`3da2a6f`)
   encerrou a dívida frontal da S7. Detalhe seção por seção no `LP_ARCHITECTURE.md`.
-- **§10 (13 verificações):** 🎉 **12 ✅ — a reprovação em WCAG 2.2.2 A ACABOU.** Ela vinha do laço
-  eterno da cena da CADEIA; com a CADEIA fora passou para a esteira de depoimentos; com a esteira
-  fora (`3da2a6f`), `grep infinite src/styles/lp.css` passou a devolver **zero**. A CENA que entrou
-  no lugar é vídeo com **controle de pausar** sempre visível, alcançável por teclado (verificado:
-  foco + Enter), e o `prefers-reduced-motion` não dispara o autoplay · o item 13 ("não publicar")
-  foi superado pela autorização dele
+- **§10 (13 verificações):** **11 ✅ · 🔴 reprova em WCAG 2.2.2 A.** Este item mudou três vezes em
+  24 h e vale contar a sequência inteira: a reprovação vinha do laço da cena da CADEIA; com a CADEIA
+  fora passou para a esteira de depoimentos; com a esteira fora (`3da2a6f`) **acabou**, e este
+  relatório chegou a registrar 12 ✅. Em `c6206d6` ela **voltou**, por decisão dele: o botão de
+  pausar da CENA foi removido para a peça ler como GIF. Movimento que começa sozinho, passa de 5 s e
+  divide a tela com texto exige um mecanismo de pausar — sem o botão não existe mecanismo nenhum.
+  Foi oferecida a saída que dava o mesmo visual sem o custo (botão invisível, voltando no hover e no
+  Tab); ele escolheu tirar de vez. **Não é descuido; é escolha do dono, com o custo na mesa.** A
+  única atenuação que sobra é o `prefers-reduced-motion`, que não dispara o autoplay · o item 13
+  ("não publicar") foi superado pela autorização dele
 - **§13 (entregáveis):** documentação 6/6 ✅ · frontend ✅ · **criativos: entregue-e-revertido** —
   16 masters foram feitos e apagados a pedido dele, item encerrado, não pendente
 - **§14 (critérios A–N):** A–J e N ✅ · K encerrado como acima · L e M ✅ **a partir desta revisão**

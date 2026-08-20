@@ -472,3 +472,85 @@ PNG: o texto do cartão de pagamento continua nítido.
 
 Quatro commits locais no branch `fecha-lead-ao-agendar` (`0447816`, `f0b8f7b`, `3da2a6f`,
 `e045dfa`), sem `push`, sem PR, sem deploy. **Produção segue no `f39f844`.**
+
+---
+
+# Rodada 6 — uma peça só, trilha no topo, sem botão (20/08, 03h)
+
+Commits: `c6206d6` (a página) e `8698380` (a composição, em `D:\VIDEO-FACTORY`).
+
+## A medição que decidiu o desenho
+
+O pedido foi "os ícones em cima, liberando espaço para a tela". Antes de mexer, a régua:
+
+| medida | valor |
+|---|---|
+| altura do aparelho no corte deitado | **1072 de 1200 px** — já no talo |
+| conclusão | tirar o painel **não** faz a tela crescer; só aumenta o vazio dos lados |
+
+Por isso o corte deitado saiu inteiro, e não só o painel dele. Com o quadro estreito, **uma peça
+serve os dois destinos** — e a troca por `matchMedia` deixa de existir junto.
+
+## Peso — três caminhos testados antes de escolher
+
+| caminho | resultado |
+|---|---|
+| resolução 1536×960 | −17% |
+| resolução 1280×800 | −31% |
+| 24 fps / 20 fps | −11% / −21% |
+| **VP9 crf 42 → 46** | **726 kB → 593 kB** |
+
+Escolhido o `crf`: preserva a geometria do texto. A perda foi conferida **no olho**, extraindo o
+frame do cartão de pagamento do webm e comparando com o PNG — `Pagamento · VOS Scale`,
+`R$ 797,00` e `pagar.voshq.com/1042` continuam nítidos.
+
+| arquivo | peso |
+|---|---|
+| `vos-cena.webm` | **594 kB** — Chrome, Firefox, Edge e Safari 14.1+ |
+| `vos-cena.mp4` | **1615 kB** — a queda para quem não toca webm |
+| `vos-cena-poster.webp` | 36 kB |
+
+⚠️ **O mp4 continua pesado e eu não consegui melhorar.** h264 a crf 34 = 1735 kB · 38 = 1615 ·
+42 = 1542. A curva é plana: não é falta de tentar, é o codec não comprimir este conteúdo.
+
+**Faxina: `public/lp` foi de 8,4 MB para 4,8 MB.** Saíram os quatro arquivos dos dois cortes
+antigos e os `cena-trabalho.{mp4,webm,png}` (1,1 MB da CADEIA, sem referência desde 19/08 — o
+fonte segue versionado em `e7ef105`).
+
+## Verificação executada (Playwright, dois viewports)
+
+| prova | desktop 1440 | mobile 390 |
+|---|---|---|
+| arquivo servido | `vos-cena.webm` 972×1458 ✅ | **o mesmo** ✅ |
+| caixa | 480×720 — proporção 0,667 ✅ | 358×537 — 0,667 ✅ |
+| `loop` / `muted` / `controls` | true / true / **false** ✅ | idem ✅ |
+| autoplay ao entrar na tela | tocando ✅ | tocando ✅ |
+| **botões no bloco** | **0** ✅ | **0** ✅ |
+| antes do scroll | só o poster na rede ✅ | idem ✅ |
+| `[data-action="lead"]` | 7 ✅ | 7 ✅ |
+| `dataLayer.lead` | as mesmas **10 chaves** ✅ | idem ✅ |
+| console | **0 erro** ✅ | idem ✅ |
+| `npm run build` | **Complete!** ✅ | |
+
+## 🔴 O que PIOROU nesta rodada
+
+**A página volta a reprovar em WCAG 2.2.2 nível A.** Este item mudou três vezes em 24 h — laço da
+CADEIA → esteira de depoimentos → resolvido → **reaberto aqui**. O botão de pausar foi removido a
+pedido dele, para a peça ler como GIF. Ofereci a saída que dava o mesmo visual sem o custo (botão
+invisível, voltando no hover e no Tab); ele escolheu tirar de vez. Registrado como decisão do
+dono, com o custo na mesa. Sobra o `prefers-reduced-motion`, que não dispara o autoplay.
+
+## ⚠️ Um efeito colateral das capturas desta série
+
+As linhas 35 a 44 da planilha de auditoria EMQ — 10 `generate_lead` com user agent
+`HeadlessChrome` e URL `http://localhost:4321/lp`, entre 19/08 21:43 e 20/08 00:57 — **vieram
+destas verificações**. O `baseline-lp.mjs` percorre o modal até o fim, e o evento `lead` do
+`dataLayer` é client-side: como a LP carregava o container de **produção** sem condição nenhuma,
+cada captura virou evento real na Meta. Corrigido por outra sessão em `GtmHead.astro` (o loader
+agora só sobe em host de produção) — a captura desta rodada já saiu sem `gtm.js`.
+Detalhe completo em `_LOGS\MUDANCAS.md`, entrada de 02h.
+
+## Estado no fim da rodada
+
+Cinco commits locais no branch `fecha-lead-ao-agendar`, sem `push`, sem PR, sem deploy.
+**Produção segue no `f39f844`.**
