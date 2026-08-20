@@ -220,14 +220,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
   .band-head h2 u{text-decoration:none;color:var(--accent);}
   .band-head p{font-size:var(--fs-body);color:var(--ink-2);text-wrap:balance;}
   .band > section{padding-top:8px;padding-bottom:10px;}
-  .flow-tab{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;
-    border-radius:999px;border:1px solid rgba(255,255,255,.1);background:transparent;
-    font-family:inherit;font-size:var(--fs-micro);font-weight:600;color:var(--d-ink-2);
-    cursor:pointer;transition:color var(--dur) var(--ease), border-color var(--dur) var(--ease),
-      background var(--dur) var(--ease);}
-  .flow-tab i{width:6px;height:6px;border-radius:99px;background:var(--fc);flex:none;}
-  .flow-tab[aria-selected="true"]{color:#fff;border-color:color-mix(in srgb,var(--fc) 55%,transparent);
-    background:color-mix(in srgb,var(--fc) 16%,transparent);}
 
   /* ── Esteira de depoimentos ─────────────────────────────────────────────
      3 pistas subindo em velocidades diferentes pra não sincronizar. No celular
@@ -237,6 +229,19 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     -webkit-mask-image:linear-gradient(180deg,transparent,#000 14%,#000 86%,transparent);
     mask-image:linear-gradient(180deg,transparent,#000 14%,#000 86%,transparent);}
   .depo-pista{overflow:hidden;}
+  /* 🔴 LACO ETERNO, SEM BOTAO DE PAUSAR — WCAG 2.2.2, nivel A.
+     Esta nota vivia junto da cena animada do "Fluxo Continuo VOS"; a cena saiu
+     em 19/08 e a reprovacao NAO saiu com ela — so trocou de dono. Quem move
+     sozinho agora e esta esteira: comeca sem acao do usuario, passa de 5s,
+     divide a tela com texto e nao para nunca. Isso exige um controle de pausar.
+     E decisao do Orlando, tomada com o custo na mesa; nao e descuido.
+     As duas atenuacoes que sobraram, e que NAO se mexe:
+       1. .depos:hover pausa a fita — mas hover nao alcanca quem navega por
+          teclado, e o container esta aria-hidden="true", entao isso atenua,
+          nao resolve;
+       2. prefers-reduced-motion pausa a fita de vez (bloco la embaixo) — e a
+          unica saida real pra quem tem sensibilidade vestibular.
+     So transform anima. */
   .depo-fita{display:flex;flex-direction:column;gap:12px;
     animation:sobe var(--v,38s) linear infinite;will-change:transform;}
   .depos:hover .depo-fita{animation-play-state:paused;}
@@ -308,18 +313,24 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     box-shadow:0 10px 30px rgba(0,0,0,.34), 0 2px 8px rgba(0,0,0,.24);
     transition:gap .26s var(--ease), transform .26s var(--ease),
       border-color .26s var(--ease), box-shadow .26s var(--ease);}
-  .zap-ic{width:26px;height:26px;flex:none;color:#25D366;}
+  /* ── o rosto de quem responde ──────────────────────────────────────
+     A foto sozinha vira avatar generico e o botao perde a leitura de "isto
+     abre o WhatsApp". Por isso o selo verde nao e enfeite: e ele que carrega
+     o canal. O anel do selo usa a cor CHEIA da pilula (#111316) e nao a
+     translucida — com a translucida a foto vazava por baixo do anel. */
+  .zap-rosto{position:relative;flex:none;display:block;line-height:0;}
+  .zap-av{display:block;width:34px;height:34px;border-radius:50%;object-fit:cover;
+    background:#2a2e33;box-shadow:0 0 0 1px rgba(255,255,255,.20);}
+  .zap-selo{position:absolute;right:-2px;bottom:-2px;width:16px;height:16px;
+    border-radius:50%;display:grid;place-items:center;
+    background:#25D366;color:#0A1F13;box-shadow:0 0 0 2px #111316;}
+  .zap-selo svg{display:block;width:10px;height:10px;}
   .zap-txt{max-width:0;overflow:hidden;white-space:nowrap;font-size:var(--fs-control);
     font-weight:650;letter-spacing:-.01em;transition:max-width .26s var(--ease);}
-  /* ponto de status ESTATICO: pulso infinito aqui seria movimento perpetuo ao
-     lado de texto — o mesmo criterio (WCAG 2.2.2) que rege o resto da pagina. */
-  .zap-on{position:absolute;top:11px;right:13px;width:9px;height:9px;border-radius:50%;
-    background:#25D366;box-shadow:0 0 0 3px rgba(37,211,102,.22);}
   .zap:hover,.zap:focus-visible{gap:10px;transform:translateY(-2px);
     border-color:rgba(255,255,255,.26);
     box-shadow:0 16px 38px rgba(0,0,0,.42), 0 3px 10px rgba(0,0,0,.28);}
   .zap:hover .zap-txt,.zap:focus-visible .zap-txt{max-width:190px;}
-  .zap:hover .zap-on,.zap:focus-visible .zap-on{right:auto;left:34px;top:14px;}
   .zap:focus-visible{outline:3px solid #25D366;outline-offset:3px;}
 
   /* ── o balao ────────────────────────────────────────── */
@@ -332,6 +343,12 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     opacity:0;transform:translateX(10px) scale(.97);transform-origin:100% 50%;
     transition:opacity .24s var(--ease), transform .24s var(--ease);}
   .zap-balao.in{opacity:1;transform:none;}
+  /* 🔴 sem esta linha o [hidden] do balao NAO funciona: a regra .zap-balao
+     acima declara display:flex e vence o display:none que o atributo aplica.
+     O balao ficava ocupando ~242x59px invisivel (opacity:0) com
+     pointer-events:auto — engolindo clique ao lado do botao — e o texto dele
+     continuava exposto a leitor de tela. Defeito antigo, achado na medicao. */
+  .zap-balao[hidden]{display:none;}
   .zap-balao::after{content:"";position:absolute;right:-6px;top:50%;width:11px;height:11px;
     transform:translateY(-50%) rotate(45deg);background:rgba(17,19,22,.95);
     border-right:1px solid rgba(255,255,255,.14);
@@ -357,9 +374,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
   @media (max-width:639px){
     .zap-wrap{right:12px;flex-direction:column;align-items:flex-end;gap:8px;}
     .zap{height:52px;padding:0 14px;}
-    .zap-ic{width:24px;height:24px;}
+    .zap-av{width:32px;height:32px;}
     .zap:hover .zap-txt{max-width:0;}
-    .zap:hover .zap-on,.zap:focus-visible .zap-on{right:13px;left:auto;top:11px;}
     .zap-balao{max-width:min(258px, calc(100vw - 40px));
       transform:translateY(8px) scale(.97);transform-origin:100% 100%;}
     .zap-balao.in{transform:none;}
@@ -379,18 +395,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     .zap,.zap-wrap,.zap-balao,.zap-txt{transition:none}
     .zap:hover{transform:none}
     .zap-balao{transform:none}
-    /* a corrente e movimento puro: para quem pediu menos, ela nao existe */
-    .fx-wire::before{display:none}
-    /* a cena fica no quadro parado: legivel, sem nada se mexendo */
-    /* Sem botao de pausar (decisao de 19/08), este bloco e a UNICA saida de
-       quem pede menos movimento - entao ele TEM que ganhar sempre.
-       Sem o !important ele perdia: as regras do ciclo sao
-       `.fluxo[data-estado="hoje"] .fx-no.ativo .cn-braco` (0,4,0) contra os
-       (0,1,0) daqui, e o ciclo continuava rodando exatamente para quem pediu
-       que nao rodasse. Medido: 7 animacoes ativas. Aqui !important nao e
-       atalho, e a escotilha de acessibilidade - ela deve vencer por desenho. */
-    .fx-cena,.fx-cena *{animation:none !important}
-    .cn-cabeca,.cn-ombro,.cn-badge,.cn-ok,.cn-tela,.cn-monitor,.cn-fone{transition:none}
     .bar{transition:none}
     .zap{transition:none}
     .zap:hover{transform:none}
@@ -622,330 +626,3 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
      Vem por último de propósito — .band-head h2 e .fecho h2 empatam em
      especificidade, então quem vence é a ordem. */
   .band-head.fecho h2{font-size:clamp(34px,8vw,46px);line-height:1.06;letter-spacing:-.03em;}
-
-  /* ═══════════════════════════════════════════════════════════════════════
-     Fluxo Contínuo VOS — o mecanismo, em dois estados.
-     Só transform e opacity animam (critério de aceite 1). Nada decorativo:
-     todo elemento que se move codifica informação da etapa.
-     ═══════════════════════════════════════════════════════════════════════ */
-  /* a transição do .reveal é de 650ms e estourava o critério de 500ms desta
-     seção; aqui ela entra mais curta. */
-  .fluxo.reveal{transition-duration:.42s;}
-  .fluxo{width:var(--col);margin:clamp(18px,4vw,26px) auto 0;}
-  @media (min-width:900px){ .fluxo{width:min(1120px,calc(100% - 48px));} }
-
-  .fluxo-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:clamp(18px,4vw,26px);}
-  .fluxo-tabs .flow-tab{height:34px;padding:0 16px;font-size:var(--fs-control);
-    --fc:var(--d-ink-3);}
-  .fluxo[data-estado="vos"] .flow-tab[data-estado="vos"]{--fc:var(--accent);}
-
-  .fluxo-grade{display:grid;gap:0;cursor:pointer;}
-  .fx-fase{display:flex;align-items:center;gap:10px;margin:30px 0 14px;}
-  .fx-fase:first-child{margin-top:0;}
-  .fx-fase-t{margin:0;color:var(--d-ink-3);font-size:var(--fs-label);font-weight:700;
-    text-transform:uppercase;letter-spacing:.1em;}
-  .fx-fase::after{content:"";flex:1;height:1px;background:var(--d-line);}
-
-  .fx-lista{list-style:none;margin:0;padding:0;display:grid;gap:18px;}
-  .fx-no{position:relative;display:grid;}
-  /* o fio: preenche de cima pra baixo só quando a etapa foi feita */
-  /* O fio tem que medir o vao inteiro: e a PISTA da corrente. Com os 14px
-     antigos a luz nao tinha por onde correr. */
-  .fx-wire{position:absolute;left:19px;top:-18px;width:2px;height:18px;
-    background:var(--d-line);overflow:hidden;}
-  .fx-wire::after{content:"";position:absolute;inset:0;background:var(--accent);
-    transform:scaleY(0);transform-origin:top;transition:transform .32s var(--ease);}
-  /* o fio de ENTRADA preenche tambem na etapa ativa: a energia chegou nela.
-     Sem isto o ultimo trecho fica cinza justo no estado que diz "completou",
-     e no manual o vao parecia estar antes do cartao travado, nao depois. */
-  .fx-no.feito .fx-wire::after,
-  .fx-no.ativo .fx-wire::after{transform:scaleY(1);}
-
-  /* ══ A CORRENTE DE ENERGIA ══════════════════════════════════════════════
-     Roda SO no estado "Com o VOS" - e e por isso que ela nao viola o criterio
-     11 do plano ("zero elemento animado decorativo"). O movimento carrega uma
-     informacao que nenhum outro canal carrega: energia so corre de um lado.
-     No manual o fio apenas preenche e para de vez no vao.
-     Sem loop: dispara UMA vez quando a etapa fica .ativo. Como a passada anda
-     a 400ms e a luz dura 450ms, elas emendam - os oito clarões viram UMA
-     corrente atravessando a cadeia, que acaba junto com a passada. Nada se
-     mexe enquanto a pessoa le (WCAG 2.2.2, nivel A).
-     So transform e opacity. */
-  .fx-wire::before{content:"";position:absolute;inset:0;opacity:0;
-    background:linear-gradient(180deg,transparent,var(--accent-400) 50%,transparent);}
-  @keyframes fx-corrente-y{
-    0%{transform:translateY(-100%);opacity:0}
-    20%,80%{opacity:1}
-    100%{transform:translateY(100%);opacity:0}
-  }
-  @keyframes fx-corrente-x{
-    0%{transform:translateX(-100%);opacity:0}
-    20%,80%{opacity:1}
-    100%{transform:translateX(100%);opacity:0}
-  }
-  .fluxo[data-estado="vos"] .fx-no.ativo .fx-wire::before{
-    animation:fx-corrente-y .45s ease-out;}
-  .fx-lista .fx-no:first-child .fx-wire{display:none;}
-
-  .fx-cartao{display:flex;align-items:center;gap:12px;padding:11px 13px;
-    border-radius:var(--r-sm);border:1px solid var(--d-line);background:rgba(255,255,255,.02);
-    transition:border-color .3s var(--ease), background .3s var(--ease),
-      transform .3s var(--ease), opacity .3s var(--ease);}
-  .fx-num{flex:none;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;
-    font-style:normal;font-size:var(--fs-micro);font-weight:700;
-    background:rgba(255,255,255,.06);color:var(--d-ink-3);
-    transition:background .3s var(--ease), color .3s var(--ease);}
-  /* com a cena como terceiro filho, o texto precisa tomar a sobra - senao
-     ele fica no tamanho do conteudo e a cena nao encosta na direita. */
-  .fx-txt{min-width:0;flex:1;}
-  .fx-txt strong{display:block;color:var(--d-ink);font-size:var(--fs-body);font-weight:650;
-    line-height:1.3;}
-  /* Estas duas linhas deixaram de ser legenda: com a reescrita de 19/08 elas
-     SAO o argumento da secao ("alguem precisa" x "o sistema faz"). Sobem de
-     label/ink-3 para control/ink-2 - tokens que a pagina ja usa. */
-  .fx-txt em{display:block;font-style:normal;font-size:var(--fs-control);color:var(--d-ink-2);
-    line-height:1.4;margin-top:3px;}
-
-  /* Selo de estado - o relance. O titulo diz O QUE, o em diz POR QUE, o selo
-     diz EM QUE PE ESTA. Cor de STATUS (--ok / tinta), nunca a laranja da marca:
-     o orcamento de laranja da PARTE 6 (< 20 elementos) fica intacto. */
-  .fx-selo{display:inline-flex;align-items:center;gap:6px;margin-top:8px;
-    font-size:var(--fs-micro);font-weight:600;color:var(--d-ink-2);}
-  .fx-selo::before{content:"";flex:none;width:6px;height:6px;border-radius:99px;
-    background:var(--d-ink-3);}
-  .fluxo[data-estado="vos"] .fx-selo{color:var(--ok);}
-  .fluxo[data-estado="vos"] .fx-selo::before{background:var(--ok);}
-  /* no cartao travado o selo vira pilula: --bad como COR DE TEXTO da 4,1:1
-     sobre o fundo escuro e reprova; branco sobre --bad passa com folga - e o
-     mesmo caminho que o .fx-num ja usa. */
-  /* --bad puro sob texto branco mede 4,46:1 - reprova em texto pequeno por
-     pouco. Escurecido 24% em direcao ao preto vai a ~7:1 e continua lendo como
-     alerta, porque a borda e o numero do cartao seguem no --bad cheio.
-     color-mix ja e usado neste arquivo (.flow-tab). */
-  .fx-no.parado .fx-selo{padding:2px 9px;border-radius:99px;
-    background:color-mix(in srgb, var(--bad) 76%, #000);color:#fff;font-weight:700;}
-  .fx-no.parado .fx-selo::before{background:#fff;}
-
-
-  /* ══ A CENA DENTRO DO CARTAO ═══════════════════════════════════════════
-     Uma miniatura por etapa: monitor, a silhueta de costas e o celular.
-     Ela nao e enfeite - carrega o que o texto nao carrega. No manual o humano
-     esta nas NOVE etapas (a mesma repeticao de "Alguem precisa" x9, em imagem);
-     com o VOS ele SAI DE CENA e a maquina trabalha sozinha. Presenca x ausencia
-     e o argumento.
-     Trava contra ruido: so o cartao ATIVO anima. Os outros oito ficam num quadro
-     parado - mesmo padrao da cadeia, que acende uma etapa por vez. Nove figuras
-     se mexendo juntas seria exatamente o "detalhe sedutor" que a pesquisa mede
-     piorando a compreensao (g = -0,33).
-     Tudo em divs (nao SVG) porque cada peca precisa mudar por estado, e <use>
-     de sprite nao deixa estilizar por fora. So transform/opacity animam.
-     A escala vive no font-size: 1em = 6px no desktop, 4.7px no mobile. */
-  .fx-cena{flex:none;position:relative;font-size:8.3px;width:12em;height:9em;
-    align-self:center;}
-  /* A escala vive no font-size, e cada quebra e escolhida pela largura que SOBRA
-     pro texto - nao pelo tamanho da cena. A pior faixa e 900-1199px, onde as 3
-     colunas ficam com 264px cada. Estas regras vem DEPOIS da base de proposito:
-     mesma especificidade, entao quem esta por ultimo manda. */
-  /* 900-1199px e a faixa apertada: 3 colunas de 264px. A cena encolhe e o
-     texto ganha um piso, senao a frase vira escada de uma palavra por linha. */
-  @media (min-width:900px) and (max-width:1199px){
-    .fx-cena{font-size:5px;}
-    .fx-txt{min-width:128px;}
-  }
-  @media (max-width:899px){ .fx-cena{font-size:7.6px;} }
-  /* netos tambem: .cn-tela/.cn-ok vivem dentro do monitor e .cn-badge dentro
-     do celular - o seletor de filho direto nao alcancava, e sem position eles
-     ignoravam inset/top/right. */
-  .fx-cena span{position:absolute;}
-
-  .cn-mesa{left:0;right:0;bottom:0;height:.34em;border-radius:1px;
-    background:var(--d-line);}
-
-  .cn-monitor{left:0;bottom:2.8em;width:5.4em;height:4.0em;border-radius:.55em;
-    border:.26em solid var(--d-ink-3);
-    transition:border-color .3s var(--ease);}
-  .cn-monitor::after{content:"";position:absolute;left:50%;bottom:-.86em;
-    width:1.6em;height:.9em;transform:translateX(-50%);border-radius:0 0 .2em .2em;
-    background:var(--d-ink-3);}
-  .cn-tela{inset:.3em;border-radius:.28em;background:rgba(255,255,255,.10);
-    transition:background .3s var(--ease);}
-
-  .cn-teclado{left:.3em;bottom:.95em;width:5.1em;height:.62em;border-radius:.3em;
-    background:var(--d-ink-3);}
-  /* o antebraco: e ele que viaja do teclado para o celular. A mao dentro dele
-     bate SEMPRE - no teclado le como digitar, sobre o celular le como rolar a
-     tela. Um gesto so serve as duas cenas, e CSS puro nao precisa ligar e
-     desligar animacao no meio do ciclo. */
-  .cn-braco{left:3.6em;bottom:1.45em;width:2.4em;height:.62em;border-radius:99px;
-    background:var(--d-ink-2);transform-origin:100% 50%;}
-  .cn-mao{left:-.38em;top:-.19em;width:1em;height:1em;border-radius:50%;
-    background:var(--d-ink-2);}
-
-  /* o ✓ que aparece so no estado com o VOS */
-  .cn-ok{left:50%;top:50%;width:1.5em;height:.9em;
-    border-left:.34em solid var(--ok);border-bottom:.34em solid var(--ok);
-    transform:translate(-50%,-62%) rotate(-45deg) scale(0);
-    opacity:0;transition:transform .28s var(--ease), opacity .28s var(--ease);}
-
-  .cn-ombro{right:2.6em;bottom:.34em;width:4.0em;height:2.6em;
-    border-radius:2.1em 2.1em 0 0;background:var(--d-ink-2);
-    transition:opacity .32s var(--ease), transform .32s var(--ease);}
-  .cn-cabeca{right:3.4em;bottom:2.75em;width:2.5em;height:2.5em;border-radius:50%;
-    background:var(--d-ink-2);transform-origin:50% 90%;
-    transition:opacity .32s var(--ease), transform .32s var(--ease);}
-
-  .cn-fone{right:.2em;bottom:1.4em;width:2.2em;height:3.4em;border-radius:.5em;
-    border:.26em solid var(--d-ink-3);transition:border-color .3s var(--ease);}
-  .cn-badge{top:-.6em;right:-.6em;width:1.5em;height:1.5em;border-radius:50%;
-    background:var(--bad);transform:scale(0);opacity:0;
-    transition:transform .26s var(--ease), opacity .26s var(--ease);}
-
-  /* ── O laco renderizado no Remotion ────────────────────────────────────
-     O video fica DENTRO do .fx-cena, por cima do desenho. Se o arquivo nao
-     carregar, a classe `com-video` nunca entra e o desenho continua ali - a
-     reserva e automatica, nao precisa de outro caminho.
-     Ele so existe no estado manual: com o VOS o humano some, e e esse contraste
-     que a secao inteira sustenta. */
-  .cn-video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
-    border-radius:4px;}
-  .fluxo[data-estado="vos"] .cn-video{display:none;}
-  .fluxo.com-video[data-estado="hoje"] .fx-cena > span{display:none;}
-
-  /* ── DO JEITO MANUAL: o ciclo de 8s ───────────────────────────────────
-     Digita → o lead chega → vira → pega o celular → mexe → volta pro teclado.
-     🔴 LACO ETERNO, SEM BOTAO DE PAUSAR — decisao do Orlando em 19/08, tomada
-     com o custo na mesa: movimento que comeca sozinho, passa de 5s e divide a
-     tela com texto exige controle de pausar (WCAG 2.2.2, nivel A). Sem o botao,
-     a pagina reprova nesse criterio. Nao e descuido; e escolha do dono.
-     As duas atenuacoes que sobraram, e que NAO se mexe:
-       1. so o cartao ATIVO roda - os outros oito ficam na pose parada, entao e
-          UMA figura por vez, nao nove;
-       2. prefers-reduced-motion desliga tudo (bloco la embaixo). Sem o botao,
-          essa e a unica saida que resta pra quem tem sensibilidade vestibular.
-     So transform e opacity. */
-  @keyframes cn-braco-ciclo{
-    0%,46%   {transform:none}
-    60%,86%  {transform:translate(5.6em,-1.3em) rotate(-14deg)}
-    94%,100% {transform:none}
-  }
-  @keyframes cn-cabeca-ciclo{
-    0%,44%   {transform:none}
-    54%,88%  {transform:rotate(20deg) translateX(.35em)}
-    96%,100% {transform:none}
-  }
-  @keyframes cn-ombro-ciclo{
-    0%,44%   {transform:none}
-    54%,88%  {transform:rotate(7deg)}
-    96%,100% {transform:none}
-  }
-  @keyframes cn-fone-ciclo{
-    0%,50%   {transform:none}
-    62%,86%  {transform:translate(-.9em,-.5em) rotate(-10deg)}
-    94%,100% {transform:none}
-  }
-  @keyframes cn-badge-ciclo{
-    0%,38%   {opacity:0;transform:scale(0)}
-    44%,88%  {opacity:1;transform:scale(1)}
-    94%,100% {opacity:0;transform:scale(0)}
-  }
-  /* a tela do monitor esvazia enquanto ele esta no celular: o trabalho parou.
-     E a tese da secao dita pela cena, nao pelo texto. */
-  @keyframes cn-tela-ciclo{
-    0%,50%   {opacity:1}
-    62%,86%  {opacity:.22}
-    96%,100% {opacity:1}
-  }
-  @keyframes cn-teclar{0%,100%{transform:none}50%{transform:translateY(-.34em)}}
-
-  .fluxo[data-estado="hoje"] .fx-no.ativo .cn-braco {animation:cn-braco-ciclo  8s ease-in-out infinite;}
-  .fluxo[data-estado="hoje"] .fx-no.ativo .cn-cabeca{animation:cn-cabeca-ciclo 8s ease-in-out infinite;}
-  .fluxo[data-estado="hoje"] .fx-no.ativo .cn-ombro {animation:cn-ombro-ciclo  8s ease-in-out infinite;}
-  .fluxo[data-estado="hoje"] .fx-no.ativo .cn-fone  {animation:cn-fone-ciclo   8s ease-in-out infinite;}
-  .fluxo[data-estado="hoje"] .fx-no.ativo .cn-badge {animation:cn-badge-ciclo  8s ease-in-out infinite;}
-  .fluxo[data-estado="hoje"] .fx-no.ativo .cn-tela  {animation:cn-tela-ciclo   8s ease-in-out infinite;}
-  .fluxo[data-estado="hoje"] .fx-no.ativo .cn-mao   {animation:cn-teclar     .42s ease-in-out infinite;}
-  .fluxo[data-estado="hoje"] .fx-no.ativo .cn-fone{border-color:var(--bad);}
-
-  /* ── COM O VOS: o humano sai de cena, a maquina resolve ───────────────── */
-  .fluxo[data-estado="vos"] .cn-cabeca,
-  .fluxo[data-estado="vos"] .cn-ombro{opacity:0;transform:translateY(.9em);}
-  .fluxo[data-estado="vos"] .cn-tela{background:var(--accent-soft);}
-  .fluxo[data-estado="vos"] .fx-no.ativo .cn-monitor,
-  .fluxo[data-estado="vos"] .fx-no.ativo .cn-fone{border-color:var(--accent);}
-  .fluxo[data-estado="vos"] .fx-no.ativo .cn-tela{background:rgba(237,75,0,.34);}
-  .fluxo[data-estado="vos"] .fx-no.feito .cn-ok,
-  .fluxo[data-estado="vos"] .fx-no.ativo .cn-ok{opacity:1;
-    transform:translate(-50%,-62%) rotate(-45deg) scale(1);}
-
-  /* ── O timer: SO no cartao 3 ──────────────────────────────────────────
-     E o unico elo com fonte publica (Opinion Box: 35% esperam ate 5 min ·
-     HBR: media de 42 h). Numero de tempo nos outros oito seria invencao.
-     O valor final ja vem no HTML - sem JS a pagina mostra a verdade, e o
-     script so rebobina e conta ate ele. */
-  .fx-timer{display:inline-flex;align-items:center;gap:5px;margin-left:10px;
-    padding:2px 8px;border-radius:99px;font-size:var(--fs-micro);font-weight:700;
-    font-variant-numeric:tabular-nums;border:1px solid var(--d-line);
-    color:var(--d-ink-2);}
-  .fx-timer::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;
-    border:1.6px solid currentColor;}
-  .fluxo[data-estado="hoje"] .fx-no.parado .fx-timer{border-color:transparent;
-    background:color-mix(in srgb, var(--bad) 76%, #000);color:#fff;}
-  .fluxo[data-estado="vos"] .fx-timer{color:var(--ok);
-    border-color:color-mix(in srgb, var(--ok) 45%, transparent);}
-
-  /* um estado por vez: o texto do outro nem existe pra leitor de tela */
-  .fluxo[data-estado="hoje"] .fx-vos,
-  .fluxo[data-estado="vos"]  .fx-hoje{display:none;}
-
-  /* etapa concluída e etapa ativa — distinguidas por cor + número + peso,
-     nunca só por movimento (critério 10) */
-  .fx-no.feito .fx-cartao{border-color:var(--accent-line);}
-  .fx-no.feito .fx-num{background:var(--accent-soft);color:var(--accent-400);}
-  .fx-no.ativo .fx-cartao{border-color:var(--accent);background:var(--accent-soft);
-    transform:translateX(3px);}
-  .fx-no.ativo .fx-num{background:var(--accent);color:#fff;}
-
-  /* onde a cadeia trava hoje: o fio da próxima não preenche e o cartão recua */
-  .fx-no.parado .fx-cartao{border-color:var(--bad);background:rgba(220,59,43,.08);
-    transform:none;}
-  .fx-no.parado .fx-num{background:var(--bad);color:#fff;}
-  /* As etapas depois do vão recuam, mas continuam LEGÍVEIS: a .4 anterior
-     derrubava a legenda para ~1,6:1 de contraste, e são 9 das 12 etapas no
-     estado que todo visitante vê primeiro. */
-  .fx-no.apos .fx-cartao{opacity:.72;}
-  .fx-no.apos .fx-wire{opacity:.5;}
-  .fx-no.apos .fx-txt em{color:var(--d-ink-2);}
-
-  .fluxo-log{min-height:40px;margin:18px 0 0;padding:11px 14px;border-radius:var(--r-sm);
-    border:1px solid var(--d-line);background:rgba(0,0,0,.28);text-align:left;
-    color:var(--d-ink-2);font-size:var(--fs-label);line-height:1.5;}
-
-  @media (min-width:900px){
-    .fx-lista{grid-template-columns:repeat(3,1fr);gap:22px 30px;}
-    .fx-wire{left:0;top:50%;width:30px;height:2px;transform:translate(-100%,-50%);}
-    /* primeiro item de cada LINHA da grade não tem vizinho à esquerda:
-       sem isto o fio aponta para a margem vazia (fase "Venda" tem 4 itens) */
-    .fx-lista .fx-no:nth-child(3n+1) .fx-wire{display:none;}
-    .fx-wire::after{transform:scaleX(0);transform-origin:left;}
-    .fx-no.feito .fx-wire::after,
-    .fx-no.ativo .fx-wire::after{transform:scaleX(1);}
-    .fx-no.ativo .fx-cartao{transform:translateY(-2px);}
-    /* deitado: a corrente corre no eixo X */
-    .fx-wire::before{background:linear-gradient(90deg,transparent,var(--accent-400) 50%,transparent);}
-    .fluxo[data-estado="vos"] .fx-no.ativo .fx-wire::before{animation-name:fx-corrente-x;}
-  }
-
-  @media (prefers-reduced-motion:reduce){
-    .fx-cartao,.fx-num,.fx-wire::after{transition:none;}
-    .fx-no.ativo .fx-cartao{transform:none;}
-  }
-
-  /* O par de números do vão. Só aparece no estado "hoje" — no estado "com o
-     VOS" a cadeia já respondeu a pergunta. */
-  .fluxo-dado{margin-top:14px;padding:16px 18px;border-radius:var(--r-sm);
-    border:1px solid var(--d-line);background:rgba(255,255,255,.02);}
-  .fluxo[data-estado="vos"] .fluxo-dado{display:none;}
-  .fd-par{margin:0;color:var(--d-ink-2);font-size:var(--fs-body);line-height:1.6;}
-  .fd-par b{color:var(--d-ink);font-weight:700;}
-  .fd-par span{display:block;margin-top:2px;}
-  .fd-fonte{margin:10px 0 0;color:var(--d-ink-3);font-size:var(--fs-micro);line-height:1.5;}

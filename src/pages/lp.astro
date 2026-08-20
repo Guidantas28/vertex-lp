@@ -175,315 +175,28 @@ const PLANOS = [
     <svg class="band-top" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
       <path d="M0 0H1440v80C1040 4 400 4 0 80Z" fill="var(--bg)"/>
     </svg>
-
     <!-- Aqui viviam o bloco de problema, a faixa do mecanismo e as tres
          provas vivas. Removidos a pedido do Orlando em 19/08 — a area fica
-         vazia de proposito, para ser refeita. Os motores animados continuam
-         no script do fim do body e no CSS; todos tem guarda de null, entao
-         nao quebram sem a marcacao. -->
+         vazia de proposito, para ser refeita. Os motores animados que os
+         moviam sairam no commit d3ce2f2, JS e CSS na mesma passada: nao ha
+         nada orfao aqui esperando a marcacao voltar. -->
 
-    <!-- ══ MECANISMO · Fluxo Contínuo VOS ══
-         A MESMA cadeia em dois estados: "hoje" trava nos vãos, "com o VOS"
-         corre inteira. Desenho ancorado em pesquisa (ver docs/vos-growth):
-         · progressão > antes/depois quando o comprador é cético (Cian et al. 2020)
-         · ritmo controlado pelo usuário > animação contínua (segmentação, d≈0,8)
-         · passada única, sem loop — loop >5s ao lado de texto reprova WCAG 2.2.2 A
-         · rótulo é texto permanente: o movimento nunca é o único canal
-         Sem biblioteca nova; só transform/opacity. -->
+    <!-- ══ Fluxo Contínuo VOS ══
+         Aqui vivia a CADEIA: 9 etapas em 3 fases, dois estados ("Do jeito
+         manual" x "Com o VOS"), selo por cartao, relogio no cartao 3 e uma
+         cena animada em video por cartao. Removida a pedido do Orlando em
+         19/08 — fica so a copy do cabecalho. O motor (JS) saiu junto, na
+         mesma passada; o CSS ficou pela metade e so foi limpo depois — as
+         regras .fluxo* e as @keyframes cn-* seguiam mortas no fim do lp.css.
+         A nota de WCAG 2.2.2 que morava naquele bloco NAO foi apagada: ela
+         trocou de dono e hoje esta junto da esteira de depoimentos, que e
+         quem move sozinho agora.
+         Os videos /lp/cena-trabalho.{webm,mp4,png} continuam no disco, sem
+         referencia, caso a cadeia volte. -->
     <div class="band-head band-head-2">
       <div class="eb"><u>fluxo contínuo VOS<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
       <h2>Sua empresa continua andando <u>sem depender de alguém lembrar</u> do próximo passo.</h2>
       <p>O processo é o mesmo. A diferença é que, com o VOS, o cliente avança e a empresa avança junto — sem ficar esperando alguém perceber.</p>
-    </div>
-
-    <div class="fluxo reveal" id="fluxo" data-estado="hoje">
-      <div class="fluxo-tabs" role="group" aria-label="Ver do jeito manual ou com o VOS">
-        <button type="button" class="flow-tab" aria-pressed="true"  data-estado="hoje">Do jeito manual</button>
-        <button type="button" class="flow-tab" aria-pressed="false" data-estado="vos">Com o VOS</button>
-      </div>
-
-      <div class="fluxo-grade" tabindex="0" role="button"
-           aria-label="Avançar uma etapa da cadeia">
-        <div class="fx-fase">
-          <h3 class="fx-fase-t">Entrada</h3>
-        </div>
-        <ol class="fx-lista">
-          <li class="fx-no" data-n="1">
-            <span class="fx-wire" aria-hidden="true"></span>
-            <span class="fx-cartao">
-              <i class="fx-num" aria-hidden="true">1</i>
-              <span class="fx-txt">
-                <strong>Lead entra</strong>
-                <em class="fx-vos">O VOS identifica.</em>
-                <em class="fx-hoje">Alguém precisa perceber que chegou.</em>
-                <span class="fx-selo fx-vos">Acontece na hora</span>
-                <span class="fx-selo fx-hoje">Esperando alguém</span>
-              </span>
-                <span class="fx-cena" aria-hidden="true">
-                  <span class="cn-monitor"><span class="cn-tela"></span><span class="cn-ok"></span></span>
-                  <span class="cn-teclado"></span>
-                  <span class="cn-ombro"></span>
-                  <span class="cn-cabeca"></span>
-                  <span class="cn-braco"><span class="cn-mao"></span></span>
-                  <span class="cn-fone"><span class="cn-badge"></span></span>
-                  <span class="cn-mesa"></span>
-                  <video class="cn-video" muted playsinline loop preload="metadata"
-                         poster="/lp/cena-trabalho.png">
-                    <source src="/lp/cena-trabalho.webm" type="video/webm">
-                    <source src="/lp/cena-trabalho.mp4" type="video/mp4">
-                  </video>
-                </span>
-            </span>
-          </li>
-          <li class="fx-no" data-n="2">
-            <span class="fx-wire" aria-hidden="true"></span>
-            <span class="fx-cartao">
-              <i class="fx-num" aria-hidden="true">2</i>
-              <span class="fx-txt">
-                <strong>Negócio é criado</strong>
-                <em class="fx-vos">O VOS cadastra.</em>
-                <em class="fx-hoje">Alguém precisa cadastrar.</em>
-                <span class="fx-selo fx-vos">Segue sozinho</span>
-                <span class="fx-selo fx-hoje">Parado</span>
-              </span>
-                <span class="fx-cena" aria-hidden="true">
-                  <span class="cn-monitor"><span class="cn-tela"></span><span class="cn-ok"></span></span>
-                  <span class="cn-teclado"></span>
-                  <span class="cn-ombro"></span>
-                  <span class="cn-cabeca"></span>
-                  <span class="cn-braco"><span class="cn-mao"></span></span>
-                  <span class="cn-fone"><span class="cn-badge"></span></span>
-                  <span class="cn-mesa"></span>
-                  <video class="cn-video" muted playsinline loop preload="metadata"
-                         poster="/lp/cena-trabalho.png">
-                    <source src="/lp/cena-trabalho.webm" type="video/webm">
-                    <source src="/lp/cena-trabalho.mp4" type="video/mp4">
-                  </video>
-                </span>
-            </span>
-          </li>
-          <li class="fx-no" data-n="3">
-            <span class="fx-wire" aria-hidden="true"></span>
-            <span class="fx-cartao">
-              <i class="fx-num" aria-hidden="true">3</i>
-              <span class="fx-txt">
-                <strong>Atendimento começa</strong>
-                <em class="fx-vos">O fluxo inicia.</em>
-                <em class="fx-hoje">Alguém precisa responder.</em>
-                <span class="fx-selo fx-vos">Acontece na hora</span>
-                <span class="fx-selo fx-hoje">Esperando alguém</span>
-                <span class="fx-timer fx-hoje" data-fim="42 h">42 h</span>
-                <span class="fx-timer fx-vos" data-fim="&lt; 5 min">&lt; 5 min</span>
-              </span>
-                <span class="fx-cena" aria-hidden="true">
-                  <span class="cn-monitor"><span class="cn-tela"></span><span class="cn-ok"></span></span>
-                  <span class="cn-teclado"></span>
-                  <span class="cn-ombro"></span>
-                  <span class="cn-cabeca"></span>
-                  <span class="cn-braco"><span class="cn-mao"></span></span>
-                  <span class="cn-fone"><span class="cn-badge"></span></span>
-                  <span class="cn-mesa"></span>
-                  <video class="cn-video" muted playsinline loop preload="metadata"
-                         poster="/lp/cena-trabalho.png">
-                    <source src="/lp/cena-trabalho.webm" type="video/webm">
-                    <source src="/lp/cena-trabalho.mp4" type="video/mp4">
-                  </video>
-                </span>
-            </span>
-          </li>
-        </ol>
-        <div class="fx-fase">
-          <h3 class="fx-fase-t">Venda</h3>
-        </div>
-        <ol class="fx-lista">
-          <li class="fx-no" data-n="4">
-            <span class="fx-wire" aria-hidden="true"></span>
-            <span class="fx-cartao">
-              <i class="fx-num" aria-hidden="true">4</i>
-              <span class="fx-txt">
-                <strong>Negócio avança</strong>
-                <em class="fx-vos">O CRM atualiza.</em>
-                <em class="fx-hoje">Alguém precisa atualizar o CRM.</em>
-                <span class="fx-selo fx-vos">Atualizado</span>
-                <span class="fx-selo fx-hoje">Parado</span>
-              </span>
-                <span class="fx-cena" aria-hidden="true">
-                  <span class="cn-monitor"><span class="cn-tela"></span><span class="cn-ok"></span></span>
-                  <span class="cn-teclado"></span>
-                  <span class="cn-ombro"></span>
-                  <span class="cn-cabeca"></span>
-                  <span class="cn-braco"><span class="cn-mao"></span></span>
-                  <span class="cn-fone"><span class="cn-badge"></span></span>
-                  <span class="cn-mesa"></span>
-                  <video class="cn-video" muted playsinline loop preload="metadata"
-                         poster="/lp/cena-trabalho.png">
-                    <source src="/lp/cena-trabalho.webm" type="video/webm">
-                    <source src="/lp/cena-trabalho.mp4" type="video/mp4">
-                  </video>
-                </span>
-            </span>
-          </li>
-          <li class="fx-no" data-n="5">
-            <span class="fx-wire" aria-hidden="true"></span>
-            <span class="fx-cartao">
-              <i class="fx-num" aria-hidden="true">5</i>
-              <span class="fx-txt">
-                <strong>Orçamento é enviado</strong>
-                <em class="fx-vos">A próxima ação é disparada.</em>
-                <em class="fx-hoje">Alguém precisa montar e enviar.</em>
-                <span class="fx-selo fx-vos">Próximo passo iniciado</span>
-                <span class="fx-selo fx-hoje">Precisa lembrar</span>
-              </span>
-                <span class="fx-cena" aria-hidden="true">
-                  <span class="cn-monitor"><span class="cn-tela"></span><span class="cn-ok"></span></span>
-                  <span class="cn-teclado"></span>
-                  <span class="cn-ombro"></span>
-                  <span class="cn-cabeca"></span>
-                  <span class="cn-braco"><span class="cn-mao"></span></span>
-                  <span class="cn-fone"><span class="cn-badge"></span></span>
-                  <span class="cn-mesa"></span>
-                  <video class="cn-video" muted playsinline loop preload="metadata"
-                         poster="/lp/cena-trabalho.png">
-                    <source src="/lp/cena-trabalho.webm" type="video/webm">
-                    <source src="/lp/cena-trabalho.mp4" type="video/mp4">
-                  </video>
-                </span>
-            </span>
-          </li>
-          <li class="fx-no" data-n="6">
-            <span class="fx-wire" aria-hidden="true"></span>
-            <span class="fx-cartao">
-              <i class="fx-num" aria-hidden="true">6</i>
-              <span class="fx-txt">
-                <strong>Cliente aprova</strong>
-                <em class="fx-vos">O sistema registra.</em>
-                <em class="fx-hoje">Alguém precisa conferir.</em>
-                <span class="fx-selo fx-vos">Segue sozinho</span>
-                <span class="fx-selo fx-hoje">Esperando alguém</span>
-              </span>
-                <span class="fx-cena" aria-hidden="true">
-                  <span class="cn-monitor"><span class="cn-tela"></span><span class="cn-ok"></span></span>
-                  <span class="cn-teclado"></span>
-                  <span class="cn-ombro"></span>
-                  <span class="cn-cabeca"></span>
-                  <span class="cn-braco"><span class="cn-mao"></span></span>
-                  <span class="cn-fone"><span class="cn-badge"></span></span>
-                  <span class="cn-mesa"></span>
-                  <video class="cn-video" muted playsinline loop preload="metadata"
-                         poster="/lp/cena-trabalho.png">
-                    <source src="/lp/cena-trabalho.webm" type="video/webm">
-                    <source src="/lp/cena-trabalho.mp4" type="video/mp4">
-                  </video>
-                </span>
-            </span>
-          </li>
-        </ol>
-        <div class="fx-fase">
-          <h3 class="fx-fase-t">Fechamento</h3>
-        </div>
-        <ol class="fx-lista">
-          <li class="fx-no" data-n="7">
-            <span class="fx-wire" aria-hidden="true"></span>
-            <span class="fx-cartao">
-              <i class="fx-num" aria-hidden="true">7</i>
-              <span class="fx-txt">
-                <strong>Venda é registrada</strong>
-                <em class="fx-vos">O VOS lança.</em>
-                <em class="fx-hoje">Alguém precisa lançar.</em>
-                <span class="fx-selo fx-vos">Atualizado</span>
-                <span class="fx-selo fx-hoje">Parado</span>
-              </span>
-                <span class="fx-cena" aria-hidden="true">
-                  <span class="cn-monitor"><span class="cn-tela"></span><span class="cn-ok"></span></span>
-                  <span class="cn-teclado"></span>
-                  <span class="cn-ombro"></span>
-                  <span class="cn-cabeca"></span>
-                  <span class="cn-braco"><span class="cn-mao"></span></span>
-                  <span class="cn-fone"><span class="cn-badge"></span></span>
-                  <span class="cn-mesa"></span>
-                  <video class="cn-video" muted playsinline loop preload="metadata"
-                         poster="/lp/cena-trabalho.png">
-                    <source src="/lp/cena-trabalho.webm" type="video/webm">
-                    <source src="/lp/cena-trabalho.mp4" type="video/mp4">
-                  </video>
-                </span>
-            </span>
-          </li>
-          <li class="fx-no" data-n="8">
-            <span class="fx-wire" aria-hidden="true"></span>
-            <span class="fx-cartao">
-              <i class="fx-num" aria-hidden="true">8</i>
-              <span class="fx-txt">
-                <strong>Serviço é agendado</strong>
-                <em class="fx-vos">A agenda recebe.</em>
-                <em class="fx-hoje">Alguém precisa colocar na agenda.</em>
-                <span class="fx-selo fx-vos">Próximo passo iniciado</span>
-                <span class="fx-selo fx-hoje">Precisa lembrar</span>
-              </span>
-                <span class="fx-cena" aria-hidden="true">
-                  <span class="cn-monitor"><span class="cn-tela"></span><span class="cn-ok"></span></span>
-                  <span class="cn-teclado"></span>
-                  <span class="cn-ombro"></span>
-                  <span class="cn-cabeca"></span>
-                  <span class="cn-braco"><span class="cn-mao"></span></span>
-                  <span class="cn-fone"><span class="cn-badge"></span></span>
-                  <span class="cn-mesa"></span>
-                  <video class="cn-video" muted playsinline loop preload="metadata"
-                         poster="/lp/cena-trabalho.png">
-                    <source src="/lp/cena-trabalho.webm" type="video/webm">
-                    <source src="/lp/cena-trabalho.mp4" type="video/mp4">
-                  </video>
-                </span>
-            </span>
-          </li>
-          <li class="fx-no" data-n="9">
-            <span class="fx-wire" aria-hidden="true"></span>
-            <span class="fx-cartao">
-              <i class="fx-num" aria-hidden="true">9</i>
-              <span class="fx-txt">
-                <strong>Financeiro é atualizado</strong>
-                <em class="fx-vos">O caixa atualiza.</em>
-                <em class="fx-hoje">Alguém precisa lançar novamente.</em>
-                <span class="fx-selo fx-vos">Atualizado</span>
-                <span class="fx-selo fx-hoje">Precisa conferir</span>
-              </span>
-                <span class="fx-cena" aria-hidden="true">
-                  <span class="cn-monitor"><span class="cn-tela"></span><span class="cn-ok"></span></span>
-                  <span class="cn-teclado"></span>
-                  <span class="cn-ombro"></span>
-                  <span class="cn-cabeca"></span>
-                  <span class="cn-braco"><span class="cn-mao"></span></span>
-                  <span class="cn-fone"><span class="cn-badge"></span></span>
-                  <span class="cn-mesa"></span>
-                  <video class="cn-video" muted playsinline loop preload="metadata"
-                         poster="/lp/cena-trabalho.png">
-                    <source src="/lp/cena-trabalho.webm" type="video/webm">
-                    <source src="/lp/cena-trabalho.mp4" type="video/mp4">
-                  </video>
-                </span>
-            </span>
-          </li>
-        </ol>
-      </div>
-
-      <p class="fluxo-log" id="fluxoLog" aria-live="polite"></p>
-
-      <!-- Os DOIS números que descrevem o vão, e só eles. A pesquisa achou dado
-           defensável para o elo "lead chega → alguém responde"; os demais elos
-           não têm medição pública séria, então ficam como demonstração de
-           produto, não como estatística. Fonte visível de propósito: comprador
-           B2B cético confere, e claim sem fonte na página é o que derruba a
-           credibilidade do resto. -->
-      <div class="fluxo-dado">
-        <p class="fd-par">
-          <b>35%</b> dos brasileiros esperam resposta em até <b>5 minutos</b> no WhatsApp.
-          <span>A média de quem responde é <b>42 horas</b> — e <b>23%</b> nunca respondem.</span>
-        </p>
-        <p class="fd-fonte">
-          Opinion Box + Octadesk, 2.005 consumidores, out/2024 · Harvard Business Review
-          (Oldroyd, McElheran &amp; Elkington), auditoria de 2.241 empresas
-        </p>
-      </div>
     </div>
 
     <!-- 6 | DO PRIMEIRO OI AO CAIXA. A spec pede continuidade, nao
@@ -658,9 +371,17 @@ const PLANOS = [
   </div>
   <a class="zap" id="zap" href="https://wa.me/5543996885300" target="_blank" rel="noopener"
      aria-label="Falar com o VOS no WhatsApp">
-    <svg class="zap-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm5.7 14.1c-.2.7-1.4 1.4-2 1.4-.5 0-1.1.2-3.7-.8-3.1-1.3-5-4.4-5.2-4.6-.1-.2-1.2-1.5-1.2-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.4-.4.5c-.1.1-.3.3-.1.6a9 9 0 0 0 1.5 1.8 8 8 0 0 0 2.1 1.3c.3.1.4.1.6-.1l.8-1c.2-.2.3-.2.6-.1l1.8.9c.3.1.4.2.5.3.1.2.1.7-.1 1.4Z"/></svg>
+    <!-- O rosto: quem responde do outro lado. O selo verde e obrigatorio — sem
+         ele o botao vira um avatar generico e perde a leitura de "isto abre o
+         WhatsApp". O ponto de status .zap-on saiu: com o selo verde no avatar
+         ele virava um segundo ponto verde a 20px do primeiro. -->
+    <span class="zap-rosto">
+      <img class="zap-av" src="/lp/orlando.webp" alt="" width="160" height="160" decoding="async">
+      <span class="zap-selo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm5.7 14.1c-.2.7-1.4 1.4-2 1.4-.5 0-1.1.2-3.7-.8-3.1-1.3-5-4.4-5.2-4.6-.1-.2-1.2-1.5-1.2-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.4-.4.5c-.1.1-.3.3-.1.6a9 9 0 0 0 1.5 1.8 8 8 0 0 0 2.1 1.3c.3.1.4.1.6-.1l.8-1c.2-.2.3-.2.6-.1l1.8.9c.3.1.4.2.5.3.1.2.1.7-.1 1.4Z"/></svg>
+      </span>
+    </span>
     <span class="zap-txt">Falar no WhatsApp</span>
-  <span class="zap-on" aria-hidden="true"></span>
   </a>
 </div>
 
@@ -723,161 +444,6 @@ const PLANOS = [
   var io=new IntersectionObserver(function(es){es.forEach(function(e){
     if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.14});
   document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
-
-
-  /* Fluxo Contínuo VOS — passada ÚNICA ao entrar na tela, depois o usuário
-     manda. Sem loop (WCAG 2.2.2). O bloco é autocontido — não depende de
-     registrador de timers nenhum. */
-  (function(){
-    var raiz=document.getElementById('fluxo'); if(!raiz) return;
-    var nos=[].slice.call(raiz.querySelectorAll('.fx-no'));
-    var log=document.getElementById('fluxoLog');
-    var abas=[].slice.call(raiz.querySelectorAll('.fluxo-tabs .flow-tab'));
-    if(!nos.length) return;
-    var reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var estado='hoje', i=-1, t=null;
-
-    /* onde a cadeia trava quando ninguém automatizou: todo vão depende de
-       alguém lembrar. No estado "vos" nenhum trava. */
-    function travaEm(k){ return estado==='hoje' && [2,5,8].indexOf(k)>=0; }
-
-    /* ── o relógio do cartão 3 ────────────────────────────────────────────
-       Só ele tem relógio: "lead chega → alguém responde" é o único elo com
-       fonte pública (Opinion Box + HBR). Pôr tempo nos outros oito seria
-       inventar oito durações.
-       O valor final já está no HTML (data-fim) — sem JS a página mostra a
-       verdade. O script só rebobina e conta até ele: os passos do meio são o
-       ponteiro andando, não afirmação. Uma passada, sem loop e sem
-       setInterval. */
-    var RELOGIO={
-      hoje:['1 min','6 min','23 min','1 h','4 h','11 h','26 h','38 h'],
-      vos :['2 s','9 s','31 s','1 min','3 min']
-    };
-    var relogios=[].slice.call(raiz.querySelectorAll('.fx-timer'));
-    var tRel=null;
-
-    function paraRelogio(){
-      clearTimeout(tRel);
-      relogios.forEach(function(el){ el.textContent=el.dataset.fim; });
-    }
-    function rodaRelogio(){
-      clearTimeout(tRel);
-      if(reduz) return paraRelogio();
-      var el=raiz.querySelector('.fx-timer.fx-'+(estado==='hoje'?'hoje':'vos'));
-      if(!el) return;
-      var passos=RELOGIO[estado], k=0;
-      (function anda(){
-        if(k>=passos.length){ el.textContent=el.dataset.fim; return; }
-        el.textContent=passos[k++];
-        tRel=setTimeout(anda,150);
-      })();
-    }
-
-    function pinta(){
-      nos.forEach(function(no,k){
-        no.classList.toggle('feito', k<i);
-        no.classList.toggle('ativo', k===i);
-        no.classList.toggle('parado', estado==='hoje' && k===i && travaEm(k));
-        /* tudo que vem depois do vão fica apagado: o processo não chegou lá.
-           Marcado por classe, não por seletor irmão — as fases são listas
-           separadas, então `~` não alcança a fase seguinte. */
-        no.classList.toggle('apos', estado==='hoje' && travaEm(i) && k>i);
-      });
-      if(typeof tocaAtivo==='function') tocaAtivo();
-      if(!log) return;
-      if(i<0){ log.textContent=''; return; }
-      var no=nos[i];
-      var titulo=no.querySelector('strong').textContent;
-      var detalhe=no.querySelector(estado==='hoje'?'.fx-hoje':'.fx-vos').textContent;
-      log.textContent = estado==='hoje' && travaEm(i)
-        ? titulo+' — parou aqui: '+detalhe
-        : titulo+' — '+detalhe;
-    }
-
-    /* Só o cartão ativo toca. Nove vídeos em laço ao mesmo tempo seria uma
-       parede de movimento — e é a mesma regra que já vale pro resto da cena.
-       Com "menos movimento" nenhum toca: fica o poster. */
-    var videos=[].slice.call(raiz.querySelectorAll('.cn-video'));
-    /* Marca a raiz assim que HOUVER quadro para mostrar. Antes eu escutava só
-       'loadeddata' e ele não disparava com preload="metadata" — resultado: o
-       desenho continuava visível POR BAIXO do vídeo transparente, os dois na
-       tela ao mesmo tempo. Agora escuta os dois eventos e ainda confere o
-       readyState na hora, para o caso de já ter carregado. */
-    function marcaVideo(){ raiz.classList.add('com-video'); }
-    videos.forEach(function(v){
-      if(v.readyState>=2) marcaVideo();
-      v.addEventListener('loadeddata', marcaVideo, {once:true});
-      v.addEventListener('playing',    marcaVideo, {once:true});
-    });
-
-    function tocaAtivo(){
-      videos.forEach(function(v,k){
-        var deve = !reduz && estado==='hoje' && k===i;
-        if(deve){ if(v.paused){ v.currentTime=0; var p=v.play(); if(p&&p.catch) p.catch(function(){}); } }
-        else if(!v.paused){ v.pause(); }
-      });
-    }
-
-    function passo(){ if(i<nos.length-1){ i++; pinta(); if(i===2) rodaRelogio(); } }
-    function reinicia(){ i=-1; pinta(); clearTimeout(tRel);
-      relogios.forEach(function(el){ el.textContent=reduz?el.dataset.fim:'0 s'; }); }
-
-    function passada(){
-      clearTimeout(t);
-      /* silencia o leitor de tela durante a passada automática: 12 anúncios
-         em 5s é ruído, não informação. Volta a anunciar quando a cadeia para. */
-      if(log) log.setAttribute('aria-live','off');
-      if(reduz){ i=nos.length-1; pinta(); paraRelogio(); return; }
-      reinicia();
-      (function anda(){
-        if(i>=nos.length-1) return;
-        t=setTimeout(function(){
-          passo();
-          /* no estado "hoje" a cadeia PARA no vão e só anda se alguém empurrar
-             — que é literalmente a tese da seção. No "vos" ela segue sozinha. */
-          if(travaEm(i) || i>=nos.length-1){ if(log) log.setAttribute('aria-live','polite'); return; }
-          anda();
-        }, 400);
-      })();
-    }
-
-    abas.forEach(function(b){
-      b.addEventListener('click',function(){
-        estado=b.dataset.estado;
-        raiz.dataset.estado=estado;
-        abas.forEach(function(o){ o.setAttribute('aria-pressed', String(o===b)); });
-        passada();
-      });
-    });
-
-    /* clique OU teclado avançam um passo — o ritmo é do usuário. O teclado
-       não era alcançável até a 3ª revisão apontar: o comentário prometia e o
-       código não entregava. */
-    var grade=raiz.querySelector('.fluxo-grade');
-    grade.addEventListener('keydown',function(ev){
-      if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); grade.click(); }
-    });
-    grade.addEventListener('click',function(){
-      clearTimeout(t);
-      if(i>=nos.length-1){ reinicia(); return; }
-      passo();
-      /* com "menos movimento" o clique salta direto pro fim: nada de
-         encadear timers, que era o furo da 3ª revisão. */
-      if(reduz){ i=nos.length-1; pinta(); return; }
-      /* destravou: volta a correr até o próximo vão */
-      if(!travaEm(i)) (function anda(){
-        if(i>=nos.length-1) return;
-        t=setTimeout(function(){ passo(); if(travaEm(i)) return; anda(); }, 400);
-      })();
-    });
-
-    if('IntersectionObserver' in window){
-      var io=new IntersectionObserver(function(es){
-        es.forEach(function(e){ if(e.isIntersecting){ passada(); io.unobserve(e.target); } });
-      },{threshold:.3});
-      io.observe(raiz);
-    } else { i=nos.length-1; pinta(); paraRelogio(); }
-  })();
 
 
   /* ── WhatsApp flutuante ────────────────────────────────────────────────
