@@ -1,35 +1,217 @@
 {
   "comment": "Fila de pautas do blog. O gerador diário (scripts/gen-post.mjs) consome o primeiro item com used=false e marca como usado. Quando a fila acabar, o gerador pede à IA uma pauta nova baseada no que já foi publicado.",
   "topics": [
-    { "id": "chatbot-whatsapp-vale-a-pena", "keyword": "chatbot para whatsapp empresa", "title_hint": "Chatbot no WhatsApp da empresa: quando vale a pena e quando atrapalha", "category": "whatsapp", "used": false },
-    { "id": "funil-de-vendas-como-montar", "keyword": "como montar funil de vendas", "title_hint": "Como montar um funil de vendas do zero (com etapas de exemplo)", "category": "crm", "used": false },
-    { "id": "erp-vs-sistema-modular", "keyword": "erp para pequena empresa", "title_hint": "ERP tradicional vs. sistema modular: qual faz sentido para sua empresa", "category": "gestao", "used": false },
-    { "id": "nfe-nfce-diferenca", "keyword": "diferença nfe e nfce", "title_hint": "NF-e, NFC-e e NFS-e: qual nota sua empresa precisa emitir", "category": "financeiro", "used": false },
-    { "id": "tempo-resposta-lead", "keyword": "tempo de resposta ao lead", "title_hint": "Quanto tempo você tem para responder um lead antes de perdê-lo", "category": "vendas", "used": false },
-    { "id": "ia-no-atendimento", "keyword": "ia para atendimento ao cliente", "title_hint": "IA no atendimento: o que já funciona de verdade para PMEs", "category": "ia", "used": false },
-    { "id": "pipeline-de-vendas-metricas", "keyword": "métricas de vendas", "title_hint": "As 7 métricas de vendas que todo dono de empresa deveria acompanhar", "category": "vendas", "used": false },
-    { "id": "mensagem-cobranca-whatsapp", "keyword": "mensagem de cobrança para cliente", "title_hint": "Como cobrar cliente pelo WhatsApp sem constrangimento (com modelos)", "category": "financeiro", "used": false },
-    { "id": "agenda-online-no-show", "keyword": "como reduzir no-show", "title_hint": "No-show: como reduzir faltas em reuniões e agendamentos", "category": "automacao", "used": false },
-    { "id": "crm-planilha-limites", "keyword": "crm ou planilha", "title_hint": "Planilha como CRM: até onde funciona e quando trocar", "category": "crm", "used": false },
-    { "id": "whatsapp-api-oficial", "keyword": "api oficial whatsapp business", "title_hint": "API oficial do WhatsApp Business: o que é, quanto custa e quando migrar", "category": "whatsapp", "used": false },
-    { "id": "pos-venda-recompra", "keyword": "pós-venda como fazer", "title_hint": "Pós-venda que gera recompra: o processo em 4 passos", "category": "vendas", "used": false },
-    { "id": "catalogo-digital-vendas", "keyword": "catálogo digital para vendas", "title_hint": "Catálogo digital: como vender mais mostrando seus produtos no link", "category": "marketing", "used": false },
-    { "id": "fluxo-caixa-basico", "keyword": "fluxo de caixa pequena empresa", "title_hint": "Fluxo de caixa para pequena empresa: o método simples que funciona", "category": "financeiro", "used": false },
-    { "id": "lead-frio-reativacao", "keyword": "como reativar clientes inativos", "title_hint": "Clientes inativos: o script de reativação que traz receita esquecida", "category": "vendas", "used": false },
-    { "id": "ordem-de-servico-digital", "keyword": "ordem de serviço digital", "title_hint": "Ordem de serviço digital: como organizar a operação de serviços", "category": "gestao", "used": false },
-    { "id": "orcamento-profissional", "keyword": "como fazer orçamento para cliente", "title_hint": "Como fazer um orçamento profissional que fecha mais vendas", "category": "vendas", "used": false },
-    { "id": "kanban-tarefas-equipe", "keyword": "gestão de tarefas equipe", "title_hint": "Gestão de tarefas em equipe: como sair do caos do grupo de WhatsApp", "category": "gestao", "used": false },
-    { "id": "pix-automatico-cobranca", "keyword": "cobrança automática pix", "title_hint": "Cobrança automática com PIX: como receber em dia sem perseguir cliente", "category": "financeiro", "used": false },
-    { "id": "trafego-pago-lead-whatsapp", "keyword": "anúncio que leva para whatsapp", "title_hint": "Anúncios que caem no WhatsApp: como não desperdiçar o clique pago", "category": "marketing", "used": false },
-    { "id": "qualificacao-de-leads", "keyword": "como qualificar leads", "title_hint": "Qualificação de leads: as perguntas certas antes de passar ao vendedor", "category": "crm", "used": false },
-    { "id": "multiatendimento-whatsapp", "keyword": "vários atendentes whatsapp", "title_hint": "Vários atendentes em um número de WhatsApp: como organizar sem bagunça", "category": "whatsapp", "used": false },
-    { "id": "relatorio-vendas-semanal", "keyword": "relatório de vendas", "title_hint": "O relatório de vendas semanal de 15 minutos que muda a gestão", "category": "gestao", "used": false },
-    { "id": "automacao-marketing-pme", "keyword": "automação de marketing pme", "title_hint": "Automação de marketing para PME: o kit mínimo que dá resultado", "category": "marketing", "used": false },
-    { "id": "ia-agente-executa", "keyword": "agente de ia para empresas", "title_hint": "Agentes de IA que executam tarefas: o próximo passo depois do chatbot", "category": "ia", "used": false },
-    { "id": "pdv-loja-fisica", "keyword": "pdv para loja", "title_hint": "PDV moderno: o que o caixa da sua loja precisa ter em 2026", "category": "gestao", "used": false },
-    { "id": "vendas-recorrentes-assinatura", "keyword": "receita recorrente assinatura", "title_hint": "Receita recorrente: como transformar serviços em assinatura", "category": "financeiro", "used": false },
-    { "id": "script-vendas-whatsapp", "keyword": "script de vendas whatsapp", "title_hint": "Script de vendas para WhatsApp: estrutura + exemplos prontos", "category": "whatsapp", "used": false },
-    { "id": "centralizar-canais-atendimento", "keyword": "central de atendimento omnichannel", "title_hint": "WhatsApp, Instagram e site em um lugar só: por que centralizar canais", "category": "crm", "used": false },
-    { "id": "meta-lead-ads-crm", "keyword": "lead ads facebook crm", "title_hint": "Lead Ads da Meta direto no CRM: como parar de perder leads de formulário", "category": "marketing", "used": false }
+    {
+      "id": "chatbot-whatsapp-vale-a-pena",
+      "keyword": "chatbot para whatsapp empresa",
+      "title_hint": "Chatbot no WhatsApp da empresa: quando vale a pena e quando atrapalha",
+      "category": "whatsapp",
+      "used": true,
+      "publishedSlug": "chatbot-whatsapp-vale-a-pena",
+      "publishedAt": "2026-08-21"
+    },
+    {
+      "id": "funil-de-vendas-como-montar",
+      "keyword": "como montar funil de vendas",
+      "title_hint": "Como montar um funil de vendas do zero (com etapas de exemplo)",
+      "category": "crm",
+      "used": false
+    },
+    {
+      "id": "erp-vs-sistema-modular",
+      "keyword": "erp para pequena empresa",
+      "title_hint": "ERP tradicional vs. sistema modular: qual faz sentido para sua empresa",
+      "category": "gestao",
+      "used": false
+    },
+    {
+      "id": "nfe-nfce-diferenca",
+      "keyword": "diferença nfe e nfce",
+      "title_hint": "NF-e, NFC-e e NFS-e: qual nota sua empresa precisa emitir",
+      "category": "financeiro",
+      "used": false
+    },
+    {
+      "id": "tempo-resposta-lead",
+      "keyword": "tempo de resposta ao lead",
+      "title_hint": "Quanto tempo você tem para responder um lead antes de perdê-lo",
+      "category": "vendas",
+      "used": false
+    },
+    {
+      "id": "ia-no-atendimento",
+      "keyword": "ia para atendimento ao cliente",
+      "title_hint": "IA no atendimento: o que já funciona de verdade para PMEs",
+      "category": "ia",
+      "used": false
+    },
+    {
+      "id": "pipeline-de-vendas-metricas",
+      "keyword": "métricas de vendas",
+      "title_hint": "As 7 métricas de vendas que todo dono de empresa deveria acompanhar",
+      "category": "vendas",
+      "used": false
+    },
+    {
+      "id": "mensagem-cobranca-whatsapp",
+      "keyword": "mensagem de cobrança para cliente",
+      "title_hint": "Como cobrar cliente pelo WhatsApp sem constrangimento (com modelos)",
+      "category": "financeiro",
+      "used": false
+    },
+    {
+      "id": "agenda-online-no-show",
+      "keyword": "como reduzir no-show",
+      "title_hint": "No-show: como reduzir faltas em reuniões e agendamentos",
+      "category": "automacao",
+      "used": false
+    },
+    {
+      "id": "crm-planilha-limites",
+      "keyword": "crm ou planilha",
+      "title_hint": "Planilha como CRM: até onde funciona e quando trocar",
+      "category": "crm",
+      "used": false
+    },
+    {
+      "id": "whatsapp-api-oficial",
+      "keyword": "api oficial whatsapp business",
+      "title_hint": "API oficial do WhatsApp Business: o que é, quanto custa e quando migrar",
+      "category": "whatsapp",
+      "used": false
+    },
+    {
+      "id": "pos-venda-recompra",
+      "keyword": "pós-venda como fazer",
+      "title_hint": "Pós-venda que gera recompra: o processo em 4 passos",
+      "category": "vendas",
+      "used": false
+    },
+    {
+      "id": "catalogo-digital-vendas",
+      "keyword": "catálogo digital para vendas",
+      "title_hint": "Catálogo digital: como vender mais mostrando seus produtos no link",
+      "category": "marketing",
+      "used": false
+    },
+    {
+      "id": "fluxo-caixa-basico",
+      "keyword": "fluxo de caixa pequena empresa",
+      "title_hint": "Fluxo de caixa para pequena empresa: o método simples que funciona",
+      "category": "financeiro",
+      "used": false
+    },
+    {
+      "id": "lead-frio-reativacao",
+      "keyword": "como reativar clientes inativos",
+      "title_hint": "Clientes inativos: o script de reativação que traz receita esquecida",
+      "category": "vendas",
+      "used": false
+    },
+    {
+      "id": "ordem-de-servico-digital",
+      "keyword": "ordem de serviço digital",
+      "title_hint": "Ordem de serviço digital: como organizar a operação de serviços",
+      "category": "gestao",
+      "used": false
+    },
+    {
+      "id": "orcamento-profissional",
+      "keyword": "como fazer orçamento para cliente",
+      "title_hint": "Como fazer um orçamento profissional que fecha mais vendas",
+      "category": "vendas",
+      "used": false
+    },
+    {
+      "id": "kanban-tarefas-equipe",
+      "keyword": "gestão de tarefas equipe",
+      "title_hint": "Gestão de tarefas em equipe: como sair do caos do grupo de WhatsApp",
+      "category": "gestao",
+      "used": false
+    },
+    {
+      "id": "pix-automatico-cobranca",
+      "keyword": "cobrança automática pix",
+      "title_hint": "Cobrança automática com PIX: como receber em dia sem perseguir cliente",
+      "category": "financeiro",
+      "used": false
+    },
+    {
+      "id": "trafego-pago-lead-whatsapp",
+      "keyword": "anúncio que leva para whatsapp",
+      "title_hint": "Anúncios que caem no WhatsApp: como não desperdiçar o clique pago",
+      "category": "marketing",
+      "used": false
+    },
+    {
+      "id": "qualificacao-de-leads",
+      "keyword": "como qualificar leads",
+      "title_hint": "Qualificação de leads: as perguntas certas antes de passar ao vendedor",
+      "category": "crm",
+      "used": false
+    },
+    {
+      "id": "multiatendimento-whatsapp",
+      "keyword": "vários atendentes whatsapp",
+      "title_hint": "Vários atendentes em um número de WhatsApp: como organizar sem bagunça",
+      "category": "whatsapp",
+      "used": false
+    },
+    {
+      "id": "relatorio-vendas-semanal",
+      "keyword": "relatório de vendas",
+      "title_hint": "O relatório de vendas semanal de 15 minutos que muda a gestão",
+      "category": "gestao",
+      "used": false
+    },
+    {
+      "id": "automacao-marketing-pme",
+      "keyword": "automação de marketing pme",
+      "title_hint": "Automação de marketing para PME: o kit mínimo que dá resultado",
+      "category": "marketing",
+      "used": false
+    },
+    {
+      "id": "ia-agente-executa",
+      "keyword": "agente de ia para empresas",
+      "title_hint": "Agentes de IA que executam tarefas: o próximo passo depois do chatbot",
+      "category": "ia",
+      "used": false
+    },
+    {
+      "id": "pdv-loja-fisica",
+      "keyword": "pdv para loja",
+      "title_hint": "PDV moderno: o que o caixa da sua loja precisa ter em 2026",
+      "category": "gestao",
+      "used": false
+    },
+    {
+      "id": "vendas-recorrentes-assinatura",
+      "keyword": "receita recorrente assinatura",
+      "title_hint": "Receita recorrente: como transformar serviços em assinatura",
+      "category": "financeiro",
+      "used": false
+    },
+    {
+      "id": "script-vendas-whatsapp",
+      "keyword": "script de vendas whatsapp",
+      "title_hint": "Script de vendas para WhatsApp: estrutura + exemplos prontos",
+      "category": "whatsapp",
+      "used": false
+    },
+    {
+      "id": "centralizar-canais-atendimento",
+      "keyword": "central de atendimento omnichannel",
+      "title_hint": "WhatsApp, Instagram e site em um lugar só: por que centralizar canais",
+      "category": "crm",
+      "used": false
+    },
+    {
+      "id": "meta-lead-ads-crm",
+      "keyword": "lead ads facebook crm",
+      "title_hint": "Lead Ads da Meta direto no CRM: como parar de perder leads de formulário",
+      "category": "marketing",
+      "used": false
+    }
   ]
 }
