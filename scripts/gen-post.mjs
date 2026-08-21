@@ -77,11 +77,53 @@ async function claude(messages, { maxTokens = 8000, system } = {}) {
     .join("");
 }
 
+// O modelo às vezes devolve quebra de linha/tab literal dentro de uma string
+// JSON (inválido no JSON.parse). Reescreve esses caracteres como \n, \r, \t.
+function escapeControlCharsInStrings(raw) {
+  let out = "";
+  let inString = false;
+  let escaped = false;
+  for (const ch of raw) {
+    if (!inString) {
+      if (ch === '"') inString = true;
+      out += ch;
+      continue;
+    }
+    if (escaped) {
+      out += ch;
+      escaped = false;
+      continue;
+    }
+    if (ch === "\\") {
+      out += ch;
+      escaped = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = false;
+      out += ch;
+      continue;
+    }
+    const code = ch.codePointAt(0);
+    if (code < 0x20) {
+      out += code === 10 ? "\\n" : code === 13 ? "\\r" : code === 9 ? "\\t" : "";
+      continue;
+    }
+    out += ch;
+  }
+  return out;
+}
+
 function extractJson(text) {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
   if (start === -1 || end === -1) throw new Error("Resposta sem JSON.");
-  return JSON.parse(text.slice(start, end + 1));
+  const slice = text.slice(start, end + 1);
+  try {
+    return JSON.parse(slice);
+  } catch {
+    return JSON.parse(escapeControlCharsInStrings(slice));
+  }
 }
 
 // ─── Pauta de emergência quando a fila acaba ────────────────────────────────
