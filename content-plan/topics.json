@@ -15,7 +15,9 @@
       "keyword": "como montar funil de vendas",
       "title_hint": "Como montar um funil de vendas do zero (com etapas de exemplo)",
       "category": "crm",
-      "used": false
+      "used": true,
+      "publishedSlug": "funil-de-vendas-como-montar",
+      "publishedAt": "2026-08-21"
     },
     {
       "id": "erp-vs-sistema-modular",
