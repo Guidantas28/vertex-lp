@@ -1,0 +1,143 @@
+---
+// Página de categoria: superfície extra de SEO por intenção de busca.
+import { getCollection } from "astro:content";
+import BlogShell from "../../../layouts/BlogShell.astro";
+import {
+  CATEGORY_META,
+  ORG_SCHEMA,
+  formatDate,
+  readingTime,
+  sortPosts,
+  postUrl,
+} from "../../../lib/blog";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+  const cats = [...new Set(posts.map((p) => p.data.category))];
+  return cats.map((category) => ({
+    params: { category },
+    props: { posts: posts.filter((p) => p.data.category === category) },
+  }));
+}
+
+const { category } = Astro.params;
+const { posts } = Astro.props;
+const sorted = sortPosts(posts);
+const cat = CATEGORY_META[category!];
+const url = `https://www.voshq.com/blog/categoria/${category}/`;
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${cat?.label ?? category} · Blog do VOS`,
+    url,
+    inLanguage: "pt-BR",
+    isPartOf: { "@type": "Blog", "@id": "https://www.voshq.com/blog#blog" },
+    publisher: ORG_SCHEMA,
+  },
+];
+---
+
+<BlogShell
+  title={`${cat?.label ?? category} · Blog do VOS`}
+  description={`Artigos sobre ${cat?.label?.toLowerCase() ?? category} para empresas brasileiras, pelo time do VOS.`}
+  canonical={url}
+  {schema}
+>
+  <section class="blog-hero">
+    <div class="zx-container">
+      <p class="blog-kicker"><a href="/blog" style="color: inherit; text-decoration: none;">← Blog do VOS</a></p>
+      <h1 class="blog-h1">{cat?.label ?? category}</h1>
+      <p class="blog-sub">{sorted.length} {sorted.length === 1 ? "artigo" : "artigos"} nesta categoria.</p>
+    </div>
+  </section>
+
+  <section class="blog-list">
+    <div class="zx-container">
+      <div class="blog-grid">
+        {sorted.map((post) => (
+          <a class="blog-card" href={postUrl(post.slug)}>
+            <span class="blog-chip" style={`--cat: ${cat?.color}`}>{cat?.label}</span>
+            <h3>{post.data.title}</h3>
+            <p>{post.data.description}</p>
+            <span class="blog-meta">
+              {formatDate(post.data.pubDate)} · {readingTime(post.body)} min
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</BlogShell>
+
+<style is:global>
+  .blog-hero {
+    padding: clamp(56px, 9vh, 96px) 0 clamp(24px, 4vh, 40px);
+    border-bottom: 1px solid var(--zx-line);
+  }
+  .blog-kicker {
+    font-family: var(--zx-mono);
+    font-size: var(--zx-fs-label);
+    letter-spacing: var(--zx-ls-label);
+    text-transform: uppercase;
+    color: var(--zx-lar);
+    margin: 0 0 14px;
+  }
+  .blog-h1 {
+    font-family: var(--zx-display);
+    font-size: var(--zx-fs-display);
+    line-height: var(--zx-lh-display);
+    letter-spacing: var(--zx-ls-display);
+    font-weight: var(--zx-fw-display);
+    margin: 0;
+  }
+  .blog-sub {
+    margin: 16px 0 0;
+    color: var(--zx-ink2);
+  }
+  .blog-list {
+    padding: clamp(32px, 6vh, 56px) 0 clamp(72px, 12vh, 120px);
+  }
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 900px) {
+    .blog-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 620px) {
+    .blog-grid { grid-template-columns: 1fr; }
+  }
+  .blog-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid var(--zx-line);
+    border-radius: 16px;
+    padding: 22px;
+    background: var(--zx-panel);
+    transition: border-color 0.2s ease, transform 0.25s ease;
+  }
+  .blog-card:hover {
+    border-color: var(--zx-line-2);
+    transform: translateY(-2px);
+  }
+  .blog-card h3 {
+    font-family: var(--zx-display);
+    font-size: 18px;
+    line-height: 1.3;
+    font-weight: 700;
+    margin: 0;
+  }
+  .blog-card p {
+    color: var(--zx-ink2);
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0;
+    flex: 1;
+  }
+</style>

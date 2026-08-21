@@ -10,6 +10,9 @@ interface Props {
   lang?: string;
   ogLocale?: string;
   initialTheme?: "light" | "dark";
+  canonical?: string;
+  ogType?: string;
+  noDefaultSchema?: boolean;
 }
 
 const {
@@ -19,9 +22,14 @@ const {
   lang = "pt-BR",
   ogLocale = "pt_BR",
   initialTheme = "light",
+  canonical,
+  ogType = "website",
+  noDefaultSchema = false,
 } = Astro.props;
 
-const ogImage = new URL("/og.png", Astro.site ?? "https://osvertex.com").toString();
+const siteBase = Astro.site ?? "https://www.voshq.com";
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteBase).toString();
+const ogImage = new URL("/og.png", siteBase).toString();
 ---
 
 <!doctype html>
@@ -35,13 +43,16 @@ const ogImage = new URL("/og.png", Astro.site ?? "https://osvertex.com").toStrin
 
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" type="application/rss+xml" title="Blog do VOS" href="/rss.xml" />
     <meta name="theme-color" content="#F7F6F4" />
     <script is:inline define:vars={{ initialTheme }}>
       (function(){try{var saved=localStorage.getItem('vos-theme-v2');var dark=saved?saved==='dark':initialTheme==='dark';document.documentElement.dataset.theme=dark?'dark':'light';document.querySelector('meta[name="theme-color"]').setAttribute('content',dark?'#000000':'#F7F6F4')}catch(e){}})();
     </script>
 
     <!-- Open Graph / Twitter -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
@@ -59,19 +70,22 @@ const ogImage = new URL("/og.png", Astro.site ?? "https://osvertex.com").toStrin
       rel="stylesheet"
     />
 
-    <script
-      type="application/ld+json"
-      set:html={JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        name: "VOS",
-        applicationCategory: "BusinessApplication",
-        operatingSystem: "Web",
-        description,
-        url: "https://osvertex.com",
-        offers: { "@type": "Offer", category: "SaaS" },
-      })}
-    />
+    {!noDefaultSchema && (
+      <script
+        type="application/ld+json"
+        set:html={JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "VOS",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          description,
+          url: "https://www.voshq.com",
+          offers: { "@type": "Offer", category: "SaaS" },
+        })}
+      />
+    )}
+    <slot name="head" />
   </head>
   <body>
     <GtmNoScript />

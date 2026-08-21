@@ -1,0 +1,231 @@
+---
+// Índice do blog: destaque do post mais recente + grade dos demais.
+import { getCollection } from "astro:content";
+import BlogShell from "../../layouts/BlogShell.astro";
+import {
+  BLOG_TITLE,
+  BLOG_DESCRIPTION,
+  CATEGORY_META,
+  ORG_SCHEMA,
+  formatDate,
+  readingTime,
+  sortPosts,
+  postUrl,
+} from "../../lib/blog";
+
+const posts = sortPosts(await getCollection("blog", ({ data }) => !data.draft));
+const [featured, ...rest] = posts;
+
+const categories = [...new Set(posts.map((p) => p.data.category))];
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": "https://www.voshq.com/blog#blog",
+    name: BLOG_TITLE,
+    description: BLOG_DESCRIPTION,
+    url: "https://www.voshq.com/blog",
+    inLanguage: "pt-BR",
+    publisher: ORG_SCHEMA,
+  },
+];
+---
+
+<BlogShell
+  title={`${BLOG_TITLE} · Vendas, WhatsApp, CRM e automação`}
+  description={BLOG_DESCRIPTION}
+  {schema}
+>
+  <section class="blog-hero">
+    <div class="zx-container">
+      <p class="blog-kicker">Blog do VOS</p>
+      <h1 class="blog-h1">Venda mais. Trabalhe menos.</h1>
+      <p class="blog-sub">
+        Guias práticos de vendas, WhatsApp, CRM, automação e gestão para empresas
+        brasileiras. Um artigo novo todos os dias.
+      </p>
+      {categories.length > 1 && (
+        <nav class="blog-cats" aria-label="Categorias">
+          {categories.map((c) => (
+            <a href={`/blog/categoria/${c}/`} style={`--cat: ${CATEGORY_META[c]?.color ?? "#ED4B00"}`}>
+              {CATEGORY_META[c]?.label ?? c}
+            </a>
+          ))}
+        </nav>
+      )}
+    </div>
+  </section>
+
+  <section class="blog-list">
+    <div class="zx-container">
+      {featured && (
+        <a class="blog-featured" href={postUrl(featured.slug)}>
+          <div class="blog-featured-body">
+            <span class="blog-chip" style={`--cat: ${CATEGORY_META[featured.data.category]?.color}`}>
+              {CATEGORY_META[featured.data.category]?.label}
+            </span>
+            <h2>{featured.data.title}</h2>
+            <p>{featured.data.description}</p>
+            <span class="blog-meta">
+              {formatDate(featured.data.pubDate)} · {readingTime(featured.body)} min de leitura
+            </span>
+          </div>
+        </a>
+      )}
+
+      {rest.length > 0 && (
+        <div class="blog-grid">
+          {rest.map((post) => (
+            <a class="blog-card" href={postUrl(post.slug)}>
+              <span class="blog-chip" style={`--cat: ${CATEGORY_META[post.data.category]?.color}`}>
+                {CATEGORY_META[post.data.category]?.label}
+              </span>
+              <h3>{post.data.title}</h3>
+              <p>{post.data.description}</p>
+              <span class="blog-meta">
+                {formatDate(post.data.pubDate)} · {readingTime(post.body)} min
+              </span>
+            </a>
+          ))}
+        </div>
+      )}
+
+      {posts.length === 0 && <p class="blog-empty">Os primeiros artigos chegam em breve.</p>}
+    </div>
+  </section>
+</BlogShell>
+
+<style is:global>
+  .blog-hero {
+    padding: clamp(56px, 9vh, 96px) 0 clamp(24px, 4vh, 40px);
+    border-bottom: 1px solid var(--zx-line);
+  }
+  .blog-kicker {
+    font-family: var(--zx-mono);
+    font-size: var(--zx-fs-label);
+    letter-spacing: var(--zx-ls-label);
+    text-transform: uppercase;
+    color: var(--zx-lar);
+    margin: 0 0 14px;
+  }
+  .blog-h1 {
+    font-family: var(--zx-display);
+    font-size: var(--zx-fs-display);
+    line-height: var(--zx-lh-display);
+    letter-spacing: var(--zx-ls-display);
+    font-weight: var(--zx-fw-display);
+    margin: 0;
+    text-wrap: balance;
+  }
+  .blog-sub {
+    margin: 16px 0 0;
+    max-width: 560px;
+    color: var(--zx-ink2);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .blog-cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 28px;
+  }
+  .blog-cats a {
+    font-family: var(--zx-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--zx-ink2);
+    text-decoration: none;
+    border: 1px solid var(--zx-line-2);
+    border-radius: 999px;
+    padding: 7px 14px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .blog-cats a:hover {
+    color: var(--cat);
+    border-color: var(--cat);
+  }
+
+  .blog-list {
+    padding: clamp(32px, 6vh, 56px) 0 clamp(72px, 12vh, 120px);
+  }
+  .blog-featured {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid var(--zx-line);
+    border-radius: 20px;
+    padding: clamp(24px, 4vw, 44px);
+    background: var(--zx-panel);
+    transition: border-color 0.2s ease, transform 0.25s var(--ease-out, ease);
+  }
+  .blog-featured:hover {
+    border-color: var(--zx-line-2);
+    transform: translateY(-2px);
+  }
+  .blog-featured h2 {
+    font-family: var(--zx-display);
+    font-size: clamp(24px, 3vw, 34px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    margin: 14px 0 10px;
+    text-wrap: balance;
+  }
+  .blog-featured p {
+    color: var(--zx-ink2);
+    max-width: 640px;
+    margin: 0 0 18px;
+    line-height: 1.6;
+  }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 24px;
+  }
+  @media (max-width: 900px) {
+    .blog-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 620px) {
+    .blog-grid { grid-template-columns: 1fr; }
+  }
+  .blog-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid var(--zx-line);
+    border-radius: 16px;
+    padding: 22px;
+    background: var(--zx-panel);
+    transition: border-color 0.2s ease, transform 0.25s ease;
+  }
+  .blog-card:hover {
+    border-color: var(--zx-line-2);
+    transform: translateY(-2px);
+  }
+  .blog-card h3 {
+    font-family: var(--zx-display);
+    font-size: 18px;
+    line-height: 1.3;
+    font-weight: 700;
+    margin: 0;
+  }
+  .blog-card p {
+    color: var(--zx-ink2);
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0;
+    flex: 1;
+  }
+
+  .blog-empty {
+    color: var(--zx-ink2);
+    padding: 40px 0;
+  }
+</style>

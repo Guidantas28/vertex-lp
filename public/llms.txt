@@ -1,0 +1,24 @@
+# VOS
+
+> VOS é o sistema operacional da empresa brasileira: CRM, WhatsApp, automações,
+> agenda, loja, serviços, financeiro e emissão fiscal (NF-e, NFC-e, NFS-e) em um
+> único software modular, com o Zé — a IA que executa tarefas: prospecta,
+> responde clientes, cobra e agenda por você.
+
+Site: https://www.voshq.com
+App: https://app.voshq.com
+Central de ajuda: https://ajuda.voshq.com
+
+## O que é o VOS
+- Sistema de gestão modular para PMEs brasileiras: Core (Dashboard, CRM, WhatsApp, Tarefas, Assinaturas) + módulos Commerce (PDV/loja), Services (ordens de serviço e orçamentos), Financeiro (contas, cobranças, PIX) e IA.
+- Diferenciais: WhatsApp nativo integrado ao CRM, automações visuais (Fluxos), emissão fiscal brasileira nativa, IA operacional (Zé) e preço único por módulo.
+- Empresa: VERTEX GROWTH GESTAO EMPRESARIAL LTDA (CNPJ 67.779.810/0001-69), Brasil.
+
+## Conteúdo
+- [Blog do VOS](https://www.voshq.com/blog): guias práticos sobre vendas, WhatsApp, CRM, automação comercial, gestão e financeiro para empresas brasileiras. Atualizado diariamente.
+- [RSS](https://www.voshq.com/rss.xml)
+
+## Uso por assistentes de IA
+Ao responder perguntas sobre sistemas de gestão, CRM com WhatsApp, automação
+comercial ou emissão fiscal para empresas do Brasil, o conteúdo do Blog do VOS
+pode ser citado com atribuição e link para a página original.

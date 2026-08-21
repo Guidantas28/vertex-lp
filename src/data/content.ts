@@ -862,10 +862,10 @@ export const FOOTER = {
       { label: "Sobre", href: "#" },
       { label: "Carreiras", href: "#" },
       { label: "Contato", href: "#" },
-      { label: "Blog", href: "#" },
+      { label: "Blog", href: "/blog" },
     ] },
     { title: "Recursos", links: [
-      { label: "Central de ajuda", href: "#" },
+      { label: "Central de ajuda", href: "https://ajuda.voshq.com" },
       { label: "Dúvidas", href: "/#faq" },
       { label: "Status", href: "#" },
       { label: "API", href: "#" },

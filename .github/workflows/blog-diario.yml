@@ -1,0 +1,62 @@
+# Publica um artigo novo no Blog do VOS todos os dias:
+# gera o post com a API do Claude, commita no repo, builda o Astro e
+# deploya na Vercel (mesmo fluxo prebuilt usado no deploy manual).
+#
+# Secrets necessários (Settings → Secrets → Actions):
+#   ANTHROPIC_API_KEY  — token da API do Claude
+#   VERCEL_TOKEN       — token de acesso da Vercel
+#   VERCEL_ORG_ID      — team_N6uRflmK2pQ8bxz63crTLqpa
+#   VERCEL_PROJECT_ID  — prj_FhQZC0VP2DZv5S86C2Xvo7sGA1hQ
+name: Blog diário
+
+on:
+  schedule:
+    # 12:00 UTC = 09:00 em Brasília
+    - cron: "0 12 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: blog-diario
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Gerar o post do dia
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/gen-post.mjs
+
+      - name: Commitar o post
+        run: |
+          git config user.name "vos-blog-bot"
+          git config user.email "bot@voshq.com"
+          git add src/content/blog content-plan/topics.json
+          git diff --cached --quiet && echo "Nada novo para commitar" && exit 0
+          POST=$(git diff --cached --name-only -- src/content/blog | head -1)
+          git commit -m "blog: post diário ($(basename "$POST" .md))"
+          git push
+
+      - name: Build (Astro + patch de runtime)
+        run: npm run build
+
+      - name: Deploy na Vercel (produção)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: npx vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN" --yes
