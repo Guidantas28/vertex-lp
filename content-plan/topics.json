@@ -24,7 +24,9 @@
       "keyword": "erp para pequena empresa",
       "title_hint": "ERP tradicional vs. sistema modular: qual faz sentido para sua empresa",
       "category": "gestao",
-      "used": false
+      "used": true,
+      "publishedSlug": "erp-vs-sistema-modular",
+      "publishedAt": "2026-08-22"
     },
     {
       "id": "nfe-nfce-diferenca",
