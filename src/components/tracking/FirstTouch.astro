@@ -15,6 +15,19 @@
       var m = document.cookie.match("(?:^|; )" + n + "=([^;]*)");
       return m ? decodeURIComponent(m[1]) : null;
     }
+    // vos_uid: identidade PRÓPRIA de 1ª parte, 400 dias. É o external_id que
+    // o CRM consegue reproduzir depois — o "stape_user_id" que o código
+    // procurava nunca existiu como cookie (é header calculado no servidor).
+    // Roda SEMPRE, mesmo com o 1º toque já fotografado.
+    if (!readCookie("vos_uid")) {
+      var uid;
+      try { uid = "v_" + crypto.randomUUID(); } catch (e) { uid = ""; }
+      if (!uid) uid = "v_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      var dv = new Date();
+      dv.setTime(dv.getTime() + 400 * 864e5);
+      document.cookie = "vos_uid=" + uid + "; expires=" + dv.toUTCString() + "; path=/; SameSite=Lax";
+    }
+
     if (readCookie(KEY)) return; // já temos o 1º toque: não sobrescreve.
 
     function capture() {
@@ -41,6 +54,7 @@
         fbc: readCookie("_fbc") || undefined,
         clientId: clientId,
         stapeUserId: stapeUserId,
+        vosUid: readCookie("vos_uid") || undefined,
         landing: location.href,
         referrer: document.referrer || undefined,
         utm: utm,

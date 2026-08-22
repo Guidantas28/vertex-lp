@@ -182,7 +182,23 @@ const emptyForm = (): FormData => ({
 
 // Contrato de dataLayer do GTM do VOS (servido por vx.voshq.com). Ver brief.
 // event: 'lead' exato; o GTM lê lead.nome, lead.email, lead.resposta_1 etc.
-function pushLeadEvent(form: FormData, country: Country) {
+/**
+ * O `event_id` do Lead — a chave que faltava para reconciliar o evento da Meta
+ * com o registro do CRM. Antes o id nascia ALEATÓRIO dentro do GTM e morria
+ * lá: não ia para a API, não persistia, e o join site↔CRM ficava só no e-mail.
+ * Agora a LP gera o id, manda no dataLayer (o GTM pode usar) E no /api/lead
+ * (o CRM guarda em `lead_event_id`).
+ */
+export function novoLeadEventId(): string {
+  try {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) return `lead_${crypto.randomUUID()}`;
+  } catch {
+    /* ambiente sem crypto: cai no fallback */
+  }
+  return `lead_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function pushLeadEvent(form: FormData, country: Country, leadEventId?: string) {
   const parts = form.name.trim().split(/\s+/);
   const nome = parts[0] ?? "";
   const sobrenome = parts.slice(1).join(" ");
@@ -192,6 +208,7 @@ function pushLeadEvent(form: FormData, country: Country) {
   w.dataLayer = w.dataLayer || [];
   w.dataLayer.push({
     event: "lead",
+    ...(leadEventId ? { lead_event_id: leadEventId } : {}),
     lead: {
       nome,
       sobrenome,
@@ -213,6 +230,8 @@ export default function LeadWizardModal() {
   // Quem pede menos movimento no sistema não ganha confete nem slide de painel
   // (o MotionConfig lá embaixo cuida dos motion.*; este flag cuida do canvas).
   const reduceMotion = useReducedMotion();
+  // event_id do Lead: um por e-mail digitado (retry e re-push reusam o mesmo).
+  const eventIdRef = useRef<{ email: string; id: string }>({ email: "", id: "" });
   const [step, setStep] = useState<Step>(1);
   const [submitting, setSubmitting] = useState(false);
   // Erro POR CAMPO: a mensagem aparece embaixo do campo que falhou e o foco vai
@@ -432,6 +451,14 @@ export default function LeadWizardModal() {
 
     const emailNow = normEmail(form.email);
     const instagramNow = normInstagram(form.instagram);
+    // Identidade site → CRM: o mesmo id nos DOIS destinos (dataLayer e API),
+    // gerado uma vez por e-mail — o retry do POST reusa o mesmo.
+    if (eventIdRef.current.email !== emailNow) {
+      eventIdRef.current = { email: emailNow, id: novoLeadEventId() };
+    }
+    const leadEventId = eventIdRef.current.id;
+    // vos_uid: cookie próprio de 1ª parte (setado no FirstTouch, 400 dias).
+    const vosUid = readCookie("vos_uid");
     const payload = JSON.stringify({
       name: form.name.trim(),
       email: emailNow,
@@ -442,6 +469,10 @@ export default function LeadWizardModal() {
       ...(instagramNow ? { instagram: instagramNow } : {}),
       utm,
       ...clickIds,
+      leadEventId,
+      ...(vosUid ? { vosUid } : {}),
+      ...(ft.landing ? { landing: ft.landing } : {}),
+      ...(ft.referrer ? { referrer: ft.referrer } : {}),
     });
 
     // Timeout de 10s + 1 retry: cold start da Vercel não pode travar o botão
@@ -481,7 +512,7 @@ export default function LeadWizardModal() {
     // GTM — evento 'lead' no submit VALIDADO. Dispara UMA vez por e-mail.
     // NÃO disparamos dataLayer no agendamento — o GTM escuta o Cal sozinho.
     if (!isBotRef.current && eventEmailRef.current !== emailNow) {
-      pushLeadEvent(form, country);
+      pushLeadEvent(form, country, leadEventId);
       eventEmailRef.current = emailNow;
     }
 

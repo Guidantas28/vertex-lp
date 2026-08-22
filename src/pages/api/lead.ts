@@ -96,6 +96,18 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   );
   campo(customFields, "user_agent", request.headers.get("user-agent"), 600);
   campo(customFields, "ip", request.headers.get("x-forwarded-for") ?? clientAddress);
+  // Identidade site → CRM (22/08): o event_id do Lead que o navegador mandou
+  // para a Meta, o cookie próprio de 1ª parte e o contexto de chegada — os
+  // quatro estavam sendo capturados e jogados fora (ou nem existiam).
+  campo(customFields, "lead_event_id", data?.leadEventId, 80);
+  campo(
+    customFields,
+    "vos_uid",
+    data?.vosUid || /(?:^|;\s*)vos_uid=([^;]*)/.exec(request.headers.get("cookie") ?? "")?.[1],
+    80,
+  );
+  campo(customFields, "landing_page", data?.landing, 500);
+  campo(customFields, "referrer", data?.referrer, 500);
 
   // Tráfego pago do Meta é a origem real hoje; sem utm, trata como orgânico.
   const origem = String(rawUtm?.utm_source ?? "").toLowerCase() === "meta" ? "ads" : "organic";
