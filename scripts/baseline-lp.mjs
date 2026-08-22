@@ -5,11 +5,15 @@
 // script roda o mesmo roteiro nas duas pontas.
 //
 // IMPORTANTE: /api/lead, /api/first-touch e /api/agendou são INTERCEPTADOS e
-// respondidos localmente. Nada chega no CRM — o dataLayer é client-side e dispara
-// igual, que é justamente o contrato que queremos registrar.
+// respondidos localmente, e TODO o tracking de produção é abortado (ver
+// _sem-tracking.mjs). Nada chega no CRM, na Meta nem na planilha de auditoria EMQ
+// — o dataLayer continua sendo empurrado client-side, que é justamente o contrato
+// que queremos registrar. Até 19/08 essa trava não existia: a captura submetia o
+// formulário e mandava generate_lead de verdade para a Meta.
 //
 // Uso:  node scripts/baseline-lp.mjs [--out <dir>] [--url http://localhost:4321/lp]
 import { chromium } from "playwright";
+import { bloquearTracking } from "./_sem-tracking.mjs";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -53,6 +57,8 @@ for (const vp of VIEWPORTS) {
   }
   // Cal.com é iframe externo — fora do escopo da captura.
   await ctx.route("**cal.osvertex.com/**", (route) => route.abort());
+  // GTM/Stape/pixel: o container é o de PRODUÇÃO, não pode receber nada daqui.
+  await bloquearTracking(ctx);
 
   const page = await ctx.newPage();
   const console_ = [];

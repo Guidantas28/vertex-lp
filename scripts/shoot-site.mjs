@@ -1,5 +1,6 @@
 // Full-page screenshots do site para revisão. Salva no scratchpad.
 import { chromium } from "playwright";
+import { bloquearTracking } from "./_sem-tracking.mjs";
 
 const OUT = process.env.OUT || "/private/tmp/claude-501/-Users-victorsouza-master-os/d6ff4b66-24a4-435e-aa3e-e2c50b4988c8/scratchpad";
 const pages = (process.env.PAGES || "/").split(",");
@@ -10,6 +11,7 @@ const run = async () => {
     const slug = p === "/" ? "home" : p.replace(/\//g, "");
     for (const [w, tag] of [[1440, "desktop"], [390, "mobile"]]) {
       const page = await browser.newPage({ viewport: { width: w, height: 900 }, deviceScaleFactor: 1 });
+      await bloquearTracking(page); // container de produção não recebe captura
       await page.goto(`http://localhost:4321${p}`, { waitUntil: "networkidle" });
       await page.evaluate(() => document.querySelectorAll(".reveal").forEach((e) => e.classList.add("is-visible")));
       // rola até o fim p/ disparar lazy-load, depois volta

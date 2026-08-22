@@ -1,8 +1,27 @@
 ---
 // Cabeça do tracking, compartilhada por todas as páginas (home e /lp):
 // só o loader do GTM — sem Consent Mode, nada bloqueia as tags.
+//
+// 🔴 O container é o de PRODUÇÃO — não existe um de teste. É o mesmo pixel, o
+// mesmo CAPI e a mesma planilha de auditoria EMQ. Por isso o loader só sobe nos
+// hosts de produção: em localhost, no IP da LAN e no preview da Vercel ele não
+// carrega nada. Em 19/08 uma captura headless em localhost:4321 mandou 10
+// generate_lead para a Meta e encheu 10 das 43 linhas da planilha com lixo.
+// Ver _LOGS\MUDANCAS.md (20/08/2026).
 ---
 
 <!-- Google Tag Manager -->
-<script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src="https://vx.voshq.com/bdhwqqcvclr.js?"+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','1zd=GwheMTc8XCM0LltCNEM1UQRRUVhSVxUZTxoMBQsAXxQdAQ%3D%3D');</script>
+<script is:inline>
+  (function () {
+    var PRODUCAO = ["voshq.com", "www.voshq.com"];
+    // Criado sempre: o push do lead (LeadWizardModal) e as capturas de baseline
+    // dependem do dataLayer existir mesmo quando o GTM não sobe.
+    window.dataLayer = window.dataLayer || [];
+    if (PRODUCAO.indexOf(location.hostname) === -1) {
+      console.info("[tracking] GTM não carregado: " + location.hostname + " não é produção.");
+      return;
+    }
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src="https://vx.voshq.com/bdhwqqcvclr.js?"+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','1zd=GwheMTc8XCM0LltCNEM1UQRRUVhSVxUZTxoMBQsAXxQdAQ%3D%3D');
+  })();
+</script>
 <!-- End Google Tag Manager -->
