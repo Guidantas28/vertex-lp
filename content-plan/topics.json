@@ -33,7 +33,9 @@
       "keyword": "diferença nfe e nfce",
       "title_hint": "NF-e, NFC-e e NFS-e: qual nota sua empresa precisa emitir",
       "category": "financeiro",
-      "used": false
+      "used": true,
+      "publishedSlug": "nfe-nfce-diferenca",
+      "publishedAt": "2026-08-23"
     },
     {
       "id": "tempo-resposta-lead",
