@@ -14,6 +14,10 @@ interface Props {
   canonical?: string;
   ogType?: string;
   noDefaultSchema?: boolean;
+  /** Tira a página do índice mantendo o follow (landings de anúncio, etc.). */
+  noindex?: boolean;
+  /** Imagem de compartilhamento própria da página; cai no /og.png se ausente. */
+  ogImage?: string;
 }
 
 const {
@@ -26,11 +30,57 @@ const {
   canonical,
   ogType = "website",
   noDefaultSchema = false,
+  noindex = false,
+  ogImage: ogImageProp,
 } = Astro.props;
 
 const siteBase = Astro.site ?? "https://www.voshq.com";
+// `Astro.url.pathname` já vem COM barra final (build em diretório), que é a
+// forma canônica que o redirect 308 da Vercel força. Canonical, og:url e
+// sitemap falam a mesma língua — era a divergência que virava "Duplicate
+// without user-selected canonical" no Search Console.
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteBase).toString();
-const ogImage = new URL("/og.png", siteBase).toString();
+const ogImage = new URL(ogImageProp ?? "/og.png", siteBase).toString();
+
+// Entidade da marca, em toda página. É o que sustenta o Knowledge Panel e o
+// que os motores de resposta (AEO/GEO) leem pra saber QUEM está respondendo —
+// sem isto o conteúdo é citado sem atribuição de organização.
+const orgId = "https://www.voshq.com/#org"; // mesmo @id do ORG_SCHEMA em lib/blog.ts — o Google funde os dois num só
+const grafoDaMarca = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": orgId,
+      name: "VOS",
+      legalName: "VERTEX GROWTH GESTAO EMPRESARIAL LTDA",
+      taxID: "67.779.810/0001-69",
+      url: "https://www.voshq.com/",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://www.voshq.com/assets/brand/vos-logo-dark.png",
+      },
+      description:
+        "Sistema de gestão modular brasileiro: CRM, WhatsApp, automações, agenda, loja, ordens de serviço, financeiro e emissão fiscal (NF-e, NFC-e, NFS-e) em um só software.",
+      areaServed: { "@type": "Country", name: "Brasil" },
+      address: { "@type": "PostalAddress", addressCountry: "BR" },
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "vendas",
+        availableLanguage: ["Portuguese"],
+        url: "https://www.voshq.com/",
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteBase}#site`,
+      url: "https://www.voshq.com/",
+      name: "VOS",
+      inLanguage: "pt-BR",
+      publisher: { "@id": orgId },
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -45,6 +95,8 @@ const ogImage = new URL("/og.png", siteBase).toString();
 
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    {!noindex && <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />}
     <link rel="canonical" href={canonicalUrl} />
     <link rel="alternate" type="application/rss+xml" title="Blog do VOS" href="/rss.xml" />
     <meta name="theme-color" content="#F7F6F4" />
@@ -54,6 +106,7 @@ const ogImage = new URL("/og.png", siteBase).toString();
 
     <!-- Open Graph / Twitter -->
     <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="VOS" />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -72,6 +125,7 @@ const ogImage = new URL("/og.png", siteBase).toString();
       rel="stylesheet"
     />
 
+    <script type="application/ld+json" set:html={JSON.stringify(grafoDaMarca)} />
     {!noDefaultSchema && (
       <script
         type="application/ld+json"
@@ -82,7 +136,7 @@ const ogImage = new URL("/og.png", siteBase).toString();
           applicationCategory: "BusinessApplication",
           operatingSystem: "Web",
           description,
-          url: "https://www.voshq.com",
+          url: "https://www.voshq.com/",
           offers: { "@type": "Offer", category: "SaaS" },
         })}
       />

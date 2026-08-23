@@ -109,7 +109,7 @@ const description =
 // Domínio REAL do site (o \`site\` do astro.config aponta pra osvertex.com, que
 // hoje devolve 404 — canonical/og apontando pra lá quebrariam preview e SEO).
 const SITE_URL = "https://www.voshq.com";
-const url = \`\${SITE_URL}/lp\`;
+const url = \`\${SITE_URL}/lp/\`;
 const ogImage = \`\${SITE_URL}/og.png\`;
 ---
 

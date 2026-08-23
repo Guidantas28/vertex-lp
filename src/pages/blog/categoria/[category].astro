@@ -33,7 +33,7 @@ const schema = [
     name: `${cat?.label ?? category} · Blog do VOS`,
     url,
     inLanguage: "pt-BR",
-    isPartOf: { "@type": "Blog", "@id": "https://www.voshq.com/blog#blog" },
+    isPartOf: { "@type": "Blog", "@id": "https://www.voshq.com/blog/#blog" },
     publisher: ORG_SCHEMA,
   },
 ];
@@ -47,7 +47,7 @@ const schema = [
 >
   <section class="blog-hero">
     <div class="zx-container">
-      <p class="blog-kicker"><a href="/blog" style="color: inherit; text-decoration: none;">← Blog do VOS</a></p>
+      <p class="blog-kicker"><a href="/blog/" style="color: inherit; text-decoration: none;">← Blog do VOS</a></p>
       <h1 class="blog-h1">{cat?.label ?? category}</h1>
       <p class="blog-sub">{sorted.length} {sorted.length === 1 ? "artigo" : "artigos"} nesta categoria.</p>
     </div>

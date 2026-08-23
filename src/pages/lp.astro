@@ -19,7 +19,7 @@ const description =
 // Domínio REAL do site (o `site` do astro.config aponta pra osvertex.com, que
 // hoje devolve 404 — canonical/og apontando pra lá quebrariam preview e SEO).
 const SITE_URL = "https://www.voshq.com";
-const url = `${SITE_URL}/lp`;
+const url = `${SITE_URL}/lp/`;
 const ogImage = `${SITE_URL}/og.png`;
 
 // Fonte ÚNICA dos planos (a spec §8 exige centralizar pra não divergir entre
@@ -97,6 +97,11 @@ const PLANOS = [
     rel="stylesheet"
   />
   <title>{title}</title>
+  <!-- Landing de anúncio: vive de tráfego pago. Indexada, disputava com a home
+       exatamente os mesmos termos e virou "Duplicate without user-selected
+       canonical" no Search Console. `follow` mantido pra não cortar o fluxo de
+       autoridade dos links internos daqui. Ela também sai do sitemap. -->
+  <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href={url} />
   <meta property="og:type" content="website" />
   <meta property="og:title" content={title} />

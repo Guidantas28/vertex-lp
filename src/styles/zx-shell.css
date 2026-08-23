@@ -1,0 +1,98 @@
+/**
+ * Tokens e casca do namespace .zx — compartilhados pelas páginas que NÃO são a
+ * home (blog e páginas de módulo).
+ *
+ * A home declara os mesmos tokens no próprio <style is:global> de index.astro,
+ * que só vale naquela página. Este arquivo era uma cópia colada dentro do
+ * BlogShell; virou arquivo pra existir UMA fonte fora da home — se a home
+ * mudar os tokens, muda aqui e vale pro blog e pros módulos de uma vez.
+ */
+@property --zx-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.zx {
+  --zx-paper: #ffffff;
+  --zx-panel: #ffffff;
+  --zx-ink: #1a202c;
+  --zx-ink-strong: #202020;
+  --zx-ink2: #646464;
+  --zx-ink3: #8a8696;
+  --zx-line: rgba(26, 32, 44, 0.1);
+  --zx-line-2: rgba(26, 32, 44, 0.18);
+  --zx-hover: rgba(26, 32, 44, 0.05);
+  --zx-lar: #ed4b00;
+  --zx-lar-2: #ff6b2c;
+  --zx-roxo: #5b45d1;
+  --zx-roxo-2: #8b76ff;
+  --zx-azul: #2e6bff;
+  --zx-verde: #1eb258;
+  --zx-w: 1200px;
+
+  --zx-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  --zx-body: "Inter", system-ui, sans-serif;
+  --zx-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --zx-fs-display: clamp(36px, 4.2vw, 52px);
+  --zx-lh-display: 1.1;
+  --zx-ls-display: -0.02em;
+  --zx-fw-display: 700;
+
+  --zx-fs-title: clamp(32px, 3.8vw, 44px);
+  --zx-lh-title: 1.1;
+  --zx-ls-title: -0.02em;
+  --zx-fw-title: 700;
+
+  --zx-fs-body: 16px;
+  --zx-lh-body: 22px;
+  --zx-fw-body: 400;
+  --zx-fw-strong: 600;
+
+  --zx-fs-meta: 13px;
+  --zx-lh-meta: 1.4;
+  --zx-fs-label: 10.5px;
+  --zx-ls-label: 0.16em;
+
+  --zx-btn-radius: 12px;
+  --zx-btn-fs: 16px;
+  --zx-btn-lh: 22px;
+  --zx-btn-fw: 600;
+  --zx-btn-pad-y: 14px;
+  --zx-btn-pad-x: 22px;
+  --zx-btn-bg: #1a202c;
+  --zx-btn-fg: #fff;
+
+  background: var(--zx-paper);
+  color: var(--zx-ink);
+  font-family: var(--zx-body);
+  font-size: var(--zx-fs-body);
+  line-height: var(--zx-lh-body);
+  overflow-x: clip;
+}
+html[data-theme="dark"] .zx {
+  --zx-paper: #0d0c15;
+  --zx-panel: #14121f;
+  --zx-ink: #f2f0fa;
+  --zx-ink2: #b7b3c6;
+  --zx-ink3: #7c7890;
+  --zx-line: rgba(242, 240, 250, 0.09);
+  --zx-line-2: rgba(242, 240, 250, 0.16);
+  --zx-hover: rgba(242, 240, 250, 0.06);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+.zx-container {
+  max-width: var(--zx-w);
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4vw, 32px);
+}

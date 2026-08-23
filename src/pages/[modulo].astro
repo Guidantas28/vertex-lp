@@ -1,0 +1,551 @@
+---
+/**
+ * Páginas de módulo: /commerce/, /services/, /financeiro/.
+ *
+ * Rota dinâmica com getStaticPaths fechado nos 3 slugs de MODULOS — não é um
+ * catch-all: qualquer outra URL de primeiro nível continua caindo no 404, e as
+ * rotas estáticas (/blog, /cookies, /privacidade, /lp) têm precedência sobre a
+ * dinâmica no Astro.
+ *
+ * A estrutura da página é deliberada, nesta ordem: H1 com o termo → parágrafo
+ * de resposta direta → recursos → como funciona → para quem → FAQ. Motor de
+ * busca e motor de resposta leem o começo do documento; a definição objetiva
+ * vem antes de qualquer argumento de venda.
+ */
+import "../styles/zx-shell.css";
+import Base from "../layouts/Base.astro";
+import Nav4 from "../components/v4/Nav4.astro";
+import Footer4 from "../components/v4/Footer4.astro";
+import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
+import { getCollection } from "astro:content";
+import { MODULOS } from "../data/modules";
+import { SITE } from "../data/content";
+import { ORG_SCHEMA, postUrl } from "../lib/blog";
+
+export async function getStaticPaths() {
+  return MODULOS.map((m) => ({ params: { modulo: m.slug }, props: { modulo: m } }));
+}
+
+const { modulo } = Astro.props;
+const url = `https://www.voshq.com/${modulo.slug}/`;
+
+// Só os posts que existem de verdade: se um slug do data file for renomeado ou
+// o post sair do ar, o bloco encolhe em vez de gerar link interno quebrado —
+// que foi exatamente o problema do rodapé.
+const todos = await getCollection("blog", ({ data }) => !data.draft);
+const relacionados = modulo.posts
+  .map((slug) => todos.find((p) => p.slug === slug))
+  .filter((p): p is (typeof todos)[number] => Boolean(p));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${url}#pagina`,
+    url,
+    name: modulo.seoTitle,
+    description: modulo.seoDescription,
+    inLanguage: "pt-BR",
+    isPartOf: { "@id": "https://www.voshq.com/#site" },
+    publisher: ORG_SCHEMA,
+    // `about` amarra a página ao produto — é o que faz o motor de resposta
+    // entender que /commerce/ fala do VOS e não de "commerce" em geral.
+    about: {
+      "@type": "SoftwareApplication",
+      name: `VOS ${modulo.nome}`,
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Web",
+      description: modulo.resposta,
+      url,
+      offers: { "@type": "Offer", category: "SaaS" },
+      publisher: { "@id": "https://www.voshq.com/#org" },
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Início", item: "https://www.voshq.com/" },
+      { "@type": "ListItem", position: 2, name: modulo.nome, item: url },
+    ],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: modulo.faq.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  },
+];
+---
+
+<Base
+  title={modulo.seoTitle}
+  description={modulo.seoDescription}
+  canonical={url}
+  noDefaultSchema
+>
+  <Fragment slot="head">
+    {schema.map((obj) => (
+      <script type="application/ld+json" set:html={JSON.stringify(obj)} />
+    ))}
+  </Fragment>
+
+  <script is:inline define:vars={{ signupUrl: SITE.signupUrl }}>
+    window.__VOS_SIGNUP_URL__ = signupUrl;
+  </script>
+
+  <div class="zx" style={`--mod: ${modulo.cor}`}>
+    <Nav4 />
+    <main class="mod-main">
+      <header class="mod-hero">
+        <div class="zx-container mod-narrow">
+          <nav class="mod-crumbs" aria-label="Você está em">
+            <a href="/">Início</a>
+            <span aria-hidden="true">/</span>
+            <span>{modulo.nome}</span>
+          </nav>
+          <p class="mod-eyebrow">Módulo {modulo.nome}</p>
+          <h1 class="mod-h1">{modulo.h1}</h1>
+          <p class="mod-chamada">{modulo.chamada}</p>
+          {/* Resposta direta: é o trecho citável. Fica logo abaixo do H1 de
+              propósito, antes de qualquer bloco de venda. */}
+          <p class="mod-resposta">{modulo.resposta}</p>
+          <div class="mod-cta">
+            <a class="mod-btn" href={SITE.signupUrl}>Criar conta</a>
+            <button class="mod-btn mod-btn-ghost" type="button" data-action="lead">
+              Agendar demonstração
+            </button>
+          </div>
+          <p class="mod-substitui">
+            No lugar de: <strong>{modulo.substitui}</strong> — dentro do sistema que já tem o
+            seu WhatsApp, o seu CRM e o seu financeiro.
+          </p>
+        </div>
+      </header>
+
+      <figure class="mod-shot">
+        <div class="zx-container">
+          <img
+            src={modulo.shot.src}
+            alt={modulo.shot.alt}
+            width="1280"
+            height="800"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      </figure>
+
+      <section class="mod-sec" aria-labelledby="recursos">
+        <div class="zx-container">
+          <h2 id="recursos" class="mod-h2">O que o {modulo.nome} faz</h2>
+          <div class="mod-grid">
+            {modulo.recursos.map((r) => (
+              <article class="mod-card">
+                <h3>{r.titulo}</h3>
+                <p>{r.corpo}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="mod-sec mod-sec-alt" aria-labelledby="como">
+        <div class="zx-container mod-narrow">
+          <h2 id="como" class="mod-h2">Como funciona na prática</h2>
+          <ol class="mod-passos">
+            {modulo.comoFunciona.map((p, i) => (
+              <li>
+                <span class="mod-passo-n" aria-hidden="true">{i + 1}</span>
+                <div>
+                  <h3>{p.passo}</h3>
+                  <p>{p.corpo}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section class="mod-sec" aria-labelledby="paraquem">
+        <div class="zx-container mod-narrow">
+          <h2 id="paraquem" class="mod-h2">Para quem é</h2>
+          <ul class="mod-lista">
+            {modulo.paraQuem.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      </section>
+
+      <section class="mod-sec mod-sec-alt" aria-labelledby="faq">
+        <div class="zx-container mod-narrow">
+          <h2 id="faq" class="mod-h2">Perguntas frequentes</h2>
+          <div class="mod-faq">
+            {modulo.faq.map((f, i) => (
+              <details {...(i === 0 ? { open: true } : {})}>
+                <summary>{f.q}</summary>
+                <p>{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {relacionados.length > 0 && (
+        <section class="mod-sec" aria-labelledby="ler">
+          <div class="zx-container mod-narrow">
+            <h2 id="ler" class="mod-h2">Para ler em seguida</h2>
+            <ul class="mod-posts">
+              {relacionados.map((p) => (
+                <li>
+                  <a href={postUrl(p.slug)}>
+                    <strong>{p.data.title}</strong>
+                    <span>{p.data.description}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      <section class="mod-sec mod-final">
+        <div class="zx-container mod-narrow">
+          <h2 class="mod-h2">Veja o {modulo.nome} rodando na sua operação</h2>
+          <p>
+            Uma demonstração ao vivo, com as suas perguntas. Sem cartão e sem instalar nada.
+          </p>
+          <div class="mod-cta">
+            <a class="mod-btn" href={SITE.signupUrl}>Criar conta</a>
+            <button class="mod-btn mod-btn-ghost" type="button" data-action="lead">
+              Agendar demonstração
+            </button>
+          </div>
+          <p class="mod-outros">
+            Outros módulos:
+            {MODULOS.filter((m) => m.slug !== modulo.slug).map((m) => (
+              <a href={`/${m.slug}/`}>{m.nome}</a>
+            ))}
+            <a href="/">visão geral do VOS</a>
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <div class="mod-footer">
+      <Footer4 />
+    </div>
+
+    <LeadWizardModal client:idle />
+  </div>
+</Base>
+
+<script is:inline>
+  /* Mesmo contrato da home e da /lp: [data-action="lead"] abre a modal. */
+  document.addEventListener("click", function (e) {
+    var el = e.target instanceof Element ? e.target.closest("[data-action='lead']") : null;
+    if (!el) return;
+    e.preventDefault();
+    window.dispatchEvent(new CustomEvent("vos:open-lead"));
+  });
+</script>
+
+<style is:global>
+  .mod-main {
+    min-height: 60vh;
+  }
+  .mod-narrow {
+    max-width: 760px;
+  }
+
+  .mod-hero {
+    padding: clamp(48px, 9vh, 96px) 0 clamp(24px, 4vh, 40px);
+  }
+  .mod-crumbs {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 12.5px;
+    color: var(--zx-ink3);
+    margin-bottom: 24px;
+  }
+  .mod-crumbs a {
+    color: var(--zx-ink3);
+    text-decoration: none;
+  }
+  .mod-crumbs a:hover {
+    color: var(--zx-ink);
+  }
+  .mod-eyebrow {
+    font-family: var(--zx-mono);
+    font-size: var(--zx-fs-label);
+    letter-spacing: var(--zx-ls-label);
+    text-transform: uppercase;
+    color: var(--mod, var(--zx-lar));
+    margin-bottom: 14px;
+  }
+  .mod-h1 {
+    font-family: var(--zx-display);
+    font-size: var(--zx-fs-display);
+    line-height: var(--zx-lh-display);
+    letter-spacing: var(--zx-ls-display);
+    font-weight: var(--zx-fw-display);
+    color: var(--zx-ink-strong);
+    margin-bottom: 20px;
+    text-wrap: balance;
+  }
+  .mod-chamada {
+    font-size: clamp(17px, 2vw, 20px);
+    line-height: 1.5;
+    color: var(--zx-ink2);
+    margin-bottom: 20px;
+  }
+  /* O parágrafo citável ganha peso visual: quem lê a página e quem raspa o
+     documento chegam na mesma frase. */
+  .mod-resposta {
+    font-size: 16.5px;
+    line-height: 1.7;
+    color: var(--zx-ink);
+    padding: 20px 22px;
+    border-left: 3px solid var(--mod, var(--zx-lar));
+    background: var(--zx-hover);
+    border-radius: 0 12px 12px 0;
+    margin-bottom: 28px;
+  }
+
+  .mod-cta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .mod-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--zx-btn-pad-y) var(--zx-btn-pad-x);
+    border-radius: var(--zx-btn-radius);
+    font-size: var(--zx-btn-fs);
+    line-height: var(--zx-btn-lh);
+    font-weight: var(--zx-btn-fw);
+    font-family: var(--zx-body);
+    background: var(--zx-btn-bg);
+    color: var(--zx-btn-fg);
+    border: 1px solid transparent;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  .mod-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.92;
+  }
+  .mod-btn-ghost {
+    background: transparent;
+    color: var(--zx-ink);
+    border-color: var(--zx-line-2);
+  }
+  .mod-substitui {
+    font-size: 13.5px;
+    color: var(--zx-ink3);
+  }
+  .mod-substitui strong {
+    color: var(--zx-ink2);
+  }
+
+  .mod-shot {
+    margin: clamp(24px, 5vh, 48px) 0;
+  }
+  .mod-shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    border: 1px solid var(--zx-line);
+    box-shadow: 0 24px 60px rgba(26, 32, 44, 0.1);
+  }
+
+  .mod-sec {
+    padding: clamp(40px, 7vh, 72px) 0;
+  }
+  .mod-sec-alt {
+    background: var(--zx-hover);
+  }
+  .mod-h2 {
+    font-family: var(--zx-display);
+    font-size: var(--zx-fs-title);
+    line-height: var(--zx-lh-title);
+    letter-spacing: var(--zx-ls-title);
+    font-weight: var(--zx-fw-title);
+    color: var(--zx-ink-strong);
+    margin-bottom: 28px;
+    text-wrap: balance;
+  }
+
+  .mod-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+  .mod-card {
+    padding: 22px;
+    border: 1px solid var(--zx-line);
+    border-radius: 14px;
+    background: var(--zx-panel);
+  }
+  .mod-card h3 {
+    font-family: var(--zx-display);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--zx-ink-strong);
+    margin-bottom: 8px;
+  }
+  .mod-card p {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--zx-ink2);
+  }
+
+  .mod-passos {
+    display: grid;
+    gap: 24px;
+    list-style: none;
+    counter-reset: none;
+  }
+  .mod-passos li {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .mod-passo-n {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--mod, var(--zx-lar));
+    color: #fff;
+    font-family: var(--zx-mono);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .mod-passos h3 {
+    font-family: var(--zx-display);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--zx-ink-strong);
+    margin-bottom: 6px;
+  }
+  .mod-passos p {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--zx-ink2);
+  }
+
+  .mod-lista {
+    display: grid;
+    gap: 12px;
+    list-style: none;
+  }
+  .mod-lista li {
+    position: relative;
+    padding-left: 26px;
+    font-size: 15.5px;
+    line-height: 1.6;
+    color: var(--zx-ink2);
+  }
+  .mod-lista li::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--mod, var(--zx-lar));
+  }
+
+  .mod-faq details {
+    border-bottom: 1px solid var(--zx-line);
+    padding: 16px 0;
+  }
+  .mod-faq summary {
+    cursor: pointer;
+    font-family: var(--zx-display);
+    font-size: 16.5px;
+    font-weight: 600;
+    color: var(--zx-ink-strong);
+    list-style: none;
+  }
+  .mod-faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .mod-faq p {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--zx-ink2);
+  }
+
+  .mod-posts {
+    display: grid;
+    gap: 12px;
+    list-style: none;
+  }
+  .mod-posts a {
+    display: grid;
+    gap: 4px;
+    padding: 16px 18px;
+    border: 1px solid var(--zx-line);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+  .mod-posts a:hover {
+    border-color: var(--mod, var(--zx-lar));
+  }
+  .mod-posts strong {
+    font-family: var(--zx-display);
+    font-size: 16px;
+    color: var(--zx-ink-strong);
+  }
+  .mod-posts span {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--zx-ink3);
+  }
+
+  .mod-final p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--zx-ink2);
+    margin-bottom: 22px;
+  }
+  .mod-outros {
+    font-size: 14px;
+    color: var(--zx-ink3);
+  }
+  .mod-outros a {
+    color: var(--zx-ink2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  /* Sem isto os links viram uma frase corrida ("Services Financeiro visão
+     geral") e não se lê onde um termina e o outro começa. */
+  .mod-outros a:not(:last-child)::after {
+    content: " ·";
+    text-decoration: none;
+    color: var(--zx-ink3);
+  }
+  .mod-outros a + a {
+    margin-left: 6px;
+  }
+
+  /* O Footer4 é claro-sobre-escuro e espera uma faixa escura atrás. */
+  .mod-footer {
+    background: #0d0c15;
+  }
+</style>

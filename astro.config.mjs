@@ -20,6 +20,36 @@ export default defineConfig({
   integrations: [
     react(),
     tailwind({ applyBaseStyles: false }),
-    sitemap(),
+    sitemap({
+      // A /lp é landing de anúncio: mesma oferta da home, escrita pra tráfego
+      // pago. Deixá-la no sitemap fazia o Google escolher entre ela e a home
+      // pros mesmos termos ("Duplicate without user-selected canonical"). Ela
+      // sai daqui e ganha noindex,follow na própria página.
+      filter: (page) => !/\/lp\/?$/.test(page),
+      serialize(item) {
+        const path = new URL(item.url).pathname;
+        // Prioridade por profundidade: home > módulos/blog > posts > legal.
+        if (path === "/") {
+          item.priority = 1.0;
+          item.changefreq = "weekly";
+        } else if (/^\/(commerce|services|financeiro)\/$/.test(path)) {
+          item.priority = 0.9;
+          item.changefreq = "weekly";
+        } else if (path === "/blog/") {
+          item.priority = 0.8;
+          item.changefreq = "daily";
+        } else if (path.startsWith("/blog/categoria/")) {
+          item.priority = 0.5;
+          item.changefreq = "weekly";
+        } else if (path.startsWith("/blog/")) {
+          item.priority = 0.7;
+          item.changefreq = "monthly";
+        } else {
+          item.priority = 0.3;
+          item.changefreq = "yearly";
+        }
+        return item;
+      },
+    }),
   ],
 });

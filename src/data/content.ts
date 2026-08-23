@@ -118,9 +118,9 @@ export const MODULE_CARDS = {
   title: "Escolha o que faz sentido",
   lead: "Vende produtos? Ative o Commerce. Presta serviços? Ative o Services. Quer os dois? CoreOne libera tudo.",
   items: [
-    { id: "commerce", name: "Commerce", color: MODULE_COLOR.commerce, like: "Como a Shopify", body: "Venda de produtos online e na loja física. Catálogo, estoque e ordens em um só lugar.", price: "R$ 499/mês", href: "/commerce", shot: "/assets/product/commerce-catalogo.webp" },
-    { id: "services", name: "Services", color: MODULE_COLOR.services, like: "Como o Jobber", body: "Cotações, agendamentos e ordens de serviço com equipes em campo. Do orçamento à execução.", price: "R$ 499/mês", href: "/services", shot: "/assets/product/services-ordens.webp" },
-    { id: "financeiro", name: "Financeiro", color: MODULE_COLOR.finance, like: "Incluso em tudo", body: "Fluxo de caixa, contas a pagar e receber, nota fiscal e cadastro de fornecedores e equipe.", price: "Incluso", href: "/financeiro", shot: "/assets/product/finance-fluxo.webp" },
+    { id: "commerce", name: "Commerce", color: MODULE_COLOR.commerce, like: "Como a Shopify", body: "Venda de produtos online e na loja física. Catálogo, estoque e ordens em um só lugar.", price: "R$ 499/mês", href: "/commerce/", shot: "/assets/product/commerce-catalogo.webp" },
+    { id: "services", name: "Services", color: MODULE_COLOR.services, like: "Como o Jobber", body: "Cotações, agendamentos e ordens de serviço com equipes em campo. Do orçamento à execução.", price: "R$ 499/mês", href: "/services/", shot: "/assets/product/services-ordens.webp" },
+    { id: "financeiro", name: "Financeiro", color: MODULE_COLOR.finance, like: "Incluso em tudo", body: "Fluxo de caixa, contas a pagar e receber, nota fiscal e cadastro de fornecedores e equipe.", price: "Incluso", href: "/financeiro/", shot: "/assets/product/finance-fluxo.webp" },
   ],
 };
 
@@ -851,31 +851,40 @@ export const SECURITY = {
 
 export const FOOTER = {
   blurb: "O sistema operacional modular para qualquer empresa. Do WhatsApp ao financeiro, em um só lugar.",
+  // Todo link daqui sai em TODA página do site (o Footer4 vive dentro do
+  // CtaFinal4). Duas regras, por isso:
+  //  1. Nada de href="#" nem de rota que não existe. /commerce, /services e
+  //     /financeiro apontavam pro vazio e viraram 404 sitewide no Search
+  //     Console — 15 páginas linkando 3 URLs mortas.
+  //  2. Barra final sempre: sem ela cada link do rodapé gastava um 308 do
+  //     crawl budget antes de chegar na página.
   cols: [
     { title: "Produto", links: [
       { label: "Visão geral", href: "/" },
-      { label: "Commerce", href: "/commerce" },
-      { label: "Services", href: "/services" },
-      { label: "Financeiro", href: "/financeiro" },
+      { label: "Commerce", href: "/commerce/" },
+      { label: "Services", href: "/services/" },
+      { label: "Financeiro", href: "/financeiro/" },
     ] },
-    { title: "Empresa", links: [
-      { label: "Sobre", href: "#" },
-      { label: "Carreiras", href: "#" },
-      { label: "Contato", href: "#" },
-      { label: "Blog", href: "/blog" },
+    // Categorias do blog no rodapé: é o caminho de rastreamento que faz as
+    // páginas de categoria serem descobertas de qualquer lugar do site.
+    { title: "Conteúdo", links: [
+      { label: "Blog", href: "/blog/" },
+      { label: "CRM", href: "/blog/categoria/crm/" },
+      { label: "WhatsApp", href: "/blog/categoria/whatsapp/" },
+      { label: "Automação", href: "/blog/categoria/automacao/" },
     ] },
     { title: "Recursos", links: [
       { label: "Central de ajuda", href: "https://ajuda.voshq.com" },
-      { label: "Dúvidas", href: "/#faq" },
-      { label: "Status", href: "#" },
-      { label: "API", href: "#" },
+      { label: "Dúvidas frequentes", href: "/#faq" },
+      { label: "Falar com vendas", href: "https://wa.me/5543996885300" },
+      { label: "Entrar no sistema", href: "https://app.voshq.com/login" },
     ] },
   ],
   legal: "© 2026 VOS · Feito no Brasil 🇧🇷",
   company: "VERTEX GROWTH GESTAO EMPRESARIAL LTDA",
   cnpj: "67.779.810/0001-69",
   legalLinks: [
-    { label: "Política de Privacidade", href: "/privacidade" },
-    { label: "Política de Cookies", href: "/cookies" },
+    { label: "Política de Privacidade", href: "/privacidade/" },
+    { label: "Política de Cookies", href: "/cookies/" },
   ],
 };

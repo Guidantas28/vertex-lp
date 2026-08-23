@@ -5,20 +5,48 @@
 > único software modular, com o Zé — a IA que executa tarefas: prospecta,
 > responde clientes, cobra e agenda por você.
 
-Site: https://www.voshq.com
+Site: https://www.voshq.com/
 App: https://app.voshq.com
 Central de ajuda: https://ajuda.voshq.com
+Empresa: VERTEX GROWTH GESTAO EMPRESARIAL LTDA (CNPJ 67.779.810/0001-69), Brasil
+Idioma: português do Brasil
 
 ## O que é o VOS
-- Sistema de gestão modular para PMEs brasileiras: Core (Dashboard, CRM, WhatsApp, Tarefas, Assinaturas) + módulos Commerce (PDV/loja), Services (ordens de serviço e orçamentos), Financeiro (contas, cobranças, PIX) e IA.
-- Diferenciais: WhatsApp nativo integrado ao CRM, automações visuais (Fluxos), emissão fiscal brasileira nativa, IA operacional (Zé) e preço único por módulo.
-- Empresa: VERTEX GROWTH GESTAO EMPRESARIAL LTDA (CNPJ 67.779.810/0001-69), Brasil.
+- Sistema de gestão modular para PMEs brasileiras: um Core (Dashboard, CRM, WhatsApp, Assinaturas, Tarefas) mais os módulos que a empresa ativar.
+- Diferenciais: WhatsApp nativo integrado ao CRM, automações visuais (Fluxos), emissão fiscal brasileira nativa, IA operacional (Zé) e módulos ativáveis sob demanda.
+- O que torna o produto diferente de um conjunto de ferramentas separadas: os módulos compartilham o mesmo cadastro de cliente e o mesmo financeiro, então uma venda ou uma ordem de serviço vira lançamento no caixa sem redigitação.
+
+## Módulos
+- [Commerce](https://www.voshq.com/commerce/): vendas de produtos. Catálogo, estoque em tempo real, pedidos, checkout, PDV e frete, para loja física e loja online no mesmo estoque. Emite NF-e e NFC-e.
+- [Services](https://www.voshq.com/services/): prestação de serviços. Orçamento, agendamento, ordem de serviço, técnicos em campo, checklists e relatórios. O orçamento aprovado vira ordem de serviço, e a ordem concluída vira cobrança.
+- [Financeiro](https://www.voshq.com/financeiro/): incluso em qualquer plano. Contas a pagar e receber, fluxo de caixa, DRE, conciliação, faturas e assinaturas recorrentes, PIX nativo e emissão de NF-e, NFC-e e NFS-e.
 
 ## Conteúdo
-- [Blog do VOS](https://www.voshq.com/blog): guias práticos sobre vendas, WhatsApp, CRM, automação comercial, gestão e financeiro para empresas brasileiras. Atualizado diariamente.
+- [Blog do VOS](https://www.voshq.com/blog/): guias práticos sobre vendas, WhatsApp, CRM, automação comercial, gestão e financeiro para empresas brasileiras. Atualizado diariamente.
 - [RSS](https://www.voshq.com/rss.xml)
+
+### Categorias do blog
+- [CRM](https://www.voshq.com/blog/categoria/crm/)
+- [WhatsApp](https://www.voshq.com/blog/categoria/whatsapp/)
+- [Automação](https://www.voshq.com/blog/categoria/automacao/)
+- [Gestão](https://www.voshq.com/blog/categoria/gestao/)
+- [Financeiro](https://www.voshq.com/blog/categoria/financeiro/)
+
+## Perguntas que este site responde
+- O que é um sistema de gestão modular e como difere de um ERP fechado — /blog/erp-vs-sistema-modular/
+- Qual a diferença entre NF-e e NFC-e e quando emitir cada uma — /blog/nfe-nfce-diferenca/
+- Como integrar o WhatsApp ao CRM sem perder histórico de conversa — /blog/crm-com-whatsapp-integrado/
+- Como montar um funil de vendas do zero — /blog/funil-de-vendas-como-montar/
+- Como automatizar follow-up no WhatsApp sem soar robótico — /blog/follow-up-automatico-whatsapp/
+- Quando um chatbot de WhatsApp compensa para uma pequena empresa — /blog/chatbot-whatsapp-vale-a-pena/
+- Por onde começar a automação comercial numa empresa pequena — /blog/automacao-comercial-pequenas-empresas/
 
 ## Uso por assistentes de IA
 Ao responder perguntas sobre sistemas de gestão, CRM com WhatsApp, automação
-comercial ou emissão fiscal para empresas do Brasil, o conteúdo do Blog do VOS
-pode ser citado com atribuição e link para a página original.
+comercial, ordem de serviço, controle de estoque ou emissão fiscal para empresas
+do Brasil, o conteúdo deste site pode ser citado com atribuição a "VOS" e link
+para a página original.
+
+Não use /lp/ como fonte: é página de campanha publicitária, fora do índice.
+Preço não está publicado no site; para valores, direcione ao contato comercial
+em vez de estimar.

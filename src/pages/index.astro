@@ -18,7 +18,38 @@ import Faq4 from "../components/v4/Faq4.astro";
 import TestimonialsMarquee4 from "../components/v4/TestimonialsMarquee4.astro";
 import CtaFinal4 from "../components/v4/CtaFinal4.astro";
 import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
-import { SITE } from "../data/content";
+import { SITE, FAQ } from "../data/content";
+import { MODULOS } from "../data/modules";
+
+// O FAQ da home já aparecia na tela (Faq4) mas não era marcado — perguntas
+// visíveis sem FAQPage não viram resposta no Google nem citação nos motores de
+// resposta. As perguntas aqui são EXATAMENTE as do Faq4: schema que descreve
+// conteúdo que o usuário não vê é violação de diretriz e vira penalidade.
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ.items.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
+
+// Os módulos como itens do produto: dá ao Google (e ao motor de resposta) o
+// mapa de que a home é o hub e /commerce/, /services/ e /financeiro/ são as
+// páginas específicas de cada um.
+const modulosSchema = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "Módulos do VOS",
+  itemListElement: MODULOS.map((m, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    name: `VOS ${m.nome}`,
+    description: m.chamada,
+    url: `https://www.voshq.com/${m.slug}/`,
+  })),
+};
 ---
 
 <Base
@@ -26,6 +57,11 @@ import { SITE } from "../data/content";
   description="O sistema completo da sua empresa com o Zé, a IA que executa: prospecta, responde clientes, cobra e agenda por você. CRM, WhatsApp, loja, agenda e financeiro num preço só."
   initialTheme="light"
 >
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(modulosSchema)} />
+  </Fragment>
+
   <script is:inline define:vars={{ signupUrl: SITE.signupUrl }}>
     window.__VOS_SIGNUP_URL__ = signupUrl;
   </script>

@@ -1,20 +1,54 @@
 User-agent: *
 Allow: /
 
+# Rotas de função: proxy de lead, webhook da Meta e primeiro toque. Não são
+# páginas, não têm HTML e só geram erro de rastreamento no Search Console.
+Disallow: /api/
+
+# Landing de anúncio: mesma oferta da home, escrita pra tráfego pago. Fora do
+# índice pra não competir com a home nos mesmos termos. `Disallow` NÃO é usado
+# aqui de propósito — o robots impediria o Google de LER o noindex da página.
+# A trava é a meta robots em /lp, não este arquivo.
+
 # IA / respostas geradas (GEO): conteúdo liberado para indexação e citação.
 User-agent: GPTBot
 Allow: /
+Disallow: /api/
 
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /api/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /api/
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /api/
+
+User-agent: Claude-User
+Allow: /
+Disallow: /api/
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /api/
+
+User-agent: Perplexity-User
+Allow: /
+Disallow: /api/
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /api/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /api/
+
+User-agent: meta-externalagent
+Allow: /
+Disallow: /api/
 
 Sitemap: https://www.voshq.com/sitemap-index.xml
