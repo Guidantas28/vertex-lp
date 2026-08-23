@@ -98,6 +98,7 @@ const page = `---
 // "vos:open-lead", exatamente como na home.
 import "../styles/lp.css";
 import GtmHead from "../components/tracking/GtmHead.astro";
+import GaHead from "../components/tracking/GaHead.astro";
 import GtmNoScript from "../components/tracking/GtmNoScript.astro";
 import FirstTouch from "../components/tracking/FirstTouch.astro";
 import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
@@ -116,6 +117,7 @@ const ogImage = \`\${SITE_URL}/og.png\`;
 <html lang="pt-BR">
 <head>
   <GtmHead />
+  <GaHead />
 ${headOut}
   <!-- Fontes da modal de lead (Geist/Jakarta/JetBrains Mono), pro wizard ficar
        igual ao do resto do site. A LP em si é Inter. -->

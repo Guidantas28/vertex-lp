@@ -1,0 +1,43 @@
+---
+// GA4 direto no site (gtag.js), compartilhado por todas as páginas — home,
+// blog, /lp, privacidade e cookies.
+//
+// 🔴 Mesma trava de hostname do GtmHead: a propriedade é a de PRODUÇÃO, não
+// existe uma de teste. Sem a trava, `astro dev` em localhost, o IP da LAN, os
+// previews da Vercel e as capturas headless (scripts/baseline-lp.mjs) entram
+// como sessão real e sujam Realtime, aquisição e conversões. Em 19/08 foi
+// exatamente assim que 10 generate_lead falsos vazaram pra Meta.
+//
+// ⚠️ Este NÃO é o único GA4 do site: o container do GTM já dispara a
+// propriedade G-5TBLEWNER8. Este componente adiciona a G-VEEMR5E6WS ao lado
+// dela — o site passa a reportar para as duas. Se a ideia for migrar, a tag
+// GA4 antiga tem que sair de dentro do container (não dá pra fazer por aqui).
+const GA_ID = "G-VEEMR5E6WS";
+---
+
+<!-- Google tag (gtag.js) -->
+<script is:inline define:vars={{ GA_ID }}>
+  (function () {
+    var PRODUCAO = ["voshq.com", "www.voshq.com"];
+    // Criado sempre, como no GtmHead: o dataLayer é contrato compartilhado com
+    // o LeadWizardModal, que dá push mesmo quando nenhuma tag sobe.
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    window.gtag = window.gtag || gtag;
+
+    if (PRODUCAO.indexOf(location.hostname) === -1) {
+      console.info("[tracking] GA4 não carregado: " + location.hostname + " não é produção.");
+      return;
+    }
+
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+    document.head.appendChild(s);
+
+    gtag("js", new Date());
+    gtag("config", GA_ID);
+  })();
+</script>

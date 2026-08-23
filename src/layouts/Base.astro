@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import GtmHead from "../components/tracking/GtmHead.astro";
+import GaHead from "../components/tracking/GaHead.astro";
 import GtmNoScript from "../components/tracking/GtmNoScript.astro";
 import FirstTouch from "../components/tracking/FirstTouch.astro";
 
@@ -36,6 +37,7 @@ const ogImage = new URL("/og.png", siteBase).toString();
 <html lang={lang}>
   <head>
     <GtmHead />
+    <GaHead />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
