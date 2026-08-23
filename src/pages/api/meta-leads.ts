@@ -1,6 +1,16 @@
 import type { APIRoute } from "astro";
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { contatoPorEmail, criarContato, criarEmpresa, criarLead, leadJaExiste } from "../../lib/vos";
+import {
+  contatoPorEmail,
+  contatoPorTelefone,
+  criarContato,
+  criarEmpresa,
+  criarLead,
+  enriquecerLead,
+  leadAbertoDoContato,
+  leadJaExiste,
+  tagDesafio,
+} from "../../lib/vos";
 
 // Webhook de leads do Meta (formulários instantâneos / lead ads).
 // GET  = verificação do webhook (hub.challenge) na configuração do app.
@@ -40,6 +50,28 @@ function ehLeadDeTeste(lead: any) {
   if (!vals.length) return false;
   const marcados = vals.filter((v: string) => v.startsWith("<") && v.endsWith(">")).length;
   return marcados >= Math.ceil(vals.length / 2);
+}
+
+// O formulário do Meta não tem campo de empresa, mas tem o Instagram — e
+// quando ele vem como @, costuma ser o nome do NEGÓCIO, não da pessoa
+// (@sertaoadentro, Sigarastreamento). Vira um nome de empresa muito melhor
+// que o nome do dono.
+//
+// Só aceita o que parece perfil: uma palavra só, sem espaço. Isso descarta os
+// casos podres que já apareceram na prática — gente que escreveu o próprio
+// nome completo no campo, e um que escreveu "Quero falar no WhatsApp meu
+// parceiro". E descarta também o primeiro nome da própria pessoa, que não
+// acrescenta nada.
+function empresaPeloInstagram(valor: string | undefined, nome: string) {
+  const h = String(valor ?? "")
+    .trim()
+    .replace(/^https?:\/\/(www\.)?instagram\.com\//i, "")
+    .replace(/^@/, "")
+    .replace(/[/?#].*$/, "")
+    .trim();
+  if (!h || /\s/.test(h) || h.length < 3 || h.length > 40) return null;
+  if (nome.toLowerCase().split(/\s+/).includes(h.toLowerCase())) return null;
+  return h;
 }
 
 // O endpoint do vos recusa telefone acima de 30 chars. Antes, um telefone ruim
@@ -147,13 +179,33 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
         const nomeCompleto = (name || email || phone || "").trim();
         const partes = nomeCompleto.split(/\s+/);
 
+        // E-mail primeiro; TELEFONE como segunda chave. A pessoa usa um e-mail
+        // no form do Meta e outro na landing — sem a segunda chave ela virava
+        // dois contatos e o fluxo de boas-vindas saía em dobro (15/08).
         let contato = email ? await contatoPorEmail(email) : null;
+        if (!contato && phone) contato = await contatoPorTelefone(phone);
         let companyId = contato?.companyId ?? null;
+
+        // O vos passou a EXIGIR empresa no Lead — em 06/08 às 22:20 o
+        // `POST /leads` começou a devolver 400 "Empresa obrigatória — vincule
+        // uma empresa ao contato ou informe companyId". Antes disso o mesmo
+        // payload passava (Ivane, Elenice, Anderson entraram sem empresa).
+        //
+        // O formulário instantâneo do Meta não tem campo de empresa, então o
+        // nome da pessoa vira o nome da empresa. É feio, mas é exatamente o
+        // que já existe na base ("Elenice Ferreira", "Delicia Tananta") e
+        // perder o lead é muito pior. Quem vender renomeia depois.
+        const nomeEmpresa =
+          company ||
+          empresaPeloInstagram(extras.instagram, nomeCompleto) ||
+          nomeCompleto ||
+          email ||
+          "(sem nome)";
 
         if (!contato) {
           // Empresa primeiro, pra o contato já nascer amarrado a ela — contato
           // solto é o que deixou "Beto Borrachas · 0 contatos" no CRM.
-          companyId = company ? await criarEmpresa(company) : null;
+          companyId = await criarEmpresa(nomeEmpresa);
           const contactId = await criarContato({
             firstName: partes[0] ?? "(sem nome)",
             lastName: partes.slice(1).join(" "),
@@ -165,9 +217,42 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           contato = { id: contactId, email, companyId };
         }
 
+        // Contato antigo, de antes desta regra, pode estar sem empresa. Cria
+        // uma só pro lead — não dá PATCH no contato pra não esbarrar no outro
+        // defeito, o de campo omitido voltar pro default.
+        if (!companyId) companyId = await criarEmpresa(nomeEmpresa);
+
         // Reenvio (vigia a cada 10min, reentrega do Meta) não pode duplicar.
-        if (await leadJaExiste(contato.id, email, String(leadgenId))) {
+        // O e-mail da busca é o do CONTATO quando ele foi achado pelo telefone
+        // — buscar pelo e-mail do form deixaria o lead existente invisível.
+        const emailDaBusca = contato.email || email;
+        if (await leadJaExiste(contato.id, emailDaBusca, String(leadgenId))) {
           console.info("[meta-leads] lead já existe, nada a fazer", leadgenId);
+          continue;
+        }
+
+        // Quem já tem lead ABERTO (veio pela landing primeiro) não vira outro:
+        // soma as respostas do Meta no lead que existe — o espelho exato do que
+        // o /api/lead já faz no sentido contrário. Era o buraco que criava o
+        // segundo lead no MESMO contato (casos Diana/Vanessa, 08/08) e re-rodava
+        // o fluxo de boas-vindas. De quebra o leadgen_id entra no lead, então o
+        // reenvio do vigia passa a casar no `leadJaExiste` de cima.
+        const aberto = await leadAbertoDoContato(contato.id, emailDaBusca);
+        if (aberto) {
+          const ok = await enriquecerLead(aberto, {
+            customFields: {
+              leadgen_id: String(leadgenId),
+              utm_source: "meta",
+              utm_medium: "lead-ad",
+              ...(lead?.campaign_name ? { utm_campaign: String(lead.campaign_name).slice(0, 200) } : {}),
+              ...(lead?.adset_name ? { utm_term: String(lead.adset_name).slice(0, 200) } : {}),
+              ...(lead?.ad_name ? { utm_content: String(lead.ad_name).slice(0, 200) } : {}),
+              ...(lead?.form_id ? { form_id: String(lead.form_id) } : {}),
+              ...extras,
+            },
+            tags: ["meta-lead-ad", tagDesafio(extras.desafio)],
+          });
+          console.info("[meta-leads] lead aberto enriquecido", aberto.id, ok);
           continue;
         }
 
@@ -175,7 +260,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
           contactId: contato.id,
           companyId,
           title: `Meta Ads — ${nomeCompleto}`,
-          tags: ["meta-lead-ad"],
+          // A tag desafio-* roteia a variante do M0 no fluxo de automação —
+          // o builder só condiciona em lead.tags, não em customFields.
+          tags: ["meta-lead-ad", tagDesafio(extras.desafio)],
           customFields: {
             leadgen_id: String(leadgenId),
             utm_source: "meta",

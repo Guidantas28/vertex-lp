@@ -3,3 +3,7 @@
 references
 scripts/*
 !scripts/patch-vercel-runtime.mjs
+
+# 6,9 MB de capturas do baseline: sobem no upload e nunca sao servidas
+# (so public/ e servido). Higiene de deploy.
+baseline

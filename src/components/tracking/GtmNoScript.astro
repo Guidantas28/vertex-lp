@@ -1,7 +1,10 @@
 ---
 // noscript do GTM — vai logo depois da abertura do <body>, em toda página.
+//
+// Só em build de produção: o iframe não roda JS, então não dá para usar o mesmo
+// guarda de hostname do GtmHead. `astro dev` (localhost:4321) simplesmente não
+// emite a tag. Ver GtmHead.astro para o porquê da trava.
+const producao = import.meta.env.PROD;
 ---
 
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://vx.voshq.com/ns.html?id=GTM-TFB84W2D" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
+{producao && <noscript><iframe src="https://vx.voshq.com/ns.html?id=GTM-TFB84W2D" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>}

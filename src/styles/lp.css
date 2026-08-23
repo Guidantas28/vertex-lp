@@ -51,7 +51,9 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     --ease:cubic-bezier(.22,1,.36,1); --dur:.24s;
 
     /* tipografia 2.0 (§18). O display do hero é marketing; o resto são papéis */
-    --fs-display:clamp(32px,9vw,46px);
+    --fs-display:clamp(40px,9.5vw,56px);
+    /* manchete de secao da LP — papel de marketing, nao de UI do app */
+    --fs-secao:clamp(26px,4.2vw,34px);
     --fs-page-title:clamp(20px,5.4vw,22px);
     --fs-subtitle:16px;
     --fs-card-title:15px;
@@ -106,33 +108,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     letter-spacing:-.03em;text-wrap:balance;}
   /* A palavra que gira, sem fundo. O destaque agora é a própria cor da marca.
      Margem negativa mantém as linhas da manchete juntas. */
-  .stk{display:block;position:relative;width:fit-content;max-width:100%;margin:-2px auto -2px;
-    padding:0;font-size:1em;
-    --stk-font:var(--sans);--stk-peso:800;--stk-tam:1em;--stk-track:-.03em}
-  /* As palavras vivem todas na MESMA célula de grid: a largura do bloco é a da
-     palavra mais larga, sozinha, sem ninguém precisar medir na mão. */
-  .stk .stk-word{position:relative;display:grid;font-size:1em;}
-  .stk .stk-word i{grid-area:1/1;justify-self:center;white-space:nowrap;
-    line-height:1.12;
-    font-family:var(--stk-font),var(--sans);
-    font-weight:var(--stk-peso);
-    font-size:var(--stk-tam);
-    letter-spacing:var(--stk-track);
-    font-style:normal;opacity:0;color:var(--accent);
-    animation-name:roll;animation-duration:6.6s;animation-iteration-count:infinite;
-    animation-timing-function:var(--ease);}
-  .stk .stk-word i:nth-of-type(1){animation-delay:0s}
-  .stk .stk-word i:nth-of-type(2){animation-delay:2.2s}
-  .stk .stk-word i:nth-of-type(3){animation-delay:4.4s}
-  /* Sem sobreposição: a palavra sai por completo em 33% e a próxima só começa
-     em 33,3% (1/3 do ciclo). Duas palavras na tela ao mesmo tempo liam como
-     borrão no celular. O deslocamento é curto de propósito. */
-  @keyframes roll{
-    0%      {opacity:0;transform:translateY(16%)}
-    6%      {opacity:1;transform:translateY(0)}
-    27%     {opacity:1;transform:translateY(0)}
-    33%,100%{opacity:0;transform:translateY(-16%)}
-  }
   .lead{font-size:var(--fs-subtitle);max-width:34ch;}
   /* linha de fricção: responde tempo, cartão, instalação e o que a pessoa leva
      da call, tudo no espaço de uma linha logo abaixo do botão */
@@ -235,15 +210,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
   .player .capa .rot{position:absolute;left:0;right:0;bottom:12px;text-align:center;
     font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
     color:rgba(255,255,255,.9);}
-  .band-foot-t{width:var(--col);text-align:center;color:var(--d-ink);
-    font-weight:700;font-size:var(--fs-page-title);letter-spacing:-.025em;
-    margin:clamp(20px,5vw,32px) 0 9px;}
   .band > section h2{color:var(--d-ink);}
-  .band .pain{background:rgba(255,255,255,.06);color:var(--d-ink-2);
-    border:1px solid var(--d-line);}
-  .band .pain b{color:var(--d-ink-3);}
   .band-top{display:block;width:100%;height:clamp(38px,9vw,72px);margin-bottom:-2px;}
-  .band-in{width:var(--col);padding-top:clamp(18px,5vw,38px);}
   /* título + texto entre a curva e o dashboard */
   .band-head{width:var(--col);text-align:center;padding:clamp(6px,3vw,18px) 0 4px;
     display:flex;flex-direction:column;gap:10px;}
@@ -251,297 +219,9 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     letter-spacing:-.025em;text-wrap:balance;}
   .band-head h2 u{text-decoration:none;color:var(--accent);}
   .band-head p{font-size:var(--fs-body);color:var(--ink-2);text-wrap:balance;}
-  .band-foot{width:var(--col);text-align:center;font-size:var(--fs-body);color:var(--ink-2);
-    text-wrap:balance;margin-top:clamp(16px,4vw,26px);}
   .band > section{padding-top:8px;padding-bottom:10px;}
 
-  /* ── Três provas vivas (portadas do bento da /v4) ──────────────────────── */
-  /* No celular vira carrossel com encaixe: o card PARA e a animação dele conta
-     a história. Trilho deslizando junto com o conteúdo animado deixa os dois
-     ilegíveis. A partir de 900px os três cabem lado a lado e o carrossel some. */
-  .feats{position:relative;width:100%;margin-top:clamp(18px,5vw,34px);}
-  /* a seta só existe onde há vizinho ao lado: no celular é carrossel */
-  .feats-seta{display:none;position:absolute;z-index:2;pointer-events:none;
-    color:var(--accent-400);transform:translate(-50%,-50%) rotate(-2deg);}
-  .feats-seta svg{width:34px;height:15px;fill:none;stroke:currentColor;
-    stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;
-    stroke-dasharray:80;stroke-dashoffset:80;
-    animation:draw .9s .4s ease-out forwards;}
-  @media (min-width:900px){ .feats-seta{display:block;} }
-  /* o respiro lateral é a folga exata pra centralizar: com padding fixo o
-     primeiro e o último card nunca ficavam no meio, porque o scroll não passa
-     de zero nem do fim */
-  .feats-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
-    scroll-behavior:smooth;padding:0 max(16px,calc((100% - min(340px,86vw)) / 2)) 4px;
-    scrollbar-width:none;-ms-overflow-style:none;}
-  .feats-track::-webkit-scrollbar{display:none;}
-  .feat{scroll-snap-align:center;flex:0 0 min(340px,86vw);display:flex;
-    flex-direction:column;padding:20px;border-radius:var(--r-lg);
-    border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);}
-  /* nota à mão em cima do card: amarra os três numa história só, em vez de
-     três recursos soltos. O do meio não leva nota de propósito, é o momento
-     em que a venda acontece; os dois lados explicam o antes e o depois. */
-  .feat-eb{font-family:var(--script);font-size:17px;font-weight:700;line-height:1.1;
-    color:var(--accent-400);margin-bottom:9px;}
-  .feat-eb u{position:relative;display:inline-block;text-decoration:none;padding-bottom:2px;}
-  .feat-eb u svg{position:absolute;left:-2%;bottom:-3px;width:104%;height:7px;overflow:visible;}
-  .feat-eb u svg path{fill:none;stroke:currentColor;stroke-width:3.6;stroke-linecap:round;
-    stroke-dasharray:260;stroke-dashoffset:260;animation:draw .85s .35s ease-out forwards;}
-  .feat h3{margin:0;font-size:var(--fs-subtitle);font-weight:650;line-height:1.25;
-    letter-spacing:-.025em;color:var(--d-ink);text-wrap:balance;}
-  .feat-sub{margin:8px 0 0;font-size:var(--fs-control);line-height:1.5;color:var(--d-ink-2);}
 
-  /* 3 · o caixa subindo. Número, barra do dia e entrada nova sobem juntos: é a
-     mesma venda contada em três lugares ao mesmo tempo. */
-  .caixa{margin-top:16px;display:flex;flex-direction:column;}
-  .caixa-lb{font-size:10px;letter-spacing:.1em;text-transform:uppercase;
-    font-weight:600;color:var(--d-ink-3);}
-  .caixa-n{font-size:30px;font-weight:800;letter-spacing:-.035em;color:#fff;
-    font-variant-numeric:tabular-nums;line-height:1.1;margin-top:3px;}
-  .caixa-n.pulou{animation:sobeNum .5s var(--ease);}
-  @keyframes sobeNum{0%{transform:translateY(6px);opacity:.55}100%{transform:none;opacity:1}}
-  .caixa-barras{display:flex;align-items:flex-end;gap:6px;height:56px;margin-top:14px;}
-  .caixa-barras i{flex:1;border-radius:3px 3px 0 0;background:rgba(21,147,90,.26);
-    transition:height .8s var(--ease), background .8s var(--ease);}
-  .caixa-barras i.hoje{background:var(--ok);}
-  /* altura de exatamente 3 entradas (3×36 + 2×6 de vão): sem ela a terceira
-     ficava cortada, e sem altura fixa o card cresce e empurra o carrossel */
-  .caixa-feed{margin-top:12px;display:flex;flex-direction:column;gap:6px;
-    height:120px;overflow:hidden;}
-  .ent{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r-sm);
-    border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);
-    animation:entra .42s var(--ease) both;}
-  .ent b{flex:none;font-size:var(--fs-label);font-weight:700;color:var(--ok);
-    font-variant-numeric:tabular-nums;}
-  .ent span{flex:1;min-width:0;font-size:var(--fs-micro);color:var(--d-ink-2);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  /* margin-top:auto gruda a legenda no rodapé: os cards têm alturas de conteúdo
-     diferentes e sem isso o mais curto fica com um buraco embaixo */
-  .feat-note{display:flex;align-items:center;gap:7px;margin:auto 0 0;padding-top:14px;
-    font-size:var(--fs-micro);color:var(--d-ink-3);}
-  .feat-dot{width:6px;height:6px;flex:none;border-radius:99px;background:var(--ok);
-    animation:pulso 2.4s ease-out infinite;}
-  @keyframes pulso{
-    0%{box-shadow:0 0 0 0 rgba(21,147,90,.45)}
-    70%,100%{box-shadow:0 0 0 7px rgba(21,147,90,0)}
-  }
-  .feats-dots{display:flex;justify-content:center;gap:7px;margin-top:14px;}
-  .feats-dots button{width:6px;height:6px;padding:0;border:0;border-radius:99px;
-    background:rgba(255,255,255,.22);cursor:pointer;
-    transition:background var(--dur) var(--ease), width var(--dur) var(--ease);}
-  .feats-dots button[aria-current="true"]{width:18px;background:var(--accent);}
-  /* dica de arrastar: sem ela, quem para no primeiro card não descobre os
-     outros dois. Some no primeiro toque, porque depois disso vira ruído. */
-  .feats-dica{display:flex;align-items:center;justify-content:center;gap:8px;
-    margin-top:10px;color:var(--accent-400);
-    transition:opacity .4s var(--ease), transform .4s var(--ease);}
-  .feats-dica u{font-family:var(--script);font-size:16px;font-weight:700;
-    text-decoration:none;}
-  .feats-dica svg{width:34px;height:13px;fill:none;stroke:currentColor;
-    stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
-    animation:cutuca 1.8s var(--ease) infinite;}
-  @keyframes cutuca{0%,60%,100%{transform:translateX(0)}30%{transform:translateX(5px)}}
-  .feats-dica.foi{opacity:0;transform:translateY(-4px);pointer-events:none;}
-  @media (min-width:900px){ .feats-dica{display:none;} }
-  @media (min-width:900px){
-    .feats-track{display:grid;grid-template-columns:repeat(3,1fr);overflow:visible;
-      gap:34px;padding:0;width:min(1060px,calc(100% - 48px));margin:0 auto;}
-    .feat{flex:auto;}
-    .feats-dots{display:none;}
-  }
-
-  /* 1 · inbox que corre sozinha */
-  /* A conversa ocupa o que sobra do card. A janela vai ABSOLUTA de propósito:
-     em fluxo normal ela cresce com as 26 mensagens, o card cresce junto e
-     arrasta a linha inteira (medi 2302px de card antes desse ajuste). */
-  .feat-chat{margin-top:16px;flex:1;min-height:150px;position:relative;}
-  .feat-chat-vp{position:absolute;inset:0;overflow:hidden;border-radius:var(--r);
-    border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.22);
-    -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 88%,transparent 100%);
-    mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 88%,transparent 100%);}
-  .feat-chat-track{display:flex;flex-direction:column;will-change:transform;
-    animation:corre 46s linear infinite;}
-  .feat-chat:hover .feat-chat-track{animation-play-state:paused;}
-  .feat-chat-seq{display:flex;flex-direction:column;gap:8px;padding:12px 11px;}
-  @keyframes corre{from{transform:translateY(0)}to{transform:translateY(-50%)}}
-  .ch{position:relative;max-width:88%;padding:8px 11px;border-radius:12px;
-    font-size:12.5px;line-height:1.45;}
-  .ch p{margin:0;color:rgba(255,255,255,.9);}
-  .ch em{display:block;margin-top:3px;font-style:normal;font-size:10px;
-    color:rgba(255,255,255,.38);text-align:right;}
-  .ch.in{align-self:flex-start;background:rgba(255,255,255,.055);
-    border:1px solid rgba(255,255,255,.07);border-bottom-left-radius:4px;}
-  .ch.out{align-self:flex-end;background:rgba(21,147,90,.18);
-    border:1px solid rgba(21,147,90,.32);border-bottom-right-radius:4px;}
-  .ch-pay{align-self:flex-end;display:flex;flex-direction:column;gap:6px;max-width:88%;
-    padding:9px 11px;border-radius:12px;border:1px dashed rgba(21,147,90,.45);
-    background:rgba(255,255,255,.02);}
-  .ch-pay span{font-size:11.5px;color:rgba(255,255,255,.66);}
-  .ch-pay b{font-size:12px;color:#fff;padding:6px 10px;border-radius:var(--r-sm);
-    background:rgba(21,147,90,.32);text-align:center;}
-  .ch-sep{display:flex;align-items:center;gap:8px;margin:4px 0;
-    font-size:10px;letter-spacing:.08em;text-transform:uppercase;
-    color:rgba(255,255,255,.3);}
-  .ch-sep::before,.ch-sep::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.08);}
-
-  /* 2 · funil que anda sozinho */
-  .feat-funil{margin-top:16px;display:flex;flex-direction:column;gap:9px;}
-  .fx{display:flex;align-items:center;gap:10px;}
-  .fx-bar{position:relative;flex:1;height:34px;border-radius:var(--r-sm);
-    border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);
-    display:flex;align-items:center;overflow:hidden;}
-  .fx-bar i{position:absolute;inset:0 auto 0 0;width:40%;
-    background:linear-gradient(90deg,color-mix(in srgb,var(--fc) 62%,transparent),
-      color-mix(in srgb,var(--fc) 24%,transparent));
-    border-right:2px solid var(--fc);
-    transition:width .9s var(--ease);}
-  .fx-bar b{position:relative;padding-left:11px;font-size:var(--fs-label);font-weight:600;
-    color:rgba(255,255,255,.92);white-space:nowrap;}
-  .fx em{font-style:normal;font-size:var(--fs-control);font-weight:700;
-    color:var(--d-ink-2);font-variant-numeric:tabular-nums;min-width:26px;text-align:right;}
-
-  /* 4 · o fluxo rodando. No celular os nós empilham (é assim que builder de
-     fluxo se lê em tela estreita); do desktop pra cima o card ocupa a linha
-     inteira e o fluxo deita, que é a leitura natural de um fluxo. */
-  .flow{margin-top:16px;display:flex;flex-direction:column;gap:12px;}
-  .flow-tabs{display:flex;gap:6px;flex-wrap:wrap;}
-  .flow-tab{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;
-    border-radius:999px;border:1px solid rgba(255,255,255,.1);background:transparent;
-    font-family:inherit;font-size:var(--fs-micro);font-weight:600;color:var(--d-ink-2);
-    cursor:pointer;transition:color var(--dur) var(--ease), border-color var(--dur) var(--ease),
-      background var(--dur) var(--ease);}
-  .flow-tab i{width:6px;height:6px;border-radius:99px;background:var(--fc);flex:none;}
-  .flow-tab[aria-selected="true"]{color:#fff;border-color:color-mix(in srgb,var(--fc) 55%,transparent);
-    background:color-mix(in srgb,var(--fc) 16%,transparent);}
-  .flow-canvas{display:flex;flex-direction:column;gap:0;}
-  .fn-wrap{display:flex;flex-direction:column;align-items:stretch;}
-  .fn-wire{width:2px;height:14px;margin-left:19px;background:rgba(255,255,255,.12);
-    position:relative;overflow:hidden;flex:none;}
-  .fn-wire::after{content:"";position:absolute;inset:0;background:var(--fc);
-    transform:scaleY(0);transform-origin:top;transition:transform .5s var(--ease);}
-  .fn-wire.on::after{transform:scaleY(1);}
-  .fn{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:var(--r-sm);
-    border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);
-    transition:border-color .35s var(--ease), background .35s var(--ease),
-      box-shadow .35s var(--ease), transform .35s var(--ease);}
-  .fn-ic{flex:none;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;
-    font-size:11px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);}
-  .fn strong{display:block;font-size:var(--fs-label);font-weight:600;color:rgba(255,255,255,.92);}
-  .fn em{display:block;font-style:normal;font-size:var(--fs-micro);color:var(--d-ink-3);}
-  .fn.feito{border-color:color-mix(in srgb,var(--fc) 34%,transparent);}
-  .fn.feito .fn-ic{background:color-mix(in srgb,var(--fc) 20%,transparent);color:#fff;}
-  .fn.ativo{border-color:var(--fc);background:color-mix(in srgb,var(--fc) 12%,transparent);
-    box-shadow:0 0 0 3px color-mix(in srgb,var(--fc) 16%,transparent);transform:translateX(3px);}
-  .fn.ativo .fn-ic{background:var(--fc);color:#fff;}
-  .flow-log{min-height:32px;padding:7px 10px;border-radius:var(--r-sm);
-    border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.25);
-    font-size:var(--fs-micro);line-height:1.5;color:var(--d-ink-2);}
-  .flow-log b{color:var(--fc);font-weight:600;}
-  @media (min-width:900px){
-    .feat--wide{grid-column:1 / -1;}
-    /* stretch, não center: sem isso os nós ficam com alturas diferentes e as
-       caixas desalinham na linha */
-    .flow-canvas{flex-direction:row;align-items:stretch;}
-    .fn-wrap{flex:1;flex-direction:row;align-items:stretch;min-width:0;}
-    .fn-wrap .fn{flex:1;min-width:0;}
-    .fn-wire{align-self:center;width:100%;max-width:34px;height:2px;margin:0 6px;}
-    .fn-wire::after{transform:scaleX(0);transform-origin:left;}
-    .fn-wire.on::after{transform:scaleX(1);}
-    .fn.ativo{transform:translateY(-2px);}
-  }
-
-  /* ── Esteira de depoimentos ─────────────────────────────────────────────
-     3 pistas subindo em velocidades diferentes pra não sincronizar. No celular
-     vira 1 pista: 3 colunas em 375px dariam ~110px cada, ilegível. */
-  .depos{width:100%;margin-top:6px;display:grid;gap:12px;grid-template-columns:1fr;
-    height:clamp(300px,52vw,360px);overflow:hidden;padding:0 16px;
-    -webkit-mask-image:linear-gradient(180deg,transparent,#000 14%,#000 86%,transparent);
-    mask-image:linear-gradient(180deg,transparent,#000 14%,#000 86%,transparent);}
-  .depo-pista{overflow:hidden;}
-  .depo-fita{display:flex;flex-direction:column;gap:12px;
-    animation:sobe var(--v,38s) linear infinite;will-change:transform;}
-  .depos:hover .depo-fita{animation-play-state:paused;}
-  @keyframes sobe{from{transform:translateY(0)}to{transform:translateY(-50%)}}
-  .depo{padding:15px;border-radius:var(--r-lg);border:1px solid rgba(255,255,255,.09);
-    background:rgba(255,255,255,.035);}
-  .depo-estrelas{display:flex;align-items:center;gap:6px;color:var(--accent);
-    font-size:11px;letter-spacing:.06em;}
-  .depo-estrelas em{font-style:normal;font-size:var(--fs-micro);font-weight:700;
-    color:var(--d-ink-2);letter-spacing:0;}
-  .depo p{margin:8px 0 0;font-size:var(--fs-control);line-height:1.55;color:var(--d-ink);}
-  .depo-quem{display:flex;align-items:center;gap:9px;margin-top:12px;
-    padding-top:11px;border-top:1px solid rgba(255,255,255,.07);}
-  .depo-av{flex:none;width:32px;height:32px;border-radius:99px;object-fit:cover;
-    background:rgba(255,255,255,.08);}
-  .depo-quem b{display:block;font-size:var(--fs-label);font-weight:600;color:rgba(255,255,255,.92);}
-  .depo-quem span{display:block;font-size:var(--fs-micro);color:var(--d-ink-3);}
-  /* enquanto for rascunho o bloco se denuncia, pra ninguém publicar sem trocar */
-  .depos.rascunho .depo{border-style:dashed;border-color:rgba(237,75,0,.4);}
-  .depos-aviso{width:var(--col);margin:10px auto 0;text-align:center;
-    font-size:var(--fs-micro);color:var(--accent);}
-  @media (min-width:760px){
-    .depos{grid-template-columns:repeat(3,1fr);width:min(1060px,calc(100% - 48px));
-      margin-left:auto;margin-right:auto;padding:0;}
-  }
-
-  /* 3 · a operação avisando sozinha */
-  .feat-notif{margin-top:16px;height:250px;overflow:hidden;}
-  .feat-notif-stack{display:flex;flex-direction:column;gap:8px;}
-  .nt{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--r);
-    border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.035);
-    animation:entra .42s var(--ease) both;}
-  @keyframes entra{from{opacity:0;transform:translateY(-26px) scale(.95)}
-    to{opacity:1;transform:none}}
-  /* disco do ícone é MONO: cor de categoria não é cor de status (DS §23).
-     Quem distingue é o ícone e o rótulo; a cor fica no selo da direita. */
-  .nt-ic{flex:none;width:32px;height:32px;border-radius:var(--r-sm);display:grid;
-    place-items:center;background:rgba(255,255,255,.07);color:rgba(255,255,255,.8);}
-  .nt-ic svg{width:16px;height:16px;}
-  .nt-tx{flex:1;min-width:0;}
-  .nt-tx strong{display:flex;align-items:center;gap:6px;font-size:var(--fs-label);
-    font-weight:600;color:rgba(255,255,255,.94);}
-  .nt-tx span{display:block;font-size:var(--fs-micro);color:var(--d-ink-3);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .nt-now{font-style:normal;font-size:9px;letter-spacing:.08em;text-transform:uppercase;
-    font-weight:700;color:var(--accent);background:var(--accent-soft);
-    border-radius:999px;padding:1px 6px;}
-  .nt em{font-style:normal;flex:none;font-size:var(--fs-micro);font-weight:600;
-    color:var(--nc);background:color-mix(in srgb,var(--nc) 16%,transparent);
-    border-radius:999px;padding:3px 8px;white-space:nowrap;}
-
-  /* dores */
-  .pains{display:flex;flex-direction:column;gap:8px;}
-  .pain{display:flex;gap:10px;padding:14px;border-radius:var(--r);background:var(--panel-2);
-    font-size:var(--fs-body);color:var(--ink-2);}
-  .pain b{color:var(--ink-3);flex:none;font-variant-numeric:tabular-nums;}
-
-  /* números */
-  .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-  .num{background:var(--accent-soft);border-radius:var(--r);padding:16px 10px;text-align:center;}
-  .num b{display:block;font-size:clamp(21px,6vw,27px);font-weight:700;letter-spacing:-.03em;
-    color:var(--accent);font-variant-numeric:tabular-nums;}
-  .num small{display:block;margin-top:3px;font-size:var(--fs-label);color:var(--ink-2);line-height:1.3;}
-
-  /* depoimento */
-  .quote{background:var(--panel-2);border-radius:var(--r-lg);padding:18px;
-    display:flex;flex-direction:column;gap:12px;}
-  .quote p{color:var(--ink);font-size:var(--fs-subtitle);}
-  .who{display:flex;align-items:center;gap:9px;font-size:var(--fs-control);color:var(--ink-3);}
-  .who i{width:29px;height:29px;border-radius:50%;background:var(--panel-2);display:grid;
-    place-items:center;font-size:var(--fs-micro);font-weight:700;color:var(--ink-2);font-style:normal;}
-
-  /* form */
-  .form{background:var(--panel-2);border-radius:var(--r-lg);padding:18px;
-    display:flex;flex-direction:column;gap:13px;}
-  .slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:7px;}
-  .slot{font-family:inherit;font-size:var(--fs-control);font-weight:600;color:var(--ink);
-    background:var(--panel);border:1px solid var(--line-2);border-radius:var(--btn-r);
-    padding:10px 8px;min-height:38px;cursor:pointer;
-    transition:border-color var(--dur) var(--ease), background var(--dur) var(--ease),
-      color var(--dur) var(--ease);}
-  .slot:hover{border-color:var(--ink-3);}
-  .slot[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg);}
-  .slot small{display:block;font-size:var(--fs-micro);font-weight:400;opacity:.74;}
   label{font-size:var(--fs-label);font-weight:500;color:var(--ink-2);display:block;margin-bottom:6px;}
   /* input padrão do DS §21 adaptado pro toque: 44px de alvo e 16px de fonte —
      abaixo de 16px o iOS Safari dá auto-zoom no foco (era o bug do modal) */
@@ -549,7 +229,6 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     background:var(--panel);border:1px solid var(--line-2);border-radius:var(--btn-r);
     padding:0 12px;transition:border-color var(--dur) var(--ease);}
   input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent;}
-  .micro{font-size:var(--fs-label);color:var(--ink-3);text-align:center;}
 
   /* rodapé mínimo: identificação legal + política de privacidade (exigência de
      LP de anúncio com captura de dados). Padding inferior alto pra barra fixa
@@ -567,27 +246,349 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     transform:translateY(115%);visibility:hidden;
     transition:transform .32s var(--ease), visibility .32s;}
   .bar.show{transform:none;visibility:visible;}
-  .bar .cta{max-width:540px;}
 
+  /* ── WhatsApp flutuante, em registro de SaaS ───────────────────────
+     O botao flutua sobre DUAS superficies: o topo da pagina e branco e a faixa
+     do meio e preta. O verde chapado resolvia isso na forca; uma pilula escura
+     discreta SOME sobre o preto. Por isso ela leva borda clara de 1px E sombra
+     difusa, sempre as duas: a borda garante o recorte sobre o preto, a sombra
+     garante sobre o branco.
+     O verde nao sumiu — saiu do fundo e foi pro glifo. E o que mantem o
+     reconhecimento imediato sem o efeito de adesivo de site de PME. */
+  .zap-wrap{position:fixed;right:16px;bottom:calc(20px + env(safe-area-inset-bottom));
+    z-index:21;display:flex;align-items:center;gap:10px;
+    transition:bottom .32s var(--ease);}
+  .bar.show ~ .zap-wrap{bottom:calc(84px + env(safe-area-inset-bottom));}
 
-  .reveal{opacity:0;transform:translateY(16px);
+  .zap{display:inline-flex;align-items:center;gap:0;height:56px;padding:0 16px;
+    border-radius:999px;text-decoration:none;position:relative;
+    background:rgba(17,19,22,.92);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,.14);color:#F2F5F7;
+    box-shadow:0 10px 30px rgba(0,0,0,.34), 0 2px 8px rgba(0,0,0,.24);
+    transition:gap .26s var(--ease), transform .26s var(--ease),
+      border-color .26s var(--ease), box-shadow .26s var(--ease);}
+  /* ── o rosto de quem responde ──────────────────────────────────────
+     A foto sozinha vira avatar generico e o botao perde a leitura de "isto
+     abre o WhatsApp". Por isso o selo verde nao e enfeite: e ele que carrega
+     o canal. O anel do selo usa a cor CHEIA da pilula (#111316) e nao a
+     translucida — com a translucida a foto vazava por baixo do anel. */
+  .zap-rosto{position:relative;flex:none;display:block;line-height:0;}
+  .zap-av{display:block;width:34px;height:34px;border-radius:50%;object-fit:cover;
+    background:#2a2e33;box-shadow:0 0 0 1px rgba(255,255,255,.20);}
+  .zap-selo{position:absolute;right:-2px;bottom:-2px;width:16px;height:16px;
+    border-radius:50%;display:grid;place-items:center;
+    background:#25D366;color:#0A1F13;box-shadow:0 0 0 2px #111316;}
+  .zap-selo svg{display:block;width:10px;height:10px;}
+  .zap-txt{max-width:0;overflow:hidden;white-space:nowrap;font-size:var(--fs-control);
+    font-weight:650;letter-spacing:-.01em;transition:max-width .26s var(--ease);}
+  .zap:hover,.zap:focus-visible{gap:10px;transform:translateY(-2px);
+    border-color:rgba(255,255,255,.26);
+    box-shadow:0 16px 38px rgba(0,0,0,.42), 0 3px 10px rgba(0,0,0,.28);}
+  .zap:hover .zap-txt,.zap:focus-visible .zap-txt{max-width:190px;}
+  .zap:focus-visible{outline:3px solid #25D366;outline-offset:3px;}
+
+  /* ── o balao ────────────────────────────────────────── */
+  .zap-balao{position:relative;display:flex;align-items:flex-start;gap:8px;
+    max-width:250px;padding:12px 12px 12px 14px;border-radius:14px;
+    background:rgba(17,19,22,.95);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 10px 30px rgba(0,0,0,.34), 0 2px 8px rgba(0,0,0,.24);
+    opacity:0;transform:translateX(10px) scale(.97);transform-origin:100% 50%;
+    transition:opacity .24s var(--ease), transform .24s var(--ease);}
+  .zap-balao.in{opacity:1;transform:none;}
+  /* 🔴 sem esta linha o [hidden] do balao NAO funciona: a regra .zap-balao
+     acima declara display:flex e vence o display:none que o atributo aplica.
+     O balao ficava ocupando ~242x59px invisivel (opacity:0) com
+     pointer-events:auto — engolindo clique ao lado do botao — e o texto dele
+     continuava exposto a leitor de tela. Defeito antigo, achado na medicao. */
+  .zap-balao[hidden]{display:none;}
+  .zap-balao::after{content:"";position:absolute;right:-6px;top:50%;width:11px;height:11px;
+    transform:translateY(-50%) rotate(45deg);background:rgba(17,19,22,.95);
+    border-right:1px solid rgba(255,255,255,.14);
+    border-top:1px solid rgba(255,255,255,.14);}
+  .zap-balao-t{margin:0;color:#F2F5F7;font-size:var(--fs-label);line-height:1.45;
+    font-weight:500;}
+  .zap-x{position:relative;flex:none;width:24px;height:24px;display:grid;place-items:center;
+    margin:-3px -3px 0 0;padding:0;border:0;border-radius:8px;cursor:pointer;
+    background:transparent;color:#8C979F;
+    transition:color .2s var(--ease), background .2s var(--ease);}
+  .zap-x svg{width:13px;height:13px;}
+  /* alvo de toque de 44px sem mexer no tamanho visual (WCAG 2.5.8): o icone
+     continua com 13px, quem cresce e a area clicavel. */
+  /* 48 e nao 44: com 44 exatos a borda fica na fronteira e a medicao do
+     alvo devolvia 42. Uns pixels de folga poem o alvo acima do minimo
+     com margem, em vez de raspando nele. */
+  .zap-x::before{content:"";position:absolute;width:48px;height:48px;
+    top:50%;left:50%;transform:translate(-50%,-50%);}
+  .zap-x:hover{color:#F2F5F7;background:rgba(255,255,255,.08);}
+  .zap-x:focus-visible{outline:2px solid #25D366;outline-offset:2px;color:#F2F5F7;}
+
+  /* no celular nao ha largura pro balao ficar AO LADO: ele vai pra cima. */
+  @media (max-width:639px){
+    .zap-wrap{right:12px;flex-direction:column;align-items:flex-end;gap:8px;}
+    .zap{height:52px;padding:0 14px;}
+    .zap-av{width:32px;height:32px;}
+    .zap:hover .zap-txt{max-width:0;}
+    .zap-balao{max-width:min(258px, calc(100vw - 40px));
+      transform:translateY(8px) scale(.97);transform-origin:100% 100%;}
+    .zap-balao.in{transform:none;}
+    .zap-balao::after{right:22px;top:auto;bottom:-6px;transform:rotate(45deg);
+      border:0;border-right:1px solid rgba(255,255,255,.14);
+      border-bottom:1px solid rgba(255,255,255,.14);}
+  }
+
+  .js .reveal{opacity:0;transform:translateY(16px);
     transition:opacity .65s ease, transform .65s var(--ease);}
   .reveal.in{opacity:1;transform:none;}
 
   @media (prefers-reduced-motion:reduce){
-    /* sem deslocamento: as palavras só trocam por opacidade */
-    .stk .stk-word i{animation-name:wordFade}
-    @keyframes wordFade{
-      0%{opacity:0;transform:none}
-      5%,30%{opacity:1;transform:none}
-      35%,100%{opacity:0;transform:none}}
     .cta .ar{transition:none}
-    .reveal{opacity:1;transform:none;transition:none}
-    .shot,.ze i{animation:none}
-    .st{opacity:1;transform:none}
-    .play .st{animation:none}
+    .js .reveal{opacity:1;transform:none;transition:none}
+    /* o balao aparece, mas sem deslizar; nada no botao se move */
+    .zap,.zap-wrap,.zap-balao,.zap-txt{transition:none}
+    .zap:hover{transform:none}
+    .zap-balao{transform:none}
     .bar{transition:none}
-    /* esteiras (chat e depoimentos) param — movimento infinito é o pior caso
-       pra quem pediu menos movimento */
-    .feat-chat-track,.depo-fita{animation-play-state:paused}
+    .zap{transition:none}
+    .zap:hover{transform:none}
+  }
+
+  /* =======================================================================
+     Reescrita Big Black Book - problema, mecanismo, telas reais, preco, FAQ.
+     Regua desta rodada: as secoes novas tem que ter o mesmo acabamento do
+     resto da pagina (que ja tem 8 keyframes), usar o motor .reveal que estava
+     ocioso, e escapar da coluna de 540px no desktop pelo mesmo caminho que o
+     .feats-track ja usa - min(1060px, 100% - 48px) a partir de 900px.
+     ======================================================================= */
+
+  .planos,.faq{width:var(--col);margin-left:auto;margin-right:auto;}
+  @media (min-width:900px){
+    .planos,.faq{width:min(1060px,calc(100% - 48px));}
+  }
+
+  /* -- a cara do sistema, fechando o hero ---------------------------------
+     Escapa da coluna de 540px pelo MESMO caminho que .planos/.faq/.feats-track
+     ja usam, para nao inventar um segundo mecanismo de breakout. A mascara no
+     rodape dissolve a tela no fundo em vez de cortar reto - e o equivalente
+     contido do palco sangrado da home. */
+  .hero-tela{width:var(--col);margin:clamp(10px,3vw,20px) auto 0;padding:0;
+    border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    background:var(--panel);box-shadow:0 18px 46px rgba(0,0,0,.09);
+    -webkit-mask-image:linear-gradient(#000 78%,transparent 100%);
+            mask-image:linear-gradient(#000 78%,transparent 100%);}
+  .hero-tela img{display:block;width:100%;height:auto;}
+
+  @media (min-width:900px){
+    .hero-tela{width:min(1060px,calc(100% - 48px));border-radius:16px;
+      box-shadow:0 26px 64px rgba(0,0,0,.11);}
+  }
+
+  /* hero: a segunda linha e a virada, entao e ela que leva o laranja */
+  .hero h1 em{font-style:normal;color:var(--accent);}
+
+  /* -- 2 - a corrente quebrada -------------------------------------------
+     Hierarquia invertida em relacao a versao anterior: o VAO e o argumento,
+     entao ele e maior e mais claro que o nome da ferramenta, que e contexto. */
+  /* -- 3 - a faixa causal: uma historia so -------------------------------
+     Aparece inteira tambem no celular (2 colunas). Esconder a cadeia atras
+     de carrossel era o defeito apontado na auditoria. */
+  /* -- 4 - telas reais do produto ----------------------------------------*/
+  /* -- 8 - precos --------------------------------------------------------*/
+  .stack{color:var(--d-ink-2);}
+  .planos{margin-top:clamp(16px,4vw,24px);display:grid;gap:12px;align-items:stretch;}
+  .plano{background:var(--d-panel);border:1px solid var(--d-line);border-radius:var(--r-lg);
+    padding:22px 20px;display:flex;flex-direction:column;min-width:0;
+    transition:border-color var(--dur) var(--ease), transform var(--dur) var(--ease);}
+  .plano:hover{border-color:var(--accent-line);transform:translateY(-2px);}
+  .plano-nome{margin:0;color:var(--d-ink-3);font-size:var(--fs-label);font-weight:700;
+    text-transform:uppercase;letter-spacing:.08em;}
+  .plano-preco{margin:8px 0 0;display:flex;align-items:baseline;gap:5px;color:var(--d-ink);}
+  .plano-preco b{font-size:clamp(30px,8vw,36px);font-weight:700;letter-spacing:-.03em;}
+  .plano-preco span{color:var(--d-ink-3);font-size:var(--fs-control);}
+  .plano-resumo{margin:10px 0 0;color:var(--d-ink-2);font-size:var(--fs-control);}
+  .plano-itens{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:9px;flex:1;}
+  .plano-itens li{position:relative;padding-left:20px;color:var(--d-ink-2);
+    font-size:var(--fs-body);line-height:1.45;}
+  .plano-itens li::before{content:"";position:absolute;left:2px;top:.52em;width:9px;height:9px;
+    border-left:1.8px solid var(--accent);border-bottom:1.8px solid var(--accent);
+    transform:rotate(-45deg) translateY(-1px);}
+  @media (min-width:900px){ .planos{grid-template-columns:repeat(3,1fr);gap:14px;} }
+
+  /* CTA secundario: o laranja cheio fica reservado ao hero, ao fecho e a
+     barra. Antes eram cinco botoes identicos empilhados. */
+  .cta-2{margin-top:20px;width:100%;justify-content:center;background:transparent;
+    color:var(--d-ink);border:1px solid var(--d-line);box-shadow:none;}
+  .cta-2:hover{border-color:var(--accent);color:var(--accent-400);background:transparent;}
+
+  /* -- 9 - objecoes ------------------------------------------------------*/
+  .faq{margin-top:clamp(14px,4vw,20px);display:grid;gap:8px;}
+  .faq-item{background:var(--d-panel);border:1px solid var(--d-line);border-radius:var(--r);
+    overflow:hidden;transition:border-color var(--dur) var(--ease);}
+  .faq-item:hover,.faq-item[open]{border-color:var(--accent-line);}
+  .faq-item summary{cursor:pointer;list-style:none;display:flex;align-items:center;
+    justify-content:space-between;gap:12px;padding:15px 16px;color:var(--d-ink);
+    font-size:var(--fs-body);font-weight:600;line-height:1.35;}
+  .faq-item summary::-webkit-details-marker{display:none}
+  .faq-item summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+  .faq-sinal{position:relative;flex:0 0 14px;height:14px;}
+  .faq-sinal::before,.faq-sinal::after{content:"";position:absolute;background:var(--accent);
+    transition:transform var(--dur) var(--ease);}
+  .faq-sinal::before{left:0;top:6px;width:14px;height:2px;}
+  .faq-sinal::after{left:6px;top:0;width:2px;height:14px;}
+  .faq-item[open] .faq-sinal::after{transform:scaleY(0);}
+  .faq-item p{margin:0;padding:0 16px 16px;color:var(--d-ink-2);font-size:var(--fs-body);
+    line-height:1.55;animation:abre .28s var(--ease);}
+  @keyframes abre{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+  .fecho h2{font-size:clamp(22px,6vw,26px);}
+
+  @media (prefers-reduced-motion:reduce){
+    .faq-sinal::before,.faq-sinal::after,.plano,.faq-item{transition:none}
+    .faq-item p{animation:none}
+  }
+
+  /* âncora de preço: vem DEPOIS do valor, não como manchete da seção */
+  .ancora{margin-top:8px;color:var(--d-ink-2);font-size:var(--fs-control);}
+  .ancora b{color:var(--d-ink);font-weight:700;}
+
+  /* benefício do plano: vem antes da lista, porque feature sozinha não vende */
+  .plano-benef{margin:12px 0 0;color:var(--d-ink);font-size:var(--fs-control);
+    font-weight:600;line-height:1.4;}
+  .plano-resumo{margin-top:10px;}
+
+  /* tira a paralisia das três opções antes de cair no FAQ */
+  /* Card de DECISAO, nao area secundaria. A borda tracejada fazia o bloco
+     parecer campo desabilitado bem no ponto em que ele precisa convidar. */
+  .ajuda{width:var(--col);margin:clamp(18px,4vw,26px) auto 0;text-align:center;
+    background:var(--d-panel);border:1px solid var(--accent-line);
+    border-radius:var(--r-lg);padding:26px 22px;}
+  @media (min-width:900px){ .ajuda{width:min(1060px,calc(100% - 48px));} }
+  .ajuda-t{margin:0;color:var(--d-ink);font-size:var(--fs-subtitle);font-weight:650;}
+  .ajuda-alivio{margin:6px 0 0;color:var(--accent-400);font-size:var(--fs-subtitle);
+    font-weight:700;}
+  .ajuda-p{margin:10px auto 0;max-width:60ch;color:var(--d-ink-2);font-size:var(--fs-body);
+    line-height:1.55;}
+  .ajuda-cta{display:inline-flex;align-items:center;gap:7px;margin-top:16px;color:var(--accent-400);
+    font-size:var(--fs-body);font-weight:650;text-decoration:none;
+    border-bottom:1px solid var(--accent-line);padding-bottom:2px;
+    transition:border-color var(--dur) var(--ease);}
+  .ajuda-cta:hover{border-color:var(--accent);}
+  .ajuda-cta .ar{width:17px;height:17px;}
+
+  .band-cta-nota{margin:12px 0 0;text-align:center;color:var(--d-ink-3);
+    font-size:var(--fs-label);}
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     Hierarquia — 6 ajustes pedidos pelo Orlando (19/08). Sem efeito novo,
+     sem gradiente, sem glow: só largura, tamanho e respiro.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  @media (min-width:900px){
+    /* 1 · largura útil. A coluna de 540px fazia o VOS parecer menor do que é
+       numa tela grande. Texto vai a 720 (linha ainda legível), grade de cards
+       vai a 1120. */
+    :root{ --col:min(720px, calc(100% - 48px)); }
+    .planos,.faq,.ajuda{width:min(1120px,calc(100% - 48px));}
+    .hero-tela{width:min(1120px,calc(100% - 48px));}
+  }
+
+  /* 3 · respiro entre a prova e o preço: "ok, funciona → agora quanto custa?" */
+  .planos-sep{margin-top:clamp(52px,10vw,96px);}
+
+  /* 4 · o preço domina o card; a lista recua */
+  .plano-preco b{font-size:clamp(38px,9vw,52px);line-height:1;}
+  .plano-preco span{font-size:var(--fs-body);}
+  .plano-nome{font-size:var(--fs-micro);opacity:.75;}
+  .plano-benef{font-size:var(--fs-body);}
+  .plano-itens li{font-size:var(--fs-control);color:var(--d-ink-3);}
+  .plano-itens li::before{border-color:var(--accent);opacity:.85;}
+
+  /* 5 · o card de decisão sobe de tom em vez de parecer desabilitado */
+  .ajuda{background:var(--d-panel-2);}
+  .ajuda-ic{display:block;margin:0 auto 12px;width:30px;height:30px;color:var(--accent);}
+
+  /* 6 · o fecho é a conclusão da página, não mais um bloco */
+
+  .fecho p{font-size:var(--fs-subtitle);max-width:52ch;margin-left:auto;margin-right:auto;}
+  .band-cta{max-width:520px;margin-left:auto;margin-right:auto;}
+  .band-cta .cta{height:62px;font-size:var(--fs-subtitle);font-weight:700;}
+  .band-cta .cta .ar{width:20px;height:20px;}
+
+  /* Selo do plano. Afirmação de popularidade — fonte: declaração do Orlando em
+     19/08/2026, registrada no docs/vos-growth/LP_ARCHITECTURE.md. Sem esse
+     lastro o selo seria claim fabricada, que é o que a spec proíbe. */
+  .plano-topo{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .plano-selo{flex:0 0 auto;background:var(--accent-soft);color:var(--accent-400);
+    border:1px solid var(--accent-line);border-radius:999px;padding:4px 10px;
+    font-size:var(--fs-micro);font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;white-space:nowrap;}
+  .plano-destaque{border-color:var(--accent-line);}
+
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     Hierarquia e destaque (19/08) — medido, não achismo.
+
+     Antes: manchete de seção a 22px (1,4× o corpo) e preço a 52px MAIOR que o
+     H1 a 46px. A página gritava o preço antes da promessa. E havia 65
+     elementos em laranja, de 2 a 12 por tela — o efeito von Restorff funciona
+     por isolamento, e com 65 sinais não existe sinal.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* manchete de seção sai do token de UI e assume papel de marketing */
+  .band-head h2{font-size:var(--fs-secao);line-height:1.12;letter-spacing:-.025em;}
+
+  /* papéis intermediários: hoje empatavam com o corpo */
+  .hero .lead{font-size:18px;max-width:44ch;}
+  .band-head p,.stack{font-size:var(--fs-subtitle);}
+  .faq-item summary{font-size:17px;}
+  .band-cta .cta{font-size:18px;}
+
+  /* ── laranja = ação. O resto vira neutro. ─────────────────────────────── */
+
+  /* check das listas de plano: informação, não decisão */
+  .plano-itens li::before{border-left-color:var(--d-ink-3);border-bottom-color:var(--d-ink-3);}
+  /* o +/− do FAQ é affordance, não destaque */
+  .faq-sinal::before,.faq-sinal::after{background:var(--d-ink-2);}
+  .faq-item[open] .faq-sinal::before,.faq-item[open] .faq-sinal::after{background:var(--accent);}
+  /* o ícone do card de decisão acompanha o texto */
+  .ajuda-ic{color:var(--d-ink-3);}
+
+  @media (min-width:900px){
+    .hero .lead{font-size:19px;}
+  }
+
+  /* o fecho é o clímax da página: tem que passar as manchetes de seção.
+     Vem por último de propósito — .band-head h2 e .fecho h2 empatam em
+     especificidade, então quem vence é a ordem. */
+  .band-head.fecho h2{font-size:clamp(34px,8vw,46px);line-height:1.06;letter-spacing:-.03em;}
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     A cena: a conversa de um lado, os módulos do outro.
+     Vídeo, não animação de DOM — ver o comentário no lp.astro.
+     ═══════════════════════════════════════════════════════════════════════ */
+  .band-cena{width:var(--col);margin:clamp(18px,4vw,26px) auto clamp(6px,2vw,12px);}
+  /* Proporção única: a peça é uma só desde 20/08 (972x1458 ≈ 2:3). O corte
+     deitado morreu por geometria — num quadro largo o aparelho já ocupava toda
+     a altura, então o painel lateral não dava espaço à tela, só aumentava o
+     vazio dos lados. */
+  .cena{position:relative;width:100%;border-radius:var(--r-xl);overflow:hidden;
+    background:#000;box-shadow:0 26px 56px -26px rgba(0,0,0,.6);
+    aspect-ratio:2/3;}
+  .cena-v{width:100%;height:100%;display:block;object-fit:cover;background:#000;}
+  /* 🔴 Não existe controle de pausar. Movimento que começa sozinho, passa de 5s
+     e divide a tela com texto exige um mecanismo de pausar (WCAG 2.2.2, nível
+     A) — sem ele a página REPROVA nesse critério, e ela tinha acabado de passar
+     a cumprir quando a esteira de depoimentos saiu. É decisão do Orlando,
+     tomada com o custo na mesa: a cena tem que ler como GIF. A única atenuação
+     que sobra é o prefers-reduced-motion, no script, que não dispara o
+     autoplay. Não é descuido; é escolha do dono. */
+
+  /* No desktop a peça vira uma coluna centrada mais larga — a proporção é a
+     mesma, só a largura muda. A regra mora AQUI, e não junto dos outros
+     breakouts lá em cima, porque o bloco base da .cena é o último do arquivo:
+     declarada antes, ela empataria em especificidade e perderia por ordem. */
+  @media (min-width:900px){
+    .band-cena{width:min(480px,calc(100% - 48px));}
   }

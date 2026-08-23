@@ -12,14 +12,62 @@ import GtmNoScript from "../components/tracking/GtmNoScript.astro";
 import FirstTouch from "../components/tracking/FirstTouch.astro";
 import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
 
-const title = "VOS · A maneira mais fácil de atender, vender e gerenciar seu negócio";
+const title = "VOS · Atendimento automático é só o começo";
 const description =
-  "O VOS transforma conversas em vendas e conecta agenda, estoque, operação e financeiro no mesmo fluxo. Agende uma demonstração de 15 minutos.";
+  "No VOS, uma ação puxa a próxima: a mensagem vira atendimento, o atendimento vira negócio, e o negócio vira agenda e caixa. Sem ninguém precisar lembrar do passo seguinte.";
 // Domínio REAL do site (o `site` do astro.config aponta pra osvertex.com, que
 // hoje devolve 404 — canonical/og apontando pra lá quebrariam preview e SEO).
 const SITE_URL = "https://www.voshq.com";
 const url = `${SITE_URL}/lp`;
 const ogImage = `${SITE_URL}/og.png`;
+
+// Fonte ÚNICA dos planos (a spec §8 exige centralizar pra não divergir entre
+// blocos). Valores e itens vêm SÓ do PRECOS_VOS_ATUAL.png. O que não estava
+// legível na fonte não foi inventado — ver docs/vos-growth/LP_ARCHITECTURE.md.
+const PLANOS = [
+  {
+    nome: "Start",
+    preco: "297",
+    beneficio: "Para começar a centralizar a operação e automatizar os primeiros processos.",
+    resumo: null,
+    itens: [
+      "1 usuário",
+      "CRM, atendimento em 2 canais e orçamentos",
+      "Agenda, contatos e até 10 automações",
+      "Estoque, pedidos, ordem de serviço e assinaturas",
+      "Contas a pagar, receber e fornecedores",
+    ],
+    cta: "Ver o Start na demonstração",
+  },
+  {
+    nome: "Essential",
+    preco: "497",
+    beneficio: "Para equipes que precisam conectar atendimento, vendas e operação.",
+    resumo: "Tudo do Start, mais:",
+    itens: [
+      "5 usuários e atendimento em até 5 canais",
+      "Assinatura digital — até 20 por mês",
+      "Catálogo digital",
+      "Nota fiscal",
+      "Relatórios",
+    ],
+    cta: "Ver o Essential na demonstração",
+    selo: "Mais escolhido",
+  },
+  {
+    nome: "Scale",
+    preco: "797",
+    beneficio: "Para operações com mais pessoas, canais e volume.",
+    resumo: "Tudo do Essential, mais:",
+    itens: [
+      "15 usuários",
+      "Até 20 canais de atendimento",
+      "Assinaturas digitais ilimitadas",
+      "PDV",
+    ],
+    cta: "Ver o Scale na demonstração",
+  },
+];
 ---
 
 <!doctype html>
@@ -27,6 +75,7 @@ const ogImage = `${SITE_URL}/og.png`;
 <head>
   <GtmHead />
 <meta charset="utf-8">
+<script is:inline>document.documentElement.classList.add("js")</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Mesma marca do app (apps/web/app/icon.png), pra aba e atalho baterem com o produto -->
 <link rel="icon" type="image/png" sizes="32x32" href="/lp/favicon.png">
@@ -34,7 +83,7 @@ const ogImage = `${SITE_URL}/og.png`;
 <link rel="icon" type="image/png" sizes="512x512" href="/lp/icon-512.png">
 <link rel="apple-touch-icon" href="/lp/apple-touch-icon.png">
 <meta name="theme-color" content="#0d0d0d">
-<meta name="description" content="A maneira mais fácil de atender, vender e gerenciar seu negócio em um só lugar. O VOS transforma conversas em vendas e conecta agenda, estoque, operação e financeiro no mesmo fluxo.">
+<meta name="description" content="Atendimento automático é só o começo. No VOS, uma ação puxa a próxima — do primeiro oi ao dinheiro no caixa.">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Tipografia oficial do VOS: Inter em TUDO (DS §4/§18). A voz manuscrita da
      campanha é fonte de sistema e não passa por aqui. -->
@@ -68,16 +117,17 @@ const ogImage = `${SITE_URL}/og.png`;
     </div>
   </div>
 
+  <!-- 1 | HERO. Message match com o Control: quem clicou no anuncio de
+       "atendimento automatico" reconhece a pagina e e levado uma casa
+       adiante. O H1 anterior ("a maneira mais facil ... em um so lugar")
+       era o descritor de produto vendido como manchete, e brigava com a
+       tese da secao seguinte. -->
   <section class="hero">
-    <div class="eb"><u>A nova era do seu negócio<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
-    <h1>A maneira mais fácil de
-      <span class="stk">
-        <span class="stk-word"><i>atender</i><i>vender</i><i>gerenciar</i></span>
-      </span>
-      seu negócio em um só lugar.</h1>
-    <p class="lead">O VOS transforma conversas em vendas e conecta agenda, estoque, operação e financeiro no mesmo fluxo.</p>
+    <div class="eb"><u>para empresas que vivem de WhatsApp<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
+    <h1>Atendimento automático<br><em>é só o começo.</em></h1>
+    <p class="lead">Atendimento, CRM, vendas, orçamento, contratos, agenda, serviços, financeiro e automações trabalhando dentro do mesmo sistema</p>
     <a href="#agendar" class="cta" data-action="lead">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-    <p class="atrito">15 minutos, sem cartão e sem instalar nada. Você sai da call com o atendimento do seu negócio já desenhado.</p>
+    <p class="atrito">30 minutos, sem cartão e sem instalar nada. Você vê o sistema por dentro, módulo por módulo, e pergunta o que quiser — ao vivo.</p>
     <div class="badges">
       <div class="proof">
         <div class="pf">
@@ -107,73 +157,83 @@ const ogImage = `${SITE_URL}/og.png`;
         <span class="lb">Integrações oficiais</span>
       </div>
     </div>
+
   </section>
+
+  <!-- A cara do sistema. Mesma imagem que está no hero de voshq.com
+       (/assets/hero/dashboard.webp, usada pelo Hero4 da home) — aqui em
+       moldura contida em vez do palco sangrado da home, porque a /lp é
+       centralizada. width/height batem com o arquivo (3200x1900) para
+       não gerar CLS; eager porque é provável elemento LCP. -->
+  <figure class="hero-tela reveal">
+    <img src="/assets/hero/dashboard.webp"
+         alt="Tela do VOS: painel com funil de venda, receita, fluxo de caixa e o menu de módulos à esquerda"
+         width="3200" height="1900" loading="eager" fetchpriority="high" decoding="async">
+  </figure>
 
   <div class="band">
     <svg class="band-top" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
       <path d="M0 0H1440v80C1040 4 400 4 0 80Z" fill="var(--bg)"/>
     </svg>
-    <div class="band-head">
-      <div class="eb"><u>feito pra você<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
-      <h2>Inteligência artificial que possui o <u>conhecimento real da sua empresa</u></h2>
+    <!-- Aqui viviam o bloco de problema, a faixa do mecanismo e as tres
+         provas vivas. Removidos a pedido do Orlando em 19/08 — a area fica
+         vazia de proposito, para ser refeita. Os motores animados que os
+         moviam sairam no commit d3ce2f2, JS e CSS na mesma passada: nao ha
+         nada orfao aqui esperando a marcacao voltar. -->
+
+    <!-- ══ Fluxo Contínuo VOS ══
+         Aqui vivia a CADEIA: 9 etapas em 3 fases, dois estados ("Do jeito
+         manual" x "Com o VOS"), selo por cartao, relogio no cartao 3 e uma
+         cena animada em video por cartao. Removida a pedido do Orlando em
+         19/08 — fica so a copy do cabecalho. O motor (JS) saiu junto, na
+         mesma passada; o CSS ficou pela metade e so foi limpo depois — as
+         regras .fluxo* e as @keyframes cn-* seguiam mortas no fim do lp.css.
+         A nota de WCAG 2.2.2 que morava naquele bloco NAO foi apagada: ela
+         trocou de dono e hoje esta junto da esteira de depoimentos, que e
+         quem move sozinho agora.
+         Os renders /lp/cena-trabalho.{webm,mp4,png} foram APAGADOS em 20/08:
+         eram 1,1 MB sem referencia nenhuma, indo junto em todo deploy. O fonte
+         que os gera segue versionado (LpCenaTrabalho, commit e7ef105 do
+         D:VIDEO-FACTORY) — se a cadeia voltar, e so renderizar de novo. -->
+    <div class="band-head band-head-2">
+      <div class="eb"><u>você digita uma vez só<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
+      <h2>A conversa no WhatsApp <u>já é o orçamento, o pedido e a nota fiscal.</u></h2>
+      <p>O cliente escreve. O VOS responde, salva o contato, monta o orçamento e emite a nota. Nada é copiado de uma tela para outra.</p>
     </div>
 
-    <!-- Três provas vivas no lugar do dashboard: a conversa, o funil e a
-         operação. Portadas do bento da /v4 (FeaturesBento4 + FunnelLive +
-         GestaoLive) pra HTML puro e re-pintadas nos tokens da LP: preto quase
-         absoluto + laranja. Cor de ESTÁGIO e de STATUS o DS preserva, então o
-         funil mantém os quatro tons e os selos mantêm verde/azul/âmbar. -->
-    <div class="feats" id="feats">
-      <div class="feats-track" id="featsTrack">
+    <!-- ══ A CENA: a conversa de um lado, os modulos do outro ══
+         Video, e nao animacao de DOM: sao 14 bolhas com rolagem, indicador de
+         digitacao e sete acendimentos sincronizados. Em JS isso seria um motor
+         novo na pagina — e motor na pagina foi exatamente a divida que a
+         limpeza de 19/08 pagou. Fonte da peca versionado em
+         D:VIDEO-FACTORY (composicao VosPainelWhats).
 
-        <article class="feat">
-          <div class="feat-eb"><u>como funciona o fluxo<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
-          <h3>O fluxo trabalha enquanto você dorme.</h3>
-          <p class="feat-sub">Monte uma vez e ele roda sozinho: recebe o lead, responde, agenda e lança no funil.</p>
-          <div class="flow" id="flow" aria-hidden="true">
-            <div class="flow-tabs" id="flowTabs"></div>
-            <div class="flow-canvas" id="flowCanvas"></div>
-            <div class="flow-log" id="flowLog"></div>
-          </div>
-          <p class="feat-note"><i class="feat-dot"></i>Fluxos prontos, ou monte o seu sem programar</p>
-        </article>
+         Desde 20/08 e UM arquivo so, entao os <source> voltaram a ser
+         estaticos: nao existe mais troca por matchMedia, e quem esta sem JS
+         recebe a peca certa. O corte deitado morreu por geometria — num quadro
+         largo o aparelho ja ocupava toda a altura, entao o painel lateral nao
+         dava espaco a tela, so aumentava o vazio dos lados.
 
-        <article class="feat">
-          <h3>O time todo numa inbox só.</h3>
-          <p class="feat-sub">WhatsApp, Instagram, Telegram, Messenger e e-mail na mesma caixa. Nada fica preso no celular de uma pessoa.</p>
-          <div class="feat-chat" aria-hidden="true">
-            <div class="feat-chat-vp">
-              <div class="feat-chat-track" id="chatTrack"></div>
-            </div>
-          </div>
-          <p class="feat-note"><i class="feat-dot"></i>Inbox ao vivo · respondido em 40s</p>
-        </article>
-
-        <article class="feat">
-          <div class="feat-eb"><u>venda feita, e agora?<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
-          <h3>O caixa sobe a cada conversa.</h3>
-          <p class="feat-sub">Toda venda que nasce numa conversa cai no caixa na hora, sem ninguém lançar nada.</p>
-          <div class="caixa" aria-hidden="true">
-            <span class="caixa-lb">Entrou hoje</span>
-            <b class="caixa-n" id="caixaN">R$ 3.899</b>
-            <div class="caixa-barras" id="caixaBarras"></div>
-            <div class="caixa-feed" id="caixaFeed"></div>
-          </div>
-          <p class="feat-note"><i class="feat-dot"></i>Consulta, produto e sinal caindo no mesmo caixa</p>
-        </article>
-
-      </div>
-      <!-- setas entre os cards: só no desktop, onde os três ficam lado a lado.
-           Posicionadas por JS a partir do retângulo real de cada card. -->
-      <span class="feats-seta" aria-hidden="true"><svg viewBox="0 0 40 18"><path d="M2 9c8-3.4 19-3.4 33 0"/><path d="M27.5 3.6 35.5 9 27.5 14.4"/></svg></span>
-      <span class="feats-seta" aria-hidden="true"><svg viewBox="0 0 40 18"><path d="M2 9c8-3.4 19-3.4 33 0"/><path d="M27.5 3.6 35.5 9 27.5 14.4"/></svg></span>
-      <div class="feats-dots" id="featsDots"></div>
-      <div class="feats-dica" id="featsDica">
-        <u>arrasta pro lado</u>
-        <svg viewBox="0 0 44 16" aria-hidden="true"><path d="M2 8h34M29 2.5 37.5 8 29 13.5"/></svg>
+         🔴 SEM BOTAO DE PAUSAR, e isso tem custo. Movimento que comeca sozinho,
+         passa de 5s e divide a tela com texto exige um mecanismo de pausar
+         (WCAG 2.2.2, nivel A). Sem o botao nao existe mecanismo nenhum, e a
+         pagina REPROVA nesse criterio — ela tinha acabado de passar a cumprir,
+         em 20/08, quando a esteira de depoimentos saiu. E decisao do Orlando,
+         tomada com o custo na mesa: ele quer que leia como GIF. A unica
+         atenuacao que sobra e o prefers-reduced-motion, que nao dispara o
+         autoplay. Nao e descuido; e escolha do dono. -->
+    <div class="band-cena">
+      <div class="cena" id="cena">
+        <video id="cenaVid" class="cena-v" poster="/lp/vos-cena-poster.webp"
+               playsinline muted loop preload="none" aria-label="Uma conversa de WhatsApp do primeiro contato ate a nota fiscal, com os modulos do VOS acendendo a cada etapa">
+          <source src="/lp/vos-cena.webm" type="video/webm">
+          <source src="/lp/vos-cena.mp4" type="video/mp4">
+        </video>
       </div>
     </div>
 
+    <!-- 6 | DO PRIMEIRO OI AO CAIXA. A spec pede continuidade, nao
+         lista de features - por isso a copy narra o percurso. -->
     <div class="band-head band-head-2">
       <div class="eb"><u>Conheça o VOS<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
       <p>Conecta atendimento, automações, vendas, notas fiscais e a gestão inteira em um único lugar.</p>
@@ -194,15 +254,109 @@ const ogImage = `${SITE_URL}/og.png`;
       </div>
     </div>
 
-    <div class="band-head band-head-2">
-      <div class="eb"><u>não é a gente falando<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
-    </div>
-    <!-- Esteira de depoimentos: 3 pistas subindo em velocidades diferentes.
-         CONTEÚDO É RASCUNHO. Trocar pelos depoimentos reais no array
-         DEPOIMENTOS lá embaixo (frase, nome, negócio e cidade). -->
-    <div class="depos" id="depos" aria-hidden="true"></div>
+    <!-- ⚰️ Aqui vivia a esteira de 15 depoimentos. Eles eram FICTICIOS — nome,
+         cidade, nota e frase inventados, com numero de resultado fabricado
+         ("+R$ 32 mil") — e estavam no ar com ehRascunho=false. Saem a pedido do
+         Orlando em 19/08. Era o unico ponto em que a pagina contrariava a spec
+         DE FRENTE ("Nenhum depoimento ficticio"); no lugar entra prova de
+         mecanismo, que a spec lista ACIMA de depoimento: a cena la em cima
+         mostra a venda inteira acontecendo, em vez de alguem afirmar que ela
+         acontece.
+         Sai junto a ultima animacao infinita da pagina (.depo-fita, 38s em
+         loop, com pausa so no :hover) — com ela, a reprovacao em WCAG 2.2.2 A
+         deixa de existir.
+         ⚠️ As mesmas 15 fotos e os mesmos depoimentos seguem em
+         src/data/content.ts, alimentando a HOME (ResultsCarousel, HeroAvatars).
+         Outra superficie, outra decisao. -->
 
-    <div class="band-cta"><a href="#agendar" class="cta" data-action="lead">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+    <!-- 8 | PRECOS. Value stack antes do numero, e os planos saem do array
+         PLANOS do frontmatter - fonte unica, como a spec exige. Valores e
+         itens vem SO do PRECOS_VOS_ATUAL.png; o que nao estava legivel na
+         fonte nao foi inventado (ver docs/vos-growth/LP_ARCHITECTURE.md). -->
+    <div class="band-head band-head-2 planos-sep">
+      <div class="eb"><u>quanto custa<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
+      <h2>Um sistema para a empresa inteira.</h2>
+      <p class="stack">Atendimento, CRM, automações, agenda, operação e financeiro trabalhando juntos.</p>
+      <p class="ancora">Planos a partir de <b>R$ 297/mês</b>.</p>
+    </div>
+
+    <div class="planos reveal">
+      {PLANOS.map((pl) => (
+        <article class={pl.selo ? "plano plano-destaque" : "plano"}>
+          <div class="plano-topo">
+            <h3 class="plano-nome">{pl.nome}</h3>
+            {pl.selo && <span class="plano-selo">{pl.selo}</span>}
+          </div>
+          <p class="plano-preco"><b>R$ {pl.preco}</b><span>/mês</span></p>
+          <p class="plano-benef">{pl.beneficio}</p>
+          {pl.resumo && <p class="plano-resumo">{pl.resumo}</p>}
+          <ul class="plano-itens">
+            {pl.itens.map((it) => <li>{it}</li>)}
+          </ul>
+          <a href="#agendar" class="cta cta-2" data-action="lead">{pl.cta}<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </article>
+      ))}
+    </div>
+
+    <!-- Reduz a paralisia de escolher entre tres opcoes: em vez de mandar a
+         pessoa decidir sozinha, joga a decisao pra dentro da demonstracao. -->
+    <div class="ajuda">
+      <svg class="ajuda-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 1 1 3.4 2.5c-.6.2-.9.7-.9 1.3v.4"/><path d="M12 16.8h.01"/></svg>
+      <p class="ajuda-t">Não sabe qual plano faz sentido para a sua empresa?</p>
+      <p class="ajuda-alivio">Você não precisa decidir agora.</p>
+      <p class="ajuda-p">Na demonstração a gente entende como a sua operação funciona e mostra qual plano cobre o que você realmente precisa.</p>
+      <a href="#agendar" class="ajuda-cta" data-action="lead">Me ajuda a escolher<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+
+    <!-- 9 | OBJECOES. As seis da spec. As respostas usam so fato ja afirmado
+         no produto ou na tabela acima - nada de politica de implantacao ou
+         de suporte inventada. -->
+    <div class="band-head band-head-2">
+      <div class="eb"><u>sem letra miúda<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
+      <h2>O que você precisa saber <u>antes de decidir</u>.</h2>
+    </div>
+
+    <div class="faq">
+        <details class="faq-item">
+          <summary>Já tenho outro sistema. Preciso trocar tudo?<i class="faq-sinal" aria-hidden="true"></i></summary>
+          <p>Não precisa. Ele continua onde está, se você quiser. O time do VOS traz os seus dados — contatos, produtos, financeiro — para dentro do sistema, como já fez com todos os clientes até hoje. E como o VOS é modular, você liga só o que vai usar e mantém o resto rodando em paralelo.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Vou precisar parar minha operação para implantar o VOS?<i class="faq-sinal" aria-hidden="true"></i></summary>
+          <p>Não. Quem implanta é o time do VOS — você não monta nada. Pedimos até 7 dias para entregar o sistema pronto, com os seus dados dentro e a sua operação já funcionando, e na maioria das vezes entregamos antes.</p>
+        </details>
+        <details class="faq-item">
+          <summary>E se minha equipe não estiver acostumada com sistemas?<i class="faq-sinal" aria-hidden="true"></i></summary>
+          <p>Todo cliente entra num grupo de suporte direto com o time do VOS. Dúvida ou dificuldade, é mandar mensagem no grupo — em menos de 5 minutos tem alguém te socorrendo. E o sistema foi desenhado para quem não é de tecnologia: quem usa WhatsApp usa o VOS.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Funciona com o WhatsApp que a gente já usa?<i class="faq-sinal" aria-hidden="true"></i></summary>
+          <p>Funciona com o número que você já usa — não precisa de número novo. O histórico entra junto: seus contatos e as conversas que já existem aparecem dentro do VOS. E o seu celular continua funcionando normalmente. A conexão é pela API oficial da Meta, de quem o VOS é parceiro.</p>
+        </details>
+        <details class="faq-item">
+          <summary>O VOS faz sentido para uma empresa pequena?<i class="faq-sinal" aria-hidden="true"></i></summary>
+          <p>Faz — e é onde ele mais muda o jogo. Uma empresa de uma pessoa passa a operar com o mesmo sistema que uma empresa grande usa: atendimento, CRM, agenda, operação e financeiro no mesmo lugar, por um valor bem abaixo do que ela paga. O plano acompanha o tamanho da operação; a estrutura, não.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Preciso contratar todos os módulos de uma vez?<i class="faq-sinal" aria-hidden="true"></i></summary>
+          <p>Você não paga por módulo. O plano já vem com o conjunto operacional — atendimento, CRM, agenda, estoque, pedidos e financeiro — e você liga só o que for usar. O que muda de um plano para o outro é o tamanho: usuários, canais e alguns recursos como catálogo digital, nota fiscal e PDV.</p>
+        </details>
+        <details class="faq-item">
+          <summary>O que a IA faz, na prática?<i class="faq-sinal" aria-hidden="true"></i></summary>
+          <p>Chega uma mensagem no WhatsApp vinda do anúncio. A IA responde em menos de 5 minutos, qualifica, manda o orçamento, fecha a venda, envia o link de pagamento e emite a nota fiscal — enquanto você dorme ou cuida de outra parte da empresa. E ela sabe a hora de sair de cena: desconto fora da tabela, reclamação ou pedido fora do catálogo vão para uma pessoa.</p>
+        </details>
+    </div>
+
+    <!-- 10 | FECHO -->
+    <div class="band-head band-head-2 fecho">
+      <div class="eb"><u>uma ação puxa a próxima<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
+      <h2>Agora veja isso acontecendo <u>na sua empresa</u>.</h2>
+      <p>Em uma demonstração, mostramos como o VOS pode conectar atendimento, vendas, operação e financeiro dentro do seu fluxo real.</p>
+    </div>
+
+    <div class="band-cta"><a href="#agendar" class="cta" data-action="lead">Ver minha operação no VOS<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <p class="band-cta-nota">30 minutos · sem cartão · sem compromisso</p>
+    </div>
   </div>
 
 </div>
@@ -213,320 +367,157 @@ const ogImage = `${SITE_URL}/og.png`;
 </footer>
 
 <div class="bar" id="bar"><a href="#agendar" class="cta" data-action="lead">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+<!-- ══ BOTÃO FLUTUANTE DE WHATSAPP ══════════════════════════════════════════
+     Número: +55 43 99688-5300 — o único brasileiro CONECTADO no VOS hoje
+     (canal "WhatsApp Vertex", uazapi). Confirmado com o Orlando em 19/08.
+     O canal chamado "VOS" existe mas está desconectado e sem número.
+
+     🔴 Preparado para CTWA/EMQ, MAS o GTM está em standby por decisão dele.
+     Nada foi publicado no GTM. O que este bloco já faz para quando for a hora:
+       · gera um `event_id` único por clique e manda o MESMO id no texto da
+         conversa — é o que permite casar a conversa do WhatsApp com o evento
+         do site sem depender de adivinhação;
+       · leva junto os identificadores do primeiro toque (fbp, fbc, fbclid,
+         gclid, client_id, stape_user_id) que o cookie `vos_ft` já guarda. São
+         eles que sustentam o EMQ; sem eles a Meta não casa o lead com o anúncio.
+     ⚠️ Uma distinção que muda a configuração: `ctwa_clid` só existe quando o
+     clique nasce num ANÚNCIO Click-to-WhatsApp da Meta. Botão no site é
+     click-to-chat de site — a atribuição vem de fbp/fbc + o ref, não de
+     ctwa_clid. Configurar o GTM partindo do pressuposto errado dá evento órfão.
+
+     Evento novo no dataLayer: `clique_whatsapp` — SEPARADO do `lead`, que
+     continua sendo disparado só no envio do modal. O contrato antigo não muda. -->
+<div class="zap-wrap" id="zapWrap">
+  <!-- O balao: aparece UMA vez por sessao, alguns segundos depois de a pessoa
+       passar do hero, e some de vez se ela dispensar (fica no sessionStorage).
+       Insistir depois de a pessoa fechar e o que faz esse tipo de balao virar
+       praga. Dispensar NAO dispara evento nenhum. -->
+  <div class="zap-balao" id="zapBalao" hidden>
+    <p class="zap-balao-t">Prefere sem formulário? Chama no WhatsApp.</p>
+    <button type="button" class="zap-x" id="zapX" aria-label="Dispensar aviso do WhatsApp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <a class="zap" id="zap" href="https://wa.me/5543996885300" target="_blank" rel="noopener"
+     aria-label="Falar com o VOS no WhatsApp">
+    <!-- O rosto: quem responde do outro lado. O selo verde e obrigatorio — sem
+         ele o botao vira um avatar generico e perde a leitura de "isto abre o
+         WhatsApp". O ponto de status .zap-on saiu: com o selo verde no avatar
+         ele virava um segundo ponto verde a 20px do primeiro. -->
+    <span class="zap-rosto">
+      <img class="zap-av" src="/lp/orlando.webp" alt="" width="160" height="160" decoding="async">
+      <span class="zap-selo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm5.7 14.1c-.2.7-1.4 1.4-2 1.4-.5 0-1.1.2-3.7-.8-3.1-1.3-5-4.4-5.2-4.6-.1-.2-1.2-1.5-1.2-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.4-.4.5c-.1.1-.3.3-.1.6a9 9 0 0 0 1.5 1.8 8 8 0 0 0 2.1 1.3c.3.1.4.1.6-.1l.8-1c.2-.2.3-.2.6-.1l1.8.9c.3.1.4.2.5.3.1.2.1.7-.1 1.4Z"/></svg>
+      </span>
+    </span>
+    <span class="zap-txt">Falar no WhatsApp</span>
+  </a>
+</div>
+
 
 <script is:inline>
 
 
-  /* ── Três provas vivas ──────────────────────────────────────────────────
-     Tudo aqui pausa quando a seção sai da tela: são três animações mais o
-     vídeo, e isso roda em celular no 4G. */
+
+  /* ── A cena ────────────────────────────────────────────────────────────
+     Um arquivo so desde 20/08, entao aqui sobrou o essencial: tocar quando
+     entra na tela, parar quando sai. A escolha de corte por matchMedia morreu
+     junto com o corte deitado, e o botao de pausar saiu a pedido dele — a cena
+     tem que ler como GIF.
+
+     🔴 Sem o botao a pagina REPROVA em WCAG 2.2.2 nivel A. Esta escrito no
+     comentario do markup, no LP_ARCHITECTURE.md e no RELATORIO-FINAL.md. A
+     unica atenuacao que sobra e a linha do prefers-reduced-motion aqui embaixo.
+
+     preload="none" + IntersectionObserver: nada e buscado ate a secao entrar
+     na tela. Um visitante baixa UM arquivo — 594 kB no webm (Chrome, Firefox,
+     Edge e Safari 14.1+) ou 1615 kB no mp4, que e a queda pra quem nao toca
+     webm. O broll que ja esta nesta pagina pesa 2013 kB. */
   (function(){
-    var reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var timers=[];
-    function cada(ms,fn){ timers.push({ms:ms,fn:fn,id:null}); }
-
-    /* 1 · inbox: a sequência é escrita duas vezes e o trilho anda -50%,
-       então o loop emenda sem salto */
-    (function(){
-      var alvo=document.getElementById('chatTrack'); if(!alvo) return;
-      var CONVERSA=[
-        ['sep','Ana Prado · WhatsApp'],
-        ['in','Oi, vocês atendem amanhã? Quanto fica a limpeza de pele?','22:47'],
-        ['out','Boa noite! Atendemos sim. A limpeza fica R$ 180 e amanhã eu tenho 14h ou 16h30.','22:47'],
-        ['in','16h30','22:48'],
-        ['out','Fechado, agendei pra amanhã às 16h30 com a Camila.','22:48'],
-        ['pay','Sinal da sessão · R$ 90','Pagar com PIX'],
-        ['in','Paguei!','22:51'],
-        ['out','PIX confirmado. Te mando um lembrete amanhã de manhã.','22:51'],
-        ['sep','Marina Costa · Instagram'],
-        ['in','Ainda tem o sérum de vitamina C?','23:04'],
-        ['out','Tem 2 unidades. Quer que eu reserve pra você?','23:05'],
-        ['in','Reserva! Pego amanhã.','23:05'],
-        ['out','Reservado por 24h. Emito a nota no seu CPF na retirada.','23:06'],
-        ['sep','Bruno Salles · Telegram'],
-        ['in','Vocês fazem pacote de 4 sessões?','23:19'],
-        ['out','Fazemos! Sai R$ 620 e posso já deixar as 4 datas na agenda.','23:20'],
-        ['sep','contato@ · E-mail'],
-        ['in','Preciso do orçamento em PDF pro RH aprovar.','23:31'],
-        ['out','Enviei o PDF agora. Assim que aprovarem, a agenda já abre.','23:33']
-      ];
-      function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
-      var seq=CONVERSA.map(function(m){
-        if(m[0]==='sep') return '<div class="ch-sep"><span>'+esc(m[1])+'</span></div>';
-        if(m[0]==='pay') return '<div class="ch-pay"><span>'+esc(m[1])+'</span><b>'+esc(m[2])+'</b></div>';
-        return '<div class="ch '+m[0]+'"><p>'+esc(m[1])+'</p><em>'+esc(m[2])+'</em></div>';
-      }).join('');
-      alvo.innerHTML='<div class="feat-chat-seq">'+seq+'</div><div class="feat-chat-seq">'+seq+'</div>';
-    })();
-
-
-    /* 3 · o caixa: cada entrada nova sobe o número, cresce a barra de hoje e
-       entra no feed. Os três movimentos acontecem no mesmo tick de propósito:
-       é a mesma venda sendo contada, não três animações soltas. */
-    (function(){
-      var alvoN=document.getElementById('caixaN'), barras=document.getElementById('caixaBarras'),
-          feed=document.getElementById('caixaFeed');
-      if(!alvoN||!barras||!feed) return;
-
-      // mesma clínica, mesmas pessoas dos outros dois cards
-      var ENTRADAS=[
-        [180,'Ana Prado · limpeza de pele'],
-        [149,'Marina Costa · sérum vitamina C'],
-        [90,'Ana Prado · sinal da sessão'],
-        [420,'Pacote de 4 sessões · aprovado'],
-        [180,'Retorno da Ana · reagendou'],
-        [149,'Marina Costa · segunda unidade']
-      ];
-      var SEMANA=[52,64,41,58,73,60], hoje=38, teto=100, total=3899, i=0;
-
-      function moeda(v){ return 'R$ ' + v.toLocaleString('pt-BR'); }
-      function pintaBarras(){
-        barras.innerHTML = SEMANA.map(function(h){ return '<i style="height:'+h+'%"></i>'; }).join('') +
-          '<i class="hoje" style="height:'+Math.min(100,hoje)+'%"></i>';
-      }
-      pintaBarras();
-      alvoN.textContent = moeda(total);
-
-      // conta de um valor pro outro em vez de trocar seco: o pulo é o ponto
-      function conta(de,ate){
-        var t0=null, dur=620;
-        function passo(ts){
-          if(t0===null) t0=ts;
-          var p=Math.min(1,(ts-t0)/dur), e=1-Math.pow(1-p,3);
-          alvoN.textContent = moeda(Math.round(de+(ate-de)*e));
-          if(p<1) requestAnimationFrame(passo);
-        }
-        requestAnimationFrame(passo);
-      }
-
-      cada(2800,function(){
-        var e=ENTRADAS[i%ENTRADAS.length]; i++;
-        var antes=total; total+=e[0];
-        conta(antes,total);
-        alvoN.classList.remove('pulou'); void alvoN.offsetWidth; alvoN.classList.add('pulou');
-
-        hoje=Math.min(teto, hoje + e[0]/28);
-        var barraHoje=barras.querySelector('.hoje');
-        if(barraHoje) barraHoje.style.height=Math.min(100,hoje)+'%';
-
-        feed.insertAdjacentHTML('afterbegin',
-          '<div class="ent"><b>+'+moeda(e[0])+'</b><span>'+e[1]+'</span></div>');
-        while(feed.children.length>3) feed.removeChild(feed.lastChild);
-
-        if(hoje>=teto){ hoje=38; if(barraHoje) barraHoje.style.height='38%'; total=3899; }
+    var cena=document.getElementById('cena'), vid=document.getElementById('cenaVid');
+    if(!cena||!vid) return;
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches) return; // fica o poster
+    if(!('IntersectionObserver' in window)) return;
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ vid.play().catch(function(){}); }
+        else if(!vid.paused){ vid.pause(); }
       });
-    })();
-
-    /* 4 · fluxo: o nó acende, o fio preenche e o log conta o que aconteceu.
-       Terminado o fluxo, ele troca sozinho pro próximo; clicar na aba escolhe. */
-    (function(){
-      var abas=document.getElementById('flowTabs'), tela=document.getElementById('flowCanvas'),
-          log=document.getElementById('flowLog');
-      if(!abas||!tela||!log) return;
-      // os três fluxos são a MESMA cliente em três momentos: chega, é lembrada
-      // e volta. É o que amarra este card aos outros três.
-      var FLUXOS=[
-        {nome:'Lead novo', cor:'var(--accent)',
-         nos:[['▶','Início','Lead no WhatsApp'],['✦','IA','Lê e qualifica'],
-              ['💬','Agenda','Oferece horário'],['✓','CRM','Entra no funil']],
-         passos:['Gatilho · Ana Prado chamou às 22:47',
-                 'IA leu: limpeza de pele, primeira vez',
-                 'Ofereceu 14h ou 16h30 · Ana escolheu 16h30',
-                 'Agendada e lançada no funil · sinal de R$ 90 pago']},
-        {nome:'Lembrete', cor:'var(--info)',
-         nos:[['▶','Início','24h antes'],['💬','Mensagem','Pede confirmação'],
-              ['◷','Espera','Resposta'],['✓','Agenda','Dia confirmado']],
-         passos:['Gatilho · consulta da Ana amanhã às 16:30',
-                 'Enviou a confirmação no WhatsApp',
-                 'Ana respondeu: confirmado',
-                 'Agenda fechada · nenhum buraco no dia']},
-        {nome:'Retorno', cor:'var(--ai)',
-         nos:[['▶','Início','Sessão concluída'],['◷','Espera','30 dias'],
-              ['💬','Mensagem','Convida pro retorno'],['✓','Venda','Reagendou']],
-         passos:['Gatilho · limpeza da Ana concluída',
-                 'Esperou 30 dias sem contato',
-                 'Convidou pro retorno com horário sugerido',
-                 'Ana reagendou · R$ 180 de volta no caixa']}
-      ];
-      var f=0, passo=-1, id=null;
-      FLUXOS.forEach(function(fl,k){
-        var b=document.createElement('button');
-        b.type='button'; b.className='flow-tab'; b.style.setProperty('--fc',fl.cor);
-        b.setAttribute('aria-selected', k===0?'true':'false');
-        b.innerHTML='<i></i>'+fl.nome;
-        b.addEventListener('click',function(){ escolhe(k); });
-        abas.appendChild(b);
-      });
-      function desenha(){
-        var fl=FLUXOS[f];
-        tela.style.setProperty('--fc',fl.cor); log.style.setProperty('--fc',fl.cor);
-        tela.innerHTML=fl.nos.map(function(n,i){
-          return '<div class="fn-wrap">'+(i?'<span class="fn-wire" data-w="'+i+'"></span>':'')+
-            '<div class="fn" data-n="'+i+'"><span class="fn-ic">'+n[0]+'</span>'+
-            '<div><strong>'+n[1]+'</strong><em>'+n[2]+'</em></div></div></div>';
-        }).join('');
-        [].slice.call(abas.children).forEach(function(b,k){
-          b.setAttribute('aria-selected', k===f?'true':'false');
-        });
-        pinta();
-      }
-      function pinta(){
-        var fl=FLUXOS[f];
-        [].slice.call(tela.querySelectorAll('.fn')).forEach(function(el,i){
-          el.classList.toggle('ativo', i===passo);
-          el.classList.toggle('feito', i<passo);
-        });
-        [].slice.call(tela.querySelectorAll('.fn-wire')).forEach(function(el,i){
-          el.classList.toggle('on', i<passo);
-        });
-        log.innerHTML = passo<0 ? '<b>Pronto pra rodar.</b>' : '<b>'+(passo+1)+'/4</b> '+fl.passos[passo];
-      }
-      function escolhe(k){ f=k; passo=-1; desenha(); }
-      desenha();
-      cada(1500,function(){
-        passo++;
-        if(passo>=FLUXOS[f].nos.length+1){ f=(f+1)%FLUXOS.length; passo=-1; desenha(); return; }
-        if(passo<FLUXOS[f].nos.length) pinta();
-      });
-    })();
-
-    /* esteira de depoimentos: 3 pistas subindo. A fita é escrita duas vezes e
-       anda -50%, então o loop emenda sem salto. */
-    (function(){
-      var caixa=document.getElementById('depos'); if(!caixa) return;
-
-      /* Clientes, mesma base da /v4 (src/data/content.ts) e as mesmas fotos.
-         [arquivo, nome, negócio, cidade, nota, frase] */
-      var DEPOIMENTOS=[
-        ['social-16','Tiago Moraes','Oficina Forte','Belo Horizonte, MG','4,8','Fechei o mês com +R$ 32 mil organizando peça, serviço e nota num lugar só. Antes eram três sistemas e uma planilha.'],
-        ['social-17','Vanessa Lopes','Supermercado Bom Dia','Curitiba, PR','4,7','Parei de perder venda por falta de controle. O estoque bate com o caixa todo dia, sem conferência no domingo.'],
-        ['social-18','Fernando Reis','Engefort Engenharia','São Paulo, SP','4,6','Orçamento vira OS, a equipe vê no celular e o cliente acompanha. Obra atrasada por falta de informação acabou.'],
-        ['social-19','Carla Mendes','Café Aroma','Porto Alegre, RS','4,5','O fluxo de caixa atualiza sozinho a cada venda. Sei exatamente quanto entra e sai antes de fechar o dia.'],
-        ['social-20','Diego Prado','Prime Elétrica','Recife, PE','4,8','Migrei num fim de semana. Segunda já estava vendendo dentro do VOS e o time não precisou de treinamento longo.'],
-        ['social-12','Patrícia Nunes','Ello Calçados','Fortaleza, CE','4,7','Catálogo no WhatsApp, pedido automático e estoque baixando sozinho. Vende mais sem contratar ninguém.'],
-        ['social-21','Aline Costa','Adega Premium','Rio de Janeiro, RJ','4,6','Pedido, PIX e notificação pro estoque, tudo no automático. O cliente compra de madrugada e eu acordo com tudo organizado.'],
-        ['social-11','Eduardo Pires','Construla Obras','Brasília, DF','4,8','Orçamento aceito vira OS na hora. Cliente assina digital e a obra já entra na agenda da equipe.'],
-        ['social-22','Marcos Vieira','Alfa Climatização','Campinas, SP','4,7','A equipe sai pra rua com tudo no celular. Resposta na hora e nada se perde no caminho entre visita e escritório.'],
-        ['social-14','Sandra Moraes','Empório Sabor','Salvador, BA','4,5','NF-e sai junto com a venda. Fim de mês sem correria com contador por nota que faltou emitir.'],
-        ['social-23','Letícia Ramos','Agro Campo Verde','Goiânia, GO','4,6','Proposta, contrato e cobrança no mesmo fluxo. Parei de digitar os mesmos dados em três lugares diferentes.'],
-        ['social-13','Renato Alves','Auto Peças Brasil','Manaus, AM','4,8','Alerta de estoque baixo antes de faltar peça. Cliente não vai embora porque o sistema avisou a tempo.'],
-        ['social-24','Rodrigo Santos','Alta Fitness','Florianópolis, SC','4,7','Confirmação automática no WhatsApp reduziu faltas. A agenda enche e o time sabe quem vem antes de abrir a academia.'],
-        ['social-25','Juliana Reis','Studio Bella','Belém, PA','4,8','As faltas caíram demais com a confirmação automática. A agenda vive lotada e o salão não fica com horário vazio.'],
-        ['social-15','André Andrade','Andrade Contabilidade','São Paulo, SP','4,6','Tudo num lugar só. O time parou de digitar a mesma coisa em três sistemas e os clientes sentem a diferença.']
-      ];
-      var ehRascunho = false;
-
-      function cartao(d){
-        return '<div class="depo"><div class="depo-estrelas">★★★★★<em>'+d[4]+'</em></div><p>'+d[5]+'</p>'+
-          '<div class="depo-quem"><img class="depo-av" src="/lp/pessoas/'+d[0]+'.webp" alt="" loading="lazy" width="56" height="56">'+
-          '<span><b>'+d[1]+'</b><span>'+d[2]+' · '+d[3]+'</span></span></div></div>';
-      }
-      var pistas=innerWidth>=760?3:1, veloc=['38s','46s','42s'];
-      function monta(){
-        var n=innerWidth>=760?3:1;
-        if(n===pistas && caixa.children.length) return;   // só remonta se mudou de faixa
-        pistas=n; caixa.innerHTML='';
-        for(var p=0;p<n;p++){
-          var lista=DEPOIMENTOS.filter(function(_,i){ return n===1 || i%n===p; });
-          var fita=lista.map(cartao).join('');
-          caixa.insertAdjacentHTML('beforeend',
-            '<div class="depo-pista"><div class="depo-fita" style="--v:'+veloc[p]+'">'+fita+fita+'</div></div>');
-        }
-      }
-      monta();
-      addEventListener('resize',monta,{passive:true});
-      if(ehRascunho){
-        caixa.classList.add('rascunho');
-        caixa.insertAdjacentHTML('afterend',
-          '<p class="depos-aviso">Rascunho: trocar pelos depoimentos reais antes de publicar.</p>');
-      }
-    })();
-
-    /* carrossel: só no celular. O card fica parado 6s deixando a animação dele
-       contar a história, e o dedo do usuário desliga o automático. */
-    (function(){
-      var trilho=document.getElementById('featsTrack'), pontos=document.getElementById('featsDots');
-      if(!trilho||!pontos) return;
-      var cards=[].slice.call(trilho.children), atual=0, manual=false;
-      var dica=document.getElementById('featsDica');
-      function some(){ if(dica) dica.classList.add('foi'); }
-      cards.forEach(function(_,k){
-        var b=document.createElement('button');
-        b.type='button'; b.setAttribute('aria-label','Card '+(k+1));
-        b.addEventListener('click',function(){ manual=true; some(); vai(k); });
-        pontos.appendChild(b);
-      });
-      function marca(){
-        [].slice.call(pontos.children).forEach(function(b,k){
-          b.setAttribute('aria-current', k===atual?'true':'false');
-        });
-      }
-      function vai(k,suave){
-        atual=(k+cards.length)%cards.length;
-        trilho.scrollTo({left:cards[atual].offsetLeft-trilho.offsetLeft-((trilho.clientWidth-cards[atual].clientWidth)/2),
-          behavior:suave===false?'auto':'smooth'});
-        marca();
-      }
-      marca();
-      // girar o celular muda a largura do card: sem re-centrar, o carrossel fica
-      // parado no meio de dois
-      var t=null;
-      addEventListener('resize',function(){
-        clearTimeout(t); t=setTimeout(function(){ if(innerWidth<900) vai(atual,false); },160);
-      },{passive:true});
-      /* gesto de verdade, não o scroll: o trilho dispara scroll sozinho no
-         ajuste inicial e isso apagava a dica antes de alguém ver */
-      ['pointerdown','wheel'].forEach(function(ev){
-        trilho.addEventListener(ev,function(){ manual=true; some(); },{passive:true});
-      });
-      trilho.addEventListener('scroll',function(){
-        var meio=trilho.scrollLeft+trilho.clientWidth/2, perto=0, dist=1e9;
-        cards.forEach(function(c,k){
-          var d=Math.abs(c.offsetLeft+c.clientWidth/2-trilho.offsetLeft-meio);
-          if(d<dist){ dist=d; perto=k; }
-        });
-        if(perto!==atual){ atual=perto; marca(); }
-      },{passive:true});
-      cada(6000,function(){ if(!manual && innerWidth<900) vai(atual+1); });
-
-      /* as setas se posicionam pelo vão real entre um card e o próximo, então
-         acompanham qualquer mudança de largura sem conta de porcentagem */
-      var setas=[].slice.call(document.querySelectorAll('.feats-seta'));
-      function poeSetas(){
-        if(!setas.length || innerWidth<900) return;
-        var base=trilho.parentElement.getBoundingClientRect();
-        setas.forEach(function(s,k){
-          var a=cards[k], b=cards[k+1]; if(!a||!b) return;
-          var ra=a.getBoundingClientRect(), rb=b.getBoundingClientRect();
-          s.style.left=((ra.right+rb.left)/2 - base.left)+'px';
-          s.style.top=(ra.top + ra.height/2 - base.top)+'px';
-        });
-      }
-      /* ResizeObserver, não só o resize da janela: ele dispara no primeiro
-         layout, quando a Inter troca a altura do card e em qualquer mudança de
-         largura. Só com o resize da janela a seta ficava em left:0 pra quem
-         carregasse a página já no desktop. */
-      if('ResizeObserver' in window){ new ResizeObserver(poeSetas).observe(trilho); }
-      addEventListener('resize',poeSetas,{passive:true});
-      poeSetas();
-    })();
-
-    /* liga e desliga tudo conforme a seção entra e sai da tela */
-    (function(){
-      var secao=document.getElementById('feats'); if(!secao||reduz) return;
-      function liga(){ timers.forEach(function(t){ if(!t.id) t.id=setInterval(t.fn,t.ms); }); }
-      function desliga(){ timers.forEach(function(t){ if(t.id){ clearInterval(t.id); t.id=null; } }); }
-      if('IntersectionObserver' in window){
-        new IntersectionObserver(function(es){
-          es.forEach(function(e){ e.isIntersecting?liga():desliga(); });
-        },{threshold:.15}).observe(secao);
-      } else { liga(); }
-    })();
+    },{threshold:.35}).observe(cena);
   })();
 
   var io=new IntersectionObserver(function(es){es.forEach(function(e){
     if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.14});
   document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+
+
+  /* ── WhatsApp flutuante ────────────────────────────────────────────────
+     Monta o link na hora do clique para carregar um `event_id` novo a cada
+     vez, e empurra `clique_whatsapp` no dataLayer com os identificadores do
+     primeiro toque. O GTM ainda NÃO consome este evento — standby pedido pelo
+     Orlando em 19/08. Quando consumir, o event_id daqui é o mesmo que vai no
+     texto da conversa, e é por ele que a conversão do WhatsApp se casa com a
+     sessão do site (e sustenta o EMQ na Meta). */
+  (function(){
+    var a=document.getElementById('zap'); if(!a) return;
+    var NUM='5543996885300';
+
+    function primeiroToque(){
+      var out={};
+      try{
+        var m=document.cookie.match('(?:^|; )vos_ft=([^;]*)');
+        if(!m) return out;
+        var ft=JSON.parse(decodeURIComponent(m[1]));
+        ['fbp','fbc','fbclid','gclid'].forEach(function(k){ if(ft[k]) out[k]=ft[k]; });
+        if(ft.clientId) out.client_id=ft.clientId;
+        if(ft.stapeUserId) out.stape_user_id=ft.stapeUserId;
+      }catch(e){}
+      return out;
+    }
+
+    function novoId(){
+      try{ if(crypto&&crypto.randomUUID) return crypto.randomUUID().slice(0,8); }catch(e){}
+      return (Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+    }
+
+    /* o balao entra uma vez por sessao, depois do hero */
+    var balao=document.getElementById('zapBalao');
+    var fechar=document.getElementById('zapX');
+    var CHAVE='vos_zap_dispensado';
+    var jaFoi=false;
+    function mostraBalao(){
+      if(jaFoi||!balao) return;
+      try{ if(sessionStorage.getItem(CHAVE)) return; }catch(e){}
+      jaFoi=true; balao.hidden=false;
+      requestAnimationFrame(function(){ balao.classList.add('in'); });
+    }
+    if(fechar) fechar.addEventListener('click',function(){
+      balao.classList.remove('in');
+      setTimeout(function(){ balao.hidden=true; }, 240);
+      try{ sessionStorage.setItem(CHAVE,'1'); }catch(e){}
+    });
+    (function(){
+      var disparou=false;
+      function confere(){
+        if(disparou||scrollY<520) return;
+        disparou=true; window.removeEventListener('scroll',confere);
+        setTimeout(mostraBalao, 1400);
+      }
+      window.addEventListener('scroll',confere,{passive:true});
+      confere();
+    })();
+
+    a.addEventListener('click',function(){
+      var id=novoId();
+      var texto='Oi! Vim pelo site do VOS e quero entender como funciona. (ref '+id+')';
+      a.href='https://wa.me/'+NUM+'?text='+encodeURIComponent(texto);
+      var dados=primeiroToque();
+      dados.event='clique_whatsapp';
+      dados.event_id=id;
+      window.dataLayer=window.dataLayer||[];
+      window.dataLayer.push(dados);
+    });
+  })();
 
   /* player: toca sozinho (mudo) quando entra na tela e pausa quando sai.
      Autoplay com som é bloqueado em todo navegador, então o som fica a um
