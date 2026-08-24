@@ -25,10 +25,13 @@ const ogImage = `${SITE_URL}/og.png`;
 // Fonte ÚNICA dos planos (a spec §8 exige centralizar pra não divergir entre
 // blocos). Valores e itens vêm SÓ do PRECOS_VOS_ATUAL.png. O que não estava
 // legível na fonte não foi inventado — ver docs/vos-growth/LP_ARCHITECTURE.md.
+// Exceção: o "R$ 197/mês no plano anual" (notaAnual + promo) é decisão de
+// oferta do Orlando em 24/08 — não vem do print.
 const PLANOS = [
   {
     nome: "Start",
     preco: "297",
+    notaAnual: "ou R$ 197/mês no plano anual",
     beneficio: "Para começar a centralizar a operação e automatizar os primeiros processos.",
     resumo: null,
     itens: [
@@ -284,8 +287,21 @@ const PLANOS = [
       <div class="eb"><u>quanto custa<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d="M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6"/></svg></u></div>
       <h2>Um sistema para a empresa inteira.</h2>
       <p class="stack">Atendimento, CRM, automações, agenda, operação e financeiro trabalhando juntos.</p>
-      <p class="ancora">Planos a partir de <b>R$ 297/mês</b>.</p>
+      <p class="ancora">Planos a partir de <b>R$ 197/mês</b> no plano anual.</p>
     </div>
+
+    <!-- Promo (24/08): a T07 anuncia "a partir de R$ 197/mes" e a pagina tem
+         que responder com o mesmo numero. Termos reais: Start no plano anual
+         (de R$ 297 no mensal). Sem urgencia por decisao do Orlando — o gancho
+         e agendar a demonstracao, nao o relogio. -->
+    <aside class="promo reveal">
+      <div class="promo-txt">
+        <span class="promo-selo">Promoção</span>
+        <p class="promo-t">Agende a demonstração e leve o Start por <b>R$ 197/mês</b>.</p>
+        <p class="promo-p">De <s>R$ 297</s> por <b>R$ 197/mês</b> no plano anual — R$ 1.200 a menos no primeiro ano. Condição garantida na demonstração.</p>
+      </div>
+      <a href="#agendar" class="cta promo-cta" data-action="lead">Agendar demonstração<svg class="ar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </aside>
 
     <div class="planos reveal">
       {PLANOS.map((pl) => (
@@ -295,6 +311,7 @@ const PLANOS = [
             {pl.selo && <span class="plano-selo">{pl.selo}</span>}
           </div>
           <p class="plano-preco"><b>R$ {pl.preco}</b><span>/mês</span></p>
+          {pl.notaAnual && <p class="plano-nota">{pl.notaAnual}</p>}
           <p class="plano-benef">{pl.beneficio}</p>
           {pl.resumo && <p class="plano-resumo">{pl.resumo}</p>}
           <ul class="plano-itens">

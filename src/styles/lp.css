@@ -363,9 +363,9 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
      .feats-track ja usa - min(1060px, 100% - 48px) a partir de 900px.
      ======================================================================= */
 
-  .planos,.faq{width:var(--col);margin-left:auto;margin-right:auto;}
+  .planos,.faq,.promo{width:var(--col);margin-left:auto;margin-right:auto;}
   @media (min-width:900px){
-    .planos,.faq{width:min(1060px,calc(100% - 48px));}
+    .planos,.faq,.promo{width:min(1060px,calc(100% - 48px));}
   }
 
   /* -- a cara do sistema, fechando o hero ---------------------------------
@@ -525,6 +525,28 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     font-size:var(--fs-micro);font-weight:700;letter-spacing:.04em;
     text-transform:uppercase;white-space:nowrap;}
   .plano-destaque{border-color:var(--accent-line);}
+
+  /* Promo do anúncio (24/08): mesma casca dos cards (painel escuro + acento),
+     pra ler como oferta da tabela e não como banner alheio à página. */
+  .promo{margin-top:clamp(16px,4vw,24px);background:var(--d-panel);
+    border:1px solid var(--accent-line);border-radius:var(--r-lg);
+    padding:22px 20px;display:flex;flex-direction:column;gap:16px;}
+  .promo-selo{display:inline-block;background:var(--accent-soft);color:var(--accent-400);
+    border:1px solid var(--accent-line);border-radius:999px;padding:4px 10px;
+    font-size:var(--fs-micro);font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;white-space:nowrap;}
+  .promo-t{margin:10px 0 0;color:var(--d-ink);font-size:clamp(18px,2.6vw,22px);
+    font-weight:700;line-height:1.3;text-wrap:balance;}
+  .promo-t b{color:var(--accent-400);}
+  .promo-p{margin:6px 0 0;color:var(--d-ink-2);font-size:var(--fs-control);line-height:1.5;}
+  .promo-p s{color:var(--d-ink-3);}
+  .promo-p b{color:var(--d-ink);font-weight:700;}
+  @media (min-width:900px){
+    .promo{flex-direction:row;align-items:center;gap:24px;padding:24px;}
+    .promo-txt{flex:1;min-width:0;}
+    .promo-cta{width:auto;flex:0 0 auto;padding-inline:20px;}
+  }
+  .plano-nota{margin:6px 0 0;color:var(--accent-400);font-size:var(--fs-label);font-weight:600;}
 
 
   /* ═══════════════════════════════════════════════════════════════════════
