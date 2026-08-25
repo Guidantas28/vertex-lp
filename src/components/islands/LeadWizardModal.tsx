@@ -220,7 +220,8 @@ function pushLeadEvent(form: FormData, country: Country, leadEventId?: string) {
       resposta_2: form.challenge, // pergunta qualificatória 2 = desafio
       faturamento: form.revenue,
       desafio: form.challenge,
-      ...(form.instagram ? { instagram: normInstagram(form.instagram) } : {}),
+      // Obrigatório desde 24/08 — o contrato do `lead` passa a 11 chaves fixas.
+      instagram: normInstagram(form.instagram),
     },
   });
 }
@@ -247,6 +248,23 @@ export default function LeadWizardModal() {
   // evento `lead`; trocar o e-mail conta como lead novo e libera os dois.
   const sentEmailRef = useRef<string | null>(null);
   const eventEmailRef = useRef<string | null>(null);
+  // Verificação real de WhatsApp (uazapi via /api/whatsapp-check). Regra de
+  // 24/08 (Orlando): "no" CONFIRMADO bloqueia o avanço; qualquer falha nossa
+  // vira "unknown" e passa — nunca se perde lead por infra (fail-open).
+  const [phoneCheck, setPhoneCheck] = useState<"idle" | "checking" | "yes" | "no" | "unknown">(
+    "idle",
+  );
+  const phoneCheckRef = useRef<{ num: string; v: "yes" | "no" | "unknown" } | null>(null);
+  // Cartão "É este seu perfil?" do Instagram (business_discovery). Só perfis
+  // Business/Creator retornam — "not_found" quase sempre é perfil pessoal,
+  // então a UI trata como neutro, nunca como erro.
+  const [igCard, setIgCard] = useState<
+    | { status: "found"; username: string; name: string; followers: number | null; picture: string | null }
+    | { status: "not_found" }
+    | null
+  >(null);
+  const [igChecking, setIgChecking] = useState(false);
+  const igCheckedRef = useRef<string>("");
 
   const calLink = import.meta.env.PUBLIC_CAL_LINK || "vos/diagnostico";
   const calOrigin = import.meta.env.PUBLIC_CAL_ORIGIN || "https://cal.osvertex.com";
@@ -356,8 +374,62 @@ export default function LeadWizardModal() {
     }, 0);
   }
 
+  /** Pergunta ao servidor se o número existe no WhatsApp. Memoizado por
+   *  número (mudou o número, consulta de novo). Qualquer falha = "unknown". */
+  async function consultaWhatsApp(e164: string): Promise<"yes" | "no" | "unknown"> {
+    const memo = phoneCheckRef.current;
+    if (memo && memo.num === e164) return memo.v;
+    try {
+      const ctrl = new AbortController();
+      const timer = window.setTimeout(() => ctrl.abort(), 4000);
+      const res = await fetch("/api/whatsapp-check", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ phone: e164.replace(/\D/g, "") }),
+        signal: ctrl.signal,
+      });
+      window.clearTimeout(timer);
+      const d = await res.json().catch(() => null);
+      const v: "yes" | "no" | "unknown" =
+        d?.status === "yes" || d?.status === "no" ? d.status : "unknown";
+      phoneCheckRef.current = { num: e164, v };
+      return v;
+    } catch {
+      return "unknown";
+    }
+  }
+
+  /** Busca o cartão de confirmação do @ (nome/seguidores/foto quando houver). */
+  async function consultaInstagram(handle: string) {
+    if (!handle || igCheckedRef.current === handle) return;
+    igCheckedRef.current = handle;
+    setIgChecking(true);
+    setIgCard(null);
+    try {
+      const res = await fetch(`/api/instagram-check?u=${encodeURIComponent(handle)}`, {
+        signal: AbortSignal.timeout(4000),
+      });
+      const d = await res.json().catch(() => null);
+      if (d?.status === "found" && d.username) {
+        setIgCard({
+          status: "found",
+          username: d.username,
+          name: d.name ?? "",
+          followers: typeof d.followers === "number" ? d.followers : null,
+          picture: d.picture ?? null,
+        });
+      } else if (d?.status === "not_found") {
+        setIgCard({ status: "not_found" });
+      }
+    } catch {
+      // silêncio: cartão é enfeite, não porteiro
+    } finally {
+      setIgChecking(false);
+    }
+  }
+
   // Etapa 1 → 2: valida dados pessoais + empresa.
-  function goToCompanyStep() {
+  async function goToCompanyStep() {
     setError(null);
     // Honeypot preenchido = bot. Deixa "passar" (sem denunciar o campo), mas
     // marca pra não enviar nada ao CRM nem disparar evento lá na frente.
@@ -372,7 +444,22 @@ export default function LeadWizardModal() {
     }
     const digits = form.phone.replace(/\D/g, "");
     if (digits.length < country.min || digits.length > country.max) {
-      failAt("phone", "Informe um WhatsApp válido: só DDD + número, sem o +55.");
+      // Sem instrução de formato: a máscara já resolve DDI/pontuação sozinha
+      // (Baymard: instrução de formato é ignorada e a antiga "sem o +55"
+      // contradizia o campo, que aceita colar com +55 numa boa).
+      failAt("phone", "Informe um WhatsApp válido com DDD.");
+      return;
+    }
+    // Verificação REAL de WhatsApp — bloqueia SÓ o negativo confirmado.
+    let veredito =
+      phoneCheckRef.current?.num === phoneE164 ? phoneCheckRef.current.v : null;
+    if (!veredito) {
+      setPhoneCheck("checking");
+      veredito = await consultaWhatsApp(phoneE164);
+      setPhoneCheck(veredito);
+    }
+    if (veredito === "no") {
+      failAt("phone", "Esse número não tem WhatsApp. Confere o DDD e o número?");
       return;
     }
     // Empresa é OBRIGATÓRIA de propósito: quem não tem empresa não é público do
@@ -402,6 +489,14 @@ export default function LeadWizardModal() {
     }
     if (!form.challenge) {
       failAt("challenge", "Selecione o principal desafio.");
+      return;
+    }
+    // Instagram OBRIGATÓRIO (decisão do Orlando, 24/08): todo lead sai
+    // completo — o time olha o perfil antes da call. Formato de handle real:
+    // 1-30 chars de letra/número/ponto/underscore, e não só pontos.
+    const igNow = normInstagram(form.instagram);
+    if (!/^[a-z0-9._]{1,30}$/i.test(igNow) || /^\.+$/.test(igNow)) {
+      failAt("instagram", "Informe o @ do Instagram da empresa.");
       return;
     }
 
@@ -466,7 +561,7 @@ export default function LeadWizardModal() {
       company: form.company.trim(),
       segment: form.segment,
       country: form.country,
-      ...(instagramNow ? { instagram: instagramNow } : {}),
+      instagram: instagramNow,
       utm,
       ...clickIds,
       leadEventId,
@@ -679,7 +774,7 @@ export default function LeadWizardModal() {
                 className="space-y-3 px-4 py-4 sm:px-5 sm:py-5"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  goToCompanyStep();
+                  void goToCompanyStep();
                 }}
               >
                 <input
@@ -747,9 +842,20 @@ export default function LeadWizardModal() {
                       type="tel"
                       required
                       value={form.phone}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, phone: formatPhone(e.target.value, f.country) }))
-                      }
+                      onChange={(e) => {
+                        // Mudou o número = veredito antigo não vale mais.
+                        if (phoneCheck !== "idle") setPhoneCheck("idle");
+                        setForm((f) => ({ ...f, phone: formatPhone(e.target.value, f.country) }));
+                      }}
+                      onBlur={() => {
+                        // Consulta no blur (nunca no keystroke — NN/g): só com o
+                        // número completo pelo padrão do país selecionado.
+                        const digits = form.phone.replace(/\D/g, "");
+                        if (digits.length >= country.min && digits.length <= country.max) {
+                          setPhoneCheck("checking");
+                          void consultaWhatsApp(phoneE164).then((v) => setPhoneCheck(v));
+                        }
+                      }}
                       placeholder={form.country === "BR" ? "(11) 99999-9999" : "Número com DDD"}
                       inputMode="tel"
                       autoComplete="tel-national"
@@ -763,6 +869,16 @@ export default function LeadWizardModal() {
                     <p className="mt-1 text-[12px] font-medium text-[#D32F2F]" role="alert">
                       {error.msg}
                     </p>
+                  )}
+                  {/* Confirmação vale a tela que ocupa: é por ESTE número que a
+                      conversa vai acontecer (indicador de sucesso útil, NN/g). */}
+                  {error?.field !== "phone" && phoneCheck === "yes" && (
+                    <p className="mt-1 text-[12px] font-medium text-[#0F7A3C]">
+                      ✓ WhatsApp confirmado
+                    </p>
+                  )}
+                  {error?.field !== "phone" && phoneCheck === "checking" && (
+                    <p className="mt-1 text-[11px] text-[#6E6A79]">Verificando WhatsApp…</p>
                   )}
                 </label>
 
@@ -780,7 +896,8 @@ export default function LeadWizardModal() {
                 <div className="pt-0.5">
                   <GetStartedButton
                     type="submit"
-                    label="Continuar"
+                    disabled={phoneCheck === "checking"}
+                    label={phoneCheck === "checking" ? "Verificando WhatsApp…" : "Continuar"}
                     className="!w-full !justify-center !py-[13px] !pl-4 !pr-3 !text-[14px] !leading-5"
                   />
                 </div>
@@ -835,9 +952,14 @@ export default function LeadWizardModal() {
 
                 <Field
                   label="Instagram da empresa"
-                  optional
+                  required
                   value={form.instagram}
-                  onChange={(v) => setForm((f) => ({ ...f, instagram: normInstagram(v) }))}
+                  onChange={(v) => {
+                    setForm((f) => ({ ...f, instagram: normInstagram(v) }));
+                    // Handle mudou = cartão antigo não vale mais.
+                    if (igCard) setIgCard(null);
+                  }}
+                  onBlur={() => void consultaInstagram(normInstagram(form.instagram).toLowerCase())}
                   placeholder="suaempresa"
                   prefix="@"
                   autoComplete="off"
@@ -845,7 +967,45 @@ export default function LeadWizardModal() {
                   autoCorrect="off"
                   hint="A gente dá uma olhada no seu perfil antes da conversa."
                   field="instagram"
+                  error={error?.field === "instagram" ? error.msg : undefined}
                 />
+                {/* Cartão de confirmação: só perfis Business/Creator retornam
+                    da API — "not_found" é quase sempre perfil pessoal, então a
+                    mensagem é neutra e nada bloqueia. */}
+                {igChecking && (
+                  <p className="-mt-1.5 text-[11px] text-[#6E6A79]">Conferindo o perfil…</p>
+                )}
+                {!igChecking && igCard?.status === "found" && (
+                  <div className="-mt-1.5 flex items-center gap-2.5 rounded-[10px] border border-[#1EB258]/25 bg-[#1EB258]/6 px-3 py-2">
+                    {igCard.picture ? (
+                      <img
+                        src={igCard.picture}
+                        alt=""
+                        className="h-8 w-8 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1EB258]/15 text-[13px]">
+                        ✓
+                      </span>
+                    )}
+                    <p className="min-w-0 text-[12px] leading-snug text-[#1A202C]">
+                      <span className="font-semibold">@{igCard.username}</span>
+                      {igCard.name ? ` · ${igCard.name}` : ""}
+                      {igCard.followers !== null
+                        ? ` · ${igCard.followers.toLocaleString("pt-BR")} seguidores`
+                        : ""}
+                      <span className="block text-[11px] text-[#0F7A3C]">
+                        Perfil encontrado — é este que vamos olhar.
+                      </span>
+                    </p>
+                  </div>
+                )}
+                {!igChecking && igCard?.status === "not_found" && form.instagram && (
+                  <p className="-mt-1.5 text-[11px] leading-snug text-[#6E6A79]">
+                    Não conseguimos confirmar o perfil — se for conta pessoal, é normal. Vamos
+                    usar assim mesmo.
+                  </p>
+                )}
 
                 <div className="flex items-center gap-2 pt-0.5">
                   <button
@@ -1007,6 +1167,7 @@ function Field({
   label,
   value,
   onChange,
+  onBlur,
   placeholder,
   required,
   type = "text",
@@ -1024,6 +1185,7 @@ function Field({
   label: string;
   value: string;
   onChange: (v: string) => void;
+  onBlur?: () => void;
   placeholder?: string;
   required?: boolean;
   type?: string;
@@ -1059,6 +1221,7 @@ function Field({
           required={required}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
           placeholder={placeholder}
           inputMode={inputMode}
           autoComplete={autoComplete}

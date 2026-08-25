@@ -34,6 +34,10 @@ const VIEWPORTS = [
 
 // Rotas do funil que NÃO podem sair da máquina durante a captura.
 const BLOQUEADAS = ["**/api/lead", "**/api/first-touch", "**/api/agendou"];
+// Verificadores do wizard v2 (24/08): respondidos localmente com o veredito
+// neutro — a captura nunca consulta a uazapi nem a Graph de verdade, e
+// "unknown" exercita exatamente o caminho fail-open (passa sem cartão).
+const VERIFICADORES = ["**/api/whatsapp-check", "**/api/instagram-check"];
 
 const relatorio = { url: ALVO, capturadoEm: new Date().toISOString(), viewports: {} };
 
@@ -52,6 +56,15 @@ for (const vp of VIEWPORTS) {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({ ok: true, _interceptado: true }),
+      }),
+    );
+  }
+  for (const rota of VERIFICADORES) {
+    await ctx.route(rota, (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ status: "unknown", _interceptado: true }),
       }),
     );
   }
@@ -119,6 +132,8 @@ for (const vp of VIEWPORTS) {
         }
       }
     }
+    // Instagram é obrigatório desde 24/08 — sem ele o submit trava no failAt.
+    await page.getByPlaceholder("suaempresa").fill("empresabaseline");
     await page.waitForTimeout(300);
 
     const btn = page.getByRole("button", { name: /horário|Enviando/i });
