@@ -13,13 +13,16 @@ nada chega no CRM. O dataLayer é client-side e dispara igual, que é o contrato
 ```
 event: "lead"
 lead: { nome, sobrenome, email, telefone, empresa, segmento,
-        resposta_1, resposta_2, faturamento, desafio }
+        resposta_1, resposta_2, faturamento, desafio, instagram }
 ```
 
 Verificado idêntico em desktop e mobile. Dispara **uma vez**, só no submit validado da
 etapa 2, com guarda por e-mail (`eventEmailRef`) e bloqueio de honeypot.
 `resposta_1` = faturamento · `resposta_2` = desafio — nomes genéricos que o GTM consome;
 **renomear quebra tag que vive fora deste repo**.
+`instagram` entrou em 24/08 (wizard v2): antes era condicional (só quando preenchido),
+agora o campo é obrigatório e a chave é **fixa** — contrato de 11 chaves. As 10
+anteriores não mudaram de nome nem de significado.
 
 ### 2. Contrato de DOM / eventos de janela
 
@@ -36,6 +39,10 @@ etapa 2, com guarda por e-mail (`eventEmailRef`) e bloqueio de honeypot.
 
 `POST /api/first-touch` (1,5s após load, só se não houver cookie) e `POST /api/lead`
 (submit da etapa 2). O agendamento não empurra dataLayer — o GTM escuta o Cal sozinho.
+Desde 24/08 (wizard v2) existem também `POST /api/whatsapp-check` (blur/Continuar da
+etapa 1; só "no" confirmado bloqueia — qualquer falha passa) e
+`GET /api/instagram-check` (blur do @ na etapa 2; cartão é enfeite, nunca porteiro).
+O baseline mocka os dois com `{status:"unknown"}`.
 
 ## Estado visual e de console
 
