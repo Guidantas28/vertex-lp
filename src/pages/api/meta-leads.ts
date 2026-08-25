@@ -122,7 +122,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   }
 
   const pageToken = import.meta.env.META_PAGE_TOKEN;
-  if (!pageToken || !import.meta.env.VOS_API_TOKEN) {
+  if (!pageToken || !(process.env.VOS_API_TOKEN ?? import.meta.env.VOS_API_TOKEN)) {
     console.error("[meta-leads] META_PAGE_TOKEN ou VOS_API_TOKEN ausente");
     return json({ ok: false }, 503);
   }

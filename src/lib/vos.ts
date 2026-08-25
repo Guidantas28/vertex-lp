@@ -17,9 +17,11 @@ const BASE_PADRAO = "https://api.osvertex.com";
 type Resp<T> = { ok: boolean; status: number; data: T | null; erro?: string };
 
 async function chamar<T>(caminho: string, init?: RequestInit): Promise<Resp<T>> {
-  const token = import.meta.env.VOS_API_TOKEN;
+  // process.env primeiro: import.meta.env congela no BUILD, e build de cache
+  // serviu token ausente mesmo com a env restaurada (incidente de 24/08).
+  const token = process.env.VOS_API_TOKEN ?? import.meta.env.VOS_API_TOKEN;
   if (!token) return { ok: false, status: 0, data: null, erro: "VOS_API_TOKEN ausente" };
-  const base = (import.meta.env.VOS_API_BASE || BASE_PADRAO).replace(/\/$/, "");
+  const base = (process.env.VOS_API_BASE ?? import.meta.env.VOS_API_BASE ?? BASE_PADRAO).replace(/\/$/, "");
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 12000);

@@ -32,7 +32,7 @@ export const POST: APIRoute = async ({ request }) => {
   const email = typeof data?.email === "string" ? data.email.trim().toLowerCase() : "";
   if (!email) return json({ ok: false, message: "email obrigatório" }, 422);
 
-  if (!import.meta.env.VOS_API_TOKEN) {
+  if (!(process.env.VOS_API_TOKEN ?? import.meta.env.VOS_API_TOKEN)) {
     console.error("[agendou] VOS_API_TOKEN ausente; tag não gravada", { email });
     return json({ ok: true, persisted: false });
   }
