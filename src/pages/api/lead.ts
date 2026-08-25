@@ -65,10 +65,13 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   if (name.length < 2) return json({ ok: false, message: "Informe seu nome" }, 422);
   if (!EMAIL_RE.test(email)) return json({ ok: false, message: "E-mail inválido" }, 422);
 
-  if (!import.meta.env.VOS_API_TOKEN) {
+  if (!(process.env.VOS_API_TOKEN ?? import.meta.env.VOS_API_TOKEN)) {
     // Sem token não dá pra persistir. Não trava o funil: a pessoa segue pro
     // agendamento, e o Cal cria o registro no vos de qualquer forma.
     console.error("[lead] VOS_API_TOKEN ausente; lead não persistido", { email });
+    // Incidente de 24/08: falha silenciosa deixou 2 leads pagos invisíveis.
+    // O alarme vira linha `crm_erro_lead` na planilha de auditoria em segundos.
+    await avisaCanoQuebrado("TOKEN-AUSENTE", name, email, phone);
     return json({ ok: true, persisted: false });
   }
 
@@ -110,7 +113,14 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   campo(customFields, "referrer", data?.referrer, 500);
 
   // Tráfego pago do Meta é a origem real hoje; sem utm, trata como orgânico.
-  const origem = String(rawUtm?.utm_source ?? "").toLowerCase() === "meta" ? "ads" : "organic";
+  // As UTMs dinâmicas dos anúncios mandam a plataforma real ({{site_source_name}}:
+  // ig/fb/msg/an) — e fbclid só existe em clique de anúncio.
+  const fonteUtm = String(rawUtm?.utm_source ?? "").toLowerCase();
+  const origem =
+    ["meta", "ig", "fb", "msg", "an"].includes(fonteUtm) ||
+    (typeof data?.fbclid === "string" && data.fbclid.trim() !== "")
+      ? "ads"
+      : "organic";
 
   try {
     // E-mail primeiro; TELEFONE como segunda chave. A mesma pessoa preenche o
@@ -174,6 +184,48 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     return json({ ok: true, persisted: true });
   } catch (err) {
     console.error("[lead] erro ao registrar no vos", err);
+    await avisaCanoQuebrado("ERRO-GRAVACAO", name, email, phone);
     return json({ ok: false, message: "Não foi possível registrar agora." }, 502);
   }
 };
+
+// Alarme do cano LP→CRM: quando a gravação falha, uma cópia do lead vai pro
+// servidor de tags com o nome `crm_erro_lead` — o acionador `crm_* + token`
+// (server GTM v21) escreve a linha na planilha de auditoria, o vigia da VPS e
+// o monitor gritam, e o lead fica recuperável ali mesmo. O prefixo `crm_` não
+// casa com nenhuma tag de Meta: o alarme jamais vira evento no pixel.
+// Fire-and-forget de verdade: falha aqui morre em silêncio (o alarme nunca
+// pode piorar o problema que ele denuncia).
+async function avisaCanoQuebrado(motivo: string, nome: string, email: string, telefone: string) {
+  try {
+    const token = process.env.VHQ_TOKEN ?? import.meta.env.VHQ_TOKEN;
+    if (!token) return;
+    const partes = nome.trim().split(/\s+/);
+    const agora = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      day: "2-digit", month: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+    }).formatToParts(new Date());
+    const p = Object.fromEntries(agora.map((x) => [x.type, x.value]));
+    const user_data: Record<string, string> = {};
+    if (email) user_data.email = email;
+    if (telefone) user_data.phone = telefone;
+    if (partes[0]) user_data.first_name = partes[0];
+    if (partes.length > 1) user_data.last_name = partes.slice(1).join(" ");
+    await fetch("https://vx.voshq.com/vhq", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event_name: "crm_erro_lead",
+        token,
+        event_id: `${motivo}_${Date.now()}`,
+        time_date: `${p.day}-${p.month}-${p.year}`,
+        time_hour: `${p.hour}:${p.minute}:${p.second}`,
+        user_data,
+      }),
+      signal: AbortSignal.timeout(3000),
+    });
+  } catch {
+    // silêncio de propósito — ver comentário acima
+  }
+}
