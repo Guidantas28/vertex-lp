@@ -42,7 +42,9 @@
       "keyword": "tempo de resposta ao lead",
       "title_hint": "Quanto tempo você tem para responder um lead antes de perdê-lo",
       "category": "vendas",
-      "used": false
+      "used": true,
+      "publishedSlug": "tempo-resposta-lead",
+      "publishedAt": "2026-08-28"
     },
     {
       "id": "ia-no-atendimento",
