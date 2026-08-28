@@ -1,17 +1,25 @@
 // Porteiro do wizard: diz se o que foi digitado na etapa 1 segue ou para.
 //
-// Por que é SERVIDOR e não uma checagem no navegador: o IP só existe aqui. O
-// filtro de conteúdo até rodaria no cliente, mas então o bloqueio por IP não
-// existiria e qualquer um contornaria tudo pelo console.
+// Por que é SERVIDOR e não uma checagem no navegador: aqui eu enxergo o cookie e
+// o IP, e daqui não dá pra contornar pelo console.
 //
-// Decisões do Orlando (27/08), depois da leva de submissão-troça:
+// Decisões do Orlando (27–28/08), depois da leva de submissão-troça:
 //   • bloqueio BARRA e avisa neutro — para na etapa 1, sem CRM, sem Meta e sem
 //     chegar no calendário (era o pior custo: o time aparecia pra call fake);
 //   • quem for barrado vira linha na aba `bloqueados` da planilha de auditoria;
-//   • a lista de IP começa VAZIA. Os dois IPs dos fakes conhecidos não são
-//     seguros de chumbar: um é faixa da Fastly (proxy — derruba gente real) e o
-//     outro é o mesmo IP de um lead que pode ser legítimo. A planilha vira a
-//     evidência pra decidir isso depois, com dado.
+//   • banimento é PERMANENTE e pelo NAVEGADOR, não pelo IP.
+//
+// 🔴 Por que o banimento deixou de ser por IP: o IP do primeiro troll era da
+// **Fastly** (iCloud Private Relay) — o IP real dele nunca chega até nós, e
+// bloquear aquele endereço derrubaria qualquer usuário de iPhone com Private
+// Relay. O segundo era compartilhado com um lead que pode ser legítimo. Fora
+// isso, operadora brasileira usa CGNAT: milhares de pessoas no mesmo IP.
+// O `vos_uid` é um cookie de 1ª parte de 400 dias (`FirstTouch.astro`), então
+// três reprovações nele são de UMA pessoa, não de uma cidade inteira. O IP
+// continua sendo GRAVADO na planilha — é evidência —, só não bloqueia mais nada.
+//
+// ⚠️ Limite honesto: limpar cookie ou abrir aba anônima zera o banimento. Nenhum
+// ban por cookie escapa disso; quem volta cai de novo no filtro de conteúdo.
 //
 // 🔴 Fail-open, igual ao `/api/whatsapp-check`: qualquer erro NOSSO (timeout,
 // exceção, JSON quebrado) responde "ok" e o funil segue. Nunca perder lead pago
@@ -21,34 +29,34 @@ import { avaliaLead } from "../../lib/antifraude";
 
 export const prerender = false;
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "content-type": "application/json" },
-  });
+const STRIKES_PARA_BANIR = 3;
+const DIAS_BAN = 400; // mesma vida do vos_uid: banir por menos seria teatro
+const DIAS_STRIKE = 30;
+
+// Throttle do REGISTRO (não do veredito): impede que alguém martelando o
+// endpoint encha a planilha de linhas. Nunca muda a resposta ao usuário.
+const registroPorIp = new Map<string, { n: number; janela: number }>();
+const LIMITE_REGISTRO = 10; // linhas por IP por minuto
+
+function json(body: unknown, cookies: string[] = []) {
+  const h = new Headers({ "content-type": "application/json" });
+  for (const c of cookies) h.append("set-cookie", c);
+  return new Response(JSON.stringify(body), { status: 200, headers: h });
 }
 
-// Bloqueio automático de reincidente. Vive na memória da função serverless:
-// some no cold start, e tudo bem — serve pro sujeito que está insistindo AGORA.
-// A trava permanente é a aba `bloqueados` da planilha, não isto.
-//
-// 🔴 EXIGE 3 REPROVAÇÕES, e não uma. Medido em 27/08: com bloqueio na primeira,
-// um lead legítimo do mesmo IP era barrado em seguida. E isso não é hipótese de
-// laboratório — o tráfego vem do navegador do Instagram, em celular, e operadora
-// brasileira usa CGNAT: milhares de pessoas dividem o mesmo IP. Bloquear na
-// primeira faria UM troll calar leads pagos de todo mundo atrás daquele IP.
-// Três reprovações em 30 min é coisa de quem está insistindo de propósito.
-const strikes = new Map<string, { n: number; até: number }>();
-const ipsBloqueados = new Map<string, number>();
-const porIp = new Map<string, { n: number; janela: number }>();
+function leCookie(request: Request, nome: string): string {
+  const m = new RegExp(`(?:^|;\\s*)${nome}=([^;]*)`).exec(
+    request.headers.get("cookie") ?? "",
+  );
+  return m ? decodeURIComponent(m[1]!) : "";
+}
 
-const STRIKES_PARA_BLOQUEAR = 3;
-const JANELA_STRIKE_MS = 30 * 60 * 1000;
-// Bloqueio curto pelo mesmo motivo: se o IP for compartilhado e eu errar, o
-// estrago dura meia hora, não um turno inteiro de anúncio.
-const TTL_BLOQUEIO_MS = 30 * 60 * 1000;
-const LIMITE_IP = 20; // por minuto — o wizard chama isto uma vez por tentativa
-const TETO_MAPA = 500; // memória de função serverless não é lugar de crescer sem fim
+function montaCookie(nome: string, valor: string, dias: number, seguro: boolean) {
+  const exp = new Date(Date.now() + dias * 864e5).toUTCString();
+  // HttpOnly: o JS da página não lê nem apaga. Não impede o dono do navegador
+  // de limpar tudo — nada impede —, mas tira o caminho fácil.
+  return `${nome}=${encodeURIComponent(valor)}; Expires=${exp}; Path=/; SameSite=Lax; HttpOnly${seguro ? "; Secure" : ""}`;
+}
 
 function ipDaRequisicao(request: Request, clientAddress?: string): string {
   return (
@@ -58,84 +66,80 @@ function ipDaRequisicao(request: Request, clientAddress?: string): string {
   );
 }
 
-function estaBloqueado(ip: string, agora: number): boolean {
-  const até = ipsBloqueados.get(ip);
-  if (!até) return false;
-  if (até <= agora) {
-    ipsBloqueados.delete(ip);
-    return false;
-  }
-  return true;
-}
-
-/**
- * Registra uma reprovação e só bloqueia o IP no 3º strike dentro da janela.
- * Devolve quantos strikes o IP tem agora (vai pra planilha: é o número que
- * diferencia "alguém digitou besteira" de "tem gente insistindo").
- */
-function marcaStrike(ip: string, agora: number): number {
-  if (ip === "?") return 0;
-  if (strikes.size >= TETO_MAPA) {
-    // Faxina barata: derruba o que já venceu; se nada venceu, deixa como está
-    // (perder contagem é aceitável, estourar memória não).
-    for (const [k, v] of strikes) if (v.até <= agora) strikes.delete(k);
-  }
-  const atual = strikes.get(ip);
-  const n = atual && atual.até > agora ? atual.n + 1 : 1;
-  if (strikes.size < TETO_MAPA || atual) {
-    strikes.set(ip, { n, até: agora + JANELA_STRIKE_MS });
-  }
-  if (n >= STRIKES_PARA_BLOQUEAR && ipsBloqueados.size < TETO_MAPA) {
-    ipsBloqueados.set(ip, agora + TTL_BLOQUEIO_MS);
-  }
-  return n;
-}
-
 export const POST: APIRoute = async ({ request, clientAddress }) => {
   const agora = Date.now();
   const ip = ipDaRequisicao(request, clientAddress);
-
-  // Rate-limit por IP. Estourar não é motivo pra barrar (poderia ser NAT de
-  // empresa): responde "ok" e sai — o custo é uma checagem a menos, não um lead.
-  const janela = Math.floor(agora / 60_000);
-  const uso = porIp.get(ip);
-  if (uso && uso.janela === janela && uso.n >= LIMITE_IP) return json({ status: "ok" });
-  porIp.set(ip, uso && uso.janela === janela ? { n: uso.n + 1, janela } : { n: 1, janela });
-
-  let data: any;
-  try {
-    data = await request.json();
-  } catch {
-    return json({ status: "ok" }); // fail-open
-  }
-
-  const name = typeof data?.name === "string" ? data.name : "";
-  const company = typeof data?.company === "string" ? data.company : "";
-  const email = typeof data?.email === "string" ? data.email : "";
+  // Em localhost o `Secure` impediria o cookie de ser guardado — e sem cookie
+  // não dá pra testar o banimento no ambiente local.
+  const seguro =
+    (request.headers.get("x-forwarded-proto") ?? new URL(request.url).protocol)
+      .startsWith("https");
 
   try {
-    // Reincidente do momento: nem avalia o conteúdo, já barra. O campo apontado
-    // é o nome porque é onde a mensagem neutra faz mais sentido pra quem lê.
-    if (estaBloqueado(ip, agora)) {
+    // Já banido: barra sem nem olhar o que foi digitado.
+    if (leCookie(request, "vos_bl") === "1") {
       return json({ status: "block", campo: "name" });
     }
+
+    let data: any;
+    try {
+      data = await request.json();
+    } catch {
+      return json({ status: "ok" }); // fail-open
+    }
+
+    const name = typeof data?.name === "string" ? data.name : "";
+    const company = typeof data?.company === "string" ? data.company : "";
+    const email = typeof data?.email === "string" ? data.email : "";
 
     const veredito = avaliaLead({ name, company, email });
     if (veredito.ok) return json({ status: "ok" });
 
-    const strike = marcaStrike(ip, agora);
+    // 🔑 O contador vive em COOKIE, não em memória. A memória da função
+    // serverless morre no cold start, e um troll espalhado ao longo de horas
+    // nunca fecharia as 3 tentativas — o banimento nunca dispararia.
+    const strike = Math.min(99, (parseInt(leCookie(request, "vos_st"), 10) || 0) + 1);
+    const banir = strike >= STRIKES_PARA_BANIR;
+
+    const cookies = [montaCookie("vos_st", String(strike), DIAS_STRIKE, seguro)];
+    if (banir) cookies.push(montaCookie("vos_bl", "1", DIAS_BAN, seguro));
+
     // 🔴 `await`, não fire-and-forget. Medido em produção 27/08: com `void`, a
     // linha NUNCA chegava na planilha — a Vercel congela a função assim que ela
-    // responde e o POST pendente morre. O `avisaCanoQuebrado` do `api/lead.ts`
-    // funciona exatamente porque é aguardado.
-    // O custo cai só em quem foi barrado (no caminho feliz a função já retornou
-    // acima), e a própria chamada tem timeout de 3s e engole o próprio erro.
-    await registraBloqueio({ ip, motivo: veredito.motivo, strike, name, company, email, data });
-    return json({ status: "block", campo: veredito.campo });
+    // responde e o POST pendente morre.
+    if (podeRegistrar(ip, agora)) {
+      await registraBloqueio({
+        ip,
+        vosUid: leCookie(request, "vos_uid"),
+        motivo: veredito.motivo,
+        strike,
+        banido: banir,
+        name,
+        company,
+        email,
+        data,
+      });
+    }
+
+    return json({ status: "block", campo: veredito.campo }, cookies);
   } catch {
     return json({ status: "ok" }); // fail-open
   }
 };
+
+/** Throttle só do registro na planilha; o veredito nunca depende disto. */
+function podeRegistrar(ip: string, agora: number): boolean {
+  const janela = Math.floor(agora / 60_000);
+  const uso = registroPorIp.get(ip);
+  if (uso && uso.janela === janela) {
+    if (uso.n >= LIMITE_REGISTRO) return false;
+    uso.n += 1;
+    return true;
+  }
+  if (registroPorIp.size > 500) registroPorIp.clear();
+  registroPorIp.set(ip, { n: 1, janela });
+  return true;
+}
 
 /**
  * Manda o bloqueado pro servidor de tags, que grava a linha na aba `bloqueados`
@@ -152,16 +156,14 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
  * (generate_lead, page_view, schedule, BOOKING_*, view_content) e o de GA4 exige
  * `Client Name = GA4` — este evento chega pelo Data Client.
  *
- * Enquanto o acionador não existir no server GTM (fase 2), isto é um POST que
- * ninguém escuta — exatamente o estado em que o `call_show` ficou entre a v24 e
- * a v25. Não quebra nada.
- *
  * Falha aqui morre em silêncio: o registro nunca pode piorar o que denuncia.
  */
 async function registraBloqueio(ctx: {
   ip: string;
+  vosUid: string;
   motivo: string;
   strike: number;
+  banido: boolean;
   name: string;
   company: string;
   email: string;
@@ -187,15 +189,17 @@ async function registraBloqueio(ctx: {
         time_hour: `${p.hour}:${p.minute}:${p.second}`,
         // O que a aba `bloqueados` recebe. Tudo string e cortado: é planilha.
         motivo: ctx.motivo,
-        ip_bloqueado: ctx.ip,
-        // 1 = alguem digitou besteira uma vez. 3+ = o IP levou trava de 30 min.
+        // 1 = digitou besteira uma vez. 3+ = o navegador levou banimento.
         strike: String(ctx.strike),
+        banido: ctx.banido ? "sim" : "nao",
+        // A identidade que importa agora. O IP fica como evidência, não trava nada.
+        vos_uid: ctx.vosUid.slice(0, 60),
+        ip_bloqueado: ctx.ip,
         digitou_nome: ctx.name.slice(0, 120),
         digitou_empresa: ctx.company.slice(0, 120),
         digitou_email: ctx.email.slice(0, 120),
         utm_source: String(ctx.data?.utm_source ?? "").slice(0, 60),
         utm_content: String(ctx.data?.utm_content ?? "").slice(0, 80),
-        landing: String(ctx.data?.landing ?? "").slice(0, 300),
       }),
       signal: AbortSignal.timeout(3000),
     });
