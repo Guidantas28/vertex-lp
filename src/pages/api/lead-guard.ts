@@ -124,9 +124,13 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     if (veredito.ok) return json({ status: "ok" });
 
     const strike = marcaStrike(ip, agora);
-    // Fire-and-forget: o registro na planilha nunca pode atrasar nem derrubar
-    // a resposta ao usuário.
-    void registraBloqueio({ ip, motivo: veredito.motivo, strike, name, company, email, data });
+    // 🔴 `await`, não fire-and-forget. Medido em produção 27/08: com `void`, a
+    // linha NUNCA chegava na planilha — a Vercel congela a função assim que ela
+    // responde e o POST pendente morre. O `avisaCanoQuebrado` do `api/lead.ts`
+    // funciona exatamente porque é aguardado.
+    // O custo cai só em quem foi barrado (no caminho feliz a função já retornou
+    // acima), e a própria chamada tem timeout de 3s e engole o próprio erro.
+    await registraBloqueio({ ip, motivo: veredito.motivo, strike, name, company, email, data });
     return json({ status: "block", campo: veredito.campo });
   } catch {
     return json({ status: "ok" }); // fail-open
