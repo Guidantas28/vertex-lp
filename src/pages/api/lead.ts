@@ -10,6 +10,7 @@ import {
   tagDesafio,
 } from "../../lib/vos";
 import { foraDoIcp } from "../../lib/icp";
+import { avaliaLead } from "../../lib/antifraude";
 
 // Serverless (Vercel). Recebe o formulário da landing e cria um **Lead** no vos.
 //
@@ -76,6 +77,19 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
   if (name.length < 2) return json({ ok: false, message: "Informe seu nome" }, 422);
   if (!EMAIL_RE.test(email)) return json({ ok: false, message: "E-mail inválido" }, 422);
+
+  // Rede de segurança do porteiro anti-troça (27/08). O wizard já barra na
+  // etapa 1 pelo `/api/lead-guard`; isto aqui é para quem chama este endpoint
+  // direto, sem passar pelo formulário — a checagem do navegador se contorna
+  // pelo console, esta não.
+  // 🔴 De propósito NÃO chama `avisaCanoQuebrado`: lead recusado não é cano
+  // quebrado. Gritar aqui encheria a planilha de alarme falso e treinaria o
+  // time a ignorar o alarme que importa.
+  const veredito = avaliaLead({ name, company, email });
+  if (!veredito.ok) {
+    console.warn("[lead] recusado pelo antifraude", { motivo: veredito.motivo, email });
+    return json({ ok: false, message: "Não foi possível validar os dados." }, 422);
+  }
 
   // Tudo que descreve a origem vira customFields do Lead. Os click-ids são o
   // que costura este preenchimento com o evento de agendamento no Meta.

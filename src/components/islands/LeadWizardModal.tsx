@@ -388,6 +388,37 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
     }
   }
 
+  /** Porteiro anti-troça (`/api/lead-guard`). O servidor é quem enxerga o IP e
+   *  quem conhece a lista de reincidente — daqui só sai o que foi digitado.
+   *  Qualquer falha nossa vira "ok": porteiro fora do ar não pode custar lead. */
+  async function consultaGuard(): Promise<{ campo: string } | null> {
+    try {
+      const ctrl = new AbortController();
+      const timer = window.setTimeout(() => ctrl.abort(), 4000);
+      const p = new URLSearchParams(window.location.search);
+      const res = await fetch("/api/lead-guard", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          company: form.company.trim(),
+          email: normEmail(form.email),
+          utm_source: p.get("utm_source") ?? "",
+          utm_content: p.get("utm_content") ?? "",
+          landing: window.location.href.slice(0, 300),
+        }),
+        signal: ctrl.signal,
+      });
+      window.clearTimeout(timer);
+      const d = await res.json().catch(() => null);
+      if (d?.status !== "block") return null;
+      const campo = ["name", "company", "email"].includes(d?.campo) ? d.campo : "name";
+      return { campo };
+    } catch {
+      return null; // fail-open
+    }
+  }
+
   /** Busca o cartão de confirmação do @ (nome/seguidores/foto quando houver). */
   async function consultaInstagram(handle: string) {
     if (!handle || igCheckedRef.current === handle) return;
@@ -504,6 +535,24 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
     // Só dígitos é o jeito de furar o filtro — foi o caso real do "987654".
     if (pareceLixo(form.company)) {
       failAt("company", "Coloque o nome da empresa, não um número.");
+      return;
+    }
+    // Porteiro anti-troça (27/08). Fica por ÚLTIMO de propósito: é a única
+    // checagem que sai da máquina, então só paga a viagem quem já passou por
+    // tudo que dá pra decidir aqui dentro.
+    //
+    // 🔴 Barrar aqui é o ponto do desenho: o `dataLayer` e o `/api/lead` moram
+    // no `submitAndSchedule` (etapa 2→3) e o calendário na etapa 3 — nada disso
+    // é alcançado. Nenhum evento de Meta sai, nada é escrito no vos, nenhum
+    // fluxo de automação dispara e a agenda não recebe call fake.
+    setSubmitting(true);
+    const barrado = await consultaGuard();
+    setSubmitting(false);
+    if (barrado) {
+      // Mensagem neutra e sem acusação: quem cair aqui por engano tem que
+      // conseguir corrigir, e quem veio de troça não ganha um manual de como
+      // furar o filtro.
+      failAt(barrado.campo, "Não conseguimos validar esses dados. Confira o nome e o e-mail.");
       return;
     }
     setStep(2);

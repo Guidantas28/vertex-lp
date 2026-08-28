@@ -37,7 +37,14 @@ const BLOQUEADAS = ["**/api/lead", "**/api/first-touch", "**/api/agendou"];
 // Verificadores do wizard v2 (24/08): respondidos localmente com o veredito
 // neutro — a captura nunca consulta a uazapi nem a Graph de verdade, e
 // "unknown" exercita exatamente o caminho fail-open (passa sem cartão).
-const VERIFICADORES = ["**/api/whatsapp-check", "**/api/instagram-check"];
+// O `lead-guard` (porteiro anti-troça, 27/08) entra aqui pelo mesmo motivo e de
+// quebra ganha a prova de graça: ele só barra em `status: "block"`, então o
+// "unknown" devolvido abaixo exercita o fail-open dele também.
+const VERIFICADORES = [
+  "**/api/whatsapp-check",
+  "**/api/instagram-check",
+  "**/api/lead-guard",
+];
 
 const relatorio = { url: ALVO, capturadoEm: new Date().toISOString(), viewports: {} };
 
