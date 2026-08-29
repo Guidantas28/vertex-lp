@@ -51,7 +51,9 @@
       "keyword": "ia para atendimento ao cliente",
       "title_hint": "IA no atendimento: o que já funciona de verdade para PMEs",
       "category": "ia",
-      "used": false
+      "used": true,
+      "publishedSlug": "ia-no-atendimento",
+      "publishedAt": "2026-08-29"
     },
     {
       "id": "pipeline-de-vendas-metricas",
