@@ -60,7 +60,9 @@
       "keyword": "métricas de vendas",
       "title_hint": "As 7 métricas de vendas que todo dono de empresa deveria acompanhar",
       "category": "vendas",
-      "used": false
+      "used": true,
+      "publishedSlug": "pipeline-de-vendas-metricas",
+      "publishedAt": "2026-08-30"
     },
     {
       "id": "mensagem-cobranca-whatsapp",
