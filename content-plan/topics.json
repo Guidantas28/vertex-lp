@@ -69,7 +69,9 @@
       "keyword": "mensagem de cobrança para cliente",
       "title_hint": "Como cobrar cliente pelo WhatsApp sem constrangimento (com modelos)",
       "category": "financeiro",
-      "used": false
+      "used": true,
+      "publishedSlug": "mensagem-cobranca-whatsapp",
+      "publishedAt": "2026-08-31"
     },
     {
       "id": "agenda-online-no-show",
