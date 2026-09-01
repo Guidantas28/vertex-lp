@@ -78,7 +78,9 @@
       "keyword": "como reduzir no-show",
       "title_hint": "No-show: como reduzir faltas em reuniões e agendamentos",
       "category": "automacao",
-      "used": false
+      "used": true,
+      "publishedSlug": "agenda-online-no-show",
+      "publishedAt": "2026-09-01"
     },
     {
       "id": "crm-planilha-limites",
