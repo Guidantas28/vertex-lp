@@ -87,7 +87,9 @@
       "keyword": "crm ou planilha",
       "title_hint": "Planilha como CRM: até onde funciona e quando trocar",
       "category": "crm",
-      "used": false
+      "used": true,
+      "publishedSlug": "crm-planilha-limites",
+      "publishedAt": "2026-09-02"
     },
     {
       "id": "whatsapp-api-oficial",
