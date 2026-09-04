@@ -105,7 +105,9 @@
       "keyword": "pós-venda como fazer",
       "title_hint": "Pós-venda que gera recompra: o processo em 4 passos",
       "category": "vendas",
-      "used": false
+      "used": true,
+      "publishedSlug": "pos-venda-recompra",
+      "publishedAt": "2026-09-04"
     },
     {
       "id": "catalogo-digital-vendas",
