@@ -114,7 +114,9 @@
       "keyword": "catálogo digital para vendas",
       "title_hint": "Catálogo digital: como vender mais mostrando seus produtos no link",
       "category": "marketing",
-      "used": false
+      "used": true,
+      "publishedSlug": "catalogo-digital-vendas",
+      "publishedAt": "2026-09-05"
     },
     {
       "id": "fluxo-caixa-basico",
