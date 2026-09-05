@@ -16,16 +16,25 @@ import type { APIRoute } from "astro";
  */
 export const prerender = false;
 
-/** Tira fbclid/gclid da URL guardada (eles têm campo próprio); preserva o resto da query. */
+/**
+ * Tira fbclid/gclid da URL guardada (eles têm campo próprio); preserva o resto da query BYTE A BYTE
+ * (sem re-serializar: `%20` continua `%20`, ordem mantida) — assim `landing_page` segue comparável com o
+ * `pagina` que o GTM grava na planilha. Funciona para URL absoluta ou relativa.
+ */
 function semClickIds(url: unknown): string | undefined {
   if (typeof url !== "string" || !url) return undefined;
-  try {
-    const u = new URL(url);
-    ["fbclid", "gclid"].forEach((k) => u.searchParams.delete(k));
-    return u.toString();
-  } catch {
-    return url.replace(/([?&])(fbclid|gclid)=[^&#]*&?/g, "$1").replace(/[?&]$/, "");
-  }
+  const hashIdx = url.indexOf("#");
+  const hash = hashIdx >= 0 ? url.slice(hashIdx) : "";
+  const semHash = hashIdx >= 0 ? url.slice(0, hashIdx) : url;
+  const qIdx = semHash.indexOf("?");
+  if (qIdx < 0) return url;
+  const base = semHash.slice(0, qIdx);
+  const query = semHash
+    .slice(qIdx + 1)
+    .split("&")
+    .filter((p) => p && !/^(fbclid|gclid)=/i.test(p))
+    .join("&");
+  return base + (query ? "?" + query : "") + hash;
 }
 
 const clip = (v: unknown, max = 500) =>
