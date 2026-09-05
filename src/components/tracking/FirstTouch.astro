@@ -34,7 +34,7 @@
       if (readCookie(KEY)) return;
       var p = new URLSearchParams(location.search);
       var utm = {};
-      ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"].forEach(function (k) {
+      ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id"].forEach(function (k) {
         var v = p.get(k);
         if (v) utm[k] = v;
       });

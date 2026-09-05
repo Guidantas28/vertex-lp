@@ -31,7 +31,8 @@ const normInstagram = (v: string) =>
     .replace(/\s+/g, "")
     .slice(0, 60);
 
-const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"] as const;
+// `utm_id` = {{ad.id}} da geração nova de anúncios (Rodada 11): é o que torna a atribuição determinística.
+const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id"] as const;
 
 /**
  * E-mail SEMPRE minúsculo em tudo que sai daqui (dataLayer, CRM, agenda). É a
@@ -507,6 +508,17 @@ export default function LeadWizardModal() {
       const v = params.get(k);
       if (v) utm[k] = v;
     });
+    // Rodada 11: se a URL do submit não tem UTM (pessoa navegou/abriu em outra página), vale a UTM do
+    // PRIMEIRO TOQUE guardada no cookie `vos_ft` — antes ela era capturada e nunca usada.
+    if (!UTM_KEYS.some((k) => utm[k])) {
+      try {
+        const rawFt = document.cookie.split("; ").find((c) => c.startsWith("vos_ft="));
+        const ftUtm = rawFt ? (JSON.parse(decodeURIComponent(rawFt.slice(7))) as { utm?: Record<string, string> }).utm : undefined;
+        if (ftUtm) UTM_KEYS.forEach((k) => { if (ftUtm[k]) utm[k] = ftUtm[k]; });
+      } catch {
+        /* cookie ausente/corrompido: fica sem UTM, como antes */
+      }
+    }
     // Respostas qualificatórias → customFields no CRM do vos (via utm).
     utm.faturamento = form.revenue;
     utm.desafio = form.challenge;

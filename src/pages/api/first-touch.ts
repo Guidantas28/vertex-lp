@@ -16,6 +16,18 @@ import type { APIRoute } from "astro";
  */
 export const prerender = false;
 
+/** Tira fbclid/gclid da URL guardada (eles têm campo próprio); preserva o resto da query. */
+function semClickIds(url: unknown): string | undefined {
+  if (typeof url !== "string" || !url) return undefined;
+  try {
+    const u = new URL(url);
+    ["fbclid", "gclid"].forEach((k) => u.searchParams.delete(k));
+    return u.toString();
+  } catch {
+    return url.replace(/([?&])(fbclid|gclid)=[^&#]*&?/g, "$1").replace(/[?&]$/, "");
+  }
+}
+
 const clip = (v: unknown, max = 500) =>
   typeof v === "string" && v ? v.slice(0, max) : undefined;
 
@@ -63,7 +75,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     stapeUserId: clip(data?.stapeUserId, 120) ?? stapeUserIdFromHeader(request.headers.get("cookie")),
     ip,
     userAgent: request.headers.get("user-agent")?.slice(0, 600) || undefined,
-    landing: clip(data?.landing, 300),
+    // Rodada 11: o fbclid (~180 chars) comia o limite de 300 e cortava utm_term/utm_id no meio; ele já viaja
+    // em campo próprio, então sai da URL guardada — as UTMs inteiras sobrevivem ao corte.
+    landing: clip(semClickIds(data?.landing), 300),
     referrer: clip(data?.referrer, 300),
     utm: Object.keys(utm).length ? utm : undefined,
   };
