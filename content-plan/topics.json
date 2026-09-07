@@ -132,7 +132,9 @@
       "keyword": "como reativar clientes inativos",
       "title_hint": "Clientes inativos: o script de reativação que traz receita esquecida",
       "category": "vendas",
-      "used": false
+      "used": true,
+      "publishedSlug": "lead-frio-reativacao",
+      "publishedAt": "2026-09-07"
     },
     {
       "id": "ordem-de-servico-digital",
