@@ -46,6 +46,17 @@ function campo(alvo: Record<string, string>, chave: string, valor: unknown, limi
   if (typeof valor === "string" && valor.trim()) alvo[chave] = valor.trim().slice(0, limite);
 }
 
+// Os cabeçalhos de geo da Vercel vêm percent-encoded ("S%C3%A3o+Paulo").
+// Cabeçalho malformado não pode derrubar o cadastro: erro vira campo vazio.
+function decodeCabecalho(valor: string | null): string | undefined {
+  if (!valor) return undefined;
+  try {
+    return decodeURIComponent(valor.replace(/\+/g, " "));
+  } catch {
+    return valor;
+  }
+}
+
 export const POST: APIRoute = async ({ request, clientAddress }) => {
   let data: any;
   try {
@@ -99,6 +110,19 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   );
   campo(customFields, "user_agent", request.headers.get("user-agent"), 600);
   campo(customFields, "ip", request.headers.get("x-forwarded-for") ?? clientAddress);
+  // Cidade e estado de quem está na página (07/09). A borda da Vercel resolve
+  // isso no mesmo pedido que já traz o IP; o VOS nunca vê o visitante (o
+  // navegador fala com a landing e a landing fala com a API), então só daqui
+  // pode sair. Viram `ct`/`st` nos eventos que o CRM manda à Meta — Purchase e
+  // CallShow saem do VOS direto para a Graph API e não passam pelo container do
+  // GTM, que é quem preenche a geo dos eventos do site.
+  campo(customFields, "geo_city", decodeCabecalho(request.headers.get("x-vercel-ip-city")), 80);
+  campo(
+    customFields,
+    "geo_state",
+    decodeCabecalho(request.headers.get("x-vercel-ip-country-region")),
+    40,
+  );
   // Identidade site → CRM (22/08): o event_id do Lead que o navegador mandou
   // para a Meta, o cookie próprio de 1ª parte e o contexto de chegada — os
   // quatro estavam sendo capturados e jogados fora (ou nem existiam).
