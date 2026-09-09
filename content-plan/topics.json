@@ -150,7 +150,9 @@
       "keyword": "como fazer orçamento para cliente",
       "title_hint": "Como fazer um orçamento profissional que fecha mais vendas",
       "category": "vendas",
-      "used": false
+      "used": true,
+      "publishedSlug": "orcamento-profissional",
+      "publishedAt": "2026-09-09"
     },
     {
       "id": "kanban-tarefas-equipe",
