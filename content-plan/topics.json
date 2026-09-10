@@ -159,7 +159,9 @@
       "keyword": "gestão de tarefas equipe",
       "title_hint": "Gestão de tarefas em equipe: como sair do caos do grupo de WhatsApp",
       "category": "gestao",
-      "used": false
+      "used": true,
+      "publishedSlug": "kanban-tarefas-equipe",
+      "publishedAt": "2026-09-10"
     },
     {
       "id": "pix-automatico-cobranca",
