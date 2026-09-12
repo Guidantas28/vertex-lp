@@ -168,7 +168,9 @@
       "keyword": "cobrança automática pix",
       "title_hint": "Cobrança automática com PIX: como receber em dia sem perseguir cliente",
       "category": "financeiro",
-      "used": false
+      "used": true,
+      "publishedSlug": "pix-automatico-cobranca",
+      "publishedAt": "2026-09-12"
     },
     {
       "id": "trafego-pago-lead-whatsapp",
