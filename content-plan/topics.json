@@ -177,7 +177,9 @@
       "keyword": "anúncio que leva para whatsapp",
       "title_hint": "Anúncios que caem no WhatsApp: como não desperdiçar o clique pago",
       "category": "marketing",
-      "used": false
+      "used": true,
+      "publishedSlug": "trafego-pago-lead-whatsapp",
+      "publishedAt": "2026-09-13"
     },
     {
       "id": "qualificacao-de-leads",
