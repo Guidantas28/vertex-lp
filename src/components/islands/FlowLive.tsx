@@ -31,7 +31,7 @@ const FLOWS: Flow[] = [
   {
     id: "suporte",
     label: "Suporte",
-    color: "#2E6BFF",
+    color: "#ED4B00",
     nodes: [
       { id: "n1", label: "Início", sub: "Nova mensagem", tone: "start" },
       { id: "n2", label: "IA", sub: "Classifica assunto", tone: "action" },
@@ -48,7 +48,7 @@ const FLOWS: Flow[] = [
   {
     id: "carrinho",
     label: "Carrinho",
-    color: "#8B76FF",
+    color: "#ED4B00",
     nodes: [
       { id: "n1", label: "Início", sub: "Carrinho abandonado", tone: "start" },
       { id: "n2", label: "Espera", sub: "1 hora", tone: "wait" },
@@ -190,7 +190,10 @@ export default function FlowLive() {
         </div>
       </div>
 
-      <style>{`
+      {/* CSS por dangerouslySetInnerHTML, não como filho do <style>: como filho,
+          o React quebra a string em nós de texto e a remontagem no cliente não
+          bate com a do servidor, e a hidratação da página cai inteira. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .flive { margin-top: 20px; display: flex; flex-direction: column; gap: 14px; }
         .flive__tabs { display: flex; flex-wrap: wrap; gap: 8px; }
         .flive__tab {
@@ -198,8 +201,8 @@ export default function FlowLive() {
           padding: 8px 14px; border-radius: 999px;
           border: 1px solid rgba(255,255,255,.12);
           background: rgba(255,255,255,.03);
-          color: rgba(242,240,250,.62);
-          font-family: Inter, system-ui, sans-serif;
+          color: rgba(237,237,237,.62);
+          font-family: var(--zx-body, Inter, system-ui, sans-serif);
           font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
           cursor: pointer; transition: .2s ease;
         }
@@ -208,7 +211,6 @@ export default function FlowLive() {
           border-color: color-mix(in srgb, var(--fc) 55%, transparent);
           background: color-mix(in srgb, var(--fc) 16%, transparent);
           color: #fff;
-          box-shadow: 0 10px 28px -14px var(--fc);
         }
         .flive__tab.is-on i { background: var(--fc); opacity: 1; box-shadow: 0 0 0 3px color-mix(in srgb, var(--fc) 28%, transparent); }
 
@@ -219,10 +221,8 @@ export default function FlowLive() {
           border: 1px solid rgba(255,255,255,.1);
           background:
             radial-gradient(rgba(255,255,255,.055) 1px, transparent 1.4px),
-            radial-gradient(55% 48% at 12% 0%, color-mix(in srgb, var(--fc) 18%, transparent), transparent 62%),
-            radial-gradient(60% 50% at 92% 100%, color-mix(in srgb, var(--fc) 16%, transparent), transparent 70%),
             rgba(0,0,0,.28);
-          background-size: 18px 18px, auto, auto, auto;
+          background-size: 18px 18px, auto;
           padding: 16px;
           overflow: hidden;
           box-shadow: 0 0 0 1px rgba(255,255,255,.03) inset, 0 28px 60px -36px rgba(0,0,0,.7);
@@ -242,7 +242,7 @@ export default function FlowLive() {
           stroke: rgba(255,255,255,.18);
           transition: stroke .35s ease, filter .35s ease;
         }
-        .flive__wire.is-on { stroke: var(--fc); filter: drop-shadow(0 0 4px var(--fc)); }
+        .flive__wire.is-on { stroke: var(--fc); }
         .flive__node {
           display: flex; align-items: flex-start; gap: 9px;
           min-width: 132px; max-width: 168px;
@@ -258,7 +258,7 @@ export default function FlowLive() {
         }
         .flive__node em {
           display: block; margin-top: 2px; font-style: normal;
-          font-size: 10.5px; color: rgba(242,240,250,.5); line-height: 1.3;
+          font-size: 10.5px; color: rgba(237,237,237,.5); line-height: 1.3;
         }
         .flive__node-ic {
           flex: none; width: 22px; height: 22px; border-radius: 7px;
@@ -266,16 +266,17 @@ export default function FlowLive() {
           font-size: 10px; color: #fff;
           background: rgba(255,255,255,.08);
         }
-        .flive__node--start .flive__node-ic { background: #1EB258; }
-        .flive__node--msg .flive__node-ic { background: #2E6BFF; }
-        .flive__node--wait .flive__node-ic { background: #C9810C; }
-        .flive__node--action .flive__node-ic { background: #8B76FF; }
-        .flive__node--done .flive__node-ic { background: #1EB258; }
+        /* Categoria é cinza; ESTADO é que tem cor (UNO §41c-ter). */
+        .flive__node--start .flive__node-ic { background: var(--zx-ok-dark, #3DBE7A); color: #08090A; }
+        .flive__node--msg .flive__node-ic { background: rgba(255,255,255,.16); }
+        .flive__node--wait .flive__node-ic { background: var(--zx-warn-dark, #E0A030); color: #08090A; }
+        .flive__node--action .flive__node-ic { background: rgba(255,255,255,.16); }
+        .flive__node--done .flive__node-ic { background: var(--zx-ok-dark, #3DBE7A); color: #08090A; }
         .flive__node.is-on {
           border-color: color-mix(in srgb, var(--fc) 70%, transparent);
           background: color-mix(in srgb, var(--fc) 16%, transparent);
-          box-shadow: 0 0 0 1px color-mix(in srgb, var(--fc) 40%, transparent), 0 18px 40px -16px var(--fc);
-          transform: translateY(-3px);
+          box-shadow: 0 0 0 1px color-mix(in srgb, var(--fc) 40%, transparent);
+          transform: translateY(-2px);
         }
         .flive__node.is-done { border-color: color-mix(in srgb, var(--fc) 35%, transparent); }
 
@@ -290,9 +291,9 @@ export default function FlowLive() {
         }
         .flive__log-head {
           display: flex; align-items: center; gap: 7px; margin: 0 0 8px;
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--zx-body, Inter, system-ui, sans-serif);
           font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
-          color: color-mix(in srgb, var(--fc) 70%, #fff);
+          color: rgba(237,237,237,.7);
         }
         .flive__pulse {
           width: 7px; height: 7px; border-radius: 99px; background: var(--fc);
@@ -309,7 +310,7 @@ export default function FlowLive() {
           flex: 1;
         }
         .flive__log li {
-          font-size: 12px; line-height: 1.4; color: rgba(242,240,250,.72);
+          font-size: 12px; line-height: 1.4; color: rgba(237,237,237,.72);
           padding: 6px 8px; border-radius: 8px;
           background: rgba(255,255,255,.03);
           border: 1px solid transparent;
@@ -320,7 +321,7 @@ export default function FlowLive() {
           border-color: color-mix(in srgb, var(--fc) 35%, transparent);
           background: color-mix(in srgb, var(--fc) 12%, transparent);
         }
-        .flive__log li.is-muted { color: rgba(242,240,250,.4); background: transparent; }
+        .flive__log li.is-muted { color: rgba(237,237,237,.4); background: transparent; }
         @keyframes flive-in {
           from { opacity: 0; transform: translateY(6px); }
           to { opacity: 1; transform: none; }
@@ -334,7 +335,7 @@ export default function FlowLive() {
           .flive__pulse, .flive__log li { animation: none; }
           .flive__node { transition: none; }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }

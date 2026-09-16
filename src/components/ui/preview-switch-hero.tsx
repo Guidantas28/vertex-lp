@@ -113,15 +113,15 @@ function TabRail({
             aria-selected={isActive}
             onClick={() => onSelect(i)}
             className={cn(
-              "group/tab relative whitespace-nowrap rounded-full px-4 py-2.5 text-left text-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+              "group/tab relative whitespace-nowrap rounded-[8px] px-4 py-2.5 text-left text-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               isActive
-                ? "bg-white font-bold text-[#1A202C] shadow-[0_10px_24px_-12px_rgba(0,0,0,0.45)] scale-[1.03]"
+                ? "bg-white font-semibold text-[#101214] shadow-[0_10px_24px_-12px_rgba(0,0,0,0.45)]"
                 : "font-medium text-white/55 hover:bg-white/10 hover:text-white",
             )}
           >
             {isActive && (
               <span
-                className="mr-1.5 inline-block size-1.5 rounded-full bg-emerald-400 align-middle shadow-[0_0_0_3px_rgba(52,211,153,0.25)]"
+                className="mr-1.5 inline-block size-1.5 rounded-full bg-accent align-middle shadow-[0_0_0_3px_rgba(237,75,0,0.25)]"
                 aria-hidden="true"
               />
             )}
@@ -177,7 +177,7 @@ function CtaButton({
       <GetStartedButton
         label={cta.label}
         variant="white"
-        className="!bg-white !text-[#14131C]"
+        className="!bg-white !text-[#101214]"
       />
     );
   }
@@ -185,7 +185,7 @@ function CtaButton({
     <a
       href={cta.href ?? "#segmentos"}
       className={cn(
-        "inline-flex h-auto items-center justify-center whitespace-nowrap rounded-[12px]",
+        "inline-flex h-auto items-center justify-center whitespace-nowrap rounded-[10px]",
         "border-[1.5px] border-white/40 bg-transparent px-[22px] py-[14px]",
         "text-[16px] font-semibold leading-[22px] text-white transition-colors hover:border-white",
       )}

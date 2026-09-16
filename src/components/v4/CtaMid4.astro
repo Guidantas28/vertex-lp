@@ -12,14 +12,14 @@ import { GetStartedButton } from "../ui/get-started-button";
       </svg>
     </p>
     <h2 id="zx-ctamid-title" class="reveal reveal-delay-1">
-      Vamos começar a escalar hoje?
+      Vamos começar a escalar <strong>hoje</strong>?
     </h2>
     <p class="zx-ctamid-sub reveal reveal-delay-1">
-      CRM, atendimento e financeiro num lugar só — com o Zé no braçal.
+      CRM, atendimento e financeiro num lugar só, com o Zé no braçal.
     </p>
     <div class="zx-ctamid-actions reveal reveal-delay-2">
-      <GetStartedButton client:visible variant="white" label="Começar Agora" />
-      <a class="zx-ctamid-more" href="#faq">Ver dúvidas</a>
+      <GetStartedButton client:visible variant="white" label="Teste grátis" />
+      <a class="zx-ctamid-more" href="/precos">Ver planos</a>
     </div>
   </div>
 </section>
@@ -41,7 +41,7 @@ import { GetStartedButton } from "../ui/get-started-button";
     font-weight: 700;
     font-size: clamp(26px, 3.2vw, 38px);
     line-height: 0.95;
-    color: #FFBE5A;
+    color: var(--zx-lar-2);
     transform: rotate(-3deg);
   }
   .zx-ctamid-hand-line {
@@ -50,11 +50,11 @@ import { GetStartedButton } from "../ui/get-started-button";
     bottom: -0.28em;
     width: 104%;
     height: 0.42em;
-    color: color-mix(in srgb, #FFBE5A 80%, transparent);
+    color: color-mix(in srgb, var(--zx-lar-2) 80%, transparent);
     overflow: visible;
   }
   :global(.reveal.is-visible) .zx-ctamid-hand {
-    animation: ctamid-write 1.2s cubic-bezier(0.66, 0, 0.34, 1) 0.1s both;
+    animation: ctamid-write 1.2s var(--zx-ease) 0.1s both;
   }
   @keyframes ctamid-write {
     from { clip-path: inset(-24% 100% -34% -6%); }
@@ -68,10 +68,11 @@ import { GetStartedButton } from "../ui/get-started-button";
     font-size: var(--zx-fs-title);
     line-height: var(--zx-lh-title);
     letter-spacing: var(--zx-ls-title);
-    font-weight: var(--zx-fw-title);
-    color: #F2F0FA;
+    font-weight: var(--zx-fw-title-dark);
+    color: var(--zx-on-dark);
     text-wrap: balance;
   }
+  .zx-ctamid h2 strong { font-weight: var(--zx-fw-emphasis); }
   .zx-ctamid-sub {
     margin: 10px auto 0;
     max-width: 420px;
@@ -80,7 +81,7 @@ import { GetStartedButton } from "../ui/get-started-button";
     font-size: var(--zx-fs-body);
     font-weight: var(--zx-fw-body);
     line-height: var(--zx-lh-body);
-    color: rgba(242, 240, 250, 0.68);
+    color: var(--zx-on-dark-2);
   }
   .zx-ctamid-actions {
     display: flex;

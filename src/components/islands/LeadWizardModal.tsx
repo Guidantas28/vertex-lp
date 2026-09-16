@@ -1,151 +1,52 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronRight, X } from "lucide-react";
-import { AnimatePresence, motion, MotionConfig, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { SEGMENTS } from "../../data/content";
 import CalEmbed from "./CalEmbed";
 import ConfettiBurst from "./ConfettiBurst";
 import { GetStartedButton } from "../ui/get-started-button";
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3;
 
 type FormData = {
   name: string;
-  email: string;
   phone: string;
-  country: string;
-  company: string;
+  email: string;
   segment: string;
-  revenue: string;
-  challenge: string;
-  instagram: string;
+  country: string;
 };
 
-/** Handle limpo: aceita colado com @, URL inteira ou espaço perdido — handle de
- *  Instagram não tem espaço, então dá pra remover enquanto digita sem atrapalhar. */
-const normInstagram = (v: string) =>
-  v
-    .replace(/^https?:\/\/(www\.)?instagram\.com\//i, "")
-    .replace(/^@+/, "")
-    .replace(/[/?#].*$/, "")
-    .replace(/\s+/g, "")
-    .slice(0, 60);
-
-// `utm_id` = {{ad.id}} da geração nova de anúncios (Rodada 11): é o que torna a atribuição determinística.
-const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id"] as const;
-
-/**
- * E-mail SEMPRE minúsculo em tudo que sai daqui (dataLayer, CRM, agenda). É a
- * chave que amarra formulário, comparecimento e venda no banco de atribuição:
- * "Joao@Gmail.com" e "joao@gmail.com" viram duas pessoas e a recuperação falha.
- */
-const normEmail = (v: string) => v.trim().toLowerCase();
-
-/**
- * Primeiro toque (cookie `vos_ft`) no formato de metadata do Cal. Vai junto do
- * booking → webhook do Cal → atribuição do lead. Sem isto, o comparecimento
- * (evento offline, sem navegador) não teria fbp/fbc/IP pra Meta casar com o anúncio.
- */
-function firstTouchMetadata(phone?: string): Record<string, string> {
-  if (typeof document === "undefined") return {};
-  const out: Record<string, string> = {};
-  try {
-    const m = document.cookie.match("(?:^|; )vos_ft=([^;]*)");
-    if (m) {
-      const ft = JSON.parse(decodeURIComponent(m[1]!)) as Record<string, string>;
-      for (const k of ["fbp", "fbc", "fbclid", "gclid", "ip"] as const) {
-        if (ft[k]) out[k] = ft[k]!;
-      }
-      // client_id do GA vai como `client_id` (o webhook do Cal grava com esse nome).
-      if (ft.clientId) out.client_id = ft.clientId;
-      // Stape User ID: é o external_id dos eventos, tem que ser o MESMO do site.
-      if (ft.stapeUserId) out.stape_user_id = ft.stapeUserId;
-      // user agent entra abreviado: o Cal limita o tamanho da metadata.
-      if (ft.userAgent) out.ua = ft.userAgent.slice(0, 300);
-    }
-  } catch {
-    /* cookie corrompido: segue sem atribuição */
-  }
-  if (phone) out.phone = phone;
-  return out;
-}
+const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"] as const;
 
 const STEPS = [
   { n: 1 as const, label: "Seus dados" },
-  { n: 2 as const, label: "Sua empresa" },
-  { n: 3 as const, label: "Agenda" },
-  { n: 4 as const, label: "Confirmado" },
-];
-
-// Opções exatas do brief do Orlando.
-const SEGMENT_OPTS = [
-  "Comércio e varejo",
-  "Serviços",
-  "Saúde e bem-estar",
-  "Educação",
-  "Tecnologia e SaaS",
-  "Indústria",
-  "Construção e imobiliário",
-  "Alimentação",
-  "Agência ou consultoria",
-  "Outro",
-];
-
-const REVENUE_OPTS = [
-  "Ainda não estamos faturando",
-  "Até R$ 10 mil",
-  "De R$ 10 mil a R$ 20 mil",
-  "De R$ 20 mil a R$ 50 mil",
-  "De R$ 50 mil a R$ 100 mil",
-  "De R$ 100 mil a R$ 300 mil",
-  "De R$ 300 mil a R$ 1 milhão",
-  "Acima de R$ 1 milhão",
-];
-
-const CHALLENGE_OPTS = [
-  "Centralizar toda a operação em um único sistema",
-  "Substituir ferramentas e sistemas que não se comunicam",
-  "Automatizar tarefas e reduzir trabalhos manuais",
-  "Organizar processos, equipes e responsabilidades",
-  "Melhorar a gestão comercial e o acompanhamento de clientes",
-  "Acompanhar indicadores e tomar decisões com mais clareza",
-  "Reduzir custos com diferentes ferramentas e assinaturas",
-  "Outro",
+  { n: 2 as const, label: "Agenda" },
+  { n: 3 as const, label: "Confirmado" },
 ];
 
 const COUNTRIES = [
-  { code: "BR", dial: "+55", flag: "🇧🇷", label: "Brasil", min: 10, max: 11 },
-  { code: "PT", dial: "+351", flag: "🇵🇹", label: "Portugal", min: 9, max: 9 },
-  { code: "US", dial: "+1", flag: "🇺🇸", label: "Estados Unidos", min: 10, max: 10 },
-  { code: "AR", dial: "+54", flag: "🇦🇷", label: "Argentina", min: 10, max: 10 },
-  { code: "MX", dial: "+52", flag: "🇲🇽", label: "México", min: 10, max: 10 },
-  { code: "CO", dial: "+57", flag: "🇨🇴", label: "Colômbia", min: 10, max: 10 },
-  { code: "CL", dial: "+56", flag: "🇨🇱", label: "Chile", min: 9, max: 9 },
-  { code: "PE", dial: "+51", flag: "🇵🇪", label: "Peru", min: 9, max: 9 },
-  { code: "UY", dial: "+598", flag: "🇺🇾", label: "Uruguai", min: 8, max: 8 },
-  { code: "PY", dial: "+595", flag: "🇵🇾", label: "Paraguai", min: 9, max: 9 },
-  { code: "ES", dial: "+34", flag: "🇪🇸", label: "Espanha", min: 9, max: 9 },
-  { code: "GB", dial: "+44", flag: "🇬🇧", label: "Reino Unido", min: 10, max: 10 },
+  { code: "BR", dial: "+55", flag: "🇧🇷", label: "Brasil", max: 11 },
+  { code: "PT", dial: "+351", flag: "🇵🇹", label: "Portugal", max: 9 },
+  { code: "US", dial: "+1", flag: "🇺🇸", label: "Estados Unidos", max: 10 },
+  { code: "AR", dial: "+54", flag: "🇦🇷", label: "Argentina", max: 10 },
+  { code: "MX", dial: "+52", flag: "🇲🇽", label: "México", max: 10 },
+  { code: "CO", dial: "+57", flag: "🇨🇴", label: "Colômbia", max: 10 },
+  { code: "CL", dial: "+56", flag: "🇨🇱", label: "Chile", max: 9 },
+  { code: "PE", dial: "+51", flag: "🇵🇪", label: "Peru", max: 9 },
+  { code: "UY", dial: "+598", flag: "🇺🇾", label: "Uruguai", max: 8 },
+  { code: "PY", dial: "+595", flag: "🇵🇾", label: "Paraguai", max: 9 },
+  { code: "ES", dial: "+34", flag: "🇪🇸", label: "Espanha", max: 9 },
+  { code: "GB", dial: "+44", flag: "🇬🇧", label: "Reino Unido", max: 10 },
 ] as const;
 
-type Country = (typeof COUNTRIES)[number];
-
-// 16px é o piso: o iOS Safari dá auto-zoom em qualquer campo focado com fonte
-// menor que isso — era o zoom que quebrava o modal no celular.
 const inputCls =
-  "w-full rounded-[10px] border border-black/10 bg-[#F7F6FA] px-3 py-2.5 text-[16px] text-[#1A202C] outline-none transition placeholder:text-[#A8A3B3] focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12";
+  "w-full rounded-[10px] border border-black/10 bg-[#FAFAFA] px-3 py-2.5 text-[13.5px] text-[#171717] outline-none transition placeholder:text-[#8A8A8A] focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12";
 
 function formatPhone(raw: string, country: string) {
   const c = COUNTRIES.find((x) => x.code === country) ?? COUNTRIES[0];
-  let d = raw.replace(/\D/g, "");
-  // Quem digita/cola o número COM o DDI ("5562998649558") estourava o máximo
-  // nacional e o slice comia os últimos dígitos — daí o pushLeadEvent prefixava
-  // 55 de novo e a Meta/CRM recebiam telefone corrompido (caso real de 05/08).
-  // Só removemos o DDI quando o total passa do máximo: "(55) 9xxxx-xxxx"
-  // legítimo (DDD 55 existe) tem no máximo 11 dígitos e não entra aqui.
-  const dial = c.dial.replace("+", "");
-  if (d.startsWith(dial) && d.length > c.max) d = d.slice(dial.length);
-  d = d.slice(0, c.max);
+  const d = raw.replace(/\D/g, "").slice(0, c.max);
   if (country === "BR") {
     if (d.length <= 2) return d.length ? `(${d}` : "";
     if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
@@ -163,121 +64,32 @@ function isValidEmail(v: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
-// Só dígitos = quase certamente CNPJ, telefone ou lixo pra passar do campo.
-function pareceLixo(v: string) {
-  const c = v.trim();
-  return c.length > 0 && /^[\d\s.\-/]+$/.test(c);
-}
-
 const emptyForm = (): FormData => ({
   name: "",
-  email: "",
   phone: "",
-  country: "BR",
-  company: "",
+  email: "",
   segment: "",
-  revenue: "",
-  challenge: "",
-  instagram: "",
+  country: "BR",
 });
-
-// Contrato de dataLayer do GTM do VOS (servido por vx.voshq.com). Ver brief.
-// event: 'lead' exato; o GTM lê lead.nome, lead.email, lead.resposta_1 etc.
-/**
- * O `event_id` do Lead — a chave que faltava para reconciliar o evento da Meta
- * com o registro do CRM. Antes o id nascia ALEATÓRIO dentro do GTM e morria
- * lá: não ia para a API, não persistia, e o join site↔CRM ficava só no e-mail.
- * Agora a LP gera o id, manda no dataLayer (o GTM pode usar) E no /api/lead
- * (o CRM guarda em `lead_event_id`).
- */
-export function novoLeadEventId(): string {
-  try {
-    if (typeof crypto !== "undefined" && crypto.randomUUID) return `lead_${crypto.randomUUID()}`;
-  } catch {
-    /* ambiente sem crypto: cai no fallback */
-  }
-  return `lead_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function pushLeadEvent(form: FormData, country: Country, leadEventId?: string) {
-  const parts = form.name.trim().split(/\s+/);
-  const nome = parts[0] ?? "";
-  const sobrenome = parts.slice(1).join(" ");
-  // telefone: só dígitos com DDI na frente (ex.: 55 + DDD + número) p/ match da Meta.
-  const telefone = `${country.dial}${form.phone}`.replace(/\D/g, "");
-  const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
-  w.dataLayer = w.dataLayer || [];
-  w.dataLayer.push({
-    event: "lead",
-    ...(leadEventId ? { lead_event_id: leadEventId } : {}),
-    lead: {
-      nome,
-      sobrenome,
-      email: normEmail(form.email),
-      telefone,
-      empresa: form.company.trim(),
-      segmento: form.segment,
-      resposta_1: form.revenue, // pergunta qualificatória 1 = faturamento
-      resposta_2: form.challenge, // pergunta qualificatória 2 = desafio
-      faturamento: form.revenue,
-      desafio: form.challenge,
-      // Obrigatório desde 24/08 — o contrato do `lead` passa a 11 chaves fixas.
-      instagram: normInstagram(form.instagram),
-    },
-  });
-}
 
 export default function LeadWizardModal() {
   const [open, setOpen] = useState(false);
-  // Quem pede menos movimento no sistema não ganha confete nem slide de painel
-  // (o MotionConfig lá embaixo cuida dos motion.*; este flag cuida do canvas).
-  const reduceMotion = useReducedMotion();
-  // event_id do Lead: um por e-mail digitado (retry e re-push reusam o mesmo).
-  const eventIdRef = useRef<{ email: string; id: string }>({ email: "", id: "" });
   const [step, setStep] = useState<Step>(1);
   const [submitting, setSubmitting] = useState(false);
-  // Erro POR CAMPO: a mensagem aparece embaixo do campo que falhou e o foco vai
-  // pra ele (Baymard/NN/g — erro global no rodapé é o que o usuário não vê).
-  const [error, setError] = useState<{ field: string; msg: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
-  const [leadApiFailed, setLeadApiFailed] = useState(false);
   const firstRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const honeypotRef = useRef<HTMLInputElement>(null);
-  const isBotRef = useRef(false);
-  // Dedupe por e-mail: "Voltar" + re-submeter não pode duplicar o POST nem o
-  // evento `lead`; trocar o e-mail conta como lead novo e libera os dois.
-  const sentEmailRef = useRef<string | null>(null);
-  const eventEmailRef = useRef<string | null>(null);
-  // Verificação real de WhatsApp (uazapi via /api/whatsapp-check). Regra de
-  // 24/08 (Orlando): "no" CONFIRMADO bloqueia o avanço; qualquer falha nossa
-  // vira "unknown" e passa — nunca se perde lead por infra (fail-open).
-  const [phoneCheck, setPhoneCheck] = useState<"idle" | "checking" | "yes" | "no" | "unknown">(
-    "idle",
-  );
-  const phoneCheckRef = useRef<{ num: string; v: "yes" | "no" | "unknown" } | null>(null);
-  // Cartão "É este seu perfil?" do Instagram (business_discovery). Só perfis
-  // Business/Creator retornam — "not_found" quase sempre é perfil pessoal,
-  // então a UI trata como neutro, nunca como erro.
-  const [igCard, setIgCard] = useState<
-    | { status: "found"; username: string; name: string; followers: number | null; picture: string | null }
-    | { status: "not_found" }
-    | null
-  >(null);
-  const [igChecking, setIgChecking] = useState(false);
-  const igCheckedRef = useRef<string>("");
 
-  const calLink = import.meta.env.PUBLIC_CAL_LINK || "vos/diagnostico";
+  const calLink = import.meta.env.PUBLIC_CAL_LINK || "vertex/demo";
   const calOrigin = import.meta.env.PUBLIC_CAL_ORIGIN || "https://cal.osvertex.com";
-  const calGuests = (import.meta.env.PUBLIC_CAL_GUESTS || "")
-    .split(",")
-    .map((s: string) => s.trim())
-    .filter(Boolean);
+
+  const segments = useMemo(
+    () => SEGMENTS.items.map((s) => ({ id: s.id, label: s.label })),
+    [],
+  );
 
   const country = COUNTRIES.find((c) => c.code === form.country) ?? COUNTRIES[0];
-  // Dois formatos, cada um no seu lugar: E.164 só dígitos pro CRM e pra
-  // atribuição (match da Meta espera assim); o mascarado é só leitura humana.
-  const phoneE164 = `${country.dial}${form.phone}`.replace(/[^\d+]/g, "");
   const fullPhone = `${country.dial} ${form.phone}`.trim();
 
   const reset = () => {
@@ -285,219 +97,54 @@ export default function LeadWizardModal() {
     setSubmitting(false);
     setError(null);
     setForm(emptyForm());
-    setLeadApiFailed(false);
-    isBotRef.current = false;
-    sentEmailRef.current = null;
-    eventEmailRef.current = null;
   };
 
   const close = () => {
     setOpen(false);
-    // Só zera depois do fluxo concluído. Fechar no meio (inclusive toque
-    // acidental no backdrop) preserva o que a pessoa já digitou.
-    if (step === 4) window.setTimeout(reset, 280);
+    window.setTimeout(reset, 280);
   };
 
   useEffect(() => {
     const onOpen = () => {
-      (window as unknown as { __vosLeadPending?: boolean }).__vosLeadPending = false;
-      setError(null);
+      reset();
       setOpen(true);
     };
     window.addEventListener("vos:open-lead", onOpen);
-    // Clique no CTA antes desta ilha hidratar (4G): o script inline da página
-    // guarda a intenção em __vosLeadPending e a gente abre assim que montar.
-    const w = window as unknown as { __vosLeadPending?: boolean };
-    if (w.__vosLeadPending) {
-      w.__vosLeadPending = false;
-      setOpen(true);
-    }
     return () => window.removeEventListener("vos:open-lead", onOpen);
   }, []);
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        close();
-        return;
-      }
-      // Trap de foco manual: Tab circula dentro do painel — sem ele, o Tab
-      // vazava pra página bloqueada atrás do modal (a lista é lida na hora
-      // porque os campos mudam a cada etapa).
-      if (e.key !== "Tab") return;
-      const panel = panelRef.current;
-      if (!panel) return;
-      const focusables = Array.from(
-        panel.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])',
-        ),
-      ).filter((el) => el.tabIndex !== -1 && el.offsetParent !== null);
-      if (!focusables.length) return;
-      const first = focusables[0]!;
-      const last = focusables[focusables.length - 1]!;
-      const active = document.activeElement as HTMLElement | null;
-      if (e.shiftKey) {
-        if (active === first || !panel.contains(active)) {
-          e.preventDefault();
-          last.focus();
-        }
-      } else if (active === last || !panel.contains(active)) {
-        e.preventDefault();
-        first.focus();
-      }
+      if (e.key === "Escape") close();
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
+    if (step === 1) firstRef.current?.focus();
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-    // O lock de scroll vive só de `open`: com `step` aqui ele piscava a cada
-    // troca de passo (remove/re-aplica o overflow no meio da navegação).
-  }, [open]);
-
-  useEffect(() => {
-    // Autofocus só no desktop: no celular ele abria o teclado junto com o
-    // modal e escondia metade do formulário antes da pessoa ver onde estava.
-    if (open && step === 1 && window.matchMedia("(pointer: fine)").matches) {
-      firstRef.current?.focus();
-    }
   }, [open, step]);
 
-  // Marca o erro no campo e leva o foco até ele (o rodapé não basta: em tela
-  // pequena a mensagem longe do campo passa batida).
-  function failAt(field: string, msg: string) {
-    setError({ field, msg });
-    window.setTimeout(() => {
-      const el = panelRef.current?.querySelector<HTMLElement>(`[data-field="${field}"]`);
-      el?.focus();
-    }, 0);
-  }
-
-  /** Pergunta ao servidor se o número existe no WhatsApp. Memoizado por
-   *  número (mudou o número, consulta de novo). Qualquer falha = "unknown". */
-  async function consultaWhatsApp(e164: string): Promise<"yes" | "no" | "unknown"> {
-    const memo = phoneCheckRef.current;
-    if (memo && memo.num === e164) return memo.v;
-    try {
-      const ctrl = new AbortController();
-      const timer = window.setTimeout(() => ctrl.abort(), 4000);
-      const res = await fetch("/api/whatsapp-check", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ phone: e164.replace(/\D/g, "") }),
-        signal: ctrl.signal,
-      });
-      window.clearTimeout(timer);
-      const d = await res.json().catch(() => null);
-      const v: "yes" | "no" | "unknown" =
-        d?.status === "yes" || d?.status === "no" ? d.status : "unknown";
-      phoneCheckRef.current = { num: e164, v };
-      return v;
-    } catch {
-      return "unknown";
-    }
-  }
-
-  /** Busca o cartão de confirmação do @ (nome/seguidores/foto quando houver). */
-  async function consultaInstagram(handle: string) {
-    if (!handle || igCheckedRef.current === handle) return;
-    igCheckedRef.current = handle;
-    setIgChecking(true);
-    setIgCard(null);
-    try {
-      const res = await fetch(`/api/instagram-check?u=${encodeURIComponent(handle)}`, {
-        signal: AbortSignal.timeout(4000),
-      });
-      const d = await res.json().catch(() => null);
-      if (d?.status === "found" && d.username) {
-        setIgCard({
-          status: "found",
-          username: d.username,
-          name: d.name ?? "",
-          followers: typeof d.followers === "number" ? d.followers : null,
-          picture: d.picture ?? null,
-        });
-      } else if (d?.status === "not_found") {
-        setIgCard({ status: "not_found" });
-      }
-    } catch {
-      // silêncio: cartão é enfeite, não porteiro
-    } finally {
-      setIgChecking(false);
-    }
-  }
-
-  // Etapa 1 → 2: valida dados pessoais + empresa.
-  async function goToCompanyStep() {
+  async function submitLead() {
     setError(null);
-    // Honeypot preenchido = bot. Deixa "passar" (sem denunciar o campo), mas
-    // marca pra não enviar nada ao CRM nem disparar evento lá na frente.
-    if (honeypotRef.current?.value) isBotRef.current = true;
     if (form.name.trim().length < 2) {
-      failAt("name", "Informe seu nome completo.");
+      setError("Informe seu nome.");
       return;
     }
-    if (!isValidEmail(normEmail(form.email))) {
-      failAt("email", "Digite um e-mail válido (ex.: nome@empresa.com).");
+    if (!isValidEmail(form.email.trim())) {
+      setError("E-mail inválido.");
       return;
     }
     const digits = form.phone.replace(/\D/g, "");
-    if (digits.length < country.min || digits.length > country.max) {
-      // Sem instrução de formato: a máscara já resolve DDI/pontuação sozinha
-      // (Baymard: instrução de formato é ignorada e a antiga "sem o +55"
-      // contradizia o campo, que aceita colar com +55 numa boa).
-      failAt("phone", "Informe um WhatsApp válido com DDD.");
+    const minLen = form.country === "BR" ? 10 : 8;
+    if (digits.length < minLen) {
+      setError("Informe um telefone válido.");
       return;
     }
-    // Verificação REAL de WhatsApp — bloqueia SÓ o negativo confirmado.
-    let veredito =
-      phoneCheckRef.current?.num === phoneE164 ? phoneCheckRef.current.v : null;
-    if (!veredito) {
-      setPhoneCheck("checking");
-      veredito = await consultaWhatsApp(phoneE164);
-      setPhoneCheck(veredito);
-    }
-    if (veredito === "no") {
-      failAt("phone", "Esse número não tem WhatsApp. Confere o DDD e o número?");
-      return;
-    }
-    // Empresa é OBRIGATÓRIA de propósito: quem não tem empresa não é público do
-    // VOS. O campo é filtro, não cadastro (decisão do Orlando, 06/08).
-    if (form.company.trim().length < 2) {
-      failAt("company", "Informe o nome da empresa.");
-      return;
-    }
-    // Só dígitos é o jeito de furar o filtro — foi o caso real do "987654".
-    if (pareceLixo(form.company)) {
-      failAt("company", "Coloque o nome da empresa, não um número.");
-      return;
-    }
-    setStep(2);
-  }
-
-  // Etapa 2 → 3: valida qualificatórias, persiste o lead e dispara o evento.
-  async function submitAndSchedule() {
-    setError(null);
     if (!form.segment) {
-      failAt("segment", "Selecione o segmento da sua empresa.");
-      return;
-    }
-    if (!form.revenue) {
-      failAt("revenue", "Selecione a faixa de faturamento.");
-      return;
-    }
-    if (!form.challenge) {
-      failAt("challenge", "Selecione o principal desafio.");
-      return;
-    }
-    // Instagram OBRIGATÓRIO (decisão do Orlando, 24/08): todo lead sai
-    // completo — o time olha o perfil antes da call. Formato de handle real:
-    // 1-30 chars de letra/número/ponto/underscore, e não só pontos.
-    const igNow = normInstagram(form.instagram);
-    if (!/^[a-z0-9._]{1,30}$/i.test(igNow) || /^\.+$/.test(igNow)) {
-      failAt("instagram", "Informe o @ do Instagram da empresa.");
+      setError("Escolha o segmento do seu negócio.");
       return;
     }
 
@@ -508,148 +155,36 @@ export default function LeadWizardModal() {
       const v = params.get(k);
       if (v) utm[k] = v;
     });
-    // Rodada 11: se a URL do submit não tem UTM (pessoa navegou/abriu em outra página), vale a UTM do
-    // PRIMEIRO TOQUE guardada no cookie `vos_ft` — antes ela era capturada e nunca usada.
-    if (!UTM_KEYS.some((k) => utm[k])) {
-      try {
-        const rawFt = document.cookie.split("; ").find((c) => c.startsWith("vos_ft="));
-        const ftUtm = rawFt ? (JSON.parse(decodeURIComponent(rawFt.slice(7))) as { utm?: Record<string, string> }).utm : undefined;
-        if (ftUtm) UTM_KEYS.forEach((k) => { if (ftUtm[k]) utm[k] = ftUtm[k]; });
-      } catch {
-        /* cookie ausente/corrompido: fica sem UTM, como antes */
-      }
-    }
-    // Respostas qualificatórias → customFields no CRM do vos (via utm).
-    utm.faturamento = form.revenue;
-    utm.desafio = form.challenge;
 
-    // Click-ids de 1º toque p/ atribuição server-side (Meta CAPI / Google Ads):
-    // fbclid/gclid vêm da URL; _fbc/_fbp são cookies setados pelo pixel (GTM).
-    const readCookie = (n: string) => {
-      const m = document.cookie.match("(?:^|; )" + n + "=([^;]*)");
-      return m ? decodeURIComponent(m[1]!) : undefined;
-    };
-    // PRIMEIRO TOQUE vence: o cookie `vos_ft` guarda os valores de quando a
-    // pessoa chegou (provavelmente pelo anúncio). Só caímos pra sessão atual
-    // quando ele não existe — senão atribuiríamos a call ao toque errado.
-    let ft: Record<string, string> = {};
+    const segmentLabel = segments.find((s) => s.id === form.segment)?.label ?? form.segment;
+
     try {
-      const raw = readCookie("vos_ft");
-      if (raw) ft = JSON.parse(raw) as Record<string, string>;
+      await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: fullPhone,
+          company: segmentLabel,
+          segment: form.segment,
+          country: form.country,
+          utm,
+        }),
+      });
     } catch {
-      /* cookie corrompido: ignora e usa a sessão atual */
-    }
-    const clickIds: Record<string, string> = {};
-    const fbclid = ft.fbclid || params.get("fbclid");
-    if (fbclid) clickIds.fbclid = fbclid;
-    const gclid = ft.gclid || params.get("gclid");
-    if (gclid) clickIds.gclid = gclid;
-    const fbc = ft.fbc || readCookie("_fbc");
-    if (fbc) clickIds.fbc = fbc;
-    const fbp = ft.fbp || readCookie("_fbp");
-    if (fbp) clickIds.fbp = fbp;
-    // client_id do GA: 1º toque vence; fallback = cookie `_ga` da sessão atual.
-    const gaCookie = readCookie("_ga");
-    const gaParts = gaCookie ? gaCookie.split(".") : [];
-    const clientId = ft.clientId || (gaParts.length >= 4 ? gaParts.slice(-2).join(".") : undefined);
-    if (clientId) clickIds.clientId = clientId;
-    const stapeUserId = ft.stapeUserId || readCookie("stape_user_id") || readCookie("_stape_user_id");
-    if (stapeUserId) clickIds.stapeUserId = stapeUserId;
-
-    const emailNow = normEmail(form.email);
-    const instagramNow = normInstagram(form.instagram);
-    // Identidade site → CRM: o mesmo id nos DOIS destinos (dataLayer e API),
-    // gerado uma vez por e-mail — o retry do POST reusa o mesmo.
-    if (eventIdRef.current.email !== emailNow) {
-      eventIdRef.current = { email: emailNow, id: novoLeadEventId() };
-    }
-    const leadEventId = eventIdRef.current.id;
-    // vos_uid: cookie próprio de 1ª parte (setado no FirstTouch, 400 dias).
-    const vosUid = readCookie("vos_uid");
-    const payload = JSON.stringify({
-      name: form.name.trim(),
-      email: emailNow,
-      phone: phoneE164,
-      company: form.company.trim(),
-      segment: form.segment,
-      country: form.country,
-      instagram: instagramNow,
-      utm,
-      ...clickIds,
-      leadEventId,
-      ...(vosUid ? { vosUid } : {}),
-      ...(ft.landing ? { landing: ft.landing } : {}),
-      ...(ft.referrer ? { referrer: ft.referrer } : {}),
-    });
-
-    // Timeout de 10s + 1 retry: cold start da Vercel não pode travar o botão
-    // em "Enviando…" nem falhar em silêncio. Se ainda assim falhar, seguimos
-    // pro calendário — call agendada vale mais que o registro imediato (o Cal
-    // notifica o time) — e a falha viaja na metadata do booking pra auditoria.
-    const postLead = async () => {
-      const ctrl = new AbortController();
-      const timer = window.setTimeout(() => ctrl.abort(), 10000);
-      try {
-        const res = await fetch("/api/lead", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: payload,
-          signal: ctrl.signal,
-        });
-        return res.ok;
-      } catch {
-        return false;
-      } finally {
-        window.clearTimeout(timer);
-      }
-    };
-
-    if (!isBotRef.current && sentEmailRef.current !== emailNow) {
-      let ok = await postLead();
-      if (!ok) ok = await postLead();
-      if (ok) {
-        sentEmailRef.current = emailNow;
-        setLeadApiFailed(false);
-      } else {
-        setLeadApiFailed(true);
-        console.error("[lead] /api/lead falhou após retry — seguindo pro agendamento mesmo assim");
-      }
-    }
-
-    // GTM — evento 'lead' no submit VALIDADO. Dispara UMA vez por e-mail.
-    // NÃO disparamos dataLayer no agendamento — o GTM escuta o Cal sozinho.
-    if (!isBotRef.current && eventEmailRef.current !== emailNow) {
-      pushLeadEvent(form, country, leadEventId);
-      eventEmailRef.current = emailNow;
+      /* best-effort */
     }
 
     setSubmitting(false);
-    setStep(3);
+    setStep(2);
   }
-
-  // Marca `vos-agendado` (contato + lead) e avança pra confirmação. É UM
-  // callback estável de propósito: como arrow inline, ele entrava nas deps do
-  // effect do CalEmbed e re-registrava o listener a cada render — risco de
-  // /api/agendou duplicado. Usado pelo booking do Cal E pelo "Já agendei"
-  // (que antes pulava a tag e jogava quem agendou na cadência de não-agendou).
-  const marcarAgendadoEConfirmar = useCallback(() => {
-    fetch("/api/agendou", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: normEmail(form.email) }),
-    }).catch(() => {});
-    setStep(4);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.email]);
 
   if (!open) return null;
 
   return (
     <div
-      // Mobile = bottom sheet DE VERDADE: colado no fundo, cantos só em cima.
-      // Antes (p-3) o painel flutuava a 12px do fundo — nem card nem sheet,
-      // parecia bug e brigava com a barra de gesto do iPhone.
-      className="fixed inset-0 z-[80] flex items-end justify-center p-0 sm:items-center sm:p-6"
+      className="fixed inset-0 z-[80] flex items-end justify-center p-3 sm:items-center sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="lead-wizard-title"
@@ -657,63 +192,44 @@ export default function LeadWizardModal() {
       <button
         type="button"
         aria-label="Fechar"
-        className="absolute inset-0 bg-[#0B0A12]/72 backdrop-blur-[6px]"
+        className="absolute inset-0 bg-[#08090A]/72 backdrop-blur-[6px]"
         onClick={close}
       />
 
-      <MotionConfig reducedMotion="user">
       <motion.div
         ref={panelRef}
         initial={{ opacity: 0, y: 18, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
         className={[
-          "relative z-10 flex max-h-[min(92dvh,860px)] w-full flex-col overflow-hidden rounded-t-[24px] rounded-b-none bg-white transition-[max-width] duration-300 sm:rounded-[24px]",
-          // Home indicator do iPhone: vira 0 onde a barra não existe.
-          "pb-[env(safe-area-inset-bottom)]",
-          "border-2 border-white/90",
-          "shadow-[0_0_0_1px_rgba(20,19,28,0.14),0_0_0_6px_rgba(255,255,255,0.08),0_40px_100px_-36px_rgba(20,19,28,0.72)]",
-          "ring-1 ring-black/10",
-          step === 3 ? "max-w-[680px]" : "max-w-[480px]",
+          "relative z-10 flex max-h-[min(92dvh,860px)] w-full flex-col overflow-hidden rounded-[16px] bg-white transition-[max-width] duration-300",
+          "shadow-[0_0_0_1px_rgba(23,23,23,0.12),0_40px_100px_-36px_rgba(8,9,10,0.6)]",
+          step === 2 ? "max-w-[680px]" : "max-w-[480px]",
         ].join(" ")}
         data-step={step}
       >
-        <div className="relative shrink-0 border-b border-black/[0.06] px-4 pb-3.5 pt-4 sm:px-5 sm:pt-5">
-          <div
-            className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full opacity-70 blur-3xl"
-            style={{ background: "radial-gradient(circle, rgba(237,75,0,.28), transparent 68%)" }}
-          />
-          <div
-            className="pointer-events-none absolute -left-10 top-0 h-36 w-36 rounded-full opacity-60 blur-3xl"
-            style={{ background: "radial-gradient(circle, rgba(91,69,209,.22), transparent 70%)" }}
-          />
+        {/* Régua de acento do Dialog (VOS UNO): a linha --mc no topo, o único laranja do modal. */}
+        <span aria-hidden="true" className="absolute inset-x-0 top-0 z-20 h-[3px] bg-accent" />
+        <div className="relative shrink-0 border-b border-black/[0.06] px-4 pb-3.5 pt-5 sm:px-5 sm:pt-6">
 
           <div className="relative flex items-start justify-between gap-3">
             <div>
-              <p className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-[#6E6A79]">
-                {step === 1 && "Etapa 1 de 4"}
-                {step === 2 && "Etapa 2 de 4"}
-                {step === 3 && "Etapa 3 de 4"}
-                {step === 4 && "Tudo certo"}
-              </p>
               <h2
                 id="lead-wizard-title"
-                className="mt-0.5 text-[18px] font-bold tracking-[-0.02em] text-[#1A202C] sm:text-[20px]"
-                style={{ fontFamily: "var(--zx-display, 'Plus Jakarta Sans', system-ui, sans-serif)" }}
+                className="text-[18px] font-semibold tracking-[-0.02em] text-[#171717] sm:text-[20px]"
               >
-                {step === 1 && "Vamos entender sua empresa"}
-                {step === 2 && "Sobre sua empresa"}
-                {step === 3 && "Escolha o melhor horário"}
-                {step === 4 && "Demonstração agendada!"}
+                {step === 1 && "Vamos conhecer seu negócio"}
+                {step === 2 && "Escolha um horário"}
+                {step === 3 && "Tudo certo!"}
               </h2>
             </div>
             <button
               type="button"
               onClick={close}
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-black/10 text-[#6E6A79] transition hover:border-black/20 hover:text-[#1A202C] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#ED4B00]/40"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-black/10 text-[#6B6B6B] transition hover:border-black/20 hover:text-[#171717]"
               aria-label="Fechar"
             >
-              <X size={16} strokeWidth={2.2} />
+              <X size={14} strokeWidth={2.2} />
             </button>
           </div>
 
@@ -722,26 +238,15 @@ export default function LeadWizardModal() {
               const done = step > s.n;
               const on = step === s.n;
               return (
-                <li
-                  key={s.n}
-                  aria-current={on ? "step" : undefined}
-                  /* Em tela estreita só o passo ATUAL ocupa espaço; os outros
-                     encolhem pro número. Com os quatro rótulos lado a lado
-                     sobravam 44px pra textos de 61 a 68px e três dos quatro
-                     apareciam cortados ("Seus d…", "Sua e…", "Confirm…"). */
-                  className={[
-                    "flex min-w-0 items-center gap-1.5",
-                    on ? "flex-1" : "flex-none",
-                  ].join(" ")}
-                >
+                <li key={s.n} className="flex min-w-0 flex-1 items-center gap-1.5">
                   <span
                     className={[
                       "grid h-6 w-6 shrink-0 place-items-center rounded-full text-[10px] font-bold transition",
                       done
-                        ? "bg-[#1EB258] text-white"
+                        ? "bg-[#15935A] text-white"
                         : on
-                          ? "bg-[#1A202C] text-white"
-                          : "bg-black/[0.06] text-[#6E6A79]",
+                          ? "bg-[#171717] text-white"
+                          : "bg-black/[0.06] text-[#6B6B6B]",
                     ].join(" ")}
                   >
                     {done ? <Check size={12} strokeWidth={2.6} /> : s.n}
@@ -749,12 +254,7 @@ export default function LeadWizardModal() {
                   <span
                     className={[
                       "truncate text-[11px] font-semibold",
-                      /* Rótulo só no passo ATUAL, em qualquer tamanho de tela.
-                         A modal tem largura fixa de 480px, então o espaço do
-                         stepper não cresce com a viewport: com os quatro
-                         rótulos, dois ficavam cortados até no desktop. */
-                      on ? "inline" : "hidden",
-                      on || done ? "text-[#1A202C]" : "text-[#6E6A79]",
+                      on || done ? "text-[#171717]" : "text-[#6B6B6B]",
                     ].join(" ")}
                   >
                     {s.label}
@@ -762,8 +262,8 @@ export default function LeadWizardModal() {
                   {i < STEPS.length - 1 && (
                     <span
                       className={[
-                        "ml-auto hidden h-px w-full max-w-[22px] sm:block",
-                        done ? "bg-[#1EB258]/50" : "bg-black/10",
+                        "ml-auto hidden h-px w-full max-w-[28px] sm:block",
+                        done ? "bg-[#15935A]/50" : "bg-black/10",
                       ].join(" ")}
                       aria-hidden
                     />
@@ -786,11 +286,10 @@ export default function LeadWizardModal() {
                 className="space-y-3 px-4 py-4 sm:px-5 sm:py-5"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  void goToCompanyStep();
+                  void submitLead();
                 }}
               >
                 <input
-                  ref={honeypotRef}
                   type="text"
                   name="company_url"
                   tabIndex={-1}
@@ -800,36 +299,18 @@ export default function LeadWizardModal() {
                 />
 
                 <Field
-                  label="Nome completo"
+                  label="Nome"
                   required
                   inputRef={firstRef}
                   value={form.name}
                   onChange={(v) => setForm((f) => ({ ...f, name: v }))}
                   placeholder="Maria Silva"
                   autoComplete="name"
-                  autoCorrect="off"
-                  field="name"
-                  error={error?.field === "name" ? error.msg : undefined}
-                />
-
-                <Field
-                  label="E-mail profissional"
-                  required
-                  type="email"
-                  inputMode="email"
-                  value={form.email}
-                  onChange={(v) => setForm((f) => ({ ...f, email: v }))}
-                  placeholder="maria@empresa.com"
-                  autoComplete="email"
-                  autoCapitalize="off"
-                  autoCorrect="off"
-                  field="email"
-                  error={error?.field === "email" ? error.msg : undefined}
                 />
 
                 <label className="block">
-                  <span className="mb-1 block text-[11.5px] font-medium text-[#646464]">
-                    WhatsApp <span className="text-[#ED4B00]">*</span>
+                  <span className="mb-1 block text-[11.5px] font-medium text-[#4A4A4A]">
+                    Telefone / WhatsApp <span className="text-[#ED4B00]">*</span>
                   </span>
                   <div className="flex gap-2">
                     <select
@@ -842,7 +323,7 @@ export default function LeadWizardModal() {
                           phone: formatPhone(f.phone, e.target.value),
                         }))
                       }
-                      className="w-[128px] shrink-0 appearance-none rounded-[10px] border border-black/10 bg-[#F7F6FA] px-2 py-2.5 text-[16px] text-[#1A202C] outline-none transition focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12"
+                      className="w-[118px] shrink-0 appearance-none rounded-[10px] border border-black/10 bg-[#FAFAFA] px-2 py-2.5 text-[12.5px] text-[#171717] outline-none transition focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12"
                     >
                       {COUNTRIES.map((c) => (
                         <option key={c.code} value={c.code}>
@@ -854,233 +335,106 @@ export default function LeadWizardModal() {
                       type="tel"
                       required
                       value={form.phone}
-                      onChange={(e) => {
-                        // Mudou o número = veredito antigo não vale mais.
-                        if (phoneCheck !== "idle") setPhoneCheck("idle");
-                        setForm((f) => ({ ...f, phone: formatPhone(e.target.value, f.country) }));
-                      }}
-                      onBlur={() => {
-                        // Consulta no blur (nunca no keystroke — NN/g): só com o
-                        // número completo pelo padrão do país selecionado.
-                        const digits = form.phone.replace(/\D/g, "");
-                        if (digits.length >= country.min && digits.length <= country.max) {
-                          setPhoneCheck("checking");
-                          void consultaWhatsApp(phoneE164).then((v) => setPhoneCheck(v));
-                        }
-                      }}
-                      placeholder={form.country === "BR" ? "(11) 99999-9999" : "Número com DDD"}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          phone: formatPhone(e.target.value, f.country),
+                        }))
+                      }
+                      placeholder={form.country === "BR" ? "(11) 99999-9999" : "Número"}
                       inputMode="tel"
                       autoComplete="tel-national"
-                      autoCorrect="off"
-                      data-field="phone"
-                      aria-invalid={error?.field === "phone" ? true : undefined}
-                      className={`${inputCls}${error?.field === "phone" ? " border-[#D32F2F]" : ""}`}
+                      className={inputCls}
                     />
                   </div>
-                  {error?.field === "phone" && (
-                    <p className="mt-1 text-[12px] font-medium text-[#D32F2F]" role="alert">
-                      {error.msg}
-                    </p>
-                  )}
-                  {/* Confirmação vale a tela que ocupa: é por ESTE número que a
-                      conversa vai acontecer (indicador de sucesso útil, NN/g). */}
-                  {error?.field !== "phone" && phoneCheck === "yes" && (
-                    <p className="mt-1 text-[12px] font-medium text-[#0F7A3C]">
-                      ✓ WhatsApp confirmado
-                    </p>
-                  )}
-                  {error?.field !== "phone" && phoneCheck === "checking" && (
-                    <p className="mt-1 text-[11px] text-[#6E6A79]">Verificando WhatsApp…</p>
-                  )}
                 </label>
 
                 <Field
-                  label="Nome da empresa"
+                  label="E-mail"
                   required
-                  value={form.company}
-                  onChange={(v) => setForm((f) => ({ ...f, company: v }))}
-                  placeholder="Empresa Ltda"
-                  autoComplete="organization"
-                  field="company"
-                  error={error?.field === "company" ? error.msg : undefined}
+                  type="email"
+                  value={form.email}
+                  onChange={(v) => setForm((f) => ({ ...f, email: v }))}
+                  placeholder="maria@empresa.com"
+                  autoComplete="email"
                 />
+
+                <label className="block">
+                  <span className="mb-1 block text-[11.5px] font-medium text-[#4A4A4A]">
+                    Segmento <span className="text-[#ED4B00]">*</span>
+                  </span>
+                  <select
+                    required
+                    value={form.segment}
+                    onChange={(e) => setForm((f) => ({ ...f, segment: e.target.value }))}
+                    className={inputCls}
+                  >
+                    <option value="" disabled>
+                      Tipo de negócio
+                    </option>
+                    {segments.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.label}
+                      </option>
+                    ))}
+                    <option value="outro">Outro / ainda não sei</option>
+                  </select>
+                </label>
+
+                {error && (
+                  <p className="text-[12px] font-medium text-[#DC3B2B]" role="alert">
+                    {error}
+                  </p>
+                )}
 
                 <div className="pt-0.5">
                   <GetStartedButton
                     type="submit"
-                    disabled={phoneCheck === "checking"}
-                    label={phoneCheck === "checking" ? "Verificando WhatsApp…" : "Continuar"}
-                    className="!w-full !justify-center !py-[13px] !pl-4 !pr-3 !text-[14px] !leading-5"
+                    disabled={submitting}
+                    label={submitting ? "Salvando…" : "Agendar agora"}
+                    className="!w-full !justify-center !py-[11px] !pl-4 !pr-3 !text-[14px] !leading-5"
                   />
                 </div>
-                <p className="text-center text-[11px] leading-snug text-[#6E6A79]">
-                  Leva menos de 1 minuto. Sem spam.
+                <p className="text-center text-[11px] leading-snug text-[#6B6B6B]">
+                  Sem spam. Usamos seus dados só pra marcar a conversa.
                 </p>
               </motion.form>
             )}
 
             {step === 2 && (
-              <motion.form
-                key="step-2"
-                initial={{ opacity: 0, x: 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -16 }}
-                transition={{ duration: 0.22 }}
-                className="space-y-3 px-4 py-4 sm:px-5 sm:py-5"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void submitAndSchedule();
-                }}
-              >
-                <SelectField
-                  label="Qual é o segmento da sua empresa?"
-                  value={form.segment}
-                  onChange={(v) => setForm((f) => ({ ...f, segment: v }))}
-                  placeholder="Selecione uma opção"
-                  options={SEGMENT_OPTS}
-                  field="segment"
-                  error={error?.field === "segment" ? error.msg : undefined}
-                />
-
-                <SelectField
-                  label="Qual é a faixa de faturamento mensal?"
-                  value={form.revenue}
-                  onChange={(v) => setForm((f) => ({ ...f, revenue: v }))}
-                  placeholder="Selecione uma opção"
-                  options={REVENUE_OPTS}
-                  field="revenue"
-                  error={error?.field === "revenue" ? error.msg : undefined}
-                />
-
-                <SelectField
-                  label="Qual é o principal desafio que você quer resolver?"
-                  value={form.challenge}
-                  onChange={(v) => setForm((f) => ({ ...f, challenge: v }))}
-                  placeholder="Selecione uma opção"
-                  options={CHALLENGE_OPTS}
-                  field="challenge"
-                  error={error?.field === "challenge" ? error.msg : undefined}
-                />
-
-                <Field
-                  label="Instagram da empresa"
-                  required
-                  value={form.instagram}
-                  onChange={(v) => {
-                    setForm((f) => ({ ...f, instagram: normInstagram(v) }));
-                    // Handle mudou = cartão antigo não vale mais.
-                    if (igCard) setIgCard(null);
-                  }}
-                  onBlur={() => void consultaInstagram(normInstagram(form.instagram).toLowerCase())}
-                  placeholder="suaempresa"
-                  prefix="@"
-                  autoComplete="off"
-                  autoCapitalize="off"
-                  autoCorrect="off"
-                  hint="A gente dá uma olhada no seu perfil antes da conversa."
-                  field="instagram"
-                  error={error?.field === "instagram" ? error.msg : undefined}
-                />
-                {/* Cartão de confirmação: só perfis Business/Creator retornam
-                    da API — "not_found" é quase sempre perfil pessoal, então a
-                    mensagem é neutra e nada bloqueia. */}
-                {igChecking && (
-                  <p className="-mt-1.5 text-[11px] text-[#6E6A79]">Conferindo o perfil…</p>
-                )}
-                {!igChecking && igCard?.status === "found" && (
-                  <div className="-mt-1.5 flex items-center gap-2.5 rounded-[10px] border border-[#1EB258]/25 bg-[#1EB258]/6 px-3 py-2">
-                    {igCard.picture ? (
-                      <img
-                        src={igCard.picture}
-                        alt=""
-                        className="h-8 w-8 shrink-0 rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1EB258]/15 text-[13px]">
-                        ✓
-                      </span>
-                    )}
-                    <p className="min-w-0 text-[12px] leading-snug text-[#1A202C]">
-                      <span className="font-semibold">@{igCard.username}</span>
-                      {igCard.name ? ` · ${igCard.name}` : ""}
-                      {igCard.followers !== null
-                        ? ` · ${igCard.followers.toLocaleString("pt-BR")} seguidores`
-                        : ""}
-                      <span className="block text-[11px] text-[#0F7A3C]">
-                        Perfil encontrado — é este que vamos olhar.
-                      </span>
-                    </p>
-                  </div>
-                )}
-                {!igChecking && igCard?.status === "not_found" && form.instagram && (
-                  <p className="-mt-1.5 text-[11px] leading-snug text-[#6E6A79]">
-                    Não conseguimos confirmar o perfil — se for conta pessoal, é normal. Vamos
-                    usar assim mesmo.
-                  </p>
-                )}
-
-                <div className="flex items-center gap-2 pt-0.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setError(null);
-                      setStep(1);
-                    }}
-                    className="shrink-0 rounded-[12px] border border-black/12 px-4 py-[13px] text-[13px] font-semibold text-[#646464] transition hover:border-black/25 hover:text-[#1A202C]"
-                  >
-                    Voltar
-                  </button>
-                  <GetStartedButton
-                    type="submit"
-                    disabled={submitting}
-                    label={submitting ? "Enviando…" : "Escolher o melhor horário"}
-                    className="!flex-1 !justify-center !py-[13px] !pl-4 !pr-3 !text-[14px] !leading-5"
-                  />
-                </div>
-              </motion.form>
-            )}
-
-            {step === 3 && (
               <motion.div
-                key="step-3"
+                key="step-2"
                 initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -16 }}
                 transition={{ duration: 0.22 }}
                 className="px-3 py-3 sm:px-4"
               >
-                <p className="mb-2.5 px-1 text-[12.5px] leading-[18px] text-[#646464] sm:px-2">
-                  Olá, <strong className="font-semibold text-[#1A202C]">{form.name.split(" ")[0]}</strong> —
-                  selecione o melhor dia e horário. Na demonstração vamos entender sua operação e mostrar o
-                  VOS aplicado à realidade da <strong className="font-semibold text-[#1A202C]">{form.company}</strong>.
+                <p className="mb-2.5 px-1 text-[12.5px] leading-[18px] text-[#4A4A4A] sm:px-2">
+                  Olá, <strong className="font-semibold text-[#171717]">{form.name.split(" ")[0]}</strong>,
+                  escolha o melhor horário pra gente te mostrar o VOS.
                 </p>
                 <CalEmbed
                   calLink={calLink}
                   calOrigin={calOrigin}
                   name={form.name}
-                  email={normEmail(form.email)}
-                  guests={calGuests}
-                  metadata={{
-                    ...firstTouchMetadata(phoneE164),
-                    ...(leadApiFailed ? { lead_api_falhou: "1" } : {}),
-                  }}
-                  notes={`Empresa: ${form.company} · Segmento: ${form.segment} · Faturamento: ${form.revenue} · Desafio: ${form.challenge}${normInstagram(form.instagram) ? ` · Instagram: @${normInstagram(form.instagram)}` : ""} · WhatsApp: ${fullPhone}`}
-                  onBookingSuccess={marcarAgendadoEConfirmar}
-                  className="min-h-[min(520px,62dvh)] w-full rounded-xl border border-black/[0.06] bg-[#FAFAFC]"
+                  email={form.email}
+                  notes={`Segmento: ${segments.find((s) => s.id === form.segment)?.label ?? form.segment} · Tel: ${fullPhone}`}
+                  onBookingSuccess={() => setStep(3)}
+                  className="h-[min(480px,56dvh)] w-full overflow-hidden rounded-xl border border-black/[0.06] bg-[#FAFAFA]"
                 />
                 <div className="mt-2.5 flex items-center justify-between gap-3 px-1 sm:px-2">
                   <button
                     type="button"
-                    onClick={() => setStep(2)}
-                    // -m/p: alvo de toque ≥44px sem deslocar o layout.
-                    className="-m-3 p-3 text-[12px] font-semibold text-[#646464] underline-offset-2 hover:text-[#1A202C] hover:underline"
+                    onClick={() => setStep(1)}
+                    className="text-[12px] font-semibold text-[#4A4A4A] underline-offset-2 hover:text-[#171717] hover:underline"
                   >
                     Voltar
                   </button>
                   <button
                     type="button"
-                    onClick={marcarAgendadoEConfirmar}
-                    className="-m-3 inline-flex items-center gap-0.5 p-3 text-[12px] font-semibold text-[#ED4B00] hover:underline"
+                    onClick={() => setStep(3)}
+                    className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-[#ED4B00] hover:underline"
                   >
                     Já agendei
                     <ChevronRight size={13} strokeWidth={2.4} />
@@ -1089,61 +443,61 @@ export default function LeadWizardModal() {
               </motion.div>
             )}
 
-            {step === 4 && (
+            {step === 3 && (
               <motion.div
-                key="step-4"
+                key="step-3"
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                className="relative overflow-hidden px-5 py-8 text-center sm:px-8 sm:py-9"
+                className="relative overflow-hidden px-5 py-8 text-center sm:px-8 sm:py-10"
               >
-                {!reduceMotion && <ConfettiBurst />}
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-80"
-                  style={{
-                    background:
-                      "radial-gradient(60% 50% at 50% 20%, rgba(237,75,0,.12), transparent 70%), radial-gradient(50% 40% at 80% 80%, rgba(91,69,209,.1), transparent 70%)",
-                  }}
-                  aria-hidden
-                />
+                <ConfettiBurst />
 
                 <div className="relative z-10">
-                  <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-[#1EB258] to-[#0F7A3C] text-white shadow-[0_14px_32px_-10px_rgba(30,178,88,.65)]">
+                  <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#15935A] text-white">
                     <Check size={26} strokeWidth={2.6} />
                   </div>
                   <h3
-                    className="mt-4 text-[22px] font-bold tracking-[-0.02em] text-[#1A202C]"
-                    style={{ fontFamily: "var(--zx-display, 'Plus Jakarta Sans', system-ui, sans-serif)" }}
+                    className="mt-4 text-[22px] font-semibold tracking-[-0.02em] text-[#171717]"
                   >
-                    Sua demonstração foi agendada!
+                    Reunião confirmada
                   </h3>
-                  <p className="mx-auto mt-2 max-w-[320px] text-[13px] leading-[18px] text-[#646464]">
-                    Enviamos os detalhes da reunião para o seu e-mail
+                  <p className="mx-auto mt-2 max-w-[300px] text-[13px] leading-[18px] text-[#4A4A4A]">
+                    Enviamos os detalhes pro seu e-mail
                     {form.email ? (
                       <>
                         {" "}
-                        <strong className="font-semibold text-[#1A202C]">{form.email}</strong>
+                        <strong className="font-semibold text-[#171717]">{form.email}</strong>
                       </>
-                    ) : null}{" "}
-                    e WhatsApp. Até logo, {form.name.split(" ")[0] || "parceiro"}!
+                    ) : null}
+                    . Até logo, {form.name.split(" ")[0] || "parceiro"}!
                   </p>
 
-                  <div className="mx-auto mt-5 max-w-sm rounded-xl border border-black/[0.06] bg-[#F7F6FA] px-3.5 py-3 text-left">
-                    <p className="font-mono text-[9.5px] uppercase tracking-[0.14em] text-[#6E6A79]">
-                      Durante a call, vamos
+                  <div className="mx-auto mt-5 max-w-sm rounded-xl border border-black/[0.06] bg-[#FAFAFA] px-3.5 py-3 text-left">
+                    <p className="font-mono text-[9.5px] uppercase tracking-[0.14em] text-[#6B6B6B]">
+                      Resumo
                     </p>
-                    <ul className="mt-1.5 space-y-1 text-[12.5px] leading-[17px] text-[#1A202C]">
-                      <li>· Entender como sua empresa funciona hoje;</li>
-                      <li>· Identificar os principais gargalos da operação;</li>
-                      <li>· Apresentar o VOS de forma personalizada;</li>
-                      <li>· Mostrar como centralizar processos, dados e ferramentas;</li>
-                      <li>· Explicar os próximos passos para implementação.</li>
+                    <ul className="mt-1.5 space-y-1 text-[12.5px] text-[#171717]">
+                      <li>
+                        <span className="text-[#6B6B6B]">Nome · </span>
+                        {form.name}
+                      </li>
+                      <li>
+                        <span className="text-[#6B6B6B]">WhatsApp · </span>
+                        {fullPhone}
+                      </li>
+                      <li>
+                        <span className="text-[#6B6B6B]">País · </span>
+                        {country.flag} {country.label}
+                      </li>
+                      <li>
+                        <span className="text-[#6B6B6B]">Segmento · </span>
+                        {segments.find((s) => s.id === form.segment)?.label ??
+                          (form.segment === "outro" ? "Outro" : form.segment)}
+                      </li>
                     </ul>
                   </div>
-                  <p className="mx-auto mt-3 max-w-[320px] text-[11.5px] leading-snug text-[#6E6A79]">
-                    Reserve o horário na sua agenda e participe em um ambiente tranquilo.
-                  </p>
 
                   <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
                     <GetStartedButton
@@ -1159,19 +513,7 @@ export default function LeadWizardModal() {
           </AnimatePresence>
         </div>
       </motion.div>
-      </MotionConfig>
     </div>
-  );
-}
-
-/** Mensagem de erro SOB o campo que falhou (Baymard/NN/g: erro global no
- *  rodapé passa batido; junto do campo, com aria, não passa). */
-function FieldError({ msg }: { msg?: string }) {
-  if (!msg) return null;
-  return (
-    <p className="mt-1 text-[12px] font-medium text-[#D32F2F]" role="alert">
-      {msg}
-    </p>
   );
 }
 
@@ -1179,119 +521,40 @@ function Field({
   label,
   value,
   onChange,
-  onBlur,
   placeholder,
   required,
   type = "text",
   inputMode,
   autoComplete,
-  autoCapitalize,
-  autoCorrect,
   inputRef,
-  field,
-  error,
-  hint,
-  optional,
-  prefix,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  onBlur?: () => void;
   placeholder?: string;
   required?: boolean;
   type?: string;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   autoComplete?: string;
-  autoCapitalize?: string;
-  autoCorrect?: string;
   inputRef?: React.Ref<HTMLInputElement>;
-  /** id do campo pro foco-no-erro (data-field). */
-  field?: string;
-  error?: string;
-  hint?: string;
-  optional?: boolean;
-  /** Prefixo visual dentro do input (ex.: "@" do Instagram). */
-  prefix?: string;
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[11.5px] font-medium text-[#646464]">
+      <span className="mb-1 block text-[11.5px] font-medium text-[#4A4A4A]">
         {label}
         {required ? <span className="text-[#ED4B00]"> *</span> : null}
-        {optional ? <span className="font-normal text-[#6E6A79]"> (opcional)</span> : null}
       </span>
-      <div className="relative">
-        {prefix ? (
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-[#6E6A79]">
-            {prefix}
-          </span>
-        ) : null}
-        <input
-          ref={inputRef}
-          type={type}
-          required={required}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onBlur={onBlur}
-          placeholder={placeholder}
-          inputMode={inputMode}
-          autoComplete={autoComplete}
-          autoCapitalize={autoCapitalize}
-          autoCorrect={autoCorrect}
-          data-field={field}
-          aria-invalid={error ? true : undefined}
-          className={`${inputCls}${prefix ? " pl-8" : ""}${error ? " border-[#D32F2F]" : ""}`}
-        />
-      </div>
-      {hint && !error ? (
-        <p className="mt-1 text-[11px] leading-snug text-[#6E6A79]">{hint}</p>
-      ) : null}
-      <FieldError msg={error} />
-    </label>
-  );
-}
-
-function SelectField({
-  label,
-  value,
-  onChange,
-  placeholder,
-  options,
-  field,
-  error,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder: string;
-  options: string[];
-  field?: string;
-  error?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="mb-1 block text-[11.5px] font-medium text-[#646464]">
-        {label} <span className="text-[#ED4B00]">*</span>
-      </span>
-      <select
-        required
+      <input
+        ref={inputRef}
+        type={type}
+        required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        data-field={field}
-        aria-invalid={error ? true : undefined}
-        className={`${inputCls}${error ? " border-[#D32F2F]" : ""}`}
-      >
-        <option value="" disabled>
-          {placeholder}
-        </option>
-        {options.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
-      <FieldError msg={error} />
+        placeholder={placeholder}
+        inputMode={inputMode}
+        autoComplete={autoComplete}
+        className={inputCls}
+      />
     </label>
   );
 }

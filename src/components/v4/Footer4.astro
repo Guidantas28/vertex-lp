@@ -1,5 +1,7 @@
 ---
-// Rodapé escuro: logo, blurb, colunas, newsletter e selos.
+// Rodapé escuro: logo, blurb, colunas e newsletter.
+// 15/09: saíram os selos (LGPD · Hospedado no Brasil · ICP-Brasil) e os logos de parceiro
+// (Meta e TikTok), a pedido do founder.
 import Logo from "../site/Logo.astro";
 import { FOOTER } from "../../data/content";
 ---
@@ -10,10 +12,6 @@ import { FOOTER } from "../../data/content";
       <div class="zx-footer-brand">
         <Logo variant="light" />
         <p>{FOOTER.blurb}</p>
-        <div class="zx-footer-partners">
-          <img src="/assets/partners/meta-partner.svg" alt="Meta Business Partner" height="26" loading="lazy" />
-          <img src="/assets/partners/tiktok-partner.svg" alt="TikTok Marketing Partner" height="26" loading="lazy" />
-        </div>
       </div>
 
       {FOOTER.cols.map((col) => (
@@ -27,7 +25,7 @@ import { FOOTER } from "../../data/content";
         <p>Dicas de venda toda semana</p>
         <form class="zx-footer-form" data-news>
           <input type="email" name="email" placeholder="Seu melhor e-mail" required aria-label="Seu e-mail" />
-          <button class="zx-btn" type="submit">Assinar</button>
+          <button class="zx-btn zx-btn--white" type="submit">Assinar</button>
         </form>
         <span class="zx-footer-tip">Sem spam. Cancele quando quiser.</span>
       </div>
@@ -36,16 +34,6 @@ import { FOOTER } from "../../data/content";
     <div class="zx-footer-legal">
       <p>{FOOTER.legal}</p>
       <p>{FOOTER.company} · CNPJ {FOOTER.cnpj}</p>
-      {FOOTER.legalLinks && (
-        <div class="zx-footer-legal-links">
-          {FOOTER.legalLinks.map((l) => <a href={l.href}>{l.label}</a>)}
-        </div>
-      )}
-      <div class="zx-footer-badges">
-        <span>LGPD</span>
-        <span>Hospedado no Brasil</span>
-        <span>ICP-Brasil</span>
-      </div>
     </div>
   </div>
 </footer>
@@ -55,7 +43,7 @@ import { FOOTER } from "../../data/content";
     margin-top: 0;
     padding: clamp(96px, 18vh, 180px) 0 clamp(72px, 12vh, 120px);
     background: transparent;
-    color: rgba(235, 232, 248, 0.72);
+    color: rgba(237, 237, 237, 0.72);
   }
   .zx-footer-grid {
     display: grid;
@@ -63,8 +51,6 @@ import { FOOTER } from "../../data/content";
     gap: clamp(28px, 4vw, 56px);
   }
   .zx-footer-brand p { margin-top: 20px; font-size: 13.5px; line-height: 1.65; max-width: 260px; }
-  .zx-footer-partners { display: flex; gap: 14px; margin-top: 28px; align-items: center; }
-  .zx-footer-partners img { height: 26px; width: auto; opacity: 0.7; filter: invert(1) hue-rotate(180deg); }
 
   .zx-footer-col { display: grid; gap: 12px; align-content: start; }
   .zx-footer-col p {
@@ -72,12 +58,12 @@ import { FOOTER } from "../../data/content";
     font-size: 10.5px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: rgba(235, 232, 248, 0.45);
+    color: rgba(237, 237, 237, 0.45);
     margin-bottom: 8px;
   }
   .zx-footer-col a {
     font-size: 13.5px;
-    color: rgba(235, 232, 248, 0.78);
+    color: rgba(237, 237, 237, 0.78);
     text-decoration: none;
     transition: color 0.2s ease, transform 0.2s ease;
     width: fit-content;
@@ -98,9 +84,9 @@ import { FOOTER } from "../../data/content";
     outline: none;
     transition: border-color 0.2s ease;
   }
-  .zx-footer-form input::placeholder { color: rgba(235, 232, 248, 0.4); }
+  .zx-footer-form input::placeholder { color: rgba(237, 237, 237, 0.4); }
   .zx-footer-form input:focus { border-color: var(--zx-lar); }
-  .zx-footer-tip { display: block; margin-top: 10px; font-size: 11.5px; color: rgba(235, 232, 248, 0.4); }
+  .zx-footer-tip { display: block; margin-top: 10px; font-size: 11.5px; color: rgba(237, 237, 237, 0.4); }
 
   .zx-footer-legal {
     display: flex;
@@ -112,31 +98,20 @@ import { FOOTER } from "../../data/content";
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     flex-wrap: wrap;
   }
-  .zx-footer-legal p { font-size: 12px; color: rgba(235, 232, 248, 0.45); }
-  .zx-footer-legal-links { display: flex; gap: 16px; flex-wrap: wrap; }
-  .zx-footer-legal-links a {
-    font-size: 12px;
-    color: rgba(235, 232, 248, 0.55);
-    text-decoration: none;
-    transition: color 0.15s ease;
-  }
-  .zx-footer-legal-links a:hover { color: rgba(235, 232, 248, 0.9); }
-  .zx-footer-badges { display: flex; gap: 8px; flex-wrap: wrap; }
-  .zx-footer-badges span {
-    font-family: var(--zx-mono);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 5px 10px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 999px;
-    color: rgba(235, 232, 248, 0.6);
-  }
+  .zx-footer-legal p { font-size: 12px; color: rgba(237, 237, 237, 0.45); }
 
   @media (max-width: 1000px) {
     .zx-footer-grid { grid-template-columns: 1fr 1fr; }
     .zx-footer-brand { grid-column: span 2; }
     .zx-footer-news { grid-column: span 2; }
+  }
+
+  /* NO CELULAR o rodapé começa perto (founder 15/09: "sobe tudo, tem muito
+     espaço vazio do topo"): os 96 a 180px de respiro no topo existiam pra
+     separar o rodapé do FECHO ("Toda a sua empresa"), que no celular saiu .
+     sem ele, aquele respiro virou meia tela de preto antes da marca. */
+  @media (max-width: 760px) {
+    .zx-footer { padding: clamp(36px, 6vh, 56px) 0 clamp(40px, 7vh, 64px); }
   }
 </style>
 

@@ -1,0 +1,227 @@
+---
+// Hero em vídeo de tela cheia (14/09): o filme do founder ocupa 100svh, com véu
+// escuro pra copy ler em cima (VOS UNO: Carvão, tinta branca, laranja só no
+// rotator). A nav flutua transparente sobre o filme e vira papel ao rolar
+// (regras em index.astro, `.zx--film`). Mobile usa o mesmo arquivo com
+// object-fit: cover; o poster é o LCP e entra antes do vídeo.
+import { Hero } from "../ui/animated-hero";
+---
+
+<section class="zx-film" aria-label="Apresentação">
+  <video
+    class="zx-film-video"
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="metadata"
+    poster="/video/hero/hero-film-poster.jpg"
+    aria-hidden="true"
+  >
+    <source src="/video/hero/hero-film.webm" type="video/webm" />
+    <source src="/video/hero/hero-film.mp4" type="video/mp4" />
+  </video>
+  <div class="zx-film-veil" aria-hidden="true"></div>
+  <div class="zx-film-content">
+    <Hero client:load film />
+  </div>
+</section>
+
+<style>
+  .zx-film {
+    position: relative;
+    display: flex;
+    align-items: center;
+    /* NÃO é a tela toda: a faixa do bloco 2 tem que aparecer por baixo assim
+       que a página abre, sem ninguém rolar. 80% deixa uns 180px dela à mostra
+       numa tela de 900, e ainda sobram 110px de folga pro conteúdo do filme
+       (que mede em vh e não encolhe junto com o hero). */
+    height: 80vh;
+    height: 80svh;
+    /* a nav flutua por cima: o filme começa embaixo dela */
+    margin-top: calc(-1 * var(--zx-nav-h, 68px));
+    padding-top: var(--zx-nav-h, 68px);
+    background: var(--zx-dark-deep, #08090A);
+    color: #fff;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .zx-film-video {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    /* 0.78 na terceira passada (founder 15/09: "ainda um tom mais escuro") */
+    filter: brightness(0.78) saturate(0.88);
+  }
+  /* Véu: escurece o topo (nav) e o pé (copy), deixa o meio respirar. */
+  .zx-film-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    /* Mais escuro a cada passada do founder: 14/09 subiu a base pra 38% e o
+       meio pra 25%; 15/09 ("ainda um tom mais escuro") a base foi a 46% e o
+       meio a 30%. */
+    background:
+      linear-gradient(180deg, rgba(8, 9, 10, 0.76) 0%, rgba(8, 9, 10, 0.28) 30%, rgba(8, 9, 10, 0.32) 52%, rgba(8, 9, 10, 0.92) 100%),
+      rgba(8, 9, 10, 0.46);
+  }
+  /* O bloco senta um pouco ACIMA do centro (compensa a nav em cima) e cabe inteiro:
+     os tamanhos são em vh, e em tela baixa a fileira de integrações e a pílula saem. */
+  .zx-film-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding-bottom: 4vh;
+    /* --p = 0 no topo, 1 quando a folha cobriu o hero: a copy recua, encolhe e apaga. */
+    transform: translateY(calc(var(--p, 0) * -48px)) scale(calc(1 - var(--p, 0) * 0.05));
+    transform-origin: left center;
+    opacity: calc(1 - var(--p, 0) * 0.95);
+    will-change: transform, opacity;
+  }
+  .zx-film::after {
+    /* escurece o filme inteiro conforme some atrás da folha */
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: #08090A;
+    opacity: calc(var(--p, 0) * 0.6);
+    pointer-events: none;
+  }
+  @media (max-height: 700px) {
+    .zx-film :global(.zx-hero-integrations) { display: none; }
+  }
+  @media (max-height: 560px) {
+    .zx-film :global(.zx-hero-pill) { display: none; }
+    .zx-film-content { padding-bottom: 2vh; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-film-video { display: none; }
+    .zx-film { background: var(--zx-dark-deep, #08090A) url("/video/hero/hero-film-poster.jpg") center / cover no-repeat; }
+  }
+</style>
+
+<style is:global>
+  /* ── O CHIP DO ZÉ, no desenho que o founder mandou do 21st.dev (15/09):
+     pílula quase preta com um anel de 1px, o clarão que acende no TOPO só no
+     hover e um fio de luz embaixo. No original o fio é verde esmeralda; aqui
+     ele é VIOLETA, que é a cor do Zé ("só a borda, o violeta gradiente no
+     lugar do verde"). A setinha se desenha sozinha quando a página abre. ── */
+  .zx-film .zx-ze-chip {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    height: 34px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: #09090b;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.1),
+      0 20px 44px -20px rgba(0, 0, 0, 0.95);
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: transform 0.3s var(--zx-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+  /* o clarão de cima: nasce apagado e acende no hover, como no original */
+  .zx-film .zx-ze-chip::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(75% 100% at 50% 0%, rgba(109, 74, 255, 0.6) 0%, rgba(109, 74, 255, 0) 75%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s var(--zx-ease, ease);
+  }
+  .zx-film .zx-ze-chip:hover::before { opacity: 1; }
+  /* o fio de luz embaixo, violeta, some nas duas pontas */
+  .zx-film .zx-ze-chip::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    bottom: 0;
+    width: calc(100% - 36px);
+    height: 1px;
+    background: linear-gradient(90deg, rgba(109, 74, 255, 0) 0%, rgba(167, 139, 250, 0.95) 50%, rgba(109, 74, 255, 0) 100%);
+    pointer-events: none;
+    transition: opacity 0.5s var(--zx-ease, ease);
+  }
+  .zx-film .zx-ze-chip:hover { transform: translateY(-1px); }
+  .zx-film .zx-ze-chip:hover::after { opacity: 0.4; }
+
+  .zx-film .zx-ze-chip-festa { font-size: 14px; line-height: 1; }
+  .zx-film .zx-ze-chip-tag { font-weight: 600; }
+  /* o traço entre o selo e a frase, no lugar do "|" digitado */
+  .zx-film .zx-ze-chip-div {
+    width: 1px;
+    height: 13px;
+    background: rgba(255, 255, 255, 0.18);
+  }
+  .zx-film .zx-ze-chip-txt { color: rgba(255, 255, 255, 0.88); }
+  .zx-film .zx-ze-chip-seta {
+    flex: none;
+    transition: transform 0.3s var(--zx-ease, ease);
+  }
+  .zx-film .zx-ze-chip-seta path {
+    stroke-dasharray: 10;
+    stroke-dashoffset: 10;
+    animation: zx-chip-seta 1s var(--zx-ease, ease) 0.35s forwards;
+  }
+  @keyframes zx-chip-seta {
+    to { stroke-dashoffset: 0; }
+  }
+  .zx-film .zx-ze-chip:hover .zx-ze-chip-seta { transform: translateX(3px); }
+  /* No celular a frase inteira não cabe com a seta: a letra desce um passo e a
+     seta sai, e o chip continua numa linha só, sem reticência. */
+  @media (max-width: 440px) {
+    .zx-film .zx-ze-chip { gap: 7px; padding: 0 13px; font-size: 12.5px; }
+    .zx-film .zx-ze-chip-seta { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-film .zx-ze-chip-seta path { animation: none; stroke-dashoffset: 0; }
+  }
+</style>
+
+<script>
+  // Sem autoplay pra quem pediu menos movimento; o poster fica no lugar.
+  const v = document.querySelector<HTMLVideoElement>(".zx-film-video");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (v && reduce) {
+    v.pause();
+    v.removeAttribute("autoplay");
+  }
+
+  // Progresso da cobertura: 0 no topo, 1 quando a folha cobriu o hero inteiro.
+  const film = document.querySelector<HTMLElement>(".zx-film");
+  if (film && !reduce) {
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      /* O curso da recuada é a altura do PRÓPRIO filme, não uma fração da
+         janela: com o hero em 80svh, medir pela janela fazia a copy ainda
+         estar meio visível quando a folha já a tinha coberto. */
+      const curso = Math.max(1, film.offsetHeight);
+      const p = Math.min(1, Math.max(0, window.scrollY / curso));
+      film.style.setProperty("--p", p.toFixed(3));
+      if (v) {
+        // pausa o vídeo quando já sumiu atrás da folha, economiza bateria
+        if (p >= 1 && !v.paused) v.pause();
+        else if (p < 1 && v.paused && v.hasAttribute("autoplay")) v.play().catch(() => {});
+      }
+    };
+    addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    update();
+  }
+</script>

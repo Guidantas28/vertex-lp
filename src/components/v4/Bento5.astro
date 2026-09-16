@@ -1,0 +1,995 @@
+---
+// Os cinco módulos, cada um com o próprio desenho e o card do Início do
+// produto como REFERÊNCIA (founder 15/09: "profissionalizar", "muito motion
+// com cara de IA", "nas cores do início", e depois "mantém tudo no mesmo fundo
+// black; não é pra copiar os cards do início, é pra usar de referência").
+//
+// O que o Início emprestou:
+// · o card escuro dele (`.dark .ini` no vos-os.css): o degradê do painel, o
+//   fio de 7%, a sombra e o hover que sobe 2px;
+// · título + frase, sem ícone, e o desenho DIRETO no card, sem a tela
+//   emoldurada dentro do card (era o que dava cara de mock de IA);
+// · as cores: tinta de status e de etapa, marca do canal e o violeta só no Zé.
+//   O laranja fica pro que acontece (o negócio que fecha, a visita, o fluxo);
+// · o movimento: no hover o desenho dá UM gesto curto, sem laço, sem
+//   sequência, sem número trocando. Sem hover (celular), o repouso já conta
+//   tudo, então nada ali depende do gesto.
+//
+// A Marina é a mesma cliente nos cards (a conversa, o negócio, a visita de
+// quinta às 14h), mas não há mais coreografia ligando um card no outro.
+//
+// O rodapé "Conecta com" tem NO MÁXIMO SEIS ícones, e o sexto é o "mais"
+// quando existe mais do que cabe (founder 15/09: "vira padrão ter no máximo 6
+// icons"). A lista por card também é dele: Meta Ads, Slack e API no CRM;
+// Google, Outlook e Apple na Agenda; tudo que a API e o webhook alcançam nas
+// Automações; os provedores de pagamento e a maquininha no Financeiro. O
+// e-mail é o disco vermelho do produto (`/assets/canais/email.svg`, igual ao
+// do channel-identity); Mercado Pago, Stripe e Facebook são os arquivos do
+// produto; Slack, API, webhook e maquininha moram em `/assets/integracoes`.
+const ICO = "/assets/icons";
+const CANAL = "/assets/canais";
+const INT = "/assets/integracoes";
+
+const MAIS = { mais: true, nome: "E muito mais" };
+
+const MODULOS = [
+  {
+    id: "atendimento",
+    nome: "Atendimento",
+    nota: "Uma fila só para todos os canais, com o Zé respondendo o que é repetitivo.",
+    liga: [
+      { src: `${ICO}/whatsapp.svg`, nome: "WhatsApp" },
+      { src: `${ICO}/instagram.svg`, nome: "Instagram" },
+      { src: `${ICO}/messenger.svg`, nome: "Messenger" },
+      { src: `${CANAL}/email.svg`, nome: "E-mail" },
+      MAIS,
+    ],
+  },
+  {
+    id: "crm",
+    nome: "CRM",
+    nota: "Do primeiro contato ao fechamento, com a conversa colada na ficha do cliente.",
+    liga: [
+      { src: `${ICO}/whatsapp.svg`, nome: "WhatsApp" },
+      { src: `${ICO}/instagram.svg`, nome: "Instagram" },
+      { src: `${ICO}/meta.svg`, nome: "Meta Ads" },
+      { src: `${INT}/slack.svg`, nome: "Slack" },
+      { src: `${INT}/api.svg`, nome: "API" },
+      MAIS,
+    ],
+  },
+  {
+    id: "agenda",
+    nome: "Agenda",
+    nota: "Equipe, visita técnica e lembrete no mesmo calendário.",
+    liga: [
+      { src: `${ICO}/google-agenda.svg`, nome: "Google Agenda" },
+      { src: `${ICO}/outlook-agenda.svg`, nome: "Outlook" },
+      { src: `${ICO}/apple-agenda.svg`, nome: "Apple Agenda" },
+    ],
+  },
+  {
+    id: "automacoes",
+    nome: "Automações",
+    nota: "Uma ação puxa a próxima: o VOS avisa, lembra e acompanha por você.",
+    liga: [
+      { src: `${ICO}/instagram.svg`, nome: "Instagram" },
+      { src: `${INT}/facebook.svg`, nome: "Facebook" },
+      { src: `${INT}/slack.svg`, nome: "Slack" },
+      { src: `${CANAL}/email.svg`, nome: "E-mail" },
+      { src: `${INT}/webhook.svg`, nome: "Webhook" },
+      MAIS,
+    ],
+  },
+  {
+    id: "financeiro",
+    nome: "Financeiro",
+    nota: "Entradas, saídas e o caixa conciliado, com a nota saindo direto do pedido.",
+    liga: [
+      { src: `${ICO}/pix.svg`, nome: "Pix" },
+      { src: `${INT}/mercadopago.svg`, nome: "Mercado Pago" },
+      { src: `${INT}/stripe.svg`, nome: "Stripe" },
+      { src: `${INT}/maquininha.svg`, nome: "Maquininha de cartão" },
+      { src: `${ICO}/nfe.svg`, nome: "NF-e" },
+      MAIS,
+    ],
+  },
+];
+
+/* CRM: o CARD DE VERDADE do quadro (founder 15/09), com a anatomia do produto
+   . marca da empresa + nome, origem, telefone, valor, responsável e o rodapé de
+   ações com o tempo na etapa. Fora ficou só o chip de prioridade, que o founder
+   mandou tirar. Os leads caem na coluna um atrás do outro, como um baralho.
+
+   Os glifos são os mesmos ícones do card no produto (lucide): Store, a origem,
+   Phone, CircleDollarSign e, no rodapé, StickyNote, CheckSquare, MessageCircle,
+   Mail e Clock. Desenhados aqui porque o site não carrega a biblioteca dele. */
+const G = {
+  loja: '<path d="M3.2 8.2 5.4 4.6h13.2l2.2 3.6"/><path d="M4.6 8.6V19a1.4 1.4 0 0 0 1.4 1.4h12a1.4 1.4 0 0 0 1.4-1.4V8.6"/><path d="M9.6 20.4v-4.2a1.2 1.2 0 0 1 1.2-1.2h2.4a1.2 1.2 0 0 1 1.2 1.2v4.2"/><path d="M3.2 8.2h17.6a2.6 2.6 0 0 1-5.2 0 2.6 2.6 0 0 1-5.2 0 2.6 2.6 0 0 1-5.2 0"/>',
+  origem: '<circle cx="17.5" cy="6" r="2.3"/><circle cx="6.5" cy="12" r="2.3"/><circle cx="17.5" cy="18" r="2.3"/><path d="m8.6 10.8 6.8-3.6M8.6 13.2l6.8 3.6"/>',
+  fone: '<path d="M21 16.9v2.6a1.8 1.8 0 0 1-2 1.8 17.8 17.8 0 0 1-7.8-2.8 17.5 17.5 0 0 1-5.4-5.4A17.8 17.8 0 0 1 3 5.3 1.8 1.8 0 0 1 4.8 3.3h2.6a1.8 1.8 0 0 1 1.8 1.6c.1.9.3 1.7.6 2.5a1.8 1.8 0 0 1-.4 1.9L8.3 10.4a14.4 14.4 0 0 0 5.4 5.4l1.1-1.1a1.8 1.8 0 0 1 1.9-.4c.8.3 1.6.5 2.5.6A1.8 1.8 0 0 1 21 16.9z"/>',
+  dinheiro: '<circle cx="12" cy="12" r="9"/><path d="M15 9.2h-4.1a1.8 1.8 0 0 0 0 3.6h2.2a1.8 1.8 0 0 1 0 3.6H9"/><path d="M12 7.4v9.2"/>',
+  nota: '<path d="M15.6 3.6H5.8a2 2 0 0 0-2 2v12.8a2 2 0 0 0 2 2h8.6l5.8-5.8V5.6a2 2 0 0 0-2-2z"/><path d="M14 20.4v-4.4a1 1 0 0 1 1-1h4.4"/>',
+  tarefa: '<rect x="3.6" y="3.6" width="16.8" height="16.8" rx="2.4"/><path d="m8.4 12.2 2.4 2.4 4.8-5"/>',
+  conversa: '<path d="M7.6 19.6A8.4 8.4 0 1 0 4.4 16.4L3 21z"/>',
+  email: '<rect x="2.6" y="4.6" width="18.8" height="14.8" rx="2.2"/><path d="m21.4 7.2-8.4 5.3a1.9 1.9 0 0 1-2 0L2.6 7.2"/>',
+  relogio: '<circle cx="12" cy="12" r="8.6"/><path d="M12 6.8V12l3.4 1.8"/>',
+};
+
+/* Três leads na fila, como chegam: canal, telefone, valor e quem pegou. */
+const LEADS = [
+  { nome: "Padaria Sol", origem: "WhatsApp", fone: "+55 11 97000-0101", valor: "R$ 2.000,00", dono: "Ana Melo", tempo: "4d" },
+  { nome: "Marina Reis", origem: "Instagram", fone: "+55 11 98220-4417", valor: "R$ 1.250,00", dono: "João Silva", tempo: "2h" },
+  { nome: "Thiago Luz", origem: "Site", fone: "+55 21 99114-7702", valor: "R$ 4.120,00", dono: "Ana Melo", tempo: "1d" },
+];
+
+/* A semana: início e duração em horas a partir das 8h; a cor é o TIPO do
+   compromisso, como os blocos da rota no Início. */
+const SEMANA = [
+  { dia: "Seg", eventos: [{ nome: "Equipe", ini: 0, dur: 1.5, c: "var(--info)" }, { nome: "Visita", ini: 5, dur: 2, c: "var(--ok)" }] },
+  { dia: "Ter", eventos: [{ nome: "Visita", ini: 1, dur: 2, c: "var(--ok)" }] },
+  { dia: "Qua", hoje: true, eventos: [{ nome: "Revisão", ini: 4.5, dur: 1.5, c: "var(--warn)" }] },
+  { dia: "Qui", eventos: [{ nome: "Entrega", ini: 1, dur: 1.5, c: "var(--neutro)" }], marina: { ini: 6, dur: 2 } },
+  { dia: "Sex", eventos: [{ nome: "Equipe", ini: 0, dur: 1.5, c: "var(--info)" }, { nome: "Visita", ini: 6.5, dur: 2, c: "var(--ok)" }] },
+];
+
+/* O fluxo, só com bloco que existe no construtor: gatilho Negócio ganho →
+   Mensagem no WhatsApp → Marcar na agenda → Criar tarefa. */
+const PASSOS = [
+  { rot: "Gatilho", det: "Negócio ganho", tipo: "gatilho", svg: '<path d="M13 2.8 4.6 13.4h6.6l-1 7.8 8.4-10.6h-6.6z"/>' },
+  { rot: "Mensagem", det: "No WhatsApp", logo: `${CANAL}/whatsapp.svg` },
+  { rot: "Agenda", det: "Quinta, 14h", c: "var(--info)", svg: '<rect x="4" y="5.4" width="16" height="14.6" rx="2.4"/><path d="M4 10h16M8.4 3.6v3.2M15.6 3.6v3.2"/>' },
+  { rot: "Tarefa", det: "Para o Carlos", c: "var(--warn)", svg: '<rect x="4.4" y="4.4" width="15.2" height="15.2" rx="3"/><path d="m8.6 12.2 2.4 2.4 4.4-4.6"/>' },
+  { rot: "Concluído", det: "Em 1,2 s", c: "var(--ok)", svg: '<path d="m5.4 12.4 4.2 4.2 9-9.2"/>' },
+];
+
+/* A semana do caixa em % da maior barra: entrada e saída por dia. */
+const DIAS = [
+  { d: "Seg", e: 46, s: 22 },
+  { d: "Ter", e: 58, s: 30 },
+  { d: "Qua", e: 40, s: 26 },
+  { d: "Qui", e: 72, s: 34 },
+  { d: "Sex", e: 64, s: 20 },
+  { d: "Sáb", e: 88, s: 28 },
+  { d: "Dom", e: 100, s: 24 },
+];
+---
+
+<section class="zx-mod" id="modulos" aria-labelledby="mod-titulo">
+  <div class="zx-container">
+    <div class="zx-mod-cab reveal">
+      <h2 class="zx-mod-titulo" id="mod-titulo">
+        Atenda. Venda. Automatize. Cresça. <strong>Tudo em um único lugar.</strong>
+      </h2>
+      <p class="zx-mod-sub">
+        O VOS conecta atendimento, CRM, agenda, projetos, financeiro e IA para automatizar processos e transformar sua empresa em uma operação previsível e escalável.
+      </p>
+    </div>
+
+    <ul class="zx-mod-grade reveal reveal-group">
+      {MODULOS.map((m) => (
+        <li class="zx-mod-item">
+          <article class="zx-mod-card">
+            <div class="zx-mod-h">
+              <h3>{m.nome}</h3>
+              <p>{m.nota}</p>
+            </div>
+
+            <div class:list={["zx-mod-m", `zx-mod-m--${m.id}`]} aria-hidden="true">
+              {/* DUAS conversas na mesma fila, e não uma (founder 15/09): a da
+                  Marina chega pelo WhatsApp e o Zé responde no mesmo ticket; a do
+                  Lucas chega pelo Instagram e abre outro. O número do ticket é o do
+                  protocolo do produto, # e seis dígitos (`#000042`). */}
+              {m.id === "atendimento" && (
+                <>
+                  <div class="zx-msg">
+                    <span class="zx-msg-canal wa"><img src={`${CANAL}/whatsapp.svg`} alt="" width="11" height="11" /></span>
+                    <span class="zx-msg-balao">
+                      <span class="zx-msg-quem"><b>Marina Reis</b><em>#004218</em><span>09:24</span></span>
+                      <span class="zx-msg-txt">Oi! Vocês instalam ar-condicionado?</span>
+                    </span>
+                  </div>
+                  <div class="zx-msg ze">
+                    <span class="zx-msg-balao">
+                      <span class="zx-msg-quem"><b>Zé</b><em>#004218</em><span>09:24</span></span>
+                      <span class="zx-msg-txt">Instalamos sim! Tenho quinta às 14h. Quer que eu reserve?</span>
+                    </span>
+                  </div>
+                  <div class="zx-msg">
+                    <span class="zx-msg-canal ig"><img src={`${ICO}/instagram.svg`} alt="" width="20" height="20" /></span>
+                    <span class="zx-msg-balao">
+                      <span class="zx-msg-quem"><b>Lucas Prado</b><em>#004219</em><span>09:26</span></span>
+                      <span class="zx-msg-txt">Vocês fazem manutenção de split?</span>
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {m.id === "crm" && (
+                <div class="zx-col">
+                  <div class="zx-col-cab">
+                    <i />
+                    <span>Novo lead</span>
+                    <em>{LEADS.length}</em>
+                    <b>R$ 7.370,00</b>
+                  </div>
+                  <div class="zx-col-b">
+                    {/* As bordas do baralho: o que sobra dos cards de baixo. */}
+                    <span class="zx-baralho" aria-hidden="true"><i /><i /></span>
+                    {LEADS.map((l, i) => (
+                      <article class="zx-crm-card" style={`--i: ${i}`}>
+                        <header class="zx-crm-topo">
+                          <span class="zx-crm-emp">
+                            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={G.loja} />
+                          </span>
+                          <strong>{l.nome}</strong>
+                        </header>
+                        <p class="zx-crm-l">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={G.origem} />
+                          <span>{l.origem}</span>
+                        </p>
+                        <p class="zx-crm-l">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={G.fone} />
+                          <span>{l.fone}</span>
+                        </p>
+                        <p class="zx-crm-l val">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={G.dinheiro} />
+                          <span>{l.valor}</span>
+                        </p>
+                        <p class="zx-crm-l resp">
+                          <span class="zx-crm-av">{l.dono.slice(0, 1)}</span>
+                          <span>{l.dono}</span>
+                        </p>
+                        <footer class="zx-crm-pe">
+                          <span class="zx-crm-acoes">
+                            {[G.nota, G.tarefa, G.conversa, G.email].map((d) => (
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={d} />
+                            ))}
+                          </span>
+                          <span class="zx-crm-tempo">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={G.relogio} />
+                            {l.tempo}
+                          </span>
+                        </footer>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {m.id === "agenda" && (
+                <>
+                  <div class="zx-ag-dias">
+                    <span />
+                    {SEMANA.map((d) => <span class={d.hoje ? "hoje" : undefined}>{d.dia}</span>)}
+                  </div>
+                  <div class="zx-ag-grade">
+                    <div class="zx-ag-horas">
+                      {["8h", "10h", "12h", "14h", "16h"].map((h, i) => <span style={`--h: ${i * 2}`}>{h}</span>)}
+                    </div>
+                    {SEMANA.map((d) => (
+                      <div class:list={["zx-ag-dia", { hoje: d.hoje }]}>
+                        {d.eventos.map((e) => (
+                          <span class="zx-ag-ev" style={`--ini: ${e.ini}; --dur: ${e.dur}; --c: ${e.c}`}>{e.nome}</span>
+                        ))}
+                        {d.marina && (
+                          <span class="zx-ag-ev ela" style={`--ini: ${d.marina.ini}; --dur: ${d.marina.dur}; --c: var(--accent)`}>
+                            Marina
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {m.id === "automacoes" && (
+                <>
+                  <p class="zx-fluxo-quando">Quando um negócio fecha</p>
+                  <ol class="zx-fluxo">
+                    {PASSOS.map((p) => (
+                      <li class:list={["zx-passo", p.tipo]} style={p.c ? `--c: ${p.c}` : undefined}>
+                        <span class="zx-passo-no">
+                          {p.logo ? (
+                            <img src={p.logo} alt="" width="17" height="17" />
+                          ) : (
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" set:html={p.svg} />
+                          )}
+                        </span>
+                        <span class="zx-passo-rot">
+                          {p.rot}
+                          <small>{p.det}</small>
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                </>
+              )}
+
+              {m.id === "financeiro" && (
+                <div class="zx-fin">
+                  <div class="zx-fin-nums">
+                    <div style="--c: var(--ok)">
+                      <span><i />Entradas da semana</span>
+                      <b>R$ 12.480,00</b>
+                    </div>
+                    <div style="--c: var(--bad)">
+                      <span><i />Saídas da semana</span>
+                      <b>R$ 4.310,00</b>
+                    </div>
+                    <span class="zx-fin-ok">
+                      <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+                      Caixa conciliado
+                    </span>
+                  </div>
+                  <div class="zx-fin-semana">
+                    {DIAS.map((d) => (
+                      <div class="zx-fin-dia">
+                        <span class="zx-fin-barras">
+                          <i class="e" style={`height: ${d.e}%`} />
+                          <i class="s" style={`height: ${d.s}%`} />
+                        </span>
+                        <span class="zx-fin-rot">{d.d}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div class="zx-mod-pe">
+              <span>Conecta com</span>
+              <ul class="zx-mod-pilha">
+                {m.liga.map((l) =>
+                  "mais" in l ? (
+                    <li class="mais" title={l.nome} aria-label={l.nome}>
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5.5v13M5.5 12h13" /></svg>
+                    </li>
+                  ) : (
+                    <li>
+                      <img src={l.src} alt={l.nome} title={l.nome} width="16" height="16" loading="lazy" />
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
+          </article>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* ── Os valores do card ESCURO do Início, no escopo do bloco. Nomes do
+     `.ini` pra o CSS ler igual ao vos-os.css; valores do tokens.json
+     (produto.cor.minimalDark), das etapas (`--stage-*` do escuro) e dos
+     status do site. Soltos no `.zx` reescreveriam o resto da página. ── */
+  .zx-mod {
+    --panel: #101214;
+    --panel-2: #15181a;
+    --panel-3: #1b2126;
+    --line: rgba(255, 255, 255, 0.07);
+    --line-2: rgba(255, 255, 255, 0.12);
+    --ink: #ededed;
+    --ink-2: #a1a1a1;
+    --ink-3: #8a8a8a;
+    --ink-4: #5f5f5f;
+    --accent: var(--zx-lar);
+    --ai: var(--zx-ai);
+    --ai-ink: var(--zx-ai-ink);
+    --ok: var(--zx-ok-dark);
+    --warn: var(--zx-warn-dark);
+    --bad: var(--zx-bad-dark);
+    --info: var(--zx-info-dark);
+    --neutro: #8a93a5;
+    --etapa-neutra: #8a93a5;
+    --etapa-ambar: #fdb022;
+    --etapa-verde: #32d583;
+    --card: linear-gradient(180deg, color-mix(in oklab, var(--panel) 92%, #fff 2%), var(--panel));
+    --shadow-card: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 12px 32px -20px rgba(0, 0, 0, 0.9);
+    --shadow-lift: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 30px 60px -30px rgba(0, 0, 0, 0.95);
+    --ease: var(--zx-ease);
+
+    position: relative;
+    /* Topo curto (founder 15/09: "diminua um pouco o espaço"): o Passos3 logo
+       acima já termina com o próprio respiro, e os dois somados abriam um vão
+       de ~180px entre a foto e o título. */
+    padding: clamp(16px, 3vh, 40px) 0 clamp(64px, 10vh, 120px);
+    background: var(--zx-dark-deep);
+    color: var(--ink);
+  }
+
+  .zx-mod-cab { margin: 0 0 clamp(28px, 4.5vh, 52px); }
+  .zx-mod-titulo {
+    margin: 0;
+    font-family: var(--zx-display);
+    font-size: clamp(26px, 3.1vw, 40px);
+    font-weight: var(--zx-fw-title-dark);
+    letter-spacing: var(--zx-ls-title);
+    line-height: 1.12;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  /* A ênfase é a SEGUNDA linha: os quatro verbos e depois onde eles moram. */
+  .zx-mod-titulo strong { display: block; font-weight: var(--zx-fw-emphasis); }
+  .zx-mod-sub {
+    margin: 14px 0 0;
+    max-width: 62ch;
+    font-size: clamp(15px, 1.15vw, 17px);
+    line-height: 1.55;
+    color: var(--ink-2);
+    text-wrap: pretty;
+  }
+
+  /* Bento de SEIS colunas: três cards de 2 em cima, dois de 3 embaixo. */
+  .zx-mod-grade {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: clamp(12px, 1.2vw, 16px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* O `li` é da ENTRADA (o dominó do reveal-group mexe no transform dele); o
+     `article` é do hover. Na mesma caixa um apagaria o transform do outro. */
+  .zx-mod-item { grid-column: span 2; display: flex; min-width: 0; }
+  .zx-mod-item:nth-child(n + 4) { grid-column: span 3; }
+
+  .zx-mod-card {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--card);
+    box-shadow: var(--shadow-card);
+    transition:
+      box-shadow 0.3s,
+      border-color 0.3s,
+      transform 0.3s var(--ease);
+  }
+  .zx-mod-h { padding: 22px 22px 0; }
+  .zx-mod-h h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: var(--ink);
+  }
+  /* duas linhas reservadas: o desenho começa na mesma altura na fileira */
+  .zx-mod-h p {
+    margin: 5px 0 0;
+    min-height: 2.9em;
+    max-width: 44ch;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--ink-3);
+    text-wrap: pretty;
+  }
+
+  /* ── O desenho, direto no card. Contêiner de largura pra ceder no estreito. ── */
+  .zx-mod-m {
+    position: relative;
+    height: 178px;
+    margin: 16px 0 0;
+    padding: 0 22px;
+    font-size: 11.5px;
+    line-height: 1.4;
+    container-type: inline-size;
+  }
+
+  .zx-mod-pe {
+    margin-top: auto;
+    padding: 14px 22px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .zx-mod-pe > span {
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ink-2);
+  }
+  .zx-mod-pilha { display: flex; margin: 0; padding: 0; list-style: none; }
+  .zx-mod-pilha li {
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 2px var(--panel);
+  }
+  .zx-mod-pilha li + li { margin-left: -6px; }
+  .zx-mod-pilha img { display: block; }
+  /* O "mais" não é marca: fica no painel, com o sinal na tinta, pra não se
+     confundir com mais um logo branco na pilha. */
+  .zx-mod-pilha li.mais { background: var(--panel-3); color: var(--ink-2); }
+
+  /* 1 · ATENDIMENTO: a conversa começa de CIMA e está inteira no repouso. No
+     hover ela se desdobra alguns pixels, como as bolhas do Início. */
+  .zx-mod-m--atendimento { display: flex; flex-direction: column; gap: 7px; }
+  .zx-msg {
+    display: flex;
+    align-items: flex-end;
+    gap: 7px;
+    max-width: 100%;
+    transition: transform 0.45s var(--ease);
+  }
+  .zx-msg.ze { justify-content: flex-end; }
+  .zx-msg-canal {
+    width: 20px;
+    height: 20px;
+    display: grid;
+    place-items: center;
+    flex: none;
+    border-radius: 50%;
+    background: #25d366;
+  }
+  .zx-msg-canal.wa img { display: block; filter: brightness(0) invert(1); }
+  /* o logo do Instagram já é o disco com o degradê: entra inteiro, sem fundo */
+  .zx-msg-canal.ig { background: none; }
+  .zx-msg-canal.ig img { display: block; }
+  .zx-msg-balao {
+    min-width: 0;
+    max-width: 86%;
+    padding: 6px 11px 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    border-radius: 14px 14px 14px 4px;
+    background: var(--panel-3);
+    box-shadow: 0 10px 20px -14px rgba(0, 0, 0, 0.6);
+  }
+  .zx-msg.ze .zx-msg-balao {
+    max-width: 82%;
+    border-radius: 14px 14px 4px 14px;
+    background: color-mix(in oklab, var(--ai) 16%, var(--panel-2));
+  }
+  .zx-msg-quem { display: flex; align-items: baseline; gap: 6px; font-size: 10.5px; color: var(--ink-3); }
+  .zx-msg-quem b { font-weight: 600; color: var(--ink-2); }
+  .zx-msg-quem em { font-style: normal; font-variant-numeric: tabular-nums; color: var(--ink-3); }
+  .zx-msg.ze .zx-msg-quem b { color: var(--ai-ink); }
+  .zx-msg-txt { color: var(--ink); text-wrap: pretty; }
+
+  /* 2 · CRM: UMA coluna, "Novo lead", com o card de verdade do quadro (founder
+     15/09). Os leads caem um atrás do outro: o da frente escorrega pra baixo e
+     o próximo pousa no lugar dele, como um baralho sendo virado. */
+  /* O CRM é o único desenho mais alto que os outros (founder 15/09, "coloca
+     maior o card de altura"): o card do lead é a peça inteira do produto, e
+     nele cabe menos aperto que num gráfico. A fileira acompanha. */
+  .zx-mod-m--crm { display: block; height: 206px; }
+  .zx-col {
+    height: 100%;
+    min-width: 0;
+    padding: 8px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.025);
+  }
+  .zx-col-cab {
+    height: 16px;
+    padding: 0 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .zx-col-cab i { width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--etapa-neutra); }
+  /* Contagem e valor na MESMA linha do nome, como no header do produto. */
+  .zx-col-cab em {
+    padding: 0 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+    font-size: 10.5px;
+    font-style: normal;
+    color: var(--ink-3);
+  }
+  .zx-col-cab b {
+    margin-left: auto;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-3);
+  }
+
+  /* O corpo da coluna é o palco do baralho: o card que cai some na borda.
+     A ALTURA do card é fixa e mora aqui, porque as bordas do baralho embaixo
+     dele precisam da mesma medida pra sobrar só o fio de cada uma. */
+  .zx-col-b {
+    --alt-card: 152px;
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: clip;
+  }
+  .zx-baralho {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    display: block;
+  }
+  .zx-baralho i {
+    position: absolute;
+    top: 0;
+    display: block;
+    height: var(--alt-card);
+    border-radius: 10px;
+    background: #fff;
+  }
+  .zx-baralho i:nth-child(1) { left: 5px; right: 5px; transform: translateY(7px); opacity: 0.34; }
+  .zx-baralho i:nth-child(2) { left: 10px; right: 10px; transform: translateY(14px); opacity: 0.16; }
+
+  /* O card: a anatomia do quadro do produto, sem o chip de prioridade. O card
+     é BRANCO (founder 15/09, "coloca branco pra ver como fica"): é a pele clara
+     do produto pousada no palco preto, como um papel em cima da mesa. */
+  .zx-crm-card {
+    --c-fundo: #fff;
+    --c-fio: rgba(23, 23, 23, 0.1);
+    --c-ink: #171717;
+    --c-ink-2: #4a4a4a;
+    --c-ink-3: #6b6b6b;
+    --c-ink-4: #9a9a9a;
+
+    position: absolute;
+    inset: 0 0 auto;
+    height: var(--alt-card);
+    padding: 10px 12px 8px;
+    box-sizing: border-box;
+    /* Coluna pra o rodapé colar na base, como no card do produto. */
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    background: var(--c-fundo);
+    color: var(--c-ink-2);
+    box-shadow: 0 18px 34px -18px rgba(0, 0, 0, 0.9);
+    opacity: 0;
+    /* O baralho anda sozinho quando o bloco entra na tela (a classe vem do
+       observador do Base.astro); parado, ele não gasta quadro nenhum. */
+    animation: zx-crm-baralho 13.5s var(--ease) infinite both;
+    animation-play-state: paused;
+    animation-delay: calc(var(--i) * -4.5s);
+  }
+  .zx-mod-grade.is-visible .zx-crm-card { animation-play-state: running; }
+
+  .zx-crm-topo { display: flex; align-items: center; gap: 8px; }
+  .zx-crm-emp {
+    width: 19px;
+    height: 19px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+    background: rgba(23, 23, 23, 0.06);
+    color: var(--c-ink-2);
+  }
+  .zx-crm-topo strong {
+    min-width: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--c-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .zx-crm-l {
+    margin: 7px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--c-ink-2);
+    white-space: nowrap;
+  }
+  .zx-crm-l svg { width: 12px; height: 12px; flex: none; color: var(--c-ink-4); }
+  .zx-crm-l span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .zx-crm-l.val span { color: var(--c-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .zx-crm-av {
+    width: 15px;
+    height: 15px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--zx-info) 78%, #0a3a72);
+    color: #fff;
+    font-size: 8.5px;
+    font-weight: 600;
+  }
+  .zx-crm-pe {
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid var(--c-fio);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--c-ink-4);
+  }
+  .zx-crm-acoes { display: flex; align-items: center; gap: 10px; }
+  .zx-crm-acoes svg { width: 12px; height: 12px; }
+  .zx-crm-tempo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    color: var(--c-ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .zx-crm-tempo svg { width: 11px; height: 11px; }
+
+  /* Um terço do ciclo pra cada lead: entra de cima, fica, e cai pra fora
+     enquanto o próximo já está pousando atrás dele.
+
+     Duas curvas, não uma: a entrada DESACELERA (o card pousa) e a queda
+     ACELERA . com a curva de entrada nos dois, a saída parecia um corte seco
+     em vez de um card caindo. */
+  @keyframes zx-crm-baralho {
+    0% { opacity: 0; transform: translateY(-16px) scale(0.97); z-index: 1; animation-timing-function: var(--ease); }
+    7% { opacity: 1; transform: none; z-index: 2; }
+    /* z-index 3 na queda: quem sai passa NA FRENTE de quem está pousando, como
+       a carta de cima saindo do baralho. Empatados, vencia a ordem do HTML. */
+    33.3% { opacity: 1; transform: none; z-index: 3; animation-timing-function: cubic-bezier(0.45, 0, 0.85, 0.35); }
+    /* Desce OPACO: no branco, um card meio transparente por cima do outro deixa
+       os dois textos legíveis ao mesmo tempo. Ele só apaga no fim da queda. */
+    36% { opacity: 1; transform: translateY(18px) rotate(0.8deg); z-index: 3; }
+    38.6% { opacity: 1; transform: translateY(56px) rotate(2deg); z-index: 3; }
+    39.8% { opacity: 0; transform: translateY(86px) rotate(2.8deg); z-index: 3; }
+    39.81%, 100% { opacity: 0; transform: translateY(-16px) scale(0.97); z-index: 0; }
+  }
+
+  /* 3 · AGENDA: a semana, cada compromisso na cor do tipo. No hover a
+     instalação da Marina pousa na quinta às 14h. */
+  .zx-mod-m--agenda { display: flex; flex-direction: column; padding-left: 16px; }
+  .zx-ag-dias,
+  .zx-ag-grade {
+    display: grid;
+    grid-template-columns: 24px repeat(5, minmax(0, 1fr));
+    column-gap: 4px;
+  }
+  .zx-ag-dias { height: 22px; align-items: start; font-size: 11px; text-align: center; color: var(--ink-3); }
+  .zx-ag-dias .hoje { color: var(--ink); font-weight: 600; }
+  .zx-ag-grade { position: relative; flex: 1; min-height: 0; }
+  .zx-ag-horas { position: relative; font-size: 10px; color: var(--ink-4); }
+  .zx-ag-horas span { position: absolute; left: 0; top: calc(var(--h) * 10%); transform: translateY(-50%); }
+  .zx-ag-dia { position: relative; border-left: 1px solid var(--line); }
+  .zx-ag-dia.hoje { background: rgba(255, 255, 255, 0.02); }
+  /* 10 horas de grade (8h às 18h): cada hora é 10% da altura */
+  .zx-ag-ev {
+    position: absolute;
+    left: 3px;
+    right: 2px;
+    top: calc(var(--ini) * 10%);
+    height: calc(var(--dur) * 10% - 3px);
+    padding: 3px 5px 3px 6px;
+    box-sizing: border-box;
+    overflow: hidden;
+    border-radius: 5px;
+    border-left: 2px solid var(--c);
+    background: color-mix(in oklab, var(--c) 16%, var(--panel));
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+  .zx-ag-ev.ela {
+    opacity: 0;
+    transform: translateY(4px);
+    box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.9);
+    transition:
+      opacity 0.35s var(--ease),
+      transform 0.45s var(--ease);
+  }
+
+  /* 4 · AUTOMAÇÕES: o fluxo parado e inteiro. No hover a linha acende de
+     ponta a ponta, num traço só. */
+  /* começa de cima, como os outros quatro desenhos */
+  .zx-mod-m--automacoes { display: flex; flex-direction: column; justify-content: flex-start; gap: 20px; padding-top: 6px; }
+  .zx-fluxo-quando { margin: 0; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .zx-fluxo {
+    --no: 44px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 40px;
+    padding: 0 18px;
+    list-style: none;
+  }
+  .zx-fluxo::before,
+  .zx-fluxo::after {
+    content: "";
+    position: absolute;
+    left: calc(18px + var(--no) / 2);
+    right: calc(18px + var(--no) / 2);
+    top: calc(var(--no) / 2);
+    height: 1px;
+  }
+  .zx-fluxo::before { background: var(--line-2); }
+  /* A linha que acende é do Zé (founder 15/09: "efeito like IA, gradient
+     violeta do Zé"): os violetas da rampa do Modo Zé, com uma luz clara que
+     corre de ponta a ponta enquanto o mouse está em cima. Parada ela não
+     existe, então não é brilho permanente. */
+  .zx-fluxo::after {
+    height: 2px;
+    margin-top: -0.5px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #52309f 0%, var(--ai) 30%, #d4c9ff 50%, var(--ai) 70%, #52309f 100%);
+    background-size: 200% 100%;
+    box-shadow:
+      0 0 12px color-mix(in oklab, var(--ai) 70%, transparent),
+      0 0 3px color-mix(in oklab, var(--ai-ink) 80%, transparent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.7s var(--ease);
+  }
+  @keyframes zx-fio-do-ze {
+    from { background-position: 200% 0; }
+    to { background-position: 0 0; }
+  }
+  .zx-passo { position: relative; z-index: 1; }
+  .zx-passo-no {
+    width: var(--no);
+    height: var(--no);
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    border: 1px solid var(--line-2);
+    background: var(--panel-2);
+    color: var(--c, var(--ink-2));
+    box-shadow: 0 10px 20px -14px rgba(0, 0, 0, 0.8);
+  }
+  .zx-passo-no img { display: block; }
+  .zx-passo.gatilho .zx-passo-no { background: var(--ink); border-color: transparent; color: var(--panel); }
+  /* Rótulo em duas linhas: o bloco do construtor e o que ele fez nesse caso. */
+  .zx-passo-rot {
+    position: absolute;
+    top: calc(100% + 9px);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--ink-2);
+    white-space: nowrap;
+  }
+  .zx-passo-rot small { font-size: 10.5px; font-weight: 400; color: var(--ink-3); }
+
+  /* 5 · FINANCEIRO: os totais da semana e as barras por dia, verde que entra e
+     vermelho que sai (as cores da régua do Início). No hover as barras sobem
+     até a medida. */
+  /* A grade mora num filho, não no `.zx-mod-m`: o contêiner não obedece à
+     própria @container, só quem está dentro dele. */
+  .zx-fin {
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
+    gap: 18px;
+    align-items: stretch;
+  }
+  .zx-fin-nums { display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+  .zx-fin-nums div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .zx-fin-nums span { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--ink-3); white-space: nowrap; }
+  .zx-fin-nums span i { width: 7px; height: 7px; border-radius: 2px; background: var(--c); flex: none; }
+  .zx-fin-nums b { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .zx-fin-ok {
+    align-self: flex-start;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px 3px 7px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--ok) 14%, transparent);
+    color: var(--ok) !important;
+    font-size: 11px !important;
+    font-weight: 600;
+  }
+  .zx-fin-semana {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+    padding-top: 4px;
+  }
+  .zx-fin-dia { display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; }
+  .zx-fin-barras {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 3px;
+    border-bottom: 1px solid var(--line-2);
+  }
+  .zx-fin-barras i {
+    width: min(10px, 34%);
+    border-radius: 3px 3px 0 0;
+    transform: scaleY(0.72);
+    transform-origin: bottom center;
+    transition: transform 0.5s var(--ease);
+  }
+  .zx-fin-barras .e { background: var(--ok); }
+  .zx-fin-barras .s { background: color-mix(in oklab, var(--bad) 85%, transparent); }
+  .zx-fin-rot { font-size: 10px; color: var(--ink-3); }
+
+  /* ── O HOVER, e só nele. Um gesto por desenho, sem sequência e sem número
+     trocando: sem hover o card fica exatamente como está no repouso. ── */
+  @media (hover: hover) {
+    .zx-mod-card:hover {
+      border-color: var(--line-2);
+      box-shadow: var(--shadow-lift);
+      transform: translateY(-2px);
+    }
+    .zx-mod-card:hover .zx-msg:nth-child(2) { transform: translateY(3px); }
+    .zx-mod-card:hover .zx-msg:nth-child(3) { transform: translateY(6px); }
+    /* O CRM não tem gesto de hover: o baralho de leads já é o movimento dele. */
+    .zx-mod-card:hover .zx-ag-ev.ela { opacity: 1; transform: none; }
+    .zx-mod-card:hover .zx-fluxo::after { transform: scaleX(1); animation: zx-fio-do-ze 1.6s linear infinite; }
+    .zx-mod-card:hover .zx-fin-barras i { transform: none; }
+  }
+
+  @media (max-width: 1100px) {
+    .zx-mod-grade { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .zx-mod-item,
+    .zx-mod-item:nth-child(n + 4) { grid-column: span 1; }
+    .zx-mod-item:last-child { grid-column: span 2; }
+  }
+  @media (max-width: 760px) {
+    .zx-mod-grade { grid-template-columns: minmax(0, 1fr); }
+    .zx-mod-item,
+    .zx-mod-item:nth-child(n + 4),
+    .zx-mod-item:last-child { grid-column: span 1; }
+    .zx-mod-h p { min-height: 0; }
+  }
+
+  /* Card estreito: o caixa empilha (totais em cima, semana embaixo) e o fluxo
+     encolhe o nó pra os rótulos das pontas não encostarem na borda. */
+  @container (max-width: 430px) {
+    .zx-fin { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 14px; }
+    .zx-fin-nums { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; gap: 6px 18px; }
+    .zx-fin-ok { display: none !important; }
+  }
+  /* Card de uma coluna no celular: o detalhe do passo não cabe entre os nós
+     (sairia encavalado no vizinho), então fica só o nome do bloco. */
+  @container (max-width: 430px) {
+    .zx-passo-rot small { display: none; }
+    .zx-fluxo { margin-bottom: 26px; }
+  }
+  @container (max-width: 360px) {
+    .zx-fluxo { --no: 36px; padding-inline: 10px; }
+    .zx-fluxo::before,
+    .zx-fluxo::after { left: calc(10px + var(--no) / 2); right: calc(10px + var(--no) / 2); }
+    .zx-passo-rot { font-size: 10.5px; }
+    /* No celular a coluna aperta, e o card do lead junto com ela. */
+    .zx-col { padding: 7px 6px; }
+    .zx-crm-card { padding: 8px 8px 6px; }
+    .zx-crm-acoes { gap: 7px; }
+    .zx-ag-dias,
+    .zx-ag-grade { grid-template-columns: 20px repeat(5, minmax(0, 1fr)); column-gap: 3px; }
+    .zx-ag-ev { padding-inline: 5px 3px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .zx-mod-card,
+    .zx-mod-card *,
+    .zx-mod-card *::after { transition: none !important; animation: none !important; }
+    .zx-mod-card:hover { transform: none; }
+    /* Sem a animação, os três leads ficariam empilhados e invisíveis (é ela
+       que acende cada um na vez dele): fica o primeiro, parado. */
+    .zx-col-b .zx-crm-card { display: none; }
+    .zx-col-b .zx-crm-card:first-of-type { display: block; opacity: 1; transform: none; }
+  }
+</style>

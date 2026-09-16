@@ -1,0 +1,342 @@
+---
+// Seção "Você pede, o VOS faz": a frase ancorada embaixo à esquerda e o filme
+// da operação rodando ao lado, em 4 atos que dão a volta (referência: a cena
+// "entered the chat" da Shopify, com a nossa cara).
+// A cena é HTML de verdade, não vídeo: texto nítido, responsivo e leve.
+// A cena antiga fica no repo: ela é o ponto de recuo se a da voz não emplacar.
+// import VitrineScene from "../islands/VitrineScene.tsx";
+// A cena da voz fica no repo como ponto de recuo.
+// import VozCena from "../islands/VozCena.tsx";
+import ZeColecao from "../islands/ZeColecao.tsx";
+---
+
+<section class="zx-vitrine" id="vitrine">
+  <div class="zx-vitrine-inner">
+    <div class="zx-vitrine-copy">
+      <p class="zx-mao reveal">Conheça nossa IA</p>
+      <h2 class="zx-h2 reveal reveal-delay-1">
+        O que você pede,<br />o Zé <strong>faz</strong>.
+      </h2>
+      <p class="zx-lead reveal reveal-delay-2">
+        Zé é o nome da IA do VOS. Manda um áudio pelo WhatsApp, pelo Slack ou aqui
+        dentro, e ele cadastra, responde, agenda, abre o pedido e concilia a venda.
+      </p>
+    </div>
+  </div>
+
+  {/* O palco sai do miolo e pega a LARGURA TODA: a cena é uma travessia da
+      esquerda pra direita, e travessia precisa de distância. Em 632px do
+      layout de duas colunas a onda nascia quase em cima do Zé. */}
+  <div class="zx-vitrine-palco reveal reveal-delay-1">
+    <ZeColecao client:visible />
+  </div>
+</section>
+
+<style is:global>
+  /* ═══════ A CENA DO ZÉ · palco violeta ═══════
+     O violeta é sancionado AQUI E SÓ AQUI: --m-ai é a cor do Zé no produto, a
+     única cor própria que sobrou depois do acento único. Esta é a cena dele.
+     Nas outras seções o palco continua Carvão. */
+  .zx-vitrine {
+    position: relative;
+    padding: clamp(44px, 6.5vh, 76px) 0 clamp(32px, 5vh, 56px);
+    overflow: clip;
+  }
+  .scrollband .zx-vitrine { background: transparent; }
+
+  .zx-vitrine-inner {
+    max-width: var(--zx-w);
+    margin-inline: auto;
+    padding-inline: clamp(16px, 4vw, 32px);
+  }
+  .zx-vitrine-copy { max-width: 46ch; }
+  .zx-vitrine-copy .zx-h2 { margin: 10px 0 0; color: var(--zx-on-dark); }
+  .zx-vitrine-copy .zx-h2 strong { color: #fff; }
+  .zx-vitrine-copy .zx-lead { margin: 16px 0 0; max-width: 52ch; color: var(--zx-on-dark-2); }
+  .zx-mao {
+    margin: 0;
+    font-family: var(--zx-display);
+    font-size: clamp(16px, 1.5vw, 19px);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--zx-lar-2);
+  }
+
+  .zx-vitrine-palco { margin-top: clamp(20px, 3.4vh, 36px); min-width: 0; }
+
+  .zc {
+    position: relative;
+    max-width: var(--zx-w);
+    margin-inline: auto;
+    height: clamp(360px, 46vh, 470px);
+    border-radius: 18px;
+    overflow: hidden;
+    /* o palco: índigo fundo com um claro ao centro, como na referência */
+    background:
+      radial-gradient(70% 58% at 50% 42%, rgba(139, 92, 246, 0.2), transparent 72%),
+      linear-gradient(162deg, #241b45 0%, #17123096 42%, #0d0b1a 100%),
+      #0c0a16;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .zc-luz {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    width: 78%;
+    height: 62%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(50% 50% at 50% 50%, rgba(167, 139, 250, 0.16), transparent 72%);
+    filter: blur(8px);
+  }
+
+  /* as duas do fundo, bem desfocadas: dão profundidade sem pedir atenção */
+  .zc-longe {
+    position: absolute;
+    width: clamp(120px, 13vw, 176px);
+    aspect-ratio: 2 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    filter: blur(7px);
+    opacity: 0.45;
+  }
+  .zc-longe img { width: 100%; height: 100%; object-fit: cover; }
+  .zc-longe--1 { left: -3%; top: 16%; transform: scale(0.9); }
+  .zc-longe--2 { right: -4%; bottom: 8%; transform: scale(0.82); }
+
+  /* ── as quatro peças ── */
+  .zc-pecas { position: absolute; inset: 0; }
+  .zc-peca {
+    position: absolute;
+    display: block;
+    width: clamp(112px, 13vw, 168px);
+    aspect-ratio: 2 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8);
+  }
+  .zc-peca img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* ENFILEIRADAS: a mesma peça sai da posição solta e vai pra grade. O `layout`
+     do Framer faz a viagem sozinho, mas só se a caixa deixar de ser absoluta . por
+     isso a fila troca o position em vez de mexer em left/top. */
+  .zc-pecas.is-fila {
+    display: flex;
+    align-items: center;
+    gap: clamp(8px, 1vw, 14px);
+    inset: auto 0 auto 0;
+    top: 50%;
+    transform: translateY(-50%);
+    padding-left: clamp(16px, 3vw, 34px);
+  }
+  .zc-pecas.is-fila .zc-peca { position: relative; flex: none; filter: none !important; }
+
+  /* NA LOJA: a fila vira grade centrada, com etiqueta embaixo */
+  .zc-pecas.is-loja {
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(10px, 1.4vw, 18px);
+    padding-left: 0;
+    /* a grade começa ABAIXO do cabeçalho em vez de dividir espaço com ele */
+    top: auto;
+    bottom: clamp(16px, 3vh, 30px);
+    transform: none;
+  }
+  .zc-pecas.is-loja .zc-peca {
+    width: clamp(104px, 12vw, 152px);
+    aspect-ratio: auto;
+    border-radius: 10px;
+    overflow: visible;
+    box-shadow: none;
+  }
+  .zc-pecas.is-loja .zc-peca img { aspect-ratio: 2 / 3; height: auto; }
+  .zc-pecas.is-loja .zc-peca img { border-radius: 10px; }
+  .zc-etiqueta {
+    display: grid;
+    gap: 1px;
+    padding-top: 8px;
+    text-align: left;
+  }
+  .zc-etiqueta b { font-size: 11.5px; font-weight: 500; color: rgba(255, 255, 255, 0.92); }
+  .zc-etiqueta em { font-style: normal; font-size: 11px; color: rgba(255, 255, 255, 0.5); font-variant-numeric: tabular-nums; }
+
+  /* ── o composer branco ── */
+  .zc-composer {
+    position: absolute;
+    left: clamp(18px, 6vw, 88px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: min(88%, 420px);
+    padding: 10px 10px 10px 12px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 30px 70px -28px rgba(0, 0, 0, 0.75);
+  }
+  .zc-composer p {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: #171717;
+  }
+  .zc-ze { width: 26px; height: 26px; flex: none; object-fit: contain; }
+  .zc-cursor {
+    display: inline-block;
+    width: 1.5px;
+    height: 1em;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    background: #8b5cf6;
+    animation: zc-pisca 1s steps(2) infinite;
+  }
+  @keyframes zc-pisca { 50% { opacity: 0; } }
+  .zc-enviar {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    flex: none;
+    border-radius: 999px;
+    color: #fff;
+    background: #8b5cf6;
+  }
+  .zc-enviar svg { width: 14px; height: 14px; }
+
+  /* ── a janela de resposta ── */
+  .zc-janela {
+    position: absolute;
+    right: clamp(16px, 3vw, 34px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    width: min(92%, 336px);
+    /* a janela nunca pode passar do palco: com a resposta inteira ela batia
+       nos 470px de altura e vazava por baixo */
+    max-height: calc(100% - 36px);
+    overflow: hidden;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 40px 90px -34px rgba(0, 0, 0, 0.85);
+  }
+  .zc-jan-topo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 11px;
+    border-bottom: 1px solid #ecebe8;
+  }
+  .zc-jan-topo span { flex: 1; font-size: 11.5px; font-weight: 550; color: #171717; }
+  .zc-jan-topo i { width: 11px; height: 11px; border-radius: 3px; background: #e7e5e1; }
+
+  .zc-jan-corpo { display: grid; gap: 7px; padding: 12px 13px; }
+  .zc-eco {
+    justify-self: end;
+    max-width: 86%;
+    margin: 0;
+    padding: 7px 11px;
+    border-radius: 13px;
+    background: #f3f1ee;
+    font-size: 11.5px;
+    line-height: 1.35;
+    color: #171717;
+  }
+  .zc-diz { margin: 0; font-size: 11.5px; color: #3d3d3d; }
+  .zc-consulta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 9px;
+    border-radius: 7px;
+    background: #f7f6f4;
+    border: 1px solid #ecebe8;
+    font-family: var(--zx-mono);
+    font-size: 9px;
+    color: #8a8a8a;
+  }
+  .zc-consulta span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .zc-consulta b { color: #b5b5b5; font-weight: 400; }
+  .zc-rot { margin: 3px 0 0; font-size: 10.5px; font-weight: 600; color: #171717; }
+  .zc-linha {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 5px 6px;
+    border-radius: 7px;
+    background: #f7f6f4;
+    font-size: 11px;
+    color: #171717;
+  }
+  .zc-linha img { width: 18px; height: 18px; flex: none; border-radius: 4px; object-fit: cover; }
+  .zc-linha span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .zc-linha b { font-weight: 550; font-variant-numeric: tabular-nums; }
+  .zc-mais { margin: 0; font-size: 10.5px; color: #8a8a8a; }
+
+  .zc-jan-pe {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 11px 11px;
+    padding: 8px 8px 8px 10px;
+    border-radius: 11px;
+    border: 1px solid #ecebe8;
+  }
+  .zc-jan-pe p { flex: 1; min-width: 0; margin: 0; font-size: 11.5px; font-weight: 500; color: #171717; }
+  .zc-jan-pe .zc-ze { width: 20px; height: 20px; }
+  .zc-jan-pe .zc-enviar { width: 24px; height: 24px; }
+  .zc-jan-pe .zc-enviar svg { width: 12px; height: 12px; }
+
+  /* ── o cabeçalho da loja ── */
+  .zc-loja-topo {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: clamp(20px, 3.4vh, 38px);
+    z-index: 3;
+    display: grid;
+    justify-items: center;
+    gap: 5px;
+    text-align: center;
+    padding-inline: 20px;
+  }
+  .zc-loja-chip {
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-family: var(--zx-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+    background: rgba(139, 92, 246, 0.42);
+    border: 1px solid rgba(167, 139, 250, 0.5);
+    margin-bottom: 3px;
+  }
+  .zc-loja-topo b {
+    font-family: var(--zx-display);
+    font-size: clamp(19px, 2.2vw, 26px);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    color: #fff;
+  }
+  .zc-loja-topo em { font-style: normal; font-size: 12.5px; color: rgba(255, 255, 255, 0.58); }
+
+  @media (max-width: 900px) {
+    .zc { height: clamp(400px, 60vh, 520px); }
+    .zc-composer { left: 50%; transform: translate(-50%, -50%); width: min(92%, 340px); }
+    .zc-janela { left: 50%; right: auto; transform: translate(-50%, -50%); width: min(92%, 320px); }
+    /* no celular só duas peças cabem na fila sem virar tira de selo */
+    .zc-pecas.is-fila .zc-peca:nth-child(n + 3) { display: none; }
+    .zc-pecas.is-loja .zc-peca:nth-child(n + 3) { display: none; }
+    .zc-longe { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zc-cursor { animation: none; }
+  }
+</style>

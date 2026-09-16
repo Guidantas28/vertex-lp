@@ -1,0 +1,50 @@
+---
+// Preços: cards e a tabela de comparação (React island). Os números moram em
+// PRICING, no content.ts, e espelham o catálogo do produto.
+//
+// `comoPagina` é o mesmo bloco servindo a `/precos` (founder 15/09, "clicar em
+// preços já leva pra essa página completa só com preço"): lá o título é o H1 da
+// página e ganha o tamanho do display, aqui na home ele é um H2 no meio da
+// rolagem. O conteúdo é o MESMO . duas cópias divergiriam no primeiro reajuste.
+import { PRICING } from "../../data/content";
+import PricingInteractive, { type CycleSpec, type Grupo, type Plan } from "../islands/PricingInteractive";
+
+interface Props {
+  comoPagina?: boolean;
+}
+
+const { comoPagina = false } = Astro.props;
+const Titulo = comoPagina ? "h1" : "h2";
+---
+
+<section class:list={["zx-pricing", comoPagina && "zx-pricing--pagina"]} id="precos">
+  <div class="zx-container">
+    <Titulo class:list={["reveal", comoPagina ? "zx-h1" : "zx-h2"]}>
+      Seu negócio cresce.<br /><strong class="zx-grad-ze">A gente</strong> acompanha.
+    </Titulo>
+    <p class="zx-lead reveal reveal-delay-2">{PRICING.lead}</p>
+
+    <div class="reveal reveal-delay-2">
+      <PricingInteractive
+        client:visible
+        cycles={PRICING.cycles as CycleSpec[]}
+        plans={PRICING.plans as Plan[]}
+        comparar={PRICING.comparar as { grupos: Grupo[] }}
+        footnote={PRICING.footnote}
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .zx-pricing { padding: clamp(72px, 12vh, 130px) 0 0; }
+  .zx-pricing .zx-lead { max-width: 640px; }
+
+  /* "A gente" na rampa do MODO ZÉ (founder 15/09; era "O VOS" até ele trocar a
+     copy pra "Seu negócio cresce. A gente acompanha."). A rampa mora no
+     `.zx-grad-ze` do zx.css, uma só pro site inteiro: ela pinta também o
+     "antes" do título das dúvidas. */
+  /* Como página o bloco abre logo abaixo da barra, e não depois de outra
+     seção: o respiro de topo é menor e o de baixo passa a existir. */
+  .zx-pricing--pagina { padding: clamp(40px, 7vh, 76px) 0 clamp(48px, 8vh, 88px); }
+</style>

@@ -10,14 +10,6 @@ interface Props {
   name?: string;
   email?: string;
   notes?: string;
-  /** Convidados fixos adicionados a toda reserva (recebem o Google Meet). */
-  guests?: string[];
-  /**
-   * Primeiro toque (fbp/fbc/click-ids/ip/ua). Vai como `metadata[...]` do booking
-   * → chega no webhook do Cal → vira atribuição do lead. É o que permite ligar o
-   * comparecimento (evento offline) ao anúncio que trouxe a pessoa.
-   */
-  metadata?: Record<string, string>;
   onBookingSuccess?: () => void;
   className?: string;
 }
@@ -31,8 +23,6 @@ export default function CalEmbed({
   name,
   email,
   notes,
-  guests,
-  metadata,
   onBookingSuccess,
   className,
 }: Props) {
@@ -75,33 +65,21 @@ export default function CalEmbed({
     };
   }, [calOrigin, onBookingSuccess]);
 
-  const config: Record<string, string | string[]> = {
+  const config: Record<string, string> = {
     theme: "light",
     layout: "month_view",
   };
   if (name) config.name = name;
   if (email) config.email = email;
   if (notes) config.notes = notes;
-  // Convidados fixos: entram como attendees em toda reserva (recebem o Meet).
-  if (guests && guests.length) config.guests = guests;
-  // O Cal lê `metadata[chave]=valor` da query e grava no booking; o webhook
-  // devolve isso pra gente costurar a atribuição por e-mail.
-  if (metadata) {
-    for (const [k, v] of Object.entries(metadata)) {
-      if (v) config[`metadata[${k}]`] = String(v).slice(0, 500);
-    }
-  }
 
   return (
-    <div className={className ?? "w-full rounded-xl"}>
+    <div className={className ?? "h-[480px] w-full overflow-hidden rounded-xl"}>
       <Cal
         namespace="demo"
         calLink={calLink}
         calOrigin={calOrigin}
-        // Sem height fixo: o embed inline do Cal auto-redimensiona pra altura
-        // natural do conteúdo. Quem rola é a área do modal (overflow-y-auto),
-        // então o calendário nunca é cortado.
-        style={{ width: "100%" }}
+        style={{ width: "100%", height: "100%", overflow: "auto" }}
         config={config}
       />
     </div>

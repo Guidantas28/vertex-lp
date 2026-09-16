@@ -3,22 +3,25 @@
  * ScrollBand, faixa escura reutilizável estilo ClickUp "Brain²".
  * O fundo escuro entra arredondado e "encaixotado" (margem nas laterais),
  * ABRE pras bordas (full-bleed) conforme o scroll, e no fim fecha SÓ UM POUCO
- * (efeito sutil de cantos) — light e dark.
+ * (efeito sutil de cantos), light e dark.
  *
  * Aceita qualquer conteúdo via <slot/>, pode envolver 1 ou mais blocos.
- * Cores: escuro da marca + brilho laranja (inspirado no gradiente do ClickUp).
+ * Cor: Carvão, a única família escura do VOS UNO.
  */
 interface Props {
   class?: string;
   /** Sem soft-close no fim — abre até as bordas (ideal p/ CTAs curtos no rodapé). */
   fullBleed?: boolean;
+  /** PARADA: nasce de ponta a ponta e fica. Sem abre/fecha no scroll. */
+  estatica?: boolean;
 }
-const { class: klass = "", fullBleed = false } = Astro.props;
+const { class: klass = "", fullBleed = false, estatica = false } = Astro.props;
 ---
 
 <section
   data-scrollband
   data-scrollband-full={fullBleed ? "" : undefined}
+  data-scrollband-estatica={estatica ? "" : undefined}
   class={`scrollband ${klass}`}
 >
   <div data-scrollband-skin class="scrollband__skin" aria-hidden="true">
@@ -51,16 +54,13 @@ const { class: klass = "", fullBleed = false } = Astro.props;
     border-radius: var(--r);
     overflow: hidden;
     z-index: 0;
+    /* Carvão (VOS UNO C4.2 S1), registro R1: a escada #1B2126 → #101214 → #08090A.
+       Sem glow de canto e sem roxo: os dois saíram do sistema. */
     background:
-      radial-gradient(48% 38% at 14% 8%, rgba(237, 75, 0, 0.22), transparent 62%),
-      radial-gradient(46% 36% at 88% 18%, rgba(109, 74, 255, 0.22), transparent 62%),
-      radial-gradient(60% 42% at 50% 50%, rgba(31, 111, 235, 0.14), transparent 66%),
-      radial-gradient(52% 40% at 18% 84%, rgba(109, 74, 255, 0.18), transparent 64%),
-      radial-gradient(64% 46% at 78% 96%, rgba(237, 75, 0, 0.24), transparent 60%),
-      radial-gradient(120% 90% at 50% -10%, rgba(255, 255, 255, 0.06), transparent 42%),
-      linear-gradient(155deg, #15132c 0%, #0e0c1d 46%, #0a0914 100%);
+      radial-gradient(120% 90% at 50% -10%, rgba(255, 255, 255, 0.05), transparent 42%),
+      linear-gradient(160deg, #1B2126 0%, #101214 46%, #08090A 100%);
     box-shadow:
-      0 50px 130px -60px rgba(109, 74, 255, 0.3),
+      0 40px 100px -60px rgba(0, 0, 0, 0.6),
       inset 0 1px 0 rgba(255, 255, 255, 0.05);
     will-change: top, right, bottom, left, border-radius;
   }
@@ -84,9 +84,35 @@ const { class: klass = "", fullBleed = false } = Astro.props;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
+  /* A FAIXA PARADA É O PRÓPRIO PRETO DA PÁGINA (founder 15/09: "tá dando essa
+     emenda, não é pra deixar assim . deixa no black da cor de fundo, sem
+     perceber nada"). A escada do Carvão (#1B2126 → #101214 → #08090A) faz
+     sentido numa faixa que ENTRA no meio de uma página clara, com borda e canto
+     arredondado. Aqui ela nasce colada no filme e termina colada na seção
+     seguinte, que é preta chapada: qualquer degrau vira uma linha atravessando
+     a tela, e a primeira tentativa (apagar só o pé da faixa) ainda deixava o
+     miolo um tom acima.
+
+     Fica o mesmo `--zx-dark-deep` do resto. O que dá vida ao trecho continua
+     existindo e não desenha borda nenhuma: os pontos e o grão, que a máscara
+     apaga nas pontas, e a luz que anda pela costura (`.zx-passos-emenda`). */
+  .scrollband[data-scrollband-estatica] .scrollband__skin {
+    background: var(--zx-dark-deep, #08090a);
+    box-shadow: none;
+  }
+
   .scrollband__inner {
     position: relative;
     z-index: 2;
+  }
+
+  /* PARADA: já nasce aberta e o JS nem toca nela. O efeito de abrir é bonito
+     numa faixa que entra no meio da página; embaixo de um hero que fica preso
+     no fundo, ele disputa atenção com a folha que já está subindo por cima. */
+  .scrollband[data-scrollband-estatica] {
+    --ix: 0px;
+    --iy: 0px;
+    --r: 0px;
   }
 
   /* mobile: sem efeito abre/fecha, faixa escura full-bleed, senão o conteúdo
@@ -112,6 +138,8 @@ const { class: klass = "", fullBleed = false } = Astro.props;
   const clamp = (n: number, a: number, b: number) => Math.max(a, Math.min(b, n));
 
   function initBand(band: HTMLElement) {
+    // parada: a medida vem do CSS e ninguém escreve inline por cima
+    if (band.hasAttribute("data-scrollband-estatica")) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
 
@@ -135,7 +163,7 @@ const { class: klass = "", fullBleed = false } = Astro.props;
       let open = topOpen;
       if (!wantFull) {
         // Fecha só um pouco no fim (efeito sutil), sem “afinar” demais a faixa.
-        // Em faixas curtas (CTA) isso impede o full-bleed — por isso fullBleed pula.
+        // Em faixas curtas (CTA) isso impede o full-bleed: por isso fullBleed pula.
         const closeEnd = vh * 0.9;
         const closeSpan = vh * 0.4;
         const botOpen = clamp((rect.bottom - closeEnd) / closeSpan, 0, 1);

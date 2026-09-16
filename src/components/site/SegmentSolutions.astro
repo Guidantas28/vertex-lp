@@ -3,11 +3,11 @@
  * "Solução por segmento", tabs por tipo de negócio com pitch + recursos + depoimento.
  * Vive dentro da faixa escura (ScrollBand): tema dark + prova social dos nichos atendidos.
  */
-import SegmentTabs from "../islands/SegmentTabs.tsx";
+import SetorSlider from "../islands/SetorSlider.tsx";
 import { SEGMENTS, SITE, SOCIAL } from "../../data/content";
 const avatars = SOCIAL.people.slice(0, 5);
 ---
-<section id="segmentos" class="relative overflow-hidden pt-24 pb-16 lg:pt-32">
+<section id="segmentos" class="relative overflow-hidden pt-24 pb-2 lg:pt-32">
   <div class="container-vos relative z-10">
     <div class="mx-auto max-w-2xl text-center reveal">
       <p class="seg-hand" aria-hidden="true">
@@ -15,10 +15,13 @@ const avatars = SOCIAL.people.slice(0, 5);
         <svg class="seg-hand-line" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none"><path d="M3 8c40-6 120-7 194-3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
       </p>
       <h2 class="zx-h2 text-balance" style="color:var(--slate-ink)">{SEGMENTS.title}</h2>
-      <p class="zx-lead mx-auto mt-4 max-w-lg" style="color:var(--slate-ink-2); margin-inline:auto">{SEGMENTS.lead}</p>
+      {/* 15/09: o parágrafo de apoio saiu do ar a pedido do founder . quatro
+          blocos de texto empilhados no centro deixavam a abertura amontoada.
+          A frase continua em SEGMENTS.lead, é uma linha pra voltar. */}
+      {/* <p class="zx-lead mx-auto mt-4 max-w-lg" style="color:var(--slate-ink-2); margin-inline:auto">{SEGMENTS.lead}</p> */}
 
       <!-- prova social: nichos atendidos -->
-      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
         <div class="flex -space-x-2.5">
           {avatars.map((a) => (
             <img src={a.img} alt={a.name} class="h-8 w-8 rounded-full border-2 object-cover" style="border-color:var(--slate)" loading="lazy" />
@@ -29,8 +32,7 @@ const avatars = SOCIAL.people.slice(0, 5);
         </p>
       </div>
     </div>
-
-    <SegmentTabs segments={SEGMENTS.items} cta={SEGMENTS.cta} signupUrl={SITE.signupUrl} client:visible />
+    <SetorSlider client:visible />
   </div>
 </section>
 
@@ -58,7 +60,7 @@ const avatars = SOCIAL.people.slice(0, 5);
     overflow: visible;
   }
   :global(.reveal.is-visible) .seg-hand {
-    animation: seg-write 1.3s cubic-bezier(0.66, 0, 0.34, 1) 0.15s both;
+    animation: seg-write 1.3s var(--zx-ease, cubic-bezier(0.22, 1, 0.36, 1)) 0.15s both;
   }
   @keyframes seg-write {
     from { clip-path: inset(-24% 100% -34% -6%); }
@@ -68,4 +70,579 @@ const avatars = SOCIAL.people.slice(0, 5);
     .seg-hand { clip-path: none; animation: none; }
   }
 
+</style>
+
+<style is:global>
+  /* ─── O palco dos setores: capítulos que deslizam de lado ─────────────── */
+  .stx { margin-top: clamp(28px, 5vh, 48px); }
+
+  /* abas: a navegação continua sendo delas, centradas em cima do card */
+  .stx-abas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .stx-abas::-webkit-scrollbar { display: none; }
+  .stx-abas button {
+    position: relative;
+    flex: 0 0 auto;
+    padding: 9px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(237, 237, 237, 0.6);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    overflow: hidden;
+    transition: color var(--zx-t-micro) var(--zx-ease), background var(--zx-t-micro) var(--zx-ease), border-color var(--zx-t-micro) var(--zx-ease);
+  }
+  .stx-abas button:hover { color: rgba(255, 255, 255, 0.85); }
+  .stx-abas button.is-on {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.24);
+  }
+  /* "e muito mais": não é aba, é recado do dono. Vai na manuscrita, a mesma
+     voz do "feito pra você" lá em cima. A tinta fica clara e o laranja mora
+     só na flecha: o sinal já foi gasto no título da seção. */
+  .stx-mais {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    margin-left: 4px;
+    font-family: "Caveat", cursive;
+    font-size: clamp(21px, 1.9vw, 27px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    color: rgba(255, 255, 255, 0.82);
+    white-space: nowrap;
+    transform: rotate(-3deg);
+  }
+  .stx-mais svg {
+    width: 17px;
+    height: 17px;
+    color: var(--zx-lar);
+    transform: rotate(3deg);
+  }
+
+  /* o fio de acento andando: mostra quanto falta do capítulo */
+  .stx-abas button i {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: var(--p, 0%);
+    background: var(--zx-lar);
+  }
+
+  .stx-palco {
+    position: relative;
+    margin-top: 10px;
+    overflow: hidden;
+    /* a janela sangra pros dois lados: o capítulo de antes e o de depois espiam */
+    margin-inline: calc(-1 * clamp(16px, 4vw, 32px));
+    padding-inline: clamp(16px, 4vw, 32px);
+  }
+  .stx-trilho {
+    display: flex;
+    gap: 16px;
+    will-change: transform;
+  }
+
+  .stx-slide {
+    position: relative;
+    flex: 0 0 81%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.86fr);
+    grid-template-rows: 1fr auto;
+    gap: 0 clamp(16px, 2.6vw, 38px);
+    min-height: clamp(380px, 48vh, 470px);
+    padding: clamp(20px, 2.4vw, 30px) clamp(20px, 2.6vw, 32px);
+    border-radius: var(--zx-r-card-lg);
+    overflow: hidden;
+    background: var(--zx-dark-deep);
+    /* quem não está na vez recua e apaga: dá a profundidade do carrossel */
+    opacity: 0.32;
+    transform: scale(0.965);
+    transform-origin: center left;
+    transition: opacity 0.6s var(--zx-ease), transform 0.6s var(--zx-ease);
+  }
+  .stx-slide.is-on { opacity: 1; transform: none; }
+
+  /* o retrato do empresário daquele nicho, ao fundo */
+  .stx-foto {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 28%;
+  }
+  /* o véu abre no meio e fecha nas pontas, que é onde o texto mora */
+  .stx-veu {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(90deg, rgba(8, 9, 10, 0.94) 0%, rgba(8, 9, 10, 0.72) 28%, rgba(8, 9, 10, 0.22) 46%, rgba(8, 9, 10, 0.8) 66%, rgba(8, 9, 10, 0.95) 100%),
+      linear-gradient(180deg, rgba(8, 9, 10, 0.6) 0%, transparent 34%, rgba(8, 9, 10, 0.7) 100%);
+  }
+
+  .stx-topo,
+  .stx-copy,
+  .stx-cena,
+  .stx-prova { position: relative; z-index: 2; }
+
+  .stx-topo {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .stx-cap,
+  .stx-relogio {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--zx-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(237, 237, 237, 0.55);
+  }
+  .stx-cap i {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--zx-lar);
+  }
+
+  /* a promessa, à esquerda */
+  .stx-copy {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+  }
+  .stx-rotulo {
+    margin: 0;
+    font-family: var(--zx-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--zx-lar-2);
+  }
+  .stx-copy h3 {
+    margin: 10px 0 0;
+    max-width: 15ch;
+    font-family: var(--zx-body);
+    font-size: clamp(23px, 2.3vw, 33px);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.12;
+    color: #fff;
+    text-wrap: balance;
+  }
+  .stx-corpo {
+    margin: 12px 0 0;
+    max-width: 40ch;
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgba(237, 237, 237, 0.68);
+  }
+
+  /* a cena real do produto, à direita */
+  .stx-cena {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    justify-self: end;
+    display: flex;
+  }
+
+  /* A TELA DO VOS: 320px, a régua de um aparelho. A moldura é a mesma nos
+     cinco; quem muda é o miolo, porque cada nicho resolve outra coisa. */
+  .stx-painel {
+    width: 320px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 22px;
+    overflow: hidden;
+    background: rgba(12, 14, 16, 0.86);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 30px 60px -26px rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(14px);
+  }
+  .stx-painel-topo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 13px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    background: rgba(255, 255, 255, 0.04);
+  }
+  /* A logo do negócio é traço BRANCO em fundo transparente: num chip branco
+     ela some. O chip fica escuro com fio, e aí o traço aparece. */
+  .stx-painel-logo {
+    width: 28px;
+    height: 28px;
+    flex: none;
+    border-radius: 8px;
+    object-fit: contain;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 4px;
+  }
+  .stx-painel-topo b {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+  /* o módulo que está aberto ali: é ele que diz que a tela mudou de assunto */
+  .stx-painel-topo em {
+    display: block;
+    margin-top: 1px;
+    font-style: normal;
+    font-size: 10.5px;
+    color: var(--zx-lar-2);
+  }
+  .stx-painel-corpo {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 12px;
+  }
+
+  /* o documento (OS, orçamento, tarefa): papel branco sobre o escuro */
+  .stx-doc {
+    padding: 9px 10px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 18px 38px -20px rgba(0, 0, 0, 0.8);
+  }
+  .stx-doc > p {
+    margin: 0;
+    font-family: var(--zx-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6b6b6b;
+  }
+  .stx-doc > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 3px;
+  }
+  .stx-doc b {
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    color: #171717;
+  }
+  .stx-doc strong {
+    flex: 0 0 auto;
+    font-size: 12.5px;
+    font-weight: 650;
+    color: var(--zx-lar-on-light);
+    font-variant-numeric: tabular-nums;
+  }
+  .stx-doc > span {
+    display: block;
+    margin-top: 1px;
+    font-size: 10.5px;
+    color: #4a4a4a;
+  }
+  /* as peças e a mão de obra, dentro do papel */
+  .stx-itens {
+    margin: 8px 0 0;
+    padding: 7px 0 0;
+    list-style: none;
+    border-top: 1px dashed rgba(23, 23, 23, 0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .stx-itens li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 10.5px;
+    color: #4a4a4a;
+  }
+  .stx-itens li span:last-child { color: #171717; font-variant-numeric: tabular-nums; }
+
+  /* o produto do varejo, com o quadrado do item à esquerda */
+  .stx-prod {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .stx-prod-ic {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--zx-lar-2);
+  }
+  .stx-prod-ic svg { width: 17px; height: 17px; }
+  .stx-prod-txt { flex: 1; min-width: 0; }
+  .stx-prod-txt b {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .stx-prod-txt em {
+    font-style: normal;
+    font-size: 10.5px;
+    color: rgba(237, 237, 237, 0.55);
+  }
+  .stx-prod strong {
+    flex: none;
+    font-size: 12.5px;
+    font-weight: 650;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* a barra: quanto sobrou no estoque, quantos documentos chegaram */
+  .stx-barra {
+    position: relative;
+    height: 22px;
+    border-radius: 7px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.07);
+  }
+  .stx-barra i {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: rgba(237, 75, 0, 0.42);
+  }
+  .stx-barra span {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0 9px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.86);
+  }
+
+  /* os canais que compartilham o mesmo estoque */
+  .stx-canais {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .stx-canais li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  .stx-canais li > i {
+    display: grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    flex: none;
+    color: rgba(237, 237, 237, 0.6);
+  }
+  .stx-canais li > i svg { width: 14px; height: 14px; }
+  .stx-canais li img { display: block; flex: none; }
+  .stx-canais b { flex: 1; min-width: 0; font-weight: 500; }
+  .stx-canais span { flex: none; font-size: 10.5px; color: rgba(237, 237, 237, 0.55); font-variant-numeric: tabular-nums; }
+
+  /* as etapas: feito é verde, esperando é anel vazio */
+  .stx-passos {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .stx-passos li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    line-height: 1.3;
+    color: rgba(237, 237, 237, 0.62);
+  }
+  .stx-passos li.is-ok { color: rgba(255, 255, 255, 0.92); }
+  .stx-passos li i {
+    display: grid;
+    place-items: center;
+    width: 15px;
+    height: 15px;
+    flex: none;
+    box-sizing: border-box;
+    border-radius: 999px;
+    border: 1.5px dashed rgba(255, 255, 255, 0.3);
+  }
+  .stx-passos li.is-ok i {
+    border: 0;
+    background: var(--zx-ok-dark);
+    color: var(--zx-dark-deep);
+  }
+  .stx-passos li i svg { width: 9px; height: 9px; }
+
+  /* a agenda do dia */
+  .stx-dia {
+    margin: 0;
+    font-size: 10.5px;
+    color: rgba(237, 237, 237, 0.55);
+  }
+  .stx-agenda {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .stx-agenda li {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 9px;
+    border-radius: 9px;
+    border-left: 2px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.06);
+    font-size: 11px;
+    color: #fff;
+  }
+  .stx-agenda b { flex: none; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stx-agenda span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stx-agenda em {
+    flex: none;
+    font-style: normal;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(237, 237, 237, 0.6);
+  }
+  .stx-agenda li.is-ok { border-left-color: var(--zx-ok-dark); }
+  .stx-agenda li.is-ok em { color: var(--zx-ok-dark); }
+  /* o que o VOS acabou de marcar fica no laranja, que é o sinal da página */
+  .stx-agenda li.is-novo { border-left-color: var(--zx-lar); background: rgba(237, 75, 0, 0.16); }
+  .stx-agenda li.is-novo em { color: var(--zx-lar-2); }
+  /* o buraco na agenda é tracejado: é o que o Zé está tentando preencher */
+  .stx-agenda li.is-livre {
+    border-left-style: dashed;
+    background: transparent;
+    border: 1px dashed rgba(255, 255, 255, 0.18);
+    border-left: 2px dashed rgba(255, 255, 255, 0.3);
+    color: rgba(237, 237, 237, 0.62);
+  }
+
+  /* o rodapé verde: o que o VOS fechou sozinho */
+  .stx-selo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 7px 9px;
+    border-radius: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--zx-ok-ink);
+    background: var(--zx-ok-surface);
+  }
+  .stx-selo-ok {
+    display: grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    flex: none;
+    border-radius: 999px;
+    background: currentColor;
+  }
+  .stx-selo-ok svg { width: 11px; height: 11px; color: var(--zx-ok-surface); }
+
+  /* a prova, no pé da coluna da esquerda */
+  .stx-prova {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: end;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 10px;
+    margin-top: clamp(14px, 2.4vh, 22px);
+  }
+  .stx-prova img {
+    grid-row: 1 / span 2;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    object-fit: cover;
+    object-position: top center;
+    border: 1.5px solid rgba(255, 255, 255, 0.22);
+  }
+  .stx-prova blockquote {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.86);
+  }
+  .stx-prova cite {
+    font-style: normal;
+    font-size: 11.5px;
+    color: rgba(237, 237, 237, 0.5);
+  }
+  .stx-prova cite b { font-weight: 600; color: rgba(255, 255, 255, 0.78); }
+
+  @media (max-width: 900px) {
+    .stx-slide {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto auto;
+      min-height: 0;
+      gap: 0;
+    }
+    .stx-copy, .stx-cena, .stx-prova { grid-column: 1; grid-row: auto; }
+    .stx-cena { justify-self: stretch; }
+    .stx-painel { width: 100%; }
+    .stx-slide { flex-basis: 100%; opacity: 1; transform: none; }
+    .stx-palco { margin-inline: 0; padding-inline: 0; }
+    .stx-abas { justify-content: flex-start; }
+    .stx-foto { object-position: 50% 22%; }
+    .stx-veu {
+      background:
+        linear-gradient(180deg, rgba(8, 9, 10, 0.72) 0%, rgba(8, 9, 10, 0.32) 22%, rgba(8, 9, 10, 0.88) 52%, rgba(8, 9, 10, 0.97) 100%);
+    }
+    .stx-copy { padding-top: clamp(120px, 26vh, 200px); }
+    .stx-copy h3 { max-width: none; font-size: clamp(22px, 6vw, 28px); }
+    .stx-cena { grid-row: auto; padding-top: 22px; }
+    .stx-prova { margin-top: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stx-abas button i { display: none; }
+  }
 </style>

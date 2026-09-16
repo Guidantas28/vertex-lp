@@ -2,13 +2,18 @@
 // Direção: "Um sistema. Os módulos que você escolher." (Brand Manual v2, light-first)
 
 export const SITE = {
-  signupUrl: import.meta.env.PUBLIC_SIGNUP_URL ?? "https://app.voshq.com/signup",
-  loginUrl: import.meta.env.PUBLIC_LOGIN_URL ?? "https://app.voshq.com/login",
+  /* A CTA do site cai no ONBOARDING do produto (founder 15/09: "coloca o link
+     de onboarding em todas as CTA"). É a porta única: a pessoa cria a conta e
+     já entra nos passos, sem tela de cadastro no meio. `PUBLIC_SIGNUP_URL`
+     segue mandando . é por ela que o dev aponta pra 3001. */
+  signupUrl: import.meta.env.PUBLIC_SIGNUP_URL ?? "https://app.voshq.com/onboarding",
   appUrl: "app.voshq.com",
 };
 
 export const CTA = {
-  label: "Começar Agora",
+  /* "Teste grátis" (founder 15/09): o que a pessoa ganha no clique, não o que
+     ela tem que fazer. Caixa de frase, como todo rótulo do VOS. */
+  label: "Teste grátis",
 };
 
 export const NAV_LINKS = [
@@ -16,14 +21,16 @@ export const NAV_LINKS = [
   { href: "/#segmentos", label: "Soluções" },
   { href: "/#solucoes", label: "Funcionalidades" },
   { href: "/#economia", label: "Economia" },
+  { href: "/precos", label: "Preços" },
 ];
 
-// Cores de módulo (wayfinding)
+// Acento único (VOS UNO, founder 30/07 e 27/08): cor por módulo morreu.
+// As chaves ficam por compatibilidade e resolvem pro sinal; só o Zé é violeta.
 export const MODULE_COLOR = {
   core: "#ED4B00",
-  commerce: "#1F6FEB",
-  services: "#15935A",
-  finance: "#C9810C",
+  commerce: "#ED4B00",
+  services: "#ED4B00",
+  finance: "#ED4B00",
   ai: "#6D4AFF",
 } as const;
 
@@ -55,12 +62,12 @@ export const CORE_CHIPS = ["Dashboard", "WhatsApp", "CRM", "Assinaturas", "Taref
 // Fluxo de ponta a ponta da empresa (hero): Vendas → Automações → Administrativo → Operações → Financeiro
 // `frame` aponta pra cena animada (motion CSS) em /public/hero-motion/<frame>.html
 export const FLOW_STAGES = [
-  { id: "comercial", label: "Comercial", color: "#ED4B00", icon: "funnel", frame: "crm", caption: "O lead cai no CRM, percorre o funil e vira venda — com contrato assinado na hora." },
-  { id: "atendimento", label: "Atendimento", color: "#1EB258", icon: "whats", frame: "whatsapp", caption: "A conversa vira cliente: tag, fase e proposta aceita sem sair do chat." },
-  { id: "automacoes", label: "Automações", color: "#7A5BFF", icon: "bolt", frame: "automacoes", caption: "Monte o fluxo com agente de IA e veja funcionando ao vivo, na hora." },
-  { id: "operacao", label: "Operação", color: "#1F6FEB", icon: "box", frame: "operacao", caption: "Serviços, produtos físicos e digitais — a entrega inteira num módulo só." },
-  { id: "marketing", label: "Marketing", color: "#B5179E", icon: "mega", frame: "marketing", caption: "Descreva em uma frase e a IA publica sua página de vendas, com métricas ao vivo." },
-  { id: "financeiro", label: "Financeiro", color: "#C9810C", icon: "wallet", frame: "dashboard", caption: "Dashboard completo: receita, custo, margem, fluxo de caixa e saúde do negócio." },
+  { id: "comercial", label: "Comercial", color: "#ED4B00", icon: "funnel", frame: "crm", caption: "O lead cai no CRM, percorre o funil e vira venda, com contrato assinado na hora." },
+  { id: "atendimento", label: "Atendimento", color: "#ED4B00", icon: "whats", frame: "whatsapp", caption: "A conversa vira cliente: tag, fase e proposta aceita sem sair do chat." },
+  { id: "automacoes", label: "Automações", color: "#ED4B00", icon: "bolt", frame: "automacoes", caption: "Monte o fluxo com agente de IA e veja funcionando ao vivo, na hora." },
+  { id: "operacao", label: "Operação", color: "#ED4B00", icon: "box", frame: "operacao", caption: "Serviços, produtos físicos e digitais: a entrega inteira num módulo só." },
+  { id: "marketing", label: "Marketing", color: "#ED4B00", icon: "mega", frame: "marketing", caption: "Descreva em uma frase e a IA publica sua página de vendas, com métricas ao vivo." },
+  { id: "financeiro", label: "Financeiro", color: "#ED4B00", icon: "wallet", frame: "dashboard", caption: "Dashboard completo: receita, custo, margem, fluxo de caixa e saúde do negócio." },
 ];
 
 // Conceito modular, pilha de camadas
@@ -118,9 +125,9 @@ export const MODULE_CARDS = {
   title: "Escolha o que faz sentido",
   lead: "Vende produtos? Ative o Commerce. Presta serviços? Ative o Services. Quer os dois? CoreOne libera tudo.",
   items: [
-    { id: "commerce", name: "Commerce", color: MODULE_COLOR.commerce, like: "Como a Shopify", body: "Venda de produtos online e na loja física. Catálogo, estoque e ordens em um só lugar.", price: "R$ 499/mês", href: "/commerce/", shot: "/assets/product/commerce-catalogo.webp" },
-    { id: "services", name: "Services", color: MODULE_COLOR.services, like: "Como o Jobber", body: "Cotações, agendamentos e ordens de serviço com equipes em campo. Do orçamento à execução.", price: "R$ 499/mês", href: "/services/", shot: "/assets/product/services-ordens.webp" },
-    { id: "financeiro", name: "Financeiro", color: MODULE_COLOR.finance, like: "Incluso em tudo", body: "Fluxo de caixa, contas a pagar e receber, nota fiscal e cadastro de fornecedores e equipe.", price: "Incluso", href: "/financeiro/", shot: "/assets/product/finance-fluxo.webp" },
+    { id: "commerce", name: "Commerce", color: MODULE_COLOR.commerce, like: "Como a Shopify", body: "Venda de produtos online e na loja física. Catálogo, estoque e ordens em um só lugar.", price: "R$ 499/mês", href: "/commerce", shot: "/assets/product/commerce-catalogo.webp" },
+    { id: "services", name: "Services", color: MODULE_COLOR.services, like: "Como o Jobber", body: "Cotações, agendamentos e ordens de serviço com equipes em campo. Do orçamento à execução.", price: "R$ 499/mês", href: "/services", shot: "/assets/product/services-ordens.webp" },
+    { id: "financeiro", name: "Financeiro", color: MODULE_COLOR.finance, like: "Incluso em tudo", body: "Fluxo de caixa, contas a pagar e receber, nota fiscal e cadastro de fornecedores e equipe.", price: "Incluso", href: "/financeiro", shot: "/assets/product/finance-fluxo.webp" },
   ],
 };
 
@@ -148,7 +155,7 @@ export const SEGMENTS = {
       id: "comercio",
       icon: "commerce",
       label: "Comércio & Varejo",
-      color: "#1F6FEB",
+      color: "#ED4B00",
       title: "Venda mais rápido sem depender de processos manuais.",
       body: "O VOS conecta seus canais de venda com estoque, produtos, pagamentos e financeiro para transformar uma conversa em uma venda completa.",
       bullets: [
@@ -173,7 +180,7 @@ export const SEGMENTS = {
       id: "servicos",
       icon: "services",
       label: "Serviços & Assistência",
-      color: "#15935A",
+      color: "#ED4B00",
       title: "Transforme solicitações em serviços organizados.",
       body: "O VOS entende a necessidade do cliente, verifica disponibilidade e organiza todo o fluxo até a execução.",
       bullets: [
@@ -198,7 +205,7 @@ export const SEGMENTS = {
       id: "saude",
       icon: "calendar",
       label: "Saúde & Beleza",
-      color: "#6D4AFF",
+      color: "#ED4B00",
       title: "Mais agendamentos. Menos horários perdidos.",
       body: "O VOS automatiza o relacionamento com clientes desde o primeiro contato até o retorno.",
       bullets: [
@@ -248,7 +255,7 @@ export const SEGMENTS = {
       id: "escritorio",
       icon: "doc",
       label: "Escritórios & Contábil",
-      color: "#C9810C",
+      color: "#ED4B00",
       title: "Clientes atendidos. Processos organizados automaticamente.",
       body: "O VOS transforma conversas em processos organizados para sua equipe.",
       bullets: [
@@ -313,133 +320,164 @@ export const TRUST_BR = {
   ],
 };
 
-// Preços — ecossistema completo em todos os planos; o que muda é a capacidade.
+// Preços: os números do documento "Limites por plano do VOS" (v16, 06/09/2026),
+// os mesmos que o catálogo do produto pratica (`PLAN_CATALOG` em
+// apps/api/src/billing/plan-limits.ts). O preço de cada ciclo é CRAVADO, não
+// calculado: o -30% do anual no Start daria 207,90 e o número do anúncio é 197.
+// Mudou preço ou cota lá, muda aqui no mesmo dia.
+//
+// A página tem dois andares, na leitura de quem compara (founder 15/09, com as
+// páginas de preço da Nuvemshop e da Shopify como referência):
+// 1. os CARDS dizem o preço e o que destaca cada plano, curtos;
+// 2. a TABELA compara linha a linha, com o resto das cotas e dos pacotes.
+// O "Ainda tem mais" com o PDV como complemento saiu no mesmo dia: add-on fica
+// pra mais pra frente, e até lá o site não vende nenhum.
 export const PRICING = {
-  eyebrow: "Preços",
-  title: "Um preço que cresce com você",
-  lead: "Todos os planos têm o ecossistema completo do VOS. O que muda é a capacidade: usuários, automações, créditos da IA Prospect e volume de disparos.",
-  ecosystem: [
-    "Comunicação Omnichannel",
-    "CRM",
-    "Produtos e Serviços",
-    "Agenda",
-    "Financeiro",
-    "API",
+  lead: "Todos os planos incluem o VOS completo para atender, vender e organizar sua operação. Você escolhe apenas a capacidade ideal para o momento do seu negócio.",
+  cycles: [
+    { id: "mensal", label: "Mensal", off: 0 },
+    { id: "trimestral", label: "Trimestral", off: 10 },
+    { id: "anual", label: "Anual", off: 30 },
   ],
   plans: [
     {
-      id: "core",
-      name: "Core",
-      monthlyPrice: 197,
-      price: "R$ 197",
-      period: "/mês",
-      seats: "1 usuário",
-      desc: "Para empresas começando a organizar atendimento e vendas.",
-      bullets: [
-        "1 usuário",
-        "Comunicação Omnichannel",
-        "CRM",
-        "Agenda",
-        "Financeiro",
-        "Produtos e Serviços",
-        "NF-e via SEFAZ (100/mês)",
-        "IA Prospect (25 créditos)",
-        "Até 3 automações",
-        "Disparos via WhatsApp",
-        "API",
+      id: "start",
+      name: "Start",
+      prices: { mensal: 297, trimestral: 267, anual: 197 },
+      desc: "Para começar a centralizar a operação e automatizar os primeiros processos.",
+      destaques: [
+        "2 usuários e 2 canais de atendimento",
+        "300 créditos de IA por mês",
+        "50 notas fiscais por mês",
+        "CRM, agenda, estoque, pedidos e OS",
       ],
-      cta: "Começar com o Core",
+      cta: "Começar com o Start",
       featured: false,
-      contact: false,
     },
     {
       id: "essential",
       name: "Essential",
-      monthlyPrice: 397,
-      price: "R$ 397",
-      period: "/mês",
-      seats: "Até 5 usuários",
-      desc: "Para empresas que querem automatizar a operação.",
-      bullets: [
-        "Até 5 usuários",
-        "Tudo do Core",
-        "NF-e via SEFAZ ilimitada",
-        "IA Prospect (250 créditos)",
-        "Até 15 automações",
-        "Disparos por WhatsApp",
-        "Mais capacidade",
-        "Relatórios avançados",
+      prices: { mensal: 497, trimestral: 447, anual: 347 },
+      desc: "Para equipes que precisam conectar atendimento, vendas e operação.",
+      destaques: [
+        "5 usuários e 5 canais de atendimento",
+        "1.500 créditos de IA por mês",
+        "300 notas fiscais por mês",
+        "Catálogo digital e relatórios",
       ],
-      cta: "Assinar Essential",
+      cta: "Assinar o Essential",
       featured: true,
-      ribbon: "Mais vendido",
-      contact: false,
+      ribbon: "Mais escolhido",
     },
     {
       id: "scale",
       name: "Scale",
-      monthlyPrice: 497,
-      price: "R$ 497",
-      period: "/mês",
-      seats: "Até 10 usuários",
-      desc: "Para empresas em crescimento.",
-      bullets: [
-        "Até 10 usuários",
-        "Tudo do Essential",
-        "NF-e via SEFAZ ilimitada",
-        "IA Prospect (1000 créditos)",
-        "Automações ilimitadas",
-        "Alta capacidade",
-        "Prioridade de processamento",
-        "API completa",
+      prices: { mensal: 797, trimestral: 717, anual: 557 },
+      desc: "Para operações com mais pessoas, canais e volume.",
+      destaques: [
+        "15 usuários e 20 canais de atendimento",
+        "3.000 créditos de IA por mês",
+        "600 notas fiscais por mês",
+        "200 automações e 50.000 contatos",
       ],
-      cta: "Assinar Scale",
+      cta: "Assinar o Scale",
       featured: false,
-      contact: false,
-    },
-    {
-      id: "custom",
-      name: "Sob Medida",
-      monthlyPrice: null,
-      price: "Sob consulta",
-      period: "",
-      seats: "Flexível",
-      desc: "Para operações com volume, times maiores ou requisitos específicos.",
-      bullets: [
-        "Usuários sob demanda",
-        "Ecossistema completo do VOS",
-        "NF-e via SEFAZ ilimitada",
-        "Créditos e automações sob medida",
-        "Onboarding dedicado",
-        "SLA e suporte prioritário",
-        "API e integrações avançadas",
-      ],
-      cta: "Falar com a gente",
-      featured: false,
-      contact: true,
-      ribbon: "Flexível",
     },
   ],
-  addons: [
-    { id: "esign", name: "Assinatura Digital", monthlyPrice: 49, was: 99 },
-    { id: "projects", name: "Gestão de Projetos", monthlyPrice: 49, was: 99 },
-    { id: "email", name: "Disparos por E-mail", monthlyPrice: 49 },
-  ],
-  footnote: "Valores em reais. Descontos de ciclo aplicados no valor mensal equivalente.",
+  // A tabela: um valor por plano, na ordem Start · Essential · Scale.
+  // `true` é incluso, `false` é não incluso, texto é o que se lê na célula.
+  comparar: {
+    grupos: [
+      {
+        id: "preco",
+        titulo: "Preço por mês",
+        icone: "preco",
+        linhas: [
+          { rotulo: "No mensal", nota: "Só no cartão", valores: ["R$ 297", "R$ 497", "R$ 797"] },
+          { rotulo: "No trimestral", nota: "Pix, boleto ou cartão em até 3x", valores: ["R$ 267", "R$ 447", "R$ 717"] },
+          { rotulo: "No anual", nota: "Pix, boleto ou cartão em até 12x", valores: ["R$ 197", "R$ 347", "R$ 557"] },
+        ],
+      },
+      {
+        id: "equipe",
+        titulo: "Equipe e atendimento",
+        icone: "equipe",
+        linhas: [
+          { rotulo: "Usuários incluídos", valores: ["2", "5", "15"] },
+          { rotulo: "Canais de atendimento", nota: "WhatsApp, Instagram, Messenger e e-mail", valores: ["2", "5", "20"] },
+          { rotulo: "Números no Zé do WhatsApp", valores: ["1", "5", "15"] },
+          { rotulo: "Contatos", valores: ["1.000", "10.000", "50.000"] },
+        ],
+      },
+      {
+        id: "ia",
+        titulo: "IA e automação",
+        icone: "ia",
+        linhas: [
+          { rotulo: "Créditos de IA por mês", valores: ["300", "1.500", "3.000"] },
+          { rotulo: "Automações ativas", valores: ["10", "50", "200"] },
+          { rotulo: "Mensagens automáticas por mês", valores: ["500", "5.000", "20.000"] },
+          { rotulo: "E-mails enviados por mês", valores: ["500", "5.000", "10.000"] },
+        ],
+      },
+      {
+        id: "vendas",
+        titulo: "Vendas, fiscal e documentos",
+        icone: "vendas",
+        linhas: [
+          { rotulo: "Notas fiscais por mês", nota: "Nunca trava: o que passar vira pacote", valores: ["50", "300", "600"] },
+          { rotulo: "Assinaturas digitais por mês", valores: ["10", "30", "200"] },
+          { rotulo: "Créditos de Prospect por mês", valores: ["15", "100", "200"] },
+          { rotulo: "Armazenamento", valores: ["5 GB", "25 GB", "50 GB"] },
+        ],
+      },
+      {
+        id: "modulos",
+        titulo: "Módulos",
+        icone: "modulos",
+        linhas: [
+          { rotulo: "Atendimento com todos os canais numa fila", valores: [true, true, true] },
+          { rotulo: "CRM e funil de vendas", valores: [true, true, true] },
+          { rotulo: "Agenda da equipe", valores: [true, true, true] },
+          { rotulo: "Orçamentos e pedidos", valores: [true, true, true] },
+          { rotulo: "Estoque", valores: [true, true, true] },
+          { rotulo: "Ordens de serviço", valores: [true, true, true] },
+          { rotulo: "Contas a pagar e a receber", valores: [true, true, true] },
+          { rotulo: "Catálogo digital", valores: [false, true, true] },
+          { rotulo: "Relatórios", valores: [false, true, true] },
+        ],
+      },
+      {
+        id: "extras",
+        titulo: "Pacotes além da cota",
+        icone: "extras",
+        linhas: [
+          { rotulo: "Usuário adicional", valores: ["R$ 39,90/mês", "R$ 39,90/mês", "R$ 39,90/mês"] },
+          { rotulo: "Canal de atendimento adicional", valores: ["R$ 39/mês", "R$ 39/mês", "R$ 39/mês"] },
+          { rotulo: "100 notas fiscais", valores: ["R$ 39", "R$ 39", "R$ 39"] },
+          { rotulo: "1.000 créditos de IA", valores: ["R$ 49", "R$ 49", "R$ 49"] },
+          { rotulo: "20 assinaturas digitais", valores: ["R$ 29", "R$ 29", "R$ 29"] },
+          { rotulo: "1.000 mensagens automáticas", valores: ["R$ 19", "R$ 19", "R$ 19"] },
+          { rotulo: "10 GB de armazenamento", valores: ["R$ 19/mês", "R$ 19/mês", "R$ 19/mês"] },
+        ],
+      },
+    ],
+  },
+  footnote: "Valores em reais. Mensal só no cartão; trimestral e anual são pagos antes do uso, no Pix, boleto à vista ou cartão parcelado. Acima do Scale, pacotes ou contrato negociado. Cancele quando quiser, sem multa.",
 };
 
 export const FAQ = {
   eyebrow: "Dúvidas",
   title: "Perguntas frequentes",
   items: [
-    { q: "O que muda entre Core, Essential e Scale?", a: "O ecossistema é o mesmo em todos: comunicação, CRM, produtos, serviços, agenda, financeiro e API. O que muda é a capacidade — usuários, automações, créditos da IA Prospect e volume de disparos." },
+    { q: "O que muda entre Start, Essential e Scale?", a: "O sistema é o mesmo nos três: atendimento, CRM, vendas, operação e financeiro. O que muda é a cota do mês: usuários, canais de atendimento, notas fiscais, créditos de IA, automações e armazenamento. Passou da cota, compra pacote sem trocar de plano." },
     { q: "Funciona pro meu tipo de negócio?", a: "Se você vende produtos, presta serviços ou os dois, funciona. O VOS já vem completo pra organizar atendimento, vendas e o caixa num lugar só." },
-    { q: "E se eu for só eu, sem equipe?", a: "Funciona igual. Muita gente começa sozinha no Core (1 usuário) pra organizar vendas e caixa, e sobe de plano conforme a equipe e o volume crescem." },
+    { q: "E se eu for só eu, sem equipe?", a: "Funciona igual. Muita gente começa sozinha no Start (2 usuários) pra organizar vendas e caixa, e sobe de plano conforme a equipe e o volume crescem." },
     { q: "Posso criar meus próprios agentes de IA?", a: "Pode, e sem programar. Você monta agentes pra tarefas específicas (cobrança, agendamento, pós-venda) partindo de fluxos pré-prontos: ativa com um clique, ajusta do seu jeito e ele passa a executar sozinho." },
     { q: "Quanto tempo leva pra migrar meus dados?", a: "O cadastro básico (clientes, produtos, catálogo) você mesmo importa em minutos. Pra migração assistida (histórico, contratos, estoque), o time do VOS te ajuda em até 48h, sem custo." },
     { q: "Meus dados são meus? Vocês vendem ou compartilham?", a: "São seus, sempre. Hospedados no Brasil, em conformidade com a LGPD. Não vendemos nem compartilhamos seus dados com terceiros." },
-    { q: "A assinatura digital tem validade jurídica?", a: "Sim. O add-on de Assinatura Digital segue a MP 2.200-2 (ICP-Brasil) com verificação por OTP, trilha de auditoria e hash SHA-256 selado no PDF final." },
-    { q: "Consigo emitir nota fiscal direto pela SEFAZ?", a: "Sim. A emissão de NF-e via SEFAZ está em todos os planos. No Core são 100 notas por mês; no Essential, Scale e Sob Medida a emissão é ilimitada." },
+    { q: "A assinatura digital tem validade jurídica?", a: "Sim. A assinatura digital está em todos os planos e segue a MP 2.200-2 (ICP-Brasil), com verificação por OTP, trilha de auditoria e hash SHA-256 selado no PDF final." },
+    { q: "Consigo emitir nota fiscal direto pela SEFAZ?", a: "Sim. A emissão de NF-e via SEFAZ está em todos os planos: 50 notas por mês no Start, 300 no Essential e 600 no Scale. A nota nunca trava: cada 100 notas acima da cota entram na fatura como um pacote de R$ 39." },
     { q: "Meu WhatsApp atual continua funcionando?", a: "A comunicação omnichannel é uma inbox compartilhada da equipe, conectada ao CRM. As conversas viram histórico e oportunidade, nada fica preso no celular de uma pessoa." },
     { q: "Tem fidelidade ou multa pra cancelar?", a: "Não. Cancele quando quiser, sem multa e sem burocracia." },
   ],
@@ -489,7 +527,7 @@ export const MODULES = {
   lead: "Ative só o que precisa. Tudo nasce conectado: o que acontece num módulo movimenta os outros, sozinho.",
   items: [
     {
-      id: "prospect", name: "Prospect", icon: "user", color: "#0FB5AE",
+      id: "prospect", name: "Prospect", icon: "user", color: "#ED4B00",
       tagline: "Nunca mais procure clientes.",
       desc: "Encontra empresas reais automaticamente, pelo Google, diretórios e outras fontes, manda pro CRM e você já começa a vender.",
       benefits: ["Busca inteligente", "Leads qualificados", "Importação automática", "Enriquecimento de dados", "Distribuição pra vendedores"],
@@ -505,7 +543,7 @@ export const MODULES = {
       scene: "crm", mock: "/assets/product/core-crm.webp",
     },
     {
-      id: "whatsapp", name: "WhatsApp", icon: "whats", color: "#1EB258",
+      id: "whatsapp", name: "WhatsApp", icon: "whats", color: "#ED4B00",
       tagline: "Transforme conversas em vendas.",
       desc: "WhatsApp da equipe conectado ao CRM, com IA respondendo e cada conversa virando oportunidade.",
       benefits: ["Múltiplos atendentes", "Fluxos automáticos", "IA respondendo clientes", "Templates e campanhas", "Etiquetas e chat interno"],
@@ -513,7 +551,7 @@ export const MODULES = {
       scene: "whatsapp", mock: "/assets/product/core-whatsapp.webp",
     },
     {
-      id: "contracts", name: "Contracts", icon: "doc", color: "#5B5BD6",
+      id: "contracts", name: "Contracts", icon: "doc", color: "#ED4B00",
       tagline: "Feche negócios em minutos.",
       desc: "Envie contratos digitais e receba assinaturas com validade jurídica, com status em tempo real.",
       benefits: ["Assinatura eletrônica", "Templates prontos", "Automação de envio", "Histórico e trilha", "Status em tempo real"],
@@ -521,7 +559,7 @@ export const MODULES = {
       scene: "documentos", mock: "/assets/product/core-documentos.webp",
     },
     {
-      id: "services", name: "Services", icon: "services", color: "#0EA5E9",
+      id: "services", name: "Services", icon: "services", color: "#ED4B00",
       tagline: "Controle toda a sua operação.",
       desc: "Inspirado no Jobber, integrado ao resto da empresa: do orçamento à execução em campo.",
       benefits: ["Quotes e jobs", "Agenda e dispatch", "Técnicos e checklists", "Fotos e relatórios", "Pagamentos"],
@@ -529,7 +567,7 @@ export const MODULES = {
       scene: "os", mock: "/assets/product/services-ordens.webp",
     },
     {
-      id: "commerce", name: "Commerce", icon: "commerce", color: "#1F6FEB",
+      id: "commerce", name: "Commerce", icon: "commerce", color: "#ED4B00",
       tagline: "Venda qualquer produto.",
       desc: "Seu e-commerce e a loja física totalmente integrados ao estoque e ao caixa.",
       benefits: ["Loja virtual", "Estoque em tempo real", "Checkout e pedidos", "Frete", "Integrações"],
@@ -537,7 +575,7 @@ export const MODULES = {
       scene: "pedidos", mock: "/assets/product/commerce-catalogo.webp",
     },
     {
-      id: "projects", name: "Projects", icon: "task", color: "#D6409F",
+      id: "projects", name: "Projects", icon: "task", color: "#ED4B00",
       tagline: "Sua equipe sempre alinhada.",
       desc: "Tudo que hoje fica espalhado em Trello, Asana e ClickUp, num lugar só e ligado ao trabalho real.",
       benefits: ["Kanban e Gantt", "Sprints", "Subtarefas", "Comentários", "Aprovações"],
@@ -545,7 +583,7 @@ export const MODULES = {
       scene: "tasks", mock: "/assets/product/core-tarefas.webp",
     },
     {
-      id: "finance", name: "Finance", icon: "finance", color: "#C9810C",
+      id: "finance", name: "Finance", icon: "finance", color: "#ED4B00",
       tagline: "Saiba exatamente quanto sua empresa ganha.",
       desc: "Controle financeiro completo: o dinheiro entra e sai conectado a cada venda e serviço.",
       benefits: ["Contas a pagar e receber", "Fluxo de caixa e DRE", "Conciliação", "Faturas e assinaturas", "NF-e e PIX nativos"],
@@ -569,11 +607,11 @@ export const IDENTIFY = {
   title: "Veja como o VOS funciona na prática.",
   lead: "Em apenas 1 minuto você vai entender por que milhares de empresas trocaram dezenas de sistemas por um só.",
   personas: [
-    { icon: "commerce", color: "#1F6FEB", label: "Comércio & varejo", pain: "Estoque furado e venda perdida", photo: "/assets/people/ctx-commerce.webp" },
-    { icon: "services", color: "#0EA5E9", label: "Serviços & assistência", pain: "Orçamento que some no e-mail", photo: "/assets/people/ctx-services.webp" },
-    { icon: "calendar", color: "#6D4AFF", label: "Saúde & beleza", pain: "Agenda com furo e no-show", photo: "/assets/people/ctx-core.webp" },
-    { icon: "finance", color: "#C9810C", label: "Escritórios & contábil", pain: "Time digitando a mesma coisa 3x", photo: "/assets/people/ctx-finance.webp" },
-    { icon: "ai", color: "#0FB5AE", label: "Negócios B2B", pain: "Lead caro que esfria sem follow-up", photo: "/assets/people/ctx-ai.webp" },
+    { icon: "commerce", color: "#ED4B00", label: "Comércio & varejo", pain: "Estoque furado e venda perdida", photo: "/assets/people/ctx-commerce.webp" },
+    { icon: "services", color: "#ED4B00", label: "Serviços & assistência", pain: "Orçamento que some no e-mail", photo: "/assets/people/ctx-services.webp" },
+    { icon: "calendar", color: "#ED4B00", label: "Saúde & beleza", pain: "Agenda com furo e no-show", photo: "/assets/people/ctx-core.webp" },
+    { icon: "finance", color: "#ED4B00", label: "Escritórios & contábil", pain: "Time digitando a mesma coisa 3x", photo: "/assets/people/ctx-finance.webp" },
+    { icon: "ai", color: "#ED4B00", label: "Negócios B2B", pain: "Lead caro que esfria sem follow-up", photo: "/assets/people/ctx-ai.webp" },
   ],
 };
 
@@ -583,8 +621,8 @@ export const HOW_IT_WORKS = {
   title: "Simples assim, do dia um.",
   steps: [
     { n: "01", icon: "crm", color: "#ED4B00", photo: "/assets/people/social-17.webp", title: "Centralize", body: "Clientes, conversas e vendas num cadastro só. Pare de copiar dado de um lugar pro outro." },
-    { n: "02", icon: "bolt", color: "#6D4AFF", photo: "/assets/people/social-19.webp", title: "Automatize", body: "Uma venda já movimenta estoque, financeiro e tarefas. O operacional roda sozinho." },
-    { n: "03", icon: "dash", color: "#15935A", photo: "/assets/people/social-24.webp", title: "Cresça", body: "Decida com dados ao vivo e ative módulos novos quando o negócio pedir." },
+    { n: "02", icon: "bolt", color: "#ED4B00", photo: "/assets/people/social-19.webp", title: "Automatize", body: "Uma venda já movimenta estoque, financeiro e tarefas. O operacional roda sozinho." },
+    { n: "03", icon: "dash", color: "#ED4B00", photo: "/assets/people/social-24.webp", title: "Cresça", body: "Decida com dados ao vivo e ative módulos novos quando o negócio pedir." },
   ],
 };
 
@@ -594,14 +632,14 @@ export const INTEGRATIONS = {
   title: "Tudo o que você já paga, num sistema só.",
   lead: "Cada ferramenta cara e solta vira um módulo do VOS, conectado com o resto da empresa.",
   map: [
-    { from: "Apollo", to: "Prospect", color: "#0FB5AE" },
+    { from: "Apollo", to: "Prospect", color: "#ED4B00" },
     { from: "HubSpot", to: "CRM", color: "#ED4B00" },
-    { from: "WhatsApp Business", to: "WhatsApp", color: "#1EB258" },
-    { from: "DocuSign", to: "Contracts", color: "#5B5BD6" },
-    { from: "Jobber", to: "Services", color: "#0EA5E9" },
-    { from: "Shopify", to: "Commerce", color: "#1F6FEB" },
-    { from: "ClickUp", to: "Projects", color: "#D6409F" },
-    { from: "Xero", to: "Finance", color: "#C9810C" },
+    { from: "WhatsApp Business", to: "WhatsApp", color: "#ED4B00" },
+    { from: "DocuSign", to: "Contracts", color: "#ED4B00" },
+    { from: "Jobber", to: "Services", color: "#ED4B00" },
+    { from: "Shopify", to: "Commerce", color: "#ED4B00" },
+    { from: "ClickUp", to: "Projects", color: "#ED4B00" },
+    { from: "Xero", to: "Finance", color: "#ED4B00" },
   ],
   connectors: ["API aberta", "Webhooks", "n8n", "Zapier"],
   footnote: "E conecta com o que você quiser. Da prospecção ao caixa, num fluxo só.",
@@ -686,7 +724,7 @@ export const TESTIMONIALS = {
   note: "Depoimentos ilustrativos, substituir por clientes reais antes de publicar.",
 };
 
-// Soluções por time (estilo ClickUp Agents) — tabs + painel claro.
+// Soluções por time (estilo ClickUp Agents): tabs + painel claro.
 export const TEAM_SOLUTIONS = {
   title: "Soluções de IA pra cada time",
   lead: "Seus fluxos principais, com IA no comando do VOS.",
@@ -708,18 +746,18 @@ export const TEAM_SOLUTIONS = {
       ],
       agents: [
         { color: "#ED4B00", label: "Zé responde lead e abre oportunidade" },
-        { color: "#2E6BFF", label: "Zé envia proposta com link de pagamento" },
-        { color: "#1EB258", label: "Zé confirma PIX e atualiza o caixa" },
-        { color: "#8B76FF", label: "Zé agenda follow-up se o lead esfriar" },
+        { color: "#ED4B00", label: "Zé envia proposta com link de pagamento" },
+        { color: "#ED4B00", label: "Zé confirma PIX e atualiza o caixa" },
+        { color: "#ED4B00", label: "Zé agenda follow-up se o lead esfriar" },
       ],
     },
     {
       id: "marketing",
       label: "Marketing",
-      color: "#8B76FF",
+      color: "#ED4B00",
       title: "Campanha que vira",
       titleFade: "conversa e venda.",
-      body: "Captura, nutre e devolve lead quente pro time comercial — sem planilha de funil.",
+      body: "Captura, nutre e devolve lead quente pro time comercial, sem planilha de funil.",
       replaces: ["Ads soltos", "Landing avulsa", "Lista no Excel", "E-mail marketing"],
       bullets: [
         "Captura lead de anúncio e Instagram",
@@ -727,19 +765,19 @@ export const TEAM_SOLUTIONS = {
         "Entrega pro CRM já quente",
       ],
       agents: [
-        { color: "#8B76FF", label: "Zé captura lead do anúncio" },
+        { color: "#ED4B00", label: "Zé captura lead do anúncio" },
         { color: "#ED4B00", label: "Zé envia sequência de nutrição" },
-        { color: "#2E6BFF", label: "Zé marca lead como quente no CRM" },
-        { color: "#1EB258", label: "Zé avisa o vendedor na hora" },
+        { color: "#ED4B00", label: "Zé marca lead como quente no CRM" },
+        { color: "#ED4B00", label: "Zé avisa o vendedor na hora" },
       ],
     },
     {
       id: "atendimento",
       label: "Atendimento",
-      color: "#1EB258",
+      color: "#ED4B00",
       title: "Inbox única,",
       titleFade: "resposta na hora.",
-      body: "WhatsApp, Instagram e Messenger numa fila só — histórico do cliente sempre junto.",
+      body: "WhatsApp, Instagram e Messenger numa fila só, histórico do cliente sempre junto.",
       replaces: ["ZapWeb", "Inbox do Instagram", "Planilha de tickets", "Grupo da equipe"],
       bullets: [
         "Centraliza canais numa inbox",
@@ -747,16 +785,16 @@ export const TEAM_SOLUTIONS = {
         "Escala pro humano no momento certo",
       ],
       agents: [
-        { color: "#1EB258", label: "Zé responde dúvida frequente" },
-        { color: "#2E6BFF", label: "Zé busca pedido e status" },
+        { color: "#ED4B00", label: "Zé responde dúvida frequente" },
+        { color: "#ED4B00", label: "Zé busca pedido e status" },
         { color: "#ED4B00", label: "Zé escala pra um humano" },
-        { color: "#8B76FF", label: "Zé registra tudo no CRM" },
+        { color: "#ED4B00", label: "Zé registra tudo no CRM" },
       ],
     },
     {
       id: "orcamento",
       label: "Orçamento",
-      color: "#0E97A8",
+      color: "#ED4B00",
       title: "Proposta pronta,",
       titleFade: "aprovada no chat.",
       body: "Monta orçamento, manda pro cliente e transforma em pedido ou OS sem retrabalho.",
@@ -767,16 +805,16 @@ export const TEAM_SOLUTIONS = {
         "Aprovação vira pedido ou OS",
       ],
       agents: [
-        { color: "#0E97A8", label: "Zé monta o orçamento" },
-        { color: "#2E6BFF", label: "Zé envia pro cliente" },
-        { color: "#1EB258", label: "Zé registra a aprovação" },
+        { color: "#ED4B00", label: "Zé monta o orçamento" },
+        { color: "#ED4B00", label: "Zé envia pro cliente" },
+        { color: "#ED4B00", label: "Zé registra a aprovação" },
         { color: "#ED4B00", label: "Zé gera pedido ou OS" },
       ],
     },
     {
       id: "operacao",
       label: "Operação",
-      color: "#2E6BFF",
+      color: "#ED4B00",
       title: "Pedido, estoque e OS",
       titleFade: "no mesmo fluxo.",
       body: "Do orçamento à entrega: estoque, agenda e ordem de serviço sem retrabalho.",
@@ -787,19 +825,19 @@ export const TEAM_SOLUTIONS = {
         "Cliente atualizado no andamento",
       ],
       agents: [
-        { color: "#2E6BFF", label: "Zé cria OS a partir do orçamento" },
-        { color: "#C9810C", label: "Zé checa peças e estoque" },
-        { color: "#1EB258", label: "Zé agenda a equipe" },
+        { color: "#ED4B00", label: "Zé cria OS a partir do orçamento" },
+        { color: "#ED4B00", label: "Zé checa peças e estoque" },
+        { color: "#ED4B00", label: "Zé agenda a equipe" },
         { color: "#ED4B00", label: "Zé avisa o cliente do status" },
       ],
     },
     {
       id: "financeiro",
       label: "Financeiro",
-      color: "#C9810C",
+      color: "#ED4B00",
       title: "Caixa em dia,",
       titleFade: "sem planilha.",
-      body: "Cobrança, conciliação PIX e NF-e ligadas a cada venda — visão em tempo real.",
+      body: "Cobrança, conciliação PIX e NF-e ligadas a cada venda, visão em tempo real.",
       replaces: ["Excel de caixa", "App do banco", "Emissor avulso", "Boleto manual"],
       bullets: [
         "Cobra vencidos no WhatsApp",
@@ -807,19 +845,19 @@ export const TEAM_SOLUTIONS = {
         "Emite NF-e na venda",
       ],
       agents: [
-        { color: "#C9810C", label: "Zé cobra fatura vencida" },
-        { color: "#1EB258", label: "Zé confirma PIX no caixa" },
-        { color: "#2E6BFF", label: "Zé emite NF-e da venda" },
+        { color: "#ED4B00", label: "Zé cobra fatura vencida" },
+        { color: "#ED4B00", label: "Zé confirma PIX no caixa" },
+        { color: "#ED4B00", label: "Zé emite NF-e da venda" },
         { color: "#ED4B00", label: "Zé alerta saldo baixo" },
       ],
     },
     {
       id: "lideranca",
       label: "Liderança",
-      color: "#5B45D1",
+      color: "#ED4B00",
       title: "Visão da empresa,",
       titleFade: "sem perseguir relatório.",
-      body: "Receita, margem e gargalos numa tela — o que precisa de atenção hoje.",
+      body: "Receita, margem e gargalos numa tela: o que precisa de atenção hoje.",
       replaces: ["Dashboard improvisado", "Relatório semanal", "Print de planilha", "Reunião de status"],
       bullets: [
         "Painel de receita e margem",
@@ -827,10 +865,10 @@ export const TEAM_SOLUTIONS = {
         "Time e metas no mesmo lugar",
       ],
       agents: [
-        { color: "#5B45D1", label: "Zé resume o dia em 3 bullets" },
+        { color: "#ED4B00", label: "Zé resume o dia em 3 bullets" },
         { color: "#ED4B00", label: "Zé aponta funil travado" },
-        { color: "#1EB258", label: "Zé mostra meta vs realizado" },
-        { color: "#2E6BFF", label: "Zé destaca clientes em risco" },
+        { color: "#ED4B00", label: "Zé mostra meta vs realizado" },
+        { color: "#ED4B00", label: "Zé destaca clientes em risco" },
       ],
     },
   ],
@@ -851,40 +889,27 @@ export const SECURITY = {
 
 export const FOOTER = {
   blurb: "O sistema operacional modular para qualquer empresa. Do WhatsApp ao financeiro, em um só lugar.",
-  // Todo link daqui sai em TODA página do site (o Footer4 vive dentro do
-  // CtaFinal4). Duas regras, por isso:
-  //  1. Nada de href="#" nem de rota que não existe. /commerce, /services e
-  //     /financeiro apontavam pro vazio e viraram 404 sitewide no Search
-  //     Console — 15 páginas linkando 3 URLs mortas.
-  //  2. Barra final sempre: sem ela cada link do rodapé gastava um 308 do
-  //     crawl budget antes de chegar na página.
   cols: [
     { title: "Produto", links: [
       { label: "Visão geral", href: "/" },
-      { label: "Commerce", href: "/commerce/" },
-      { label: "Services", href: "/services/" },
-      { label: "Financeiro", href: "/financeiro/" },
+      { label: "Commerce", href: "/commerce" },
+      { label: "Services", href: "/services" },
+      { label: "Financeiro", href: "/financeiro" },
     ] },
-    // Categorias do blog no rodapé: é o caminho de rastreamento que faz as
-    // páginas de categoria serem descobertas de qualquer lugar do site.
-    { title: "Conteúdo", links: [
-      { label: "Blog", href: "/blog/" },
-      { label: "CRM", href: "/blog/categoria/crm/" },
-      { label: "WhatsApp", href: "/blog/categoria/whatsapp/" },
-      { label: "Automação", href: "/blog/categoria/automacao/" },
+    { title: "Empresa", links: [
+      { label: "Sobre", href: "#" },
+      { label: "Carreiras", href: "#" },
+      { label: "Contato", href: "#" },
+      { label: "Blog", href: "#" },
     ] },
     { title: "Recursos", links: [
-      { label: "Central de ajuda", href: "https://ajuda.voshq.com" },
-      { label: "Dúvidas frequentes", href: "/#faq" },
-      { label: "Falar com vendas", href: "https://wa.me/5543996885300" },
-      { label: "Entrar no sistema", href: "https://app.voshq.com/login" },
+      { label: "Central de ajuda", href: "#" },
+      { label: "Preços", href: "/precos" },
+      { label: "Status", href: "#" },
+      { label: "API", href: "#" },
     ] },
   ],
   legal: "© 2026 VOS · Feito no Brasil 🇧🇷",
   company: "VERTEX GROWTH GESTAO EMPRESARIAL LTDA",
   cnpj: "67.779.810/0001-69",
-  legalLinks: [
-    { label: "Política de Privacidade", href: "/privacidade/" },
-    { label: "Política de Cookies", href: "/cookies/" },
-  ],
 };

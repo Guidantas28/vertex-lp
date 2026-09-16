@@ -1,0 +1,960 @@
+---
+// "Venda onde seu cliente está": a grade dos cinco canais, em bento.
+// Referência de composição: a faixa de canais da Nuvemshop (foto cheia, véu,
+// título ancorado no pé). A cara é nossa: Carvão, sinal laranja, o Fio no
+// título e o selo do canal em cima, como nos cards de capacidade.
+import CanalCena from "../islands/CanalCena.tsx";
+
+const CANAIS = [
+  {
+    id: "loja-virtual",
+    largo: true,
+    foto: "/assets/canais/loja-virtual.jpg",
+    alt: "Empresária trabalhando no computador da própria loja à noite",
+    titulo: "Loja virtual",
+    nota: "No ar no mesmo dia, com o seu domínio",
+    cena: "vendas" as const,
+    selos: ["/assets/icons/pix.svg", "/assets/icons/nfe.svg"],
+  },
+  {
+    id: "redes-sociais",
+    foto: "/assets/canais/redes-sociais.jpg",
+    alt: "Lojista fotografando uma peça com o celular",
+    titulo: "Redes sociais",
+    nota: "O que você posta vira pedido",
+    cena: "redes" as const,
+    selos: ["/assets/icons/instagram.svg", "/assets/icons/tiktok.svg", "/assets/icons/messenger.svg"],
+  },
+  {
+    id: "loja-fisica",
+    foto: "/assets/canais/loja-fisica.jpg",
+    alt: "Mãos finalizando uma venda no balcão com a maquininha",
+    titulo: "Loja física",
+    nota: "O balcão no mesmo estoque do site",
+    cena: "pdv" as const,
+    selos: ["/assets/icons/pix.svg"],
+  },
+  {
+    id: "whatsapp",
+    foto: "/assets/canais/whatsapp.jpg",
+    alt: "Profissional sorrindo ao ver a conversa no celular",
+    titulo: "WhatsApp inteligente",
+    nota: "O Zé responde, monta o pedido e cobra",
+    cena: "whatsapp" as const,
+    selos: ["/assets/icons/whatsapp.svg"],
+  },
+  {
+    id: "catalogo",
+    foto: "/assets/canais/catalogo.jpg",
+    alt: "Cliente escolhendo produtos no celular em casa",
+    titulo: "Catálogo digital",
+    nota: "Um link que você manda e vira carrinho",
+    cena: "catalogo" as const,
+    selos: ["/assets/icons/whatsapp.svg", "/assets/icons/email.svg"],
+  },
+];
+---
+
+<section class="zx-canais" id="canais">
+  <div class="zx-container">
+    <h2 class="zx-canais-titulo reveal">
+      <span class="zx-canais-claro">Venda em todos os canais. Gerencie tudo em um só lugar.</span>{" "}
+      <span class="zx-canais-apoio">Do balcão à loja online. Do WhatsApp às redes sociais. Tudo conectado no VOS.</span>
+    </h2>
+
+    <ul class="zx-canais-grade">
+      {CANAIS.map((c, i) => (
+        <li class={`zx-canal-card${c.largo ? " is-largo" : ""} reveal reveal-delay-${i % 3}`}>
+          <img class="zx-canal-foto" src={c.foto} alt={c.alt} loading="lazy" decoding="async" />
+          <span class="zx-canal-veu" aria-hidden="true"></span>
+
+          {c.cena && (
+            <div class="zx-canal-cena">
+              <CanalCena client:visible tipo={c.cena} />
+            </div>
+          )}
+
+          <span class="zx-canal-selos" aria-hidden="true">
+            {c.selos.map((s) => <img src={s} alt="" width="20" height="20" loading="lazy" />)}
+          </span>
+
+          <div class="zx-canal-pe">
+            <h3>{c.titulo}</h3>
+            <p>{c.nota}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .zx-canais { position: relative; padding: clamp(48px, 8vh, 96px) 0 0; }
+
+  /* A frase corre pela LARGURA TODA, no lugar das 18ch de antes: a afirmação
+     em branco abre, o apoio em cinza continua na mesma linha e estende ela.
+     Peso único nos dois; quem separa é a COR. Três degraus num título só
+     (claro, cinza e negrito) seria um a mais do que o olho lê de uma vez. */
+  .zx-canais-titulo {
+    margin: 0 0 clamp(32px, 5.5vh, 56px);
+    font-family: var(--zx-display);
+    /* DUAS LINHAS é o que manda o tamanho aqui, não o token de seção.
+       São 134 caracteres, quase o dobro do título de seção mais longo do site,
+       e medindo na faixa de 1136px: 42px dá três linhas, 40px dá duas. O 4px a
+       menos que o founder pediu (56 → 52) ainda dava três.
+       Pino local, não no token: as outras seis seções dividem a mesma medida e
+       têm títulos curtos, que a 40px ficariam pequenos demais.
+       O teto em `ch` saiu junto . ele encolhe com a fonte, então apertava a
+       caixa exatamente quando ela precisava de mais largura. */
+    font-size: clamp(28px, 2.9vw, 40px);
+    font-weight: var(--zx-fw-title-dark);
+    letter-spacing: var(--zx-ls-title);
+    line-height: 1.1;
+    text-wrap: pretty;
+  }
+  .zx-canais-claro { color: var(--zx-on-dark); }
+  .zx-canais-apoio { color: var(--zx-on-dark-2); }
+
+  /* A LUZ PASSANDO. Corre UMA vez, quando o bloco entra na tela (o .is-visible
+     vem do observador do Base.astro, que solta a classe e para de observar).
+     Brilho em laço num título vira tique e o olho para de ler.
+     Só na parte branca: iluminar o cinza acenderia justamente o que recua. */
+  /* O @supports não é zelo à toa: recortar o fundo no texto exige apagar a
+     cor da letra, e num navegador sem o recurso a frase sumiria da tela. */
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .zx-canais-titulo.is-visible .zx-canais-claro {
+      background-image: linear-gradient(
+        104deg,
+        var(--zx-on-dark) 0%,
+        var(--zx-on-dark) 34%,
+        #ffffff 41%,
+        #ffd8bb 50%,
+        #ffffff 59%,
+        var(--zx-on-dark) 66%,
+        var(--zx-on-dark) 100%
+      );
+      /* Fundo de TRÊS larguras com a luz no meio, e o passeio limitado a 80%
+         → 20%: o clarão passa a ter 60% da largura da frase e cruza ela em
+         quase todo o 1,5s. Com o fundo de 2,6 larguras e o passeio de ponta a
+         ponta que estava aqui, ele atravessava em 140ms e ninguém via. */
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      /* LINEAR de propósito, e é a única coisa nesta página fora da curva do
+         VOS UNO. Luz que passa tem velocidade constante; com a curva do
+         sistema (que é toda front-loaded) ela cruzava a frase nos primeiros
+         300ms e o efeito virava um piscar.
+         `both` segura o quadro inicial durante a espera: sem ele a letra
+         nasceria transparente no intervalo antes de a luz começar. */
+      animation: zx-luz-passa 1.5s linear 0.35s 1 both;
+    }
+  }
+  }
+  /* Do 80 pro 20 e não o contrário: com o fundo maior que a caixa, diminuir a
+     posição empurra a luz da ESQUERDA pra direita, que é o sentido da leitura. */
+  @keyframes zx-luz-passa {
+    from { background-position: 80% 0; }
+    to { background-position: 20% 0; }
+  }
+
+  .zx-canais-grade {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* ALTURA na fileira, não aspecto no card: com aspecto, o card largo (8/3) e
+       o normal (4/3) chegavam a alturas diferentes e um esticava por cima do
+       outro. A fileira manda, e a cena do catálogo passa a caber inteira. */
+    grid-auto-rows: clamp(286px, 27vw, 376px);
+    gap: clamp(10px, 1.2vw, 16px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .zx-canal-card.is-largo { grid-column: span 2; }
+
+  .zx-canal-card {
+    position: relative;
+    border-radius: var(--zx-r-card-lg);
+    overflow: hidden;
+    background: var(--zx-dark);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    /* o cartão levanta e a sombra abre junto: massa e sombra andam em par */
+    transition: transform 0.32s var(--zx-ease), box-shadow 0.32s var(--zx-ease),
+      border-color 0.32s var(--zx-ease);
+    box-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.9);
+  }
+  .zx-canal-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 34px 70px -30px rgba(0, 0, 0, 0.95);
+  }
+
+  .zx-canal-foto {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s var(--zx-ease);
+  }
+  .zx-canal-card:hover .zx-canal-foto { transform: scale(1.035); }
+
+  /* véu: escurece o pé pra o título ler em cima de qualquer foto */
+  .zx-canal-veu {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(8, 9, 10, 0.4) 0%, transparent 34%, rgba(8, 9, 10, 0.9) 100%);
+  }
+
+  /* os selos de quem aquele canal fala, no cantinho de cima */
+  .zx-canal-selos {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    display: flex;
+  }
+  .zx-canal-selos img {
+    display: block;
+    width: 34px;
+    height: 34px;
+    padding: 7px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 6px 16px -6px rgba(8, 9, 10, 0.7);
+  }
+  .zx-canal-selos img + img { margin-left: -10px; }
+
+  .zx-canal-pe {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 0 clamp(16px, 1.8vw, 24px) clamp(14px, 1.8vh, 22px);
+  }
+  .zx-canal-pe h3 {
+    margin: 0;
+    font-family: var(--zx-body);
+    font-size: clamp(17px, 1.6vw, 23px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-wrap: balance;
+  }
+  .zx-canal-pe p {
+    margin: 4px 0 0;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.66);
+  }
+
+  @media (max-width: 860px) {
+    /* No celular a faixa aparece por baixo do hero com ~170px, e o respiro de
+       topo comia esse espaço inteiro: sobrava um retângulo escuro e vazio
+       espiando, que não convida ninguém a rolar. Com 26px o título entra na
+       fresta . e é ele quem dispara a entrada da seção. */
+    .zx-canais { padding-top: 26px; }
+    /* Os cinco viram um TRILHO que anda sozinho (founder 15/09): empilhados,
+       eram cinco telas de rolagem e ninguém via o quinto. A ordem visual é
+       `order`, nunca mexer no DOM: cada card tem uma cena React hidratada
+       dentro, e mover o nó a remontaria. O card seguinte fica espiando na
+       borda, que é o que diz "tem mais aqui do lado". */
+    .zx-canais-grade {
+      display: flex;
+      grid-template-columns: none;
+      grid-auto-rows: auto;
+      gap: 12px;
+      touch-action: pan-y;
+      will-change: transform;
+    }
+    .zx-canal-card, .zx-canal-card.is-largo {
+      grid-column: auto;
+      flex: 0 0 86%;
+      order: var(--ordem, 0);
+      aspect-ratio: 4 / 5;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-canal-card, .zx-canal-foto { transition: none; }
+    .zx-canal-card:hover { transform: none; }
+    .zx-canal-card:hover .zx-canal-foto { transform: none; }
+  }
+</style>
+
+<style is:global>
+  /* ─── As cenas por cima da foto do canal ─────────────────────── */
+  /* ENTRELINHA PINADA NA RAIZ DA CENA. O topo da página deixa um line-height
+     de 24px em PIXEL, que desce herdado e infla toda letra pequena daqui:
+     um chip de 9px nascia com 32px de altura. Pinar uma vez na raiz é o
+     caminho; caçar elemento por elemento é como o bug volta. */
+  .zx-canal-cena { position: absolute; inset: 0; pointer-events: none; line-height: 1.35; }
+  .cn { position: absolute; inset: 0; }
+
+  /* ── WhatsApp: um pedaço real da conversa, com o Zé respondendo ── */
+  .cn-wa {
+    position: absolute;
+    right: clamp(10px, 1.6vw, 16px);
+    top: clamp(10px, 1.6vw, 16px);
+    bottom: clamp(74px, 9vh, 92px);
+    width: min(58%, 250px);
+    display: flex;
+    flex-direction: column;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(10, 12, 14, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 22px 46px -22px rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(14px);
+  }
+  .cn-wa-topo {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 11px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .cn-wa-topo img { display: block; }
+  .cn-wa-topo b { font-size: 11.5px; font-weight: 600; color: #fff; }
+  .cn-wa-topo em {
+    margin-left: auto;
+    font-style: normal;
+    font-size: 10px;
+    color: #4ADE80;
+  }
+  .cn-wa-fio {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 5px;
+    padding: 10px;
+    overflow: hidden;
+  }
+  .cn-wa-msg {
+    position: relative;
+    margin: 0;
+    max-width: 92%;
+    padding: 7px 10px;
+    border-radius: 11px;
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  .cn-wa-msg.is-cliente {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom-left-radius: 4px;
+    color: rgba(255, 255, 255, 0.92);
+  }
+  /* a resposta do Zé leva o violeta dele, que é a única cor de personagem */
+  .cn-wa-msg.is-ze {
+    align-self: flex-end;
+    padding-right: 34px;
+    background: rgba(109, 74, 255, 0.28);
+    border: 1px solid rgba(109, 74, 255, 0.5);
+    border-bottom-right-radius: 4px;
+    color: #fff;
+  }
+  .cn-wa-selo {
+    position: absolute;
+    right: 7px;
+    bottom: 6px;
+    font-style: normal;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 5px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+  }
+
+  /* ── Catálogo: a loja virando venda, em cinco batidas ── */
+  .cn-cat {
+    position: absolute;
+    right: clamp(10px, 1.6vw, 16px);
+    top: clamp(10px, 1.5vw, 14px);
+    bottom: clamp(68px, 8.2vh, 84px);
+    width: min(72%, 286px);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cn-cat-tela {
+    flex: 1;
+    display: grid;
+    /* UMA célula de altura travada: sem isso a fileira cresce com o conteúdo e
+       a vitrine vaza pra fora da tela em vez de ser cortada por ela */
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    place-items: center;
+    padding: 13px 12px;
+    border-radius: 14px;
+    background: rgba(10, 12, 14, 0.74);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 22px 46px -22px rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(14px);
+    overflow: hidden;
+  }
+  /* ── A vitrine ────────────────────────────────────────────────────────
+     Anatomia copiada da loja de verdade (apps/web .. storefront/catalog.tsx +
+     storefront.css): cabeçalho da loja, categorias que rolam de lado e o card
+     com foto quadrada, marca em caixa alta, nome e PREÇO NO LARANJA da marca
+     (--sf-brand). Só a escala muda: aqui a tela toda tem ~280px. */
+  .cn-loja {
+    display: grid;
+    /* cabeçalho · categorias · vitrine, e a vitrine fica com o que sobrar */
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 9px;
+    /* a tela do catálogo centra o conteúdo; a vitrine é a exceção: ela ocupa
+       a tela inteira, senão a segunda fileira de peças some cortada no meio */
+    place-self: stretch;
+    width: 100%;
+  }
+  .cn-loja-topo {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  /* A marca é um bloco cheio, desenhado sobre preto: entra SEM recheio e sem
+     fundo claro por baixo, como o ícone de app que ela é. 30px porque o
+     desenho tem letra dentro e a 24 virava borrão. */
+  .cn-loja-marca {
+    display: block;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #08090a;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .cn-loja-topo b { font-size: 12px; font-weight: 650; letter-spacing: -0.01em; color: #fff; }
+  .cn-loja-ok { width: 13px; height: 13px; flex: none; color: var(--zx-info-dark); }
+  .cn-loja-busca {
+    margin-left: auto;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    flex: none;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.09);
+    color: rgba(255, 255, 255, 0.62);
+  }
+  .cn-loja-busca svg { width: 12px; height: 12px; }
+
+  /* categorias rolando de lado, como na loja: a fileira sangra pela direita */
+  .cn-loja-filtros { display: flex; gap: 4px; overflow: hidden; }
+  .cn-loja-filtros span {
+    display: inline-flex;
+    align-items: center;
+    gap: 3.5px;
+    flex: none;
+    padding: 3px 6.5px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 600;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .cn-loja-filtros span.is-on {
+    color: #101214;
+    background: #fff;
+    border-color: #fff;
+  }
+  .cn-loja-filtros svg { width: 9.5px; height: 9.5px; flex: none; }
+
+  .cn-loja-grade {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-content: start;
+    gap: 10px 9px;
+    min-height: 0;
+    overflow: hidden;
+    /* a segunda fileira esvai por baixo, como numa loja que se rola no dedo.
+       O corte começa tarde de propósito: nome e preço da primeira fileira
+       precisam ler inteiros antes de a página desaparecer. */
+    -webkit-mask-image: linear-gradient(180deg, #000 92%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 92%, transparent 100%);
+  }
+  /* o card da loja NÃO tem casca: foto e texto soltos, como no storefront */
+  .cn-peca { display: grid; gap: 2px; align-content: start; }
+  .cn-peca img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    /* teto de altura: sem ele a foto quadrada come a fileira inteira e o preço
+       com o botão de adicionar caíam fora da tela */
+    max-height: 104px;
+    border-radius: 10px;
+    object-fit: cover;
+    margin-bottom: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: border-color 0.3s var(--zx-ease), box-shadow 0.3s var(--zx-ease);
+  }
+  .cn-peca b {
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: rgba(255, 255, 255, 0.94);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* preço no laranja: é assim na loja (.sf-card-price usa --sf-brand) */
+  .cn-peca em {
+    font-style: normal;
+    font-size: 10.5px;
+    font-weight: 650;
+    color: var(--zx-lar-2);
+    font-variant-numeric: tabular-nums;
+  }
+  /* a peça que o cliente vai escolher: a foto acende e o botão real aparece */
+  .cn-peca.is-alvo img {
+    border-color: var(--zx-lar);
+    box-shadow: 0 0 0 1px var(--zx-lar), 0 10px 22px -12px rgba(237, 75, 0, 0.7);
+  }
+  /* ── Ficha do serviço: preenche a tela, foto no que sobrar ── */
+  .cn-ficha {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    gap: 8px;
+    place-self: stretch;
+    width: 100%;
+    text-align: left;
+  }
+  .cn-ficha-foto {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .cn-ficha-txt { display: grid; gap: 1px; }
+  .cn-ficha-txt b {
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #fff;
+  }
+  /* duração e profissional: é o que diferencia serviço de peça na prateleira */
+  .cn-ficha-txt span { font-size: 9.5px; color: rgba(255, 255, 255, 0.5); }
+  .cn-ficha-txt strong {
+    margin-top: 1px;
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    color: var(--zx-lar-2);
+    font-variant-numeric: tabular-nums;
+  }
+  /* os dois botões lado a lado, como o .sf-buys da loja */
+  .cn-buys { display: flex; gap: 6px; }
+  .cn-buys i {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-style: normal;
+    padding: 8px 6px;
+    border-radius: 9px;
+    font-size: 10.5px;
+    font-weight: 650;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.86);
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .cn-buys i.is-primario {
+    color: #101214;
+    background: #fff;
+    border-color: #fff;
+  }
+  .cn-buys i.is-whats {
+    color: #06301a;
+    background: #25d366;
+    border-color: #25d366;
+    box-shadow: 0 12px 26px -14px rgba(37, 211, 102, 0.9);
+  }
+  .cn-buys img { display: block; flex: none; }
+
+  /* ── O pedido emitido: uma nota de verdade, não um selo solto ── */
+  .cn-pedido {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    gap: 8px;
+    place-self: stretch;
+    width: 100%;
+    padding: 11px;
+    border-radius: 11px;
+    background: #fff;
+    text-align: left;
+  }
+  .cn-pedido-topo { display: flex; align-items: center; gap: 8px; }
+  .cn-pedido-topo i {
+    margin-left: auto;
+    font-style: normal;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--zx-ok-dark);
+    background: color-mix(in srgb, var(--zx-ok-dark) 12%, #fff);
+  }
+  .cn-cat-num {
+    font-family: var(--zx-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b6b6b;
+  }
+  .cn-pedido-item { display: flex; align-items: center; gap: 8px; }
+  .cn-pedido-item img {
+    width: 34px;
+    height: 34px;
+    flex: none;
+    border-radius: 7px;
+    object-fit: cover;
+  }
+  .cn-pedido-item span { display: grid; gap: 1px; min-width: 0; }
+  .cn-pedido-item b {
+    font-size: 11px;
+    font-weight: 650;
+    color: #171717;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cn-pedido-item em { font-style: normal; font-size: 9.5px; color: #6b6b6b; }
+
+  .cn-pedido-contas {
+    align-self: end;
+    display: grid;
+    gap: 3px;
+    margin: 0;
+    padding-top: 7px;
+    border-top: 1px solid #e9e6e0;
+  }
+  .cn-pedido-contas > div { display: flex; align-items: baseline; gap: 8px; }
+  .cn-pedido-contas dt { font-size: 9.5px; color: #6b6b6b; }
+  .cn-pedido-contas dd {
+    margin: 0 0 0 auto;
+    font-size: 9.5px;
+    color: #171717;
+    font-variant-numeric: tabular-nums;
+  }
+  .cn-pedido-contas .is-total dt { font-weight: 650; color: #171717; }
+  .cn-pedido-contas .is-total dd { font-size: 12px; font-weight: 700; }
+  .cn-pedido-pg { margin: 0; font-size: 9px; color: #8a8a8a; }
+
+  /* ── A venda fechada, e o que ela move junto ── */
+  .cn-feita {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 3px;
+    place-self: stretch;
+    width: 100%;
+    padding: 14px;
+    border-radius: 11px;
+    background: var(--zx-ok-surface);
+    text-align: center;
+  }
+  .cn-feita-selo {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    margin-bottom: 4px;
+    border-radius: 999px;
+    color: var(--zx-ok-ink);
+    background: color-mix(in srgb, var(--zx-ok-dark) 26%, transparent);
+  }
+  .cn-feita-selo svg { width: 17px; height: 17px; }
+  .cn-feita b { font-size: 12.5px; font-weight: 650; color: var(--zx-ok-ink); }
+  .cn-feita strong {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--zx-ok-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .cn-feita ul {
+    margin: 8px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 3px;
+    list-style: none;
+  }
+  .cn-feita li {
+    font-size: 9.5px;
+    line-height: 1.3;
+    color: color-mix(in srgb, var(--zx-ok-ink) 74%, transparent);
+  }
+  .cn-cat-rotulo {
+    margin: 0;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.68);
+    text-align: center;
+  }
+
+  /* ── Redes: as notificações orbitando o celular ── */
+  /* a faixa começa ABAIXO dos selos (14px + 34px) e termina acima do título:
+     ping por cima do selo virava sobreposição de duas coisas brancas */
+  .cn-redes { position: absolute; inset: 17% 0 27% 0; }
+  .cn-ping {
+    position: absolute;
+    max-width: 78%;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #171717;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.9);
+  }
+  .cn-ping img { display: block; flex: none; }
+  .cn-ping { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ── Loja virtual: a chuva de vendas, como aviso de celular ── */
+  .cn-vendas {
+    position: absolute;
+    right: clamp(12px, 1.8vw, 20px);
+    top: clamp(12px, 1.8vw, 20px);
+    width: min(50%, 272px);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    /* a mais velha esvai por baixo em vez de sumir seco */
+    -webkit-mask-image: linear-gradient(180deg, #000 68%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 68%, transparent 100%);
+  }
+  .cn-aviso {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    /* o ícone fica no MEIO do bloco de texto, como no aviso do celular: ancorado
+       no topo ele descolava do par título+corpo e o cartão parecia alto demais */
+    align-items: center;
+    gap: 9px;
+    padding: 8px 11px 9px;
+    border-radius: 13px;
+    background: rgba(10, 12, 14, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 34px -20px rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(14px);
+  }
+  /* o aviso novo leva a régua de acento, igual ao feed do produto */
+  .cn-aviso.is-nova {
+    border-color: rgba(237, 75, 0, 0.32);
+    box-shadow: inset 3px 0 0 var(--zx-lar), 0 16px 34px -20px rgba(0, 0, 0, 0.95);
+  }
+  /* a marca do VOS num chip branco, como ícone de app no aviso do celular */
+  .cn-aviso-marca {
+    display: block;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    padding: 6px;
+    border-radius: 9px;
+    background: #fff;
+    object-fit: contain;
+  }
+  .cn-aviso b {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 650;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+  /* corpo colado no título, como no aviso do sistema: 1px de respiro, não 2 */
+  .cn-aviso em {
+    display: block;
+    margin-top: 1px;
+    font-style: normal;
+    font-size: 10.5px;
+    line-height: 1.28;
+    color: rgba(237, 237, 237, 0.62);
+  }
+  .cn-aviso em strong {
+    font-weight: 700;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── PDV: os valores subindo do terminal e sumindo ── */
+  .cn-pdv { position: absolute; inset: 0; overflow: hidden; }
+  .cn-valor {
+    position: absolute;
+    /* nasce na altura do terminal, não no meio da foto */
+    bottom: 24%;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--zx-ok-ink);
+    background: var(--zx-ok-surface);
+    border: 1px solid color-mix(in srgb, var(--zx-ok-dark) 34%, transparent);
+    box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.8);
+    font-variant-numeric: tabular-nums;
+    backdrop-filter: blur(8px);
+  }
+
+  /* No celular a cena tem a largura quase toda do cartão: metade da tela de um
+     aparelho de 390px não sobra pra desenhar uma loja. */
+  @media (max-width: 860px) {
+    .cn-wa, .cn-cat {
+      right: 14px;
+      left: 14px;
+      top: 14px;
+      bottom: 84px;
+      width: auto;
+    }
+    .cn-vendas { right: 14px; width: min(84%, 300px); }
+    .cn-redes { inset: 16% 0 24% 0; }
+    .cn-ping { max-width: 70%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cn-cat-grade span { transition: none; }
+  }
+</style>
+
+<script>
+  /* O TRILHO DOS CANAIS NO CELULAR (founder 15/09: "passando sozinho, modo
+     infinito, a cada 3 segundos").
+
+     Quem gira é a ORDEM VISUAL (`order`), nunca o DOM: cada card tem uma cena
+     React hidratada dentro, e mover o nó faria a ilha remontar. A cada volta o
+     trilho desliza um card, e no fim do deslize o primeiro vai pro fim da
+     ordem e o trilho volta pro zero sem animar . o salto é invisível, e por
+     isso o laço não tem ponta.
+
+     O dedo manda: enquanto se arrasta, o relógio para. Fora da tela ele
+     também para, e com menos movimento pedido não anda sozinho (só no dedo). */
+  const grade = document.querySelector<HTMLElement>(".zx-canais-grade");
+  const secao = document.querySelector<HTMLElement>(".zx-canais");
+
+  if (grade && secao) {
+    const cards = Array.from(grade.children) as HTMLElement[];
+    const N = cards.length;
+    const cel = window.matchMedia("(max-width: 860px)");
+    const menos = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    let inicio = 0;
+    let pendente = 0;
+    let deslizando = false;
+    let relogio = 0;
+    let naTela = false;
+
+    const passo = () => {
+      const vao = parseFloat(getComputedStyle(grade).columnGap || "0") || 0;
+      return cards[0].getBoundingClientRect().width + vao;
+    };
+    const ordenar = () => cards.forEach((c, i) => c.style.setProperty("--ordem", String((i - inicio + N) % N)));
+    const pousar = (x: number) => {
+      grade.style.transition = "none";
+      grade.style.transform = `translateX(${x}px)`;
+      /* força o navegador a assentar o estado antes do próximo deslize; sem
+         isto ele junta os dois e a volta aparece como um salto */
+      void grade.offsetWidth;
+    };
+    const deslizar = (x: number, soma: number) => {
+      pendente = soma;
+      deslizando = true;
+      grade.style.transition = "transform 0.6s var(--zx-ease)";
+      grade.style.transform = `translateX(${x}px)`;
+    };
+
+    grade.addEventListener("transitionend", (e) => {
+      if (e.target !== grade || e.propertyName !== "transform") return;
+      inicio = (inicio + pendente + N) % N;
+      pendente = 0;
+      deslizando = false;
+      ordenar();
+      pousar(0);
+    });
+
+    const andar = () => {
+      if (deslizando || !cel.matches || menos.matches || !naTela) return;
+      deslizar(-passo(), 1);
+    };
+    const ligar = () => {
+      window.clearInterval(relogio);
+      if (cel.matches && !menos.matches) relogio = window.setInterval(andar, 3000);
+    };
+    const desligar = () => window.clearInterval(relogio);
+
+    /* o dedo: arrasta o trilho e solta no card mais perto */
+    let x0 = 0;
+    let base = 0;
+    let dx = 0;
+    grade.addEventListener("touchstart", (e) => {
+      if (!cel.matches || deslizando) return;
+      desligar();
+      x0 = e.touches[0].clientX;
+      dx = 0;
+      /* recua um card na ordem pra existir vizinho à esquerda: dá pra voltar */
+      inicio = (inicio - 1 + N) % N;
+      ordenar();
+      base = -passo();
+      pousar(base);
+    }, { passive: true });
+    grade.addEventListener("touchmove", (e) => {
+      if (!cel.matches || deslizando) return;
+      dx = e.touches[0].clientX - x0;
+      grade.style.transform = `translateX(${base + dx}px)`;
+    }, { passive: true });
+    grade.addEventListener("touchend", () => {
+      if (!cel.matches || deslizando) return;
+      grade.style.transition = "transform 0.4s var(--zx-ease)";
+      if (dx < -40) deslizar(base - passo(), 2);
+      else if (dx > 40) deslizar(0, 0);
+      else deslizar(base, 1);
+      ligar();
+    }, { passive: true });
+
+    const montar = () => {
+      if (cel.matches) {
+        /* a entrada do Base.astro só acende o que está na tela, e no trilho os
+           outros quatro nascem fora dela: acende todos de uma vez */
+        cards.forEach((c) => c.classList.add("is-visible"));
+        ordenar();
+        pousar(0);
+        ligar();
+      } else {
+        desligar();
+        inicio = 0;
+        pendente = 0;
+        deslizando = false;
+        grade.style.transition = "";
+        grade.style.transform = "";
+        cards.forEach((c) => c.style.removeProperty("--ordem"));
+      }
+    };
+
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(
+        (es) => {
+          naTela = es.some((e) => e.isIntersecting);
+          if (naTela) ligar();
+          else desligar();
+        },
+        { threshold: 0.2 },
+      ).observe(secao);
+    } else {
+      naTela = true;
+    }
+
+    cel.addEventListener("change", montar);
+    montar();
+  }
+</script>

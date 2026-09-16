@@ -1,0 +1,290 @@
+---
+// "Serviço, produto e balcão": os três jeitos de vender, um embaixo do outro,
+// trocando com o SCROLL. A coluna da esquerda fica presa enquanto a fotografia
+// da direita muda. Referência de composição: a faixa do editor da Nuvemshop.
+//
+// As fotos são as MESMAS do resto do site, de propósito: o técnico do
+// carrossel de setores, a dona da loja virtual e o balcão do bloco de canais.
+// Quem já rolou a página reconhece as três pessoas, e a seção passa a ser um
+// resumo em vez de um elenco novo.
+const PASSOS = [
+  {
+    id: "servicos",
+    titulo: "Para quem vende serviços",
+    nota: "Orçamento aprovado vira ordem de serviço, com equipe, horário e a visita marcada. A OS sai do celular, no meio da rua.",
+    foto: "/assets/setores/servicos.jpg",
+    alt: "Técnico de ar condicionado atendendo na casa do cliente",
+  },
+  {
+    id: "produtos",
+    titulo: "Para quem vende produtos",
+    nota: "Loja, catálogo e estoque falando a mesma língua. A venda cai, o estoque baixa e a nota sai sem ninguém digitar de novo.",
+    foto: "/assets/canais/loja-virtual.jpg",
+    alt: "Empresária trabalhando no computador da própria loja à noite",
+  },
+  {
+    id: "balcao",
+    titulo: "Para loja física",
+    nota: "O balcão no mesmo estoque do site. Caixa, operador e comprovante no mesmo toque, e o dia fecha com os dois somados.",
+    foto: "/assets/canais/loja-fisica.jpg",
+    alt: "Vendedora finalizando uma compra no balcão da loja",
+  },
+];
+---
+
+<section class="zx-solu" id="solucoes-ponta" data-solu data-passo="0">
+  <div class="zx-solu-fixo">
+    <div class="zx-container zx-solu-grade">
+
+      <div class="zx-solu-coluna">
+        <p class="zx-solu-selo">Uma plataforma, três operações</p>
+        <h2 class="zx-solu-titulo">Serviço, produto e balcão.<br /><strong>Um sistema só.</strong></h2>
+
+        <ol class="zx-solu-passos">
+          {PASSOS.map((p, i) => (
+            <li class="zx-solu-passo" data-i={i}>
+              <button type="button" data-ir={i} aria-label={`Ver ${p.titulo}`}>
+                <b>{p.titulo}</b>
+                <span>{p.nota}</span>
+              </button>
+              <i class="zx-solu-regua" aria-hidden="true"></i>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="zx-solu-palco" aria-hidden="true">
+        {PASSOS.map((p, i) => (
+          <img src={p.foto} alt={p.alt} data-i={i} loading="lazy" decoding="async" />
+        ))}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  /* A ALTURA é o que dá o curso do scroll: 100vh presos + uma tela por passo
+     que sobra. Com três passos, dois cursos . daí 260vh. */
+  .zx-solu {
+    position: relative;
+    min-height: 260vh;
+    background: var(--zx-dark-deep);
+  }
+  .zx-solu-fixo {
+    position: sticky;
+    top: 0;
+    min-height: 100svh;
+    display: grid;
+    align-content: center;
+    padding: clamp(80px, 12vh, 140px) 0;
+    overflow: hidden;
+  }
+
+  .zx-solu-grade {
+    display: grid;
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: center;
+  }
+
+  .zx-solu-selo {
+    display: inline-block;
+    margin: 0 0 clamp(16px, 2.4vh, 24px);
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-family: var(--zx-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--zx-on-dark-2);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--zx-on-dark-line);
+  }
+  .zx-solu-titulo {
+    margin: 0 0 clamp(26px, 4vh, 44px);
+    font-family: var(--zx-display);
+    font-size: clamp(28px, 3.3vw, 44px);
+    font-weight: var(--zx-fw-title-dark);
+    letter-spacing: var(--zx-ls-title);
+    line-height: 1.1;
+    color: var(--zx-on-dark);
+  }
+  .zx-solu-titulo strong { font-weight: var(--zx-fw-emphasis); }
+
+  .zx-solu-passos { margin: 0; padding: 0; list-style: none; }
+  .zx-solu-passo { position: relative; border-top: 1px solid var(--zx-on-dark-line); }
+  .zx-solu-passo:last-child { border-bottom: 1px solid var(--zx-on-dark-line); }
+
+  .zx-solu-passo button {
+    display: block;
+    width: 100%;
+    padding: clamp(16px, 2.4vh, 22px) 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+  .zx-solu-passo b {
+    display: block;
+    font-size: clamp(16px, 1.5vw, 20px);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    /* APAGADO é o estado padrão, e só o passo do momento acende. A lista
+       inteira acesa não teria foco nenhum. */
+    color: var(--zx-on-dark-3);
+    transition: color 0.32s var(--zx-ease);
+  }
+  .zx-solu-passo span {
+    display: block;
+    /* a nota não some com opacidade: ela FECHA. Texto invisível ocupando
+       espaço deixaria um buraco entre os passos. */
+    display: grid;
+    grid-template-rows: 0fr;
+    margin-top: 0;
+    font-size: clamp(13.5px, 1vw, 15px);
+    line-height: 1.5;
+    color: var(--zx-on-dark-2);
+    opacity: 0;
+    transition: grid-template-rows 0.42s var(--zx-ease), opacity 0.3s var(--zx-ease),
+      margin-top 0.42s var(--zx-ease);
+  }
+  .zx-solu-passo span > * { min-height: 0; }
+
+  /* a régua de acento: cresce da esquerda no passo aceso */
+  .zx-solu-regua {
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 2px;
+    width: 100%;
+    background: var(--zx-lar);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s var(--zx-ease);
+  }
+
+  .zx-solu-passo.is-on b { color: var(--zx-on-dark); }
+  .zx-solu-passo.is-on span {
+    grid-template-rows: 1fr;
+    margin-top: 8px;
+    opacity: 1;
+  }
+  .zx-solu-passo.is-on .zx-solu-regua { transform: scaleX(1); }
+
+  .zx-solu-passo button:focus-visible {
+    outline: 2px solid var(--zx-lar);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ── o palco: as três fotos empilhadas, uma por cima da outra ── */
+  .zx-solu-palco {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--zx-r-card-lg);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 40px 90px -50px rgba(0, 0, 0, 0.95);
+  }
+  .zx-solu-palco img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    /* a que entra dá um passo à frente: sem a escala, a troca vira corte seco */
+    transform: scale(1.04);
+    transition: opacity 0.6s var(--zx-ease), transform 0.8s var(--zx-ease);
+  }
+  .zx-solu-palco img.is-on { opacity: 1; transform: scale(1); }
+
+  @media (max-width: 900px) {
+    /* No celular nada fica preso: a coluna vem inteira e a foto some. Tela de
+       390px não tem largura pra duas colunas nem altura pra segurar uma. */
+    .zx-solu { min-height: 0; }
+    .zx-solu-fixo { position: static; min-height: 0; padding: clamp(56px, 9vh, 88px) 0; }
+    .zx-solu-grade { grid-template-columns: 1fr; }
+    .zx-solu-palco { display: none; }
+    .zx-solu-passo b { color: var(--zx-on-dark); }
+    .zx-solu-passo span { grid-template-rows: 1fr; margin-top: 8px; opacity: 1; }
+    .zx-solu-passo .zx-solu-regua { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .zx-solu { min-height: 0; }
+    .zx-solu-fixo { position: static; min-height: 0; }
+    .zx-solu-passo b { color: var(--zx-on-dark); }
+    .zx-solu-passo span { grid-template-rows: 1fr; margin-top: 8px; opacity: 1; }
+    .zx-solu-passo .zx-solu-regua { display: none; }
+    .zx-solu-palco img { transition: none; }
+    .zx-solu-palco img[data-i="0"] { opacity: 1; transform: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    const sec = document.querySelector<HTMLElement>("[data-solu]");
+    if (!sec) return;
+    const passos = [...sec.querySelectorAll<HTMLElement>(".zx-solu-passo")];
+    const fotos = [...sec.querySelectorAll<HTMLImageElement>(".zx-solu-palco img")];
+    if (!passos.length) return;
+
+    const n = passos.length;
+    let atual = -1;
+
+    const acender = (i: number) => {
+      if (i === atual) return;
+      atual = i;
+      sec.dataset.passo = String(i);
+      passos.forEach((p, k) => p.classList.toggle("is-on", k === i));
+      fotos.forEach((f, k) => f.classList.toggle("is-on", k === i));
+    };
+
+    /* Em tela pequena ou com menos movimento pedido, a lista já vem aberta pelo
+       CSS e o scroll não manda em nada. */
+    const desligado = () =>
+      window.innerWidth <= 900 ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let pendente = false;
+    const medir = () => {
+      pendente = false;
+      if (desligado()) return;
+      const r = sec.getBoundingClientRect();
+      /* O curso útil é a altura da seção menos a tela presa: é quanto a página
+         rola com o bloco parado na frente. */
+      const curso = Math.max(1, sec.offsetHeight - window.innerHeight);
+      const andado = Math.min(1, Math.max(0, -r.top / curso));
+      acender(Math.min(n - 1, Math.floor(andado * n)));
+    };
+
+    const aoRolar = () => {
+      if (!pendente) {
+        pendente = true;
+        requestAnimationFrame(medir);
+      }
+    };
+
+    passos.forEach((p, i) => {
+      p.querySelector("button")?.addEventListener("click", () => {
+        if (desligado()) return;
+        const curso = sec.offsetHeight - window.innerHeight;
+        /* offsetTop NÃO serve aqui: a seção mora dentro da folha, que é o pai
+           posicionado, então ele mede a partir dela e não do documento. */
+        const doTopoDaPagina = sec.getBoundingClientRect().top + window.scrollY;
+        /* o meio da faixa daquele passo, pra não cair na fronteira */
+        const alvo = doTopoDaPagina + curso * ((i + 0.5) / n);
+        window.scrollTo({ top: alvo, behavior: "smooth" });
+      });
+    });
+
+    acender(0);
+    window.addEventListener("scroll", aoRolar, { passive: true });
+    window.addEventListener("resize", aoRolar);
+    medir();
+  })();
+</script>

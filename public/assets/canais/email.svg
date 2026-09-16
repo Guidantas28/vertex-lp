@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
+  <!-- Logo do canal de e-mail (founder 12/09, "Codex Image"): disco vermelho com o envelope branco, mesma pegada dos outros canais. -->
+  <circle cx="20" cy="20" r="20" fill="#F4173D"/>
+  <rect x="9.5" y="13.2" width="21" height="14.6" rx="2.6" fill="#FCFCFC"/>
+  <path d="M10.6 14.6 20 21.2 29.4 14.6" fill="none" stroke="#F4173D" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

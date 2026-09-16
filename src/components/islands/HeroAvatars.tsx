@@ -45,7 +45,10 @@ export default function HeroAvatars() {
           loading={i < 3 ? "eager" : "lazy"}
         />
       ))}
-      <style>{`
+      {/* CSS por dangerouslySetInnerHTML, não como filho do <style>: como filho,
+          o React quebra a string em nós de texto e a remontagem no cliente não
+          bate com a do servidor, e a hidratação da página cai inteira. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .zx-hero-avatars { display: flex; }
         .zx-hero-avatars img {
           width: 34px; height: 34px;
@@ -73,7 +76,7 @@ export default function HeroAvatars() {
         @media (prefers-reduced-motion: reduce) {
           .zx-hero-avatars img.is-swap { animation: none; }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }

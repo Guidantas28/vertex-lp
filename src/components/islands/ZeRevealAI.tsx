@@ -1,15 +1,14 @@
 "use client";
 
 /**
- * ZeRevealAI — apresentação da IA na /v4, modo LIGHT estilo ClickUp.
- * Esquerda: painel com o gradiente da marca (roxo→vermelho→laranja, granulado)
- * em tilt 3D (script [data-tilt] da v4, com preserve-3d + translateZ nas camadas).
+ * ZeRevealAI: apresentação da IA na /v4, no claro.
+ * Esquerda: o Zé em tilt 3D (script [data-tilt] da v4, com preserve-3d + translateZ nas camadas).
  * Ao entrar na viewport os óculos DESCEM e encaixam no rosto do Zé (pixel-perfect,
  * base+óculos no mesmo canvas 2000²) e a nuvem digita "Olá, como eu posso te ajudar?".
  * Anotações mono com linha (estilo ClickUp) ficam fora do painel, no fundo light.
  * Direita: eyebrow + headline + CTA.
  *
- * Assets: public/mascote/ze-roxo-nogog.webp, ze-roxo-goggles.png, ze-roxo-full.png.
+ * Assets: public/mascote/ze-roxo-nogog.png, ze-roxo-goggles.png, ze-roxo-full.png.
  * `videoSrc` (opcional) só faz sentido em fundo escuro (blend screen); no light fica off.
  * Respeita prefers-reduced-motion.
  */
@@ -36,6 +35,15 @@ export function ZeRevealAI({
   const stageRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const inView = useInView(stageRef, { once: true, margin: "0px 0px -18% 0px" });
+
+  /* A entrada da copy é escrita pelo REACT, não pelo observador global do
+     Base.astro. O observador punha `is-visible` nestes nós antes de o React
+     hidratar, e o React encontrava uma classe que não escreveu . daí o
+     "Text content does not match server-rendered HTML" e a página inteira
+     caindo pra render no cliente. No servidor e no primeiro quadro do cliente
+     `inView` é false nos dois, então o HTML bate. */
+  const ent = (extra?: string) =>
+    ["reveal", extra, inView ? "is-visible" : ""].filter(Boolean).join(" ");
   const reduce = useReducedMotion();
   const play = inView || reduce;
   const [videoReady, setVideoReady] = useState(false);
@@ -149,15 +157,15 @@ export function ZeRevealAI({
                 <div className="zx-zehero-still">
                   {/* base sem óculos */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/mascote/ze-roxo-nogog.webp" alt="Zé" style={img} draggable={false} />
+                  <img src="/mascote/ze-roxo-nogog.png" alt="Zé" style={img} draggable={false} />
                   {/* óculos que caem girando e encaixam */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="zx-zehero-gog" src="/mascote/ze-roxo-goggles.webp" alt="" style={img} draggable={false} />
+                  <img className="zx-zehero-gog" src="/mascote/ze-roxo-goggles.png" alt="" style={img} draggable={false} />
                   {/* flash de impacto */}
                   <span className="zx-zehero-flash" aria-hidden="true" />
                   {/* render completo (crossfade) */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="zx-zehero-full" src="/mascote/ze-roxo-full.webp" alt="Zé com óculos" style={img} draggable={false} />
+                  <img className="zx-zehero-full" src="/mascote/ze-roxo-full.png" alt="Zé com óculos" style={img} draggable={false} />
                 </div>
                 {/* loop do Zé flutuando (só em fundo escuro) */}
                 {videoSrc && (
@@ -197,18 +205,18 @@ export function ZeRevealAI({
 
         {/* COPY */}
         <div className="zx-zehero-copy">
-          <p className="zx-zehero-hand reveal" aria-hidden="true">
+          <p className={ent("zx-zehero-hand")} aria-hidden="true">
             A nova era de vender
             <svg className="zx-zehero-hand-line" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none" aria-hidden="true">
               <path d="M3 8c40-6 120-7 194-3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
             </svg>
           </p>
-          <h2 className="reveal reveal-delay-1">Conheça o Zé.<br />A IA que trabalha por você.</h2>
-          <p className="zx-zehero-sub reveal reveal-delay-2">
+          <h2 className={ent("reveal-delay-1")}>Conheça o Zé.<br />A IA que <strong>trabalha</strong> por você.</h2>
+          <p className={ent("zx-zehero-sub reveal-delay-2")}>
             Ele mora dentro do VOS, enxerga seu negócio inteiro e executa: responde, vende,
             agenda e cobra. Você só pede, em português.
           </p>
-          <div className="reveal reveal-delay-3 mt-6">
+          <div className={ent("reveal-delay-3 mt-6")}>
             <GetStartedButton label="Começar com o Zé" />
           </div>
         </div>

@@ -117,11 +117,14 @@ const grafoDaMarca = {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <!-- Fontes: Geist (UI, estilo Vercel) · JetBrains Mono (labels) -->
+    <!-- Fontes. O BLOG e a /lp seguem com as faces antigas (Geist, JetBrains,
+         Plus Jakarta); o site novo usa Inter (voz) + Inter Tight (o Fio, o
+         display do palco) + Caveat (manuscrita). Uma requisição só pras duas
+         famílias, porque tirar as antigas quebraria as páginas que ficaram. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Geist:wght@400;500;600;700&family=Inter:wght@300..700&family=Inter+Tight:wght@300..700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
       rel="stylesheet"
     />
 
@@ -151,7 +154,10 @@ const grafoDaMarca = {
     <!-- Scroll reveal: robusto no mobile — nada fica invisível pra sempre. -->
     <script is:inline>
       (function () {
-        var els = Array.prototype.slice.call(document.querySelectorAll(".reveal"));
+        /* Fora das ILHAS: o React é dono dos nós dele e quebra com qualquer
+           classe que não escreveu (quem mora dentro de um astro-island faz a
+           própria entrada). */
+        var els = Array.prototype.slice.call(document.querySelectorAll(".reveal:not(astro-island *)"));
         if (!els.length) return;
         var show = function (el) { el.classList.add("is-visible"); };
 

@@ -33,7 +33,7 @@ const CHATS: Record<string, ChatMsg[]> = {
   vendas: [
     { from: "ze", text: "Oi! Vi seu interesse 👋 Posso te ajudar com o modelo?" },
     { from: "client", text: "Quero o orçamento, pode ser?" },
-    { from: "ze", text: "Pronto — proposta + link de pagamento: vos.app/p/4812" },
+    { from: "ze", text: "Pronto: proposta + link de pagamento em vos.app/p/4812" },
     { from: "client", text: "Paguei no PIX agora" },
     { from: "ze", text: "PIX confirmado ✓ Pedido #4812 no caixa." },
     { from: "ze", text: "Nota e comprovante no seu e-mail." },
@@ -50,13 +50,13 @@ const CHATS: Record<string, ChatMsg[]> = {
     { from: "client", text: "Oi, meu pedido #4812 já saiu?" },
     { from: "ze", text: "Saiu sim! Código de rastreio: BR392817 📦" },
     { from: "client", text: "E se eu precisar trocar?" },
-    { from: "ze", text: "Pode trocar em até 7 dias — te passo pra Ana." },
+    { from: "ze", text: "Pode trocar em até 7 dias, te passo pra Ana." },
     { from: "client", text: "Perfeito, obrigado!" },
     { from: "ze", text: "Ana já tem o histórico do chat ✓" },
   ],
   orcamento: [
     { from: "client", text: "Pode mandar o orçamento dos 3 climatizadores?" },
-    { from: "ze", text: "Claro — preparei a proposta #ORC-882." },
+    { from: "ze", text: "Claro, preparei a proposta #ORC-882." },
     { from: "ze", text: "Total R$ 4.890 · validade 7 dias: vos.app/o/882" },
     { from: "client", text: "Aprovado, pode seguir!" },
     { from: "ze", text: "Orçamento aprovado ✓ Gerando pedido no CRM…" },
@@ -84,7 +84,7 @@ const CHATS: Record<string, ChatMsg[]> = {
     { from: "ze", text: "2) Meta: 87% do mês · falta R$ 12.4k" },
     { from: "ze", text: "3) 2 clientes em risco de churn" },
     { from: "client", text: "Aciona o time de vendas nos leads" },
-    { from: "ze", text: "Feito — tarefas criadas pra cada lead ✓" },
+    { from: "ze", text: "Feito: tarefas criadas pra cada lead ✓" },
   ],
 };
 
@@ -158,7 +158,10 @@ function PhoneChat({
         </div>
       </div>
 
-      <style>{`
+      {/* CSS por dangerouslySetInnerHTML, não como filho do <style>: como filho,
+          o React quebra a string em nós de texto e a remontagem no cliente não
+          bate com a do servidor, e a hidratação da página cai inteira. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .tchat-viewport {
           -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 8%, #000 88%, transparent 100%);
           mask-image: linear-gradient(180deg, transparent 0%, #000 8%, #000 88%, transparent 100%);
@@ -187,7 +190,7 @@ function PhoneChat({
             overflow-y: auto;
           }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }
@@ -237,7 +240,7 @@ export default function TeamPreviewSwitch({
               ★★★★★
             </span>
           </span>
-          <style>{`
+          <style dangerouslySetInnerHTML={{ __html: `
             .vos-trust__rating {
               font-size: 13px;
               color: rgba(255, 255, 255, 0.92);
@@ -248,14 +251,14 @@ export default function TeamPreviewSwitch({
               color: #fff;
             }
             .vos-trust__stars {
-              color: #EFB008;
+              color: #FF7A33;
               letter-spacing: 0.12em;
             }
             /* HeroAvatars no fundo laranja: borda clara */
             .vos-trust .zx-hero-avatars img {
               border-color: rgba(255, 255, 255, 0.92);
             }
-          `}</style>
+          ` }} />
         </span>
       }
       tabs={tabs}
