@@ -44,10 +44,10 @@ const SCENES: Scene[] = [
       },
     },
     thanks: [
-      { who: "Carla", what: "Orçamento aprovado", tone: "#1EB258", kind: "quote" },
+      { who: "Carla", what: "Orçamento aprovado", tone: "#15935A", kind: "quote" },
       { who: "Caixa", what: "PIX +R$ 4.890", tone: "#ED4B00", kind: "pix" },
-      { who: "Fiscal", what: "NF-e na fila", tone: "#2E6BFF", kind: "doc" },
-      { who: "Zé", what: "Lembrei pra próxima", tone: "#8B76FF", kind: "mem" },
+      { who: "Fiscal", what: "NF-e na fila", tone: "#1F6FEB", kind: "doc" },
+      { who: "Zé", what: "Lembrei pra próxima", tone: "#6D4AFF", kind: "mem" },
     ],
   },
   {
@@ -69,9 +69,9 @@ const SCENES: Scene[] = [
       },
     },
     thanks: [
-      { who: "Agenda", what: "Horário reservado", tone: "#7A5BFF", kind: "cal" },
+      { who: "Agenda", what: "Horário reservado", tone: "#6D4AFF", kind: "cal" },
       { who: "Carla", what: "Avisada no WhatsApp", tone: "#25D366", kind: "wa" },
-      { who: "Caio", what: "Time notificado", tone: "#0E97A8", kind: "team" },
+      { who: "Caio", what: "Time notificado", tone: "#1F6FEB", kind: "team" },
       { who: "Zé", what: "Lembrete 1h antes", tone: "#C9810C", kind: "mem" },
     ],
   },
@@ -94,8 +94,8 @@ const SCENES: Scene[] = [
       },
     },
     thanks: [
-      { who: "Marina", what: "PIX recebido", tone: "#1EB258", kind: "pix" },
-      { who: "Rafa", what: "PIX recebido", tone: "#1EB258", kind: "pix" },
+      { who: "Marina", what: "PIX recebido", tone: "#15935A", kind: "pix" },
+      { who: "Rafa", what: "PIX recebido", tone: "#15935A", kind: "pix" },
       { who: "Lia", what: "Lembrete sexta", tone: "#C9810C", kind: "cal" },
       { who: "Caixa", what: "Saldo atualizado", tone: "#ED4B00", kind: "cash" },
     ],
@@ -288,7 +288,7 @@ export default function ZeDelegaScene() {
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20, filter: "blur(4px)", transition: { duration: 0.35 } }}
-              transition={{ type: "spring", stiffness: 220, damping: 24 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="zds-phone">
                 <div className="zds-phone-notch" />
@@ -309,7 +309,7 @@ export default function ZeDelegaScene() {
                         className={`zds-bubble zds-bubble--${m.from}`}
                         initial={{ opacity: 0, y: 16, scale: 0.92 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ type: "spring", stiffness: 320, damping: 24 }}
+                        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
                       >
                         {m.text}
                       </motion.div>
@@ -322,23 +322,23 @@ export default function ZeDelegaScene() {
                         className="zds-sheet"
                         initial={{ opacity: 0, y: 40, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ type: "spring", stiffness: 240, damping: 20 }}
+                        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                       >
                         <div
                           className="zds-sheet-img"
                           style={{
                             ["--c" as string]:
                               sc.phone.sheet.kind === "quote" ? "#C9810C" :
-                              sc.phone.sheet.kind === "cal" ? "#7A5BFF" :
-                              sc.phone.sheet.kind === "cash" ? "#ED4B00" : "#1EB258",
+                              sc.phone.sheet.kind === "cal" ? "#6D4AFF" :
+                              sc.phone.sheet.kind === "cash" ? "#ED4B00" : "#15935A",
                           }}
                         >
                           <KindMark
                             kind={sc.phone.sheet.kind}
                             tone={
                               sc.phone.sheet.kind === "quote" ? "#C9810C" :
-                              sc.phone.sheet.kind === "cal" ? "#7A5BFF" :
-                              sc.phone.sheet.kind === "cash" ? "#ED4B00" : "#1EB258"
+                              sc.phone.sheet.kind === "cal" ? "#6D4AFF" :
+                              sc.phone.sheet.kind === "cash" ? "#ED4B00" : "#15935A"
                             }
                           />
                         </div>
@@ -392,7 +392,7 @@ export default function ZeDelegaScene() {
                       rotateX: slot.rx,
                       filter: `blur(${slot.blur}px)`,
                     }}
-                    transition={{ type: "spring", stiffness: 220, damping: 20, mass: 0.85 }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   >
                     <span className="zds-check" style={{ ["--c" as string]: t.tone }}>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.8} strokeLinecap="round" strokeLinejoin="round">
@@ -435,7 +435,14 @@ export default function ZeDelegaScene() {
         )}
       </p>
 
-      <style>{`
+      {/* O CSS entra por dangerouslySetInnerHTML, e não como filho do <style>.
+          Como filho, o React quebra a string em nós de texto e a remontagem no
+          cliente não bate com o que veio do servidor . era esse o "Text content
+          did not match" que derrubava a hidratação da página inteira. Com o
+          innerHTML cru ele não tenta reconciliar o conteúdo. */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .zds {
           position: relative;
           width: 100%;
@@ -460,8 +467,7 @@ export default function ZeDelegaScene() {
           transform: translate(-50%, -50%);
           border-radius: 50%;
           background:
-            radial-gradient(closest-side, rgba(255, 190, 120, 0.5), transparent 70%),
-            radial-gradient(closest-side, rgba(120, 90, 255, 0.42), transparent 76%);
+            radial-gradient(closest-side, rgba(109, 74, 255, 0.4), transparent 74%);
           filter: blur(30px);
           opacity: 0.32;
           transition: opacity .7s ease, transform .7s ease;
@@ -499,21 +505,21 @@ export default function ZeDelegaScene() {
           border-radius: 999px;
           background: #fff;
           box-shadow:
-            0 28px 60px -22px rgba(20, 8, 40, 0.75),
+            0 28px 60px -22px rgba(8, 9, 10, 0.6),
             0 0 0 1px rgba(255,255,255,.4);
         }
         .zds-composer.is-sent {
           box-shadow:
-            0 28px 60px -22px rgba(20, 8, 40, 0.75),
-            0 0 0 3px rgba(255, 190, 90, 0.35);
+            0 28px 60px -22px rgba(8, 9, 10, 0.6),
+            0 0 0 3px rgba(237, 75, 0, 0.35);
         }
         .zds-composer img { border-radius: 11px; flex: 0 0 auto; }
         .zds-composer p {
           flex: 1; min-width: 0; margin: 0;
-          font-size: 13.5px; font-weight: 600; color: #14131C;
+          font-size: 13.5px; font-weight: 600; color: #171717;
           line-height: 1.35; white-space: nowrap; overflow: hidden;
         }
-        .zds-ph { color: rgba(20,19,28,.38); font-weight: 500; }
+        .zds-ph { color: rgba(23,23,23,.38); font-weight: 500; }
         .zds-caret {
           display: inline-block; width: 1.5px; height: 1em;
           margin-left: 2px; vertical-align: text-bottom;
@@ -523,7 +529,7 @@ export default function ZeDelegaScene() {
         .zds-send {
           display: grid; place-items: center;
           width: 36px; height: 36px; flex: 0 0 auto;
-          border-radius: 99px; background: #14131C; color: #fff;
+          border-radius: 99px; background: #171717; color: #fff;
         }
         .zds-send svg { width: 16px; height: 16px; }
         .zds-hint {
@@ -542,7 +548,7 @@ export default function ZeDelegaScene() {
           align-items: stretch;
           justify-content: center;
           transform-style: preserve-3d;
-          filter: drop-shadow(0 40px 60px rgba(10, 4, 30, 0.55));
+          filter: drop-shadow(0 40px 60px rgba(8, 9, 10, 0.5));
           /* fade do aparelho no palco — simula borda infinita */
           -webkit-mask-image: linear-gradient(
             to bottom,
@@ -564,7 +570,7 @@ export default function ZeDelegaScene() {
           height: 100%;
           max-height: 100%;
           border-radius: 40px;
-          background: linear-gradient(165deg, #2a2438 0%, #12101a 55%, #0c0a12 100%);
+          background: linear-gradient(165deg, #1B2126 0%, #101214 55%, #08090A 100%);
           border: 2px solid rgba(255,255,255,.18);
           box-shadow:
             inset 0 1px 0 rgba(255,255,255,.2),
@@ -579,7 +585,7 @@ export default function ZeDelegaScene() {
           width: 96px; height: 24px;
           transform: translateX(-50%);
           border-radius: 99px;
-          background: #050508;
+          background: #08090A;
           z-index: 2;
         }
         .zds-phone-head {
@@ -592,7 +598,7 @@ export default function ZeDelegaScene() {
           width: 32px; height: 32px; border-radius: 99px; flex: 0 0 auto;
           background:
             url("/assets/ze/ze-heroi-sm.webp") center/cover,
-            linear-gradient(135deg, #7A5BFF, #ED4B00);
+            linear-gradient(135deg, #6D4AFF, #4A32B8);
         }
         .zds-phone-head strong {
           display: block; font-size: 13px; font-weight: 700; color: #fff;
@@ -607,8 +613,8 @@ export default function ZeDelegaScene() {
           font-family: var(--zx-mono, monospace);
           font-size: 8.5px; letter-spacing: .12em;
           padding: 4px 7px; border-radius: 99px;
-          color: #4AE583; background: rgba(74,229,131,.12);
-          border: 1px solid rgba(74,229,131,.35);
+          color: #3DBE7A; background: rgba(61,190,122,.12);
+          border: 1px solid rgba(61,190,122,.35);
         }
         .zds-chat {
           flex: 1 1 auto;
@@ -618,7 +624,7 @@ export default function ZeDelegaScene() {
           flex-direction: column;
           gap: 10px;
           overflow: hidden;
-          background: radial-gradient(80% 50% at 50% 0%, rgba(91,69,209,.18), transparent 60%);
+          background: radial-gradient(80% 50% at 50% 0%, rgba(109,74,255,.16), transparent 60%);
           /* conteúdo some suave — não corta seco */
           -webkit-mask-image: linear-gradient(
             to bottom,
@@ -643,7 +649,7 @@ export default function ZeDelegaScene() {
         }
         .zds-bubble--user {
           align-self: flex-end;
-          background: #fff; color: #14131C;
+          background: #fff; color: #171717;
           border-bottom-right-radius: 5px;
         }
         .zds-bubble--ze {
@@ -671,25 +677,25 @@ export default function ZeDelegaScene() {
           display: grid;
           place-items: center;
           background:
-            radial-gradient(80% 80% at 30% 20%, color-mix(in srgb, var(--c, #7A5BFF) 45%, transparent), transparent 60%),
-            linear-gradient(145deg, #2a1f3d, #161022);
+            radial-gradient(80% 80% at 30% 20%, color-mix(in srgb, var(--c, #6D4AFF) 40%, transparent), transparent 60%),
+            linear-gradient(145deg, #1B2126, #101214);
         }
-        .zds-sheet-body { padding: 10px 12px 12px; color: #14131C; }
+        .zds-sheet-body { padding: 10px 12px 12px; color: #171717; }
         .zds-sheet-body span {
           display: inline-block;
           font-size: 10px; font-weight: 700;
-          color: #0F7A3C; background: rgba(30,178,88,.12);
+          color: #15935A; background: rgba(21,147,90,.12);
           padding: 2px 7px; border-radius: 99px; margin-bottom: 6px;
         }
         .zds-sheet-body strong {
           display: block; font-size: 13.5px; font-weight: 750; letter-spacing: -.02em;
         }
         .zds-sheet-body p {
-          margin: 2px 0 0; font-size: 11.5px; color: rgba(20,19,28,.55);
+          margin: 2px 0 0; font-size: 11.5px; color: rgba(23,23,23,.55);
         }
         .zds-sheet-body b {
           display: block; margin-top: 8px;
-          font-size: 18px; font-weight: 800; color: #0F7A3C; letter-spacing: -.03em;
+          font-size: 18px; font-weight: 700; color: #15935A; letter-spacing: -.03em;
         }
 
         /* ACT 3 — cloud */
@@ -706,12 +712,12 @@ export default function ZeDelegaScene() {
         .zds-card {
           position: absolute;
           width: min(196px, 54vw);
-          border-radius: 18px;
+          border-radius: 16px;
           overflow: visible;
           background: #fff;
-          color: #14131C;
+          color: #171717;
           box-shadow:
-            0 30px 60px -24px rgba(20, 8, 40, 0.7),
+            0 30px 60px -24px rgba(8, 9, 10, 0.5),
             inset 0 1px 0 #fff;
           transform-style: preserve-3d;
           will-change: transform, opacity, filter;
@@ -723,18 +729,18 @@ export default function ZeDelegaScene() {
           width: 28px; height: 28px; border-radius: 99px;
           background: #fff; color: var(--c);
           border: 2px solid color-mix(in srgb, var(--c) 45%, #fff);
-          box-shadow: 0 6px 16px -6px rgba(20,8,40,.4);
+          box-shadow: 0 6px 16px -6px rgba(8,9,10,.3);
         }
         .zds-check svg { width: 14px; height: 14px; }
         .zds-card-visual {
           height: 84px;
-          border-radius: 18px 18px 0 0;
+          border-radius: 16px 16px 0 0;
           overflow: hidden;
           display: grid;
           place-items: center;
           background:
-            radial-gradient(90% 90% at 70% 20%, color-mix(in srgb, var(--c) 50%, transparent), transparent 62%),
-            linear-gradient(150deg, #2a2140, #14101f 70%);
+            radial-gradient(90% 90% at 70% 20%, color-mix(in srgb, var(--c) 45%, transparent), transparent 62%),
+            linear-gradient(150deg, #1B2126, #101214 70%);
         }
         .zds-card.is-hero .zds-card-visual { height: 92px; }
         .zds-kind {
@@ -755,7 +761,7 @@ export default function ZeDelegaScene() {
         }
         .zds-card em {
           display: block; margin: 2px 12px 12px;
-          font-style: normal; font-size: 11.5px; color: rgba(20,19,28,.55);
+          font-style: normal; font-size: 11.5px; color: rgba(23,23,23,.55);
         }
 
         .zds-status {
@@ -771,8 +777,8 @@ export default function ZeDelegaScene() {
           background: rgba(255,255,255,.45);
         }
         .zds-dot.is-on {
-          background: #4AE583;
-          box-shadow: 0 0 10px #4AE583;
+          background: #3DBE7A;
+          box-shadow: 0 0 10px rgba(61,190,122,.6);
           animation: zds-blink 1.6s ease infinite;
         }
 
@@ -790,7 +796,9 @@ export default function ZeDelegaScene() {
           .zds-card-visual { height: 70px; }
           .zds-card.is-hero .zds-card-visual { height: 78px; }
         }
-      `}</style>
+`,
+        }}
+      />
     </div>
   );
 }

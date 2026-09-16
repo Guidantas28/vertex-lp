@@ -6,35 +6,83 @@ import FunnelLive from "../islands/FunnelLive.tsx";
 import FinanceLive from "../islands/FinanceLive.tsx";
 import GestaoLive from "../islands/GestaoLive.tsx";
 
-type ChatItem =
+type Msg =
   | { kind: "in" | "out"; text: string; time: string }
-  | { kind: "pay"; order: string; price: string; cta: string }
-  | { kind: "sep"; label: string };
+  | { kind: "pay"; order: string; price: string; cta: string; icon: string };
 
-const CHAT: ChatItem[] = [
-  { kind: "in", text: "Oi! Vocês têm o modelo 42 em estoque?", time: "21:04" },
-  { kind: "out", text: "Temos sim! Separei o seu com link de pagamento 👇", time: "21:05" },
-  { kind: "pay", order: "Pedido #4812", price: "R$ 389,90", cta: "Pagar com PIX" },
-  { kind: "in", text: "Paguei! Quando chega?", time: "21:07" },
-  { kind: "out", text: "PIX confirmado ✓ Sai pra entrega amanhã até 12h.", time: "21:07" },
-  { kind: "sep", label: "Marina · Instagram" },
-  { kind: "in", text: "Ainda tem o vestido bege no M?", time: "21:12" },
-  { kind: "out", text: "Tem 2 unidades. Quer que eu reserve pra você?", time: "21:13" },
-  { kind: "in", text: "Reserva! Vou buscar hoje.", time: "21:13" },
-  { kind: "out", text: "Reservado por 2h · te mando o endereço do balcão.", time: "21:14" },
-  { kind: "sep", label: "Carlos · WhatsApp" },
-  { kind: "in", text: "Dá pra parcelar o notebook em 6x?", time: "21:18" },
-  { kind: "out", text: "Sim, 6x de R$ 249 no cartão. Fecho pra você?", time: "21:18" },
-  { kind: "pay", order: "Pedido #4819", price: "R$ 1.494,00", cta: "Pagar no cartão" },
-  { kind: "in", text: "Feito. Nota no CNPJ 12.345?", time: "21:20" },
-  { kind: "out", text: "NF-e emitida e enviada no e-mail ✓", time: "21:21" },
+type Conversa = {
+  nome: string;
+  foto: string;
+  canal: "whatsapp" | "instagram" | "email";
+  msgs: Msg[];
+};
+
+// Gente de verdade nas conversas: foto, nome e o ícone do canal em que ela chegou.
+const CONVERSAS: Conversa[] = [
+  {
+    nome: "Carla Mendes",
+    foto: "/assets/people/social-19.webp",
+    canal: "whatsapp",
+    msgs: [
+      { kind: "in", text: "Oi! Vocês têm o modelo 42 em estoque?", time: "21:04" },
+      { kind: "out", text: "Temos sim! Separei o seu com link de pagamento 👇", time: "21:05" },
+      { kind: "pay", order: "Pedido #4812", price: "R$ 389,90", cta: "Pagar com PIX", icon: "/assets/icons/pix.svg" },
+      { kind: "in", text: "Paguei! Quando chega?", time: "21:07" },
+      { kind: "out", text: "PIX confirmado ✓ Sai pra entrega amanhã até 12h.", time: "21:07" },
+    ],
+  },
+  {
+    nome: "Patrícia Nunes",
+    foto: "/assets/people/social-12.webp",
+    canal: "instagram",
+    msgs: [
+      { kind: "in", text: "Ainda tem o vestido bege no M?", time: "21:12" },
+      { kind: "out", text: "Tem 2 unidades. Quer que eu reserve pra você?", time: "21:13" },
+      { kind: "in", text: "Reserva! Vou buscar hoje.", time: "21:13" },
+      { kind: "out", text: "Reservado por 2h · te mando o endereço do balcão.", time: "21:14" },
+    ],
+  },
+  {
+    nome: "Sandra Moraes",
+    foto: "/assets/people/social-14.webp",
+    canal: "email",
+    msgs: [
+      { kind: "in", text: "Bom dia, preciso de 40 kits pro evento de sexta.", time: "09:12" },
+      { kind: "out", text: "Bom dia! Montei o orçamento, chega em 2 dias úteis.", time: "09:14" },
+      { kind: "pay", order: "Orçamento #882", price: "R$ 3.120,00", cta: "Aprovar orçamento", icon: "/assets/icons/nfe.svg" },
+      { kind: "in", text: "Aprovado. Pode faturar.", time: "09:31" },
+    ],
+  },
+  {
+    nome: "Renato Alves",
+    foto: "/assets/people/social-13.webp",
+    canal: "whatsapp",
+    msgs: [
+      { kind: "in", text: "Dá pra parcelar o notebook em 6x?", time: "21:18" },
+      { kind: "out", text: "Sim, 6x de R$ 249 no cartão. Fecho pra você?", time: "21:18" },
+      { kind: "pay", order: "Pedido #4819", price: "R$ 1.494,00", cta: "Pagar no cartão", icon: "/assets/icons/nfe.svg" },
+      { kind: "in", text: "Feito. Nota no CNPJ 12.345?", time: "21:20" },
+      { kind: "out", text: "NF-e emitida e enviada no e-mail ✓", time: "21:21" },
+    ],
+  },
 ];
+
+const CANAL_ICON: Record<string, string> = {
+  whatsapp: "/assets/icons/whatsapp.svg",
+  instagram: "/assets/icons/instagram.svg",
+  email: "/assets/icons/email.svg",
+};
+const CANAL_NOME: Record<string, string> = {
+  whatsapp: "WhatsApp",
+  instagram: "Instagram",
+  email: "E-mail",
+};
 ---
 
 <section class="zx-fbento" id="features">
   <div class="zx-container">
     <header class="zx-fbento-head">
-      <h2 class="reveal">Tudo que sua empresa usa,<br />num sistema só.</h2>
+      <h2 class="reveal">Tudo que sua empresa usa,<br />num sistema <strong>só</strong>.</h2>
       <p class="reveal reveal-delay-2">
         Agenda, vendas, ordens de serviço, WhatsApp e financeiro conversando entre si. Você cuida do negócio; o sistema cuida do resto.
       </p>
@@ -42,7 +90,7 @@ const CHAT: ChatItem[] = [
 
     <div class="zx-fgrid">
       <!-- 1 · ATENDIMENTO (a jornada começa na conversa) -->
-      <article class="zx-fcard reveal">
+      <article class="zx-fcard reveal" data-depth="1">
         <h3>O time todo numa inbox só.</h3>
         <p class="zx-fcard-sub">Conversas viram histórico e venda, nada fica preso no celular de uma pessoa.</p>
         <div class="zx-fchat" aria-hidden="true">
@@ -50,52 +98,62 @@ const CHAT: ChatItem[] = [
             <div class="zx-fchat-track">
               {[0, 1].map((dup) => (
                 <div class="zx-fchat-seq" data-dup={dup}>
-                  {CHAT.map((m, i) => (
-                    m.kind === "sep" ? (
-                      <div class="zx-fchat-sep"><span>{m.label}</span></div>
-                    ) : m.kind === "pay" ? (
-                      <div class="zx-fchat-card">
-                        <span>{m.order} · {m.price}</span>
-                        <b>{m.cta}</b>
+                  {CONVERSAS.map((c) => (
+                    <div class="zx-fconv">
+                      <div class={`zx-fconv-head is-${c.canal}`}>
+                        <span class="zx-fconv-av">
+                          <img src={c.foto} alt="" width="34" height="34" loading="lazy" decoding="async" />
+                          <img class="zx-fconv-canal" src={CANAL_ICON[c.canal]} alt="" width="14" height="14" loading="lazy" />
+                        </span>
+                        <b>{c.nome}</b>
+                        <em>{CANAL_NOME[c.canal]}</em>
                       </div>
-                    ) : (
-                      <div class={`zx-fchat-msg zx-fchat-msg--${m.kind}`}>
-                        <p>{m.text}</p>
-                        <em>{m.time}</em>
-                      </div>
-                    )
+                      {c.msgs.map((m) => (
+                        m.kind === "pay" ? (
+                          <div class="zx-fchat-card">
+                            <span>{m.order} · {m.price}</span>
+                            <b><img src={m.icon} alt="" width="15" height="15" loading="lazy" />{m.cta}</b>
+                          </div>
+                        ) : (
+                          <div class={`zx-fchat-msg zx-fchat-msg--${m.kind}`}>
+                            <p>{m.text}</p>
+                            <em>{m.time}</em>
+                          </div>
+                        )
+                      ))}
+                    </div>
                   ))}
                 </div>
               ))}
             </div>
           </div>
-          <p class="zx-fcard-note"><i class="zx-fdot"></i>Inbox ao vivo · respondido em 40s</p>
+          <p class="zx-fcard-note"><i class="zx-fdot"></i>WhatsApp, Instagram e e-mail na mesma caixa</p>
         </div>
       </article>
 
       <!-- 2 · VENDA · a conversa vira negócio no funil -->
-      <article class="zx-fcard reveal reveal-delay-1">
+      <article class="zx-fcard reveal reveal-delay-1" data-depth="0.45">
         <h3>Funil que se move sozinho.</h3>
         <p class="zx-fcard-sub">Cada conversa vira oportunidade no estágio certo, sem digitar duas vezes.</p>
         <FunnelLive client:visible />
       </article>
 
       <!-- 3 · GESTÃO · produto, serviço e agenda ciclando por segmento -->
-      <article class="zx-fcard reveal reveal-delay-2">
+      <article class="zx-fcard reveal reveal-delay-2" data-depth="0.8">
         <h3>Produto, serviço e agenda sob controle.</h3>
         <p class="zx-fcard-sub">A venda baixa o estoque, vira ordem de serviço e entra na agenda. Você só acompanha.</p>
         <GestaoLive client:visible />
       </article>
 
       <!-- 4 · AUTOMAÇÃO (wide) · fluxos prontos + agentes seus -->
-      <article class="zx-fcard zx-fcard--wide reveal">
+      <article class="zx-fcard zx-fcard--wide reveal" data-depth="0.35">
         <h3>Fluxos prontos. Ou monte seu próprio agente.</h3>
         <p class="zx-fcard-sub">Ative um fluxo pré-pronto com um clique: cobrança, agendamento, pós-venda. Precisa de algo seu? Crie um agente de IA do zero, sem programar.</p>
         <FlowLive client:visible />
       </article>
 
       <!-- 5 · FINANCEIRO · a jornada termina no caixa -->
-      <article class="zx-fcard reveal reveal-delay-1">
+      <article class="zx-fcard reveal reveal-delay-1" data-depth="0.9">
         <h3>Caixa em tempo real.</h3>
         <p class="zx-fcard-sub">Cada venda atualiza o fluxo na hora. NF-e e PIX nativos, sem integração.</p>
         <FinanceLive client:load />
@@ -108,7 +166,7 @@ const CHAT: ChatItem[] = [
   .zx-fbento {
     position: relative;
     padding: clamp(24px, 4vh, 48px) 0 clamp(20px, 3vh, 32px);
-    color: #F2F0FA;
+    color: var(--zx-on-dark);
   }
 
   .zx-fbento-head {
@@ -122,10 +180,11 @@ const CHAT: ChatItem[] = [
     font-size: var(--zx-fs-title);
     line-height: var(--zx-lh-title);
     letter-spacing: var(--zx-ls-title);
-    font-weight: var(--zx-fw-title);
-    color: #fff;
+    font-weight: var(--zx-fw-title-dark);
+    color: var(--zx-on-dark);
     text-wrap: balance;
   }
+  .zx-fbento-head h2 strong { font-weight: var(--zx-fw-emphasis); }
   .zx-fbento-head > p:last-child {
     margin: 16px auto 0;
     max-width: 540px;
@@ -133,7 +192,7 @@ const CHAT: ChatItem[] = [
     font-size: var(--zx-fs-body);
     font-weight: var(--zx-fw-body);
     line-height: var(--zx-lh-body);
-    color: rgba(242, 240, 250, 0.62);
+    color: rgba(237, 237, 237, 0.62);
   }
 
   /* ── Grid 3 + 2 (estilo Brain²) ── */
@@ -157,37 +216,78 @@ const CHAT: ChatItem[] = [
     position: relative;
     display: flex;
     flex-direction: column;
-    min-height: 420px;
+    min-height: 440px;
     padding: clamp(20px, 2.4vw, 28px);
-    border-radius: 18px;
+    border-radius: var(--zx-r-card);
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.028);
     overflow: hidden;
-    transition: transform 0.45s var(--ease-vos, cubic-bezier(0.22, 1, 0.36, 1)),
-      border-color 0.35s ease, background 0.35s ease;
+    transition: border-color 0.35s var(--zx-ease), background 0.35s var(--zx-ease);
     will-change: transform;
+    /* --d = parallax do scroll (o script escreve), --h = levanta no hover */
+    transform: translate3d(0, calc(var(--d, 0px) + var(--h, 0px)), 0);
   }
   .zx-fcard:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.16);
-    background: rgba(255, 255, 255, 0.045);
+    --h: -3px;
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  /* fio de luz que corre no topo do card quando ele entra na tela */
+  .zx-fcard::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  /* AMBIENTE: a maré de luz do card respira em 14s, com amplitude de 1% do
+     movimento principal. É o que tira o ar de tela congelada entre um evento
+     e outro; a régua diz que ambiente nunca disputa atenção. */
+  .zx-fcard::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(70% 55% at 50% 108%, rgba(237, 75, 0, 0.1), transparent 70%);
+    animation: zx-fmare 14s ease-in-out infinite;
+  }
+  .zx-fcard > * { position: relative; z-index: 1; }
+  @keyframes zx-fmare {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 1; }
+  }
+  .zx-fcard:nth-of-type(2)::after { animation-duration: 17s; animation-delay: -5s; }
+  .zx-fcard:nth-of-type(3)::after { animation-duration: 12s; animation-delay: -9s; }
+  .zx-fcard:nth-of-type(4)::after { animation-duration: 19s; animation-delay: -3s; }
+  .zx-fcard:nth-of-type(5)::after { animation-duration: 15s; animation-delay: -12s; }
+  .zx-fcard.is-visible::before {
+    animation: zx-fsweep 0.9s var(--zx-ease) 0.12s both;
+  }
+  @keyframes zx-fsweep {
+    0% { opacity: 0; transform: translateX(-100%); }
+    35% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(100%); }
   }
 
+  /* Título de card (t7): Inter, peso médio. O Fio é só pra display grande. */
   .zx-fcard h3 {
     margin: 0;
-    font-family: var(--zx-display);
-    font-size: clamp(18px, 1.8vw, 21px);
-    font-weight: 700;
+    font-family: var(--zx-body);
+    font-size: clamp(18px, 1.8vw, 20px);
+    font-weight: 550;
     letter-spacing: -0.02em;
-    line-height: 1.25;
-    color: #fff;
+    line-height: 1.3;
+    color: var(--zx-on-dark);
     text-wrap: balance;
   }
   .zx-fcard-sub {
     margin: 8px 0 0;
     font-size: 13.5px;
     line-height: 1.55;
-    color: rgba(242, 240, 250, 0.6);
+    color: rgba(237, 237, 237, 0.6);
   }
   .zx-fcard-note {
     display: flex;
@@ -195,26 +295,27 @@ const CHAT: ChatItem[] = [
     gap: 7px;
     margin: 14px 0 0;
     font-size: 11.5px;
-    color: rgba(242, 240, 250, 0.5);
+    color: rgba(237, 237, 237, 0.5);
   }
 
   .zx-fdot {
     width: 6px; height: 6px;
     border-radius: 99px;
-    background: var(--zx-verde);
-    box-shadow: 0 0 0 0 rgba(30, 178, 88, 0.5);
+    background: var(--zx-ok-dark);
+    box-shadow: 0 0 0 0 rgba(61, 190, 122, 0.5);
     animation: zx-fping 2.4s ease-out infinite;
   }
   @keyframes zx-fping {
-    0% { box-shadow: 0 0 0 0 rgba(30, 178, 88, 0.45); }
-    70%, 100% { box-shadow: 0 0 0 7px rgba(30, 178, 88, 0); }
+    0% { box-shadow: 0 0 0 0 rgba(61, 190, 122, 0.45); }
+    70%, 100% { box-shadow: 0 0 0 7px rgba(61, 190, 122, 0); }
   }
 
   /* ── 2 · Chat live (scroll infinito) ── */
-  .zx-fchat { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .zx-fchat { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
   .zx-fchat-viewport {
     position: relative;
-    height: 280px;
+    /* altura FIXA: com flex o track inteiro empurrava o card pra 3 mil px */
+    height: clamp(300px, 34vh, 380px);
     overflow: hidden;
     border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.07);
@@ -262,11 +363,16 @@ const CHAT: ChatItem[] = [
   }
   .zx-fchat-msg--out {
     align-self: flex-end;
-    background: color-mix(in srgb, var(--zx-verde) 16%, transparent);
-    border: 1px solid color-mix(in srgb, var(--zx-verde) 30%, transparent);
+    background: color-mix(in srgb, var(--zx-info-dark) 18%, transparent);
+    border: 1px solid color-mix(in srgb, var(--zx-info-dark) 34%, transparent);
     border-bottom-right-radius: 4px;
   }
+  /* SECUNDÁRIA: um brilho atravessa o cartão de pagamento a cada 9s. A régua
+     chama de shimmer e reserva pra acento premium; aqui ele diz "isto é o
+     dinheiro" sem piscar nem gritar. */
   .zx-fchat-card {
+    position: relative;
+    overflow: hidden;
     align-self: flex-end;
     display: flex;
     flex-direction: column;
@@ -274,42 +380,96 @@ const CHAT: ChatItem[] = [
     max-width: 88%;
     padding: 10px 12px;
     border-radius: 12px;
-    border: 1px dashed color-mix(in srgb, var(--zx-verde) 45%, transparent);
+    border: 1px dashed color-mix(in srgb, var(--zx-info-dark) 45%, transparent);
     background: rgba(255, 255, 255, 0.02);
+  }
+  .zx-fchat-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.16) 50%, transparent 62%);
+    transform: translateX(-130%);
+    animation: zx-fbrilho 9s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    pointer-events: none;
+  }
+  @keyframes zx-fbrilho {
+    0%, 78% { transform: translateX(-130%); }
+    92%, 100% { transform: translateX(130%); }
   }
   .zx-fchat-card span { font-size: 11.5px; color: rgba(255, 255, 255, 0.66); }
   .zx-fchat-card b {
-    font-size: 12px;
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 8px;
-    background: color-mix(in srgb, var(--zx-verde) 32%, transparent);
-    text-align: center;
-  }
-  .zx-fchat-sep {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 4px 0;
+    justify-content: center;
+    gap: 7px;
+    font-size: 12px;
+    color: #fff;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--zx-info-dark) 34%, transparent);
   }
-  .zx-fchat-sep::before,
-  .zx-fchat-sep::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.08);
+  .zx-fchat-card b img { display: block; width: 15px; height: 15px; }
+  /* Cabeçalho da conversa: a foto da pessoa e o selo do canal em que ela chegou.
+     Cor aqui vem de fonte REAL (foto e logo de terceiro), não de cor inventada. */
+  .zx-fconv { display: flex; flex-direction: column; gap: 8px; }
+  .zx-fconv + .zx-fconv { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, 0.07); }
+  .zx-fconv-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 2px;
   }
-  .zx-fchat-sep span {
-    font-family: var(--zx-mono);
-    font-size: 9.5px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(242, 240, 250, 0.42);
-    white-space: nowrap;
+  .zx-fconv-av {
+    position: relative;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
   }
+  .zx-fconv-av > img:first-child {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    object-fit: cover;
+    object-position: top center;
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+  }
+  .zx-fconv-canal {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    width: 15px;
+    height: 15px;
+    border-radius: 999px;
+    background: #0b0d0f;
+    padding: 1.5px;
+    box-shadow: 0 0 0 1.5px #0b0d0f;
+  }
+  .zx-fconv-head b {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+  }
+  /* Canal é CATEGORIA: chip do produto, sem marcador de estado. */
+  .zx-fconv-head em {
+    font-style: normal;
+    font-family: var(--zx-body);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    padding: 2px 8px;
+    border-radius: 6px;
+    color: rgba(237, 237, 237, 0.7);
+    background: rgba(255, 255, 255, 0.07);
+    border: 0;
+  }
+  .zx-fconv-head.is-whatsapp em { color: #4ADE80; background: rgba(37, 211, 102, 0.14); }
+  .zx-fconv-head.is-instagram em { color: #F58FB0; background: rgba(225, 48, 108, 0.16); }
+  .zx-fconv-head.is-email em { color: #8FB6FF; background: rgba(77, 141, 255, 0.16); }
 
   @media (prefers-reduced-motion: reduce) {
     .zx-fcard { transition: none; }
+    .zx-fcard::after, .zx-fchat-card::after { animation: none; }
     .zx-fcard:hover { transform: none; }
     .zx-fchat-track { animation: none; }
     .zx-fdot { animation: none; }
@@ -326,6 +486,7 @@ const CHAT: ChatItem[] = [
     margin-top: 16px;
     min-height: 0;
   }
+  .zx-fnotif-stack { justify-content: flex-start; }
   .zx-fnotif-stack {
     position: relative;
     display: flex;
@@ -342,69 +503,67 @@ const CHAT: ChatItem[] = [
     align-items: center;
     gap: 12px;
     padding: 12px 14px;
-    border-radius: 15px;
+    border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.09);
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.028));
     box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.65);
     backdrop-filter: blur(6px);
   }
+  /* A arte é REAL: logo do canal, marca do PIX, foto do produto ou a cara do cliente.
+     Marca e produto em moldura quadrada; gente em moldura redonda. */
   .zx-fnotif-ico {
     display: grid;
     place-items: center;
-    width: 36px; height: 36px;
+    width: 38px; height: 38px;
     flex: 0 0 auto;
     border-radius: 11px;
-    color: var(--c);
-    background: color-mix(in srgb, var(--c) 16%, transparent);
-    border: 1px solid color-mix(in srgb, var(--c) 34%, transparent);
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
-  .zx-fnotif-ico svg { display: block; width: 19px; height: 19px; }
+  .zx-fnotif-ico img { display: block; width: 21px; height: 21px; object-fit: contain; }
+  .zx-fnotif-ico.is-round { border-radius: 999px; }
+  .zx-fnotif-ico.is-round img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+  /* foto de produto preenche a moldura quadrada */
+  .zx-fnotif-ico:not(.is-round) img[src*=".webp"] { width: 100%; height: 100%; object-fit: cover; }
   .zx-fnotif-txt { min-width: 0; }
   .zx-fnotif-txt strong {
     display: flex;
     align-items: center;
     gap: 7px;
+    min-width: 0;
     font-size: 13px;
     font-weight: 700;
     letter-spacing: -0.01em;
-    color: #F4F2FF;
+    color: var(--zx-on-dark);
+  }
+  /* o título trunca; o chip "agora" nunca encolhe nem é cortado */
+  .zx-fnotif-txt strong > span:first-child {
+    min-width: 0;
     white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .zx-fnotif-now {
-    font-style: normal;
-    font-family: var(--zx-mono);
-    font-size: 8.5px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    padding: 2px 6px;
-    border-radius: 999px;
-    color: #8B76FF;
-    background: rgba(109, 74, 255, 0.16);
-    border: 1px solid rgba(139, 118, 255, 0.4);
+  /* A notificação nova se marca pela RÉGUA DE ACENTO na borda, não por um chip
+     "agora" disputando espaço com o título (que truncava). */
+  .zx-fnotif-card.is-fresh {
+    border-color: rgba(237, 75, 0, 0.32);
+    box-shadow: inset 3px 0 0 var(--zx-lar), 0 14px 30px -18px rgba(0, 0, 0, 0.65);
   }
   .zx-fnotif-txt span {
     display: block;
     margin-top: 2px;
     font-size: 11.5px;
-    color: rgba(242, 240, 250, 0.55);
+    color: rgba(237, 237, 237, 0.55);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  /* O chip é o do produto: a classe .zx-chip manda na forma e na cor. */
   .zx-fnotif-card em {
     margin-left: auto;
     flex: 0 0 auto;
     font-style: normal;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 999px;
-    color: var(--cc);
-    background: color-mix(in srgb, var(--cc) 15%, transparent);
-    border: 1px solid color-mix(in srgb, var(--cc) 35%, transparent);
-    white-space: nowrap;
   }
   .zx-fnotif .zx-fcard-note {
     display: flex;
@@ -412,13 +571,37 @@ const CHAT: ChatItem[] = [
     gap: 7px;
     margin: 12px 0 0;
     font-size: 11.5px;
-    color: rgba(242, 240, 250, 0.5);
+    color: rgba(237, 237, 237, 0.5);
   }
   .zx-fnotif .zx-fdot {
     width: 6px; height: 6px;
     border-radius: 99px;
-    background: var(--zx-verde);
+    background: var(--zx-ok-dark);
     animation: zx-fping 2.4s ease-out infinite;
     flex: 0 0 auto;
   }
 </style>
+
+<script>
+  // Parallax de scroll do bento: cada card anda numa profundidade própria
+  // (data-depth), então a grade "respira" em vez de subir em bloco.
+  const cards = Array.from(document.querySelectorAll<HTMLElement>(".zx-fcard[data-depth]"));
+  if (cards.length && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const vh = window.innerHeight;
+      for (const card of cards) {
+        const r = card.getBoundingClientRect();
+        if (r.bottom < -200 || r.top > vh + 200) continue;
+        // -1 (entrando por baixo) → 1 (saindo por cima)
+        const p = (r.top + r.height / 2 - vh / 2) / vh;
+        const depth = Number(card.dataset.depth || "0.5");
+        card.style.setProperty("--d", `${(p * -34 * depth).toFixed(1)}px`);
+      }
+    };
+    addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    addEventListener("resize", update, { passive: true });
+    update();
+  }
+</script>

@@ -242,7 +242,7 @@ export default function ProspectCineScene() {
               className="psp-cine__drawer"
               initial={{ x: "108%", opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 220, damping: 26 }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="psp-cine__drawer-top">
                 <b>PP</b>
@@ -263,7 +263,7 @@ export default function ProspectCineScene() {
                 <div><dt>Telefone</dt><dd>(11) 3456-7890</dd></div>
                 <div><dt>E-mail</dt><dd>contato@paoquente.com</dd></div>
                 <div><dt>Instagram</dt><dd>@paoquente.sp</dd></div>
-                <div><dt>Endereço</dt><dd>Rua das Flores, 128 — SP</dd></div>
+                <div><dt>Endereço</dt><dd>Rua das Flores, 128 · SP</dd></div>
               </dl>
               <div className="psp-cine__drawer-cta">Pipeline</div>
             </motion.aside>
@@ -271,7 +271,10 @@ export default function ProspectCineScene() {
         )}
       </AnimatePresence>
 
-      <style>{`
+      {/* CSS por dangerouslySetInnerHTML, não como filho do <style>: como filho,
+          o React quebra a string em nós de texto e a remontagem no cliente não
+          bate com a do servidor, e a hidratação da página cai inteira. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .psp-cine {
           position: relative;
           width: 100%;
@@ -348,11 +351,11 @@ export default function ProspectCineScene() {
           margin-top: 4px;
           align-self: flex-start;
           padding: 11px 16px;
-          border-radius: 999px;
+          border-radius: 10px;
           background: #fff;
-          color: #14131C;
+          color: #101214;
           font-size: 13.5px;
-          font-weight: 750;
+          font-weight: 650;
         }
 
         .psp-cine__scan { text-align: center; padding: 8px 0; }
@@ -362,10 +365,10 @@ export default function ProspectCineScene() {
           margin: 0 auto 18px;
           border-radius: 50%;
           background:
-            radial-gradient(circle at 50% 50%, rgba(125,255,179,0.35), transparent 42%),
+            radial-gradient(circle at 50% 50%, rgba(61,190,122,0.35), transparent 42%),
             repeating-conic-gradient(from 0deg, rgba(255,255,255,0.18) 0deg 8deg, transparent 8deg 24deg);
           border: 1px solid rgba(255,255,255,0.28);
-          box-shadow: 0 0 40px rgba(125,255,179,0.25);
+          box-shadow: 0 0 40px rgba(61,190,122,0.25);
           animation: psp-spin 2.4s linear infinite;
         }
         @keyframes psp-spin { to { transform: rotate(360deg); } }
@@ -379,7 +382,7 @@ export default function ProspectCineScene() {
           display: block;
           margin-top: 4px;
           font-size: 12.5px;
-          color: rgba(255,240,232,0.78);
+          color: rgba(237,237,237,0.78);
         }
         .psp-cine__bar {
           margin: 16px auto 12px;
@@ -393,7 +396,7 @@ export default function ProspectCineScene() {
           display: block;
           height: 100%;
           border-radius: inherit;
-          background: linear-gradient(90deg, #7DFFB3, #FFBE5A, #fff);
+          background: linear-gradient(90deg, rgba(255,255,255,.55), #fff);
         }
         .psp-cine__pings {
           list-style: none;
@@ -409,9 +412,9 @@ export default function ProspectCineScene() {
           border-radius: 999px;
           font-size: 11px;
           font-weight: 700;
-          color: #7DFFB3;
-          background: rgba(125,255,179,0.12);
-          border: 1px solid rgba(125,255,179,0.3);
+          color: #3DBE7A;
+          background: rgba(61,190,122,0.12);
+          border: 1px solid rgba(61,190,122,0.3);
         }
 
         .psp-cine__banner {
@@ -420,8 +423,8 @@ export default function ProspectCineScene() {
           border-radius: 12px;
           font-size: 12px;
           font-weight: 600;
-          color: #0b3d2e;
-          background: rgba(125, 255, 179, 0.88);
+          color: #08090A;
+          background: #3DBE7A;
         }
         .psp-cine__banner b { font-weight: 800; }
         .psp-cine__stats {
@@ -501,8 +504,8 @@ export default function ProspectCineScene() {
           display: block;
         }
         .psp-cine__row i.is-on {
-          background: #2E6BFF;
-          border-color: #2E6BFF;
+          background: #ED4B00;
+          border-color: #ED4B00;
           box-shadow: inset 0 0 0 2px rgba(255,255,255,0.25);
         }
         .psp-cine__toast {
@@ -512,7 +515,7 @@ export default function ProspectCineScene() {
           font-size: 12px;
           font-weight: 700;
           color: #fff;
-          background: rgba(20,19,28,0.45);
+          background: rgba(8,9,10,0.45);
           border: 1px solid rgba(255,255,255,0.2);
           backdrop-filter: blur(8px);
         }
@@ -524,7 +527,7 @@ export default function ProspectCineScene() {
           width: min(74%, 290px);
           padding: 14px 14px 12px;
           border-radius: 18px 0 0 18px;
-          background: rgba(12, 10, 20, 0.55);
+          background: rgba(8, 9, 10, 0.55);
           border: 1px solid rgba(255,255,255,0.22);
           border-right: 0;
           backdrop-filter: blur(16px);
@@ -543,7 +546,7 @@ export default function ProspectCineScene() {
           border-radius: 11px;
           display: grid;
           place-items: center;
-          background: linear-gradient(135deg, #ED4B00, #C9810C);
+          background: rgba(255,255,255,0.14);
           color: #fff;
           font-size: 12px;
           font-weight: 800;
@@ -606,16 +609,16 @@ export default function ProspectCineScene() {
           padding: 10px;
           border-radius: 12px;
           background: #fff;
-          color: #14131C;
+          color: #101214;
           font-size: 12.5px;
-          font-weight: 750;
+          font-weight: 650;
         }
 
         @media (prefers-reduced-motion: reduce) {
           .psp-cine__radar { animation: none; }
           .psp-caret { animation: none; }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }

@@ -15,7 +15,8 @@ type Particle = {
   life: number;
 };
 
-const COLORS = ["#ED4B00", "#FF6B2C", "#5B45D1", "#8B76FF", "#1EB258", "#EFB008", "#2E6BFF", "#fff"];
+// Mono + sinal + o violeta do Zé + verde de "deu certo" (VOS UNO).
+const COLORS = ["#ED4B00", "#FF7A33", "#171717", "#6D4AFF", "#15935A", "#FFFFFF", "#A1A1A1"];
 
 /** Confetti canvas leve — dispara uma vez ao montar. */
 export default function ConfettiBurst({ duration = 3200 }: { duration?: number }) {

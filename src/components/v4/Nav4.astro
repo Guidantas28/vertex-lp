@@ -4,14 +4,27 @@ import Logo from "../site/Logo.astro";
 import { SITE } from "../../data/content";
 import { GetStartedButton } from "../ui/get-started-button";
 
+// Announce bar desligada a pedido do founder (14/09); markup e CSS ficam pra religar.
+const SHOW_TOPBAR = false;
+
+/* Âncoras com a BARRA na frente: a mesma nav aparece na home e em /precos, e
+   um "#segmentos" solto não leva a lugar nenhum fora da home. Na home o
+   navegador trata "/#segmentos" como salto na própria página, sem recarregar.
+   Preços virou PÁGINA em 15/09 (founder: "clicar em preços já leva pra essa
+   página completa só com preço"). */
 const LINKS = [
   { href: "/#features", label: "Plataforma" },
   { href: "/#segmentos", label: "Soluções" },
+  { href: "/precos", label: "Preços" },
   { href: "/#faq", label: "Dúvidas" },
-  { href: "/blog/", label: "Blog" },
 ];
+
+/* Item da página em que se está (só os que são página, não âncora). */
+const aqui = Astro.url.pathname.replace(/\/$/, "");
+const atual = (href: string) => (href.includes("#") ? false : href.replace(/\/$/, "") === aqui);
 ---
 
+{SHOW_TOPBAR && (
 <div class="zx-topbar" id="zx-topbar">
   <a href="#features">
     <strong>NOVO</strong>
@@ -25,17 +38,19 @@ const LINKS = [
     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
   </a>
 </div>
+)}
 
 <header class="zx-nav" id="zx-nav">
   <div class="zx-nav-inner">
-    <Logo />
+    <span class="zx-nav-logo zx-nav-logo--dark"><Logo /></span>
+    <span class="zx-nav-logo zx-nav-logo--light"><Logo variant="light" /></span>
     <nav class="zx-nav-links" aria-label="Seções da página">
-      {LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+      {LINKS.map((l) => <a href={l.href} aria-current={atual(l.href) ? "page" : undefined}>{l.label}</a>)}
     </nav>
     <div class="zx-nav-actions">
-      <a class="zx-nav-login" href={SITE.loginUrl}>Entrar</a>
+      <a class="zx-nav-login" href={SITE.signupUrl}>Entrar</a>
       <span class="zx-nav-cta">
-        <GetStartedButton client:visible label="Criar Conta" className="!py-2.5 !pl-4 !pr-3 !text-[14px] !leading-5" />
+        <GetStartedButton client:visible label="Criar conta" className="!py-2.5 !pl-4 !pr-3 !text-[14px] !leading-5" />
       </span>
     </div>
     <button class="zx-nav-burger" id="zx-burger" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="zx-mobile">
@@ -43,9 +58,9 @@ const LINKS = [
     </button>
   </div>
   <div class="zx-mobile" id="zx-mobile" hidden>
-    {LINKS.map((l) => <a href={l.href}>{l.label}</a>)}
+    {LINKS.map((l) => <a href={l.href} aria-current={atual(l.href) ? "page" : undefined}>{l.label}</a>)}
     <div class="zx-mobile-cta">
-      <GetStartedButton client:visible label="Criar Conta" className="w-full justify-center" />
+      <GetStartedButton client:visible label="Criar conta" className="w-full justify-center" />
     </div>
   </div>
 </header>
@@ -54,16 +69,11 @@ const LINKS = [
   .zx-topbar {
     position: relative;
     z-index: 60;
-    background: #F8F9FA;
-    color: #14131C;
+    background: var(--zx-panel);
+    color: var(--zx-ink);
     font-size: 13px;
     letter-spacing: 0.01em;
-    box-shadow: inset 0 -1px 0 rgba(20, 19, 28, 0.06);
-  }
-  :global(html[data-theme="dark"]) .zx-topbar {
-    background: #F8F9FA;
-    color: #14131C;
-    box-shadow: inset 0 -1px 0 rgba(20, 19, 28, 0.06);
+    box-shadow: inset 0 -1px 0 var(--zx-line);
   }
   .zx-topbar a {
     display: flex;
@@ -84,9 +94,7 @@ const LINKS = [
   }
   .zx-topbar-dot {
     width: 5px; height: 5px; border-radius: 999px;
-    background: var(--zx-lar-2);
-    box-shadow: 0 0 10px var(--zx-lar-2);
-    animation: zx-blink 2.2s ease infinite;
+    background: var(--zx-lar);
     flex: 0 0 auto;
   }
   .zx-topbar-msg {
@@ -98,10 +106,11 @@ const LINKS = [
     min-width: 0;
   }
   .zx-topbar-short { display: none; }
+  /* Logo de terceiro é mono no repouso (UNO): o nome fica na tinta. */
   .zx-topbar-msg em {
     font-style: normal;
     font-weight: 650;
-    color: #D97757;
+    color: var(--zx-ink);
   }
   .zx-topbar-claude {
     width: 18px;
@@ -112,7 +121,6 @@ const LINKS = [
   }
   .zx-topbar a > svg { transition: transform 0.25s var(--ease-vos, ease); flex: 0 0 auto; }
   .zx-topbar a:hover > svg { transform: translateX(3px); }
-  @keyframes zx-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
   @media (max-width: 520px) {
     .zx-topbar { font-size: 12px; }
@@ -126,27 +134,55 @@ const LINKS = [
     .zx-topbar a { gap: 5px; padding: 8px 10px; }
   }
 
+  /* ── Ao rolar, a barra vira PÍLULA flutuante (founder 15/09, referência: a
+     nav da Nuvemshop): solta do topo, afastada das bordas, papel com blur.
+
+     A ALTURA do header não muda nunca: o `index.astro` desconta ela na margem
+     do filme (`--zx-nav-h`), e um header que cresce ao rolar empurraria a
+     página no meio da rolagem. Por isso a pílula é um FUNDO atrás do conteúdo
+     (`::before`) e a descida é `transform`, que não ocupa lugar. ── */
   .zx-nav {
     position: sticky;
     top: 0;
     z-index: 50;
     background: transparent;
-    transition: background 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
-  }
-  .zx-nav.is-scrolled {
-    background: color-mix(in srgb, var(--zx-paper) 82%, transparent);
-    -webkit-backdrop-filter: saturate(1.4) blur(14px);
-    backdrop-filter: saturate(1.4) blur(14px);
-    box-shadow: 0 1px 0 var(--zx-line), 0 12px 32px rgba(20, 19, 28, 0.06);
   }
   .zx-nav-inner {
+    position: relative;
+    isolation: isolate;
     max-width: var(--zx-w);
     margin-inline: auto;
     padding: 14px clamp(16px, 4vw, 32px);
     display: flex;
     align-items: center;
     gap: 28px;
+    transform: translateY(0);
+    transition:
+      transform 0.45s var(--zx-ease),
+      padding 0.45s var(--zx-ease);
   }
+  .zx-nav-inner::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 6px 14px;
+    border-radius: 999px;
+    /* quase opaca: a 90% o preto das seções de baixo tingia o papel de cinza */
+    background: rgba(250, 250, 250, 0.96);
+    -webkit-backdrop-filter: saturate(1.25) blur(14px);
+    backdrop-filter: saturate(1.25) blur(14px);
+    box-shadow:
+      0 0 0 1px rgba(23, 23, 23, 0.06),
+      0 14px 34px -18px rgba(8, 9, 10, 0.55);
+    opacity: 0;
+    transform: scale(0.97);
+    pointer-events: none;
+    transition:
+      opacity 0.3s var(--zx-ease),
+      transform 0.45s var(--zx-ease);
+  }
+  .zx-nav.is-scrolled .zx-nav-inner { transform: translateY(10px); }
+  .zx-nav.is-scrolled .zx-nav-inner::before { opacity: 1; transform: none; }
   .zx-nav-links {
     display: flex;
     gap: 4px;
@@ -154,14 +190,17 @@ const LINKS = [
   }
   .zx-nav-links a {
     padding: 8px 12px;
-    border-radius: 999px;
+    border-radius: 8px;
     font-size: 14px;
-    font-weight: 550;
+    font-weight: 500;
     color: var(--zx-ink2);
     text-decoration: none;
-    transition: color 0.2s ease, background 0.2s ease;
+    transition: color var(--zx-t-micro) var(--zx-ease), background var(--zx-t-micro) var(--zx-ease);
   }
   .zx-nav-links a:hover { color: var(--zx-ink); background: var(--zx-hover); }
+  /* A página em que se está: tinta cheia, sem fundo . o grifo é o peso, não
+     uma segunda pílula dentro da pílula. */
+  .zx-nav-links a[aria-current="page"] { color: var(--zx-ink); font-weight: 600; }
   .zx-nav-actions { display: flex; align-items: center; gap: 14px; }
   .zx-nav-login {
     font-size: 14px;
@@ -169,7 +208,7 @@ const LINKS = [
     color: var(--zx-ink);
     text-decoration: none;
   }
-  .zx-nav-login:hover { color: var(--zx-lar); }
+  .zx-nav-login:hover { color: var(--zx-ink2); }
 
   .zx-nav-burger {
     display: none;
@@ -190,14 +229,22 @@ const LINKS = [
   .zx-nav-burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
   .zx-nav-burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
+  /* O menu aberto do celular é um cartão embaixo da pílula, na mesma curva de
+     papel, e desce junto com ela quando a página já rolou. */
   .zx-mobile {
     display: none;
     flex-direction: column;
     gap: 4px;
+    margin: 6px 8px 0;
     padding: 8px 20px 20px;
+    border-radius: 20px;
     background: var(--zx-paper);
-    border-bottom: 1px solid var(--zx-line);
+    box-shadow:
+      0 0 0 1px rgba(23, 23, 23, 0.06),
+      0 18px 40px -20px rgba(8, 9, 10, 0.55);
+    transition: transform 0.45s var(--zx-ease);
   }
+  .zx-nav.is-scrolled .zx-mobile { transform: translateY(10px); }
   .zx-mobile a:not(.zx-btn) {
     padding: 12px 4px;
     font-size: 16px;
@@ -207,12 +254,61 @@ const LINKS = [
     border-bottom: 1px solid var(--zx-line);
   }
   .zx-mobile-cta { margin-top: 14px; }
-  .zx-mobile-cta :global(button) { width: 100%; }
+  .zx-mobile-cta :global(button), .zx-mobile-cta :global(a) { width: 100%; }
 
   @media (max-width: 900px) {
     .zx-nav-links, .zx-nav-login { display: none; }
-    .zx-nav-burger { display: flex; }
+    /* quem empurrava tudo pras pontas eram os links, que somem aqui: sem a
+       margem o hambúrguer parava no meio da barra */
+    .zx-nav-burger { display: flex; margin-left: auto; }
     .zx-mobile.is-open { display: flex; }
     .zx-nav-cta { display: none; }
+    /* No celular a pílula chega a 8px da borda, e o conteúdo recua junto pra
+       logo e hambúrguer não encostarem na curva dela. */
+    .zx-nav-inner::before { inset: 6px 8px; }
+    .zx-nav.is-scrolled .zx-nav-inner { padding-inline: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-nav-inner,
+    .zx-nav-inner::before,
+    .zx-mobile { transition: none; }
   }
 </style>
+
+<script>
+  /* A barra sabe se comportar sozinha (15/09): isto morava no script da home,
+     e a página de preço nascia com a nav sem estado de rolagem e o menu do
+     celular mudo. */
+  const nav = document.getElementById("zx-nav");
+  /* Numa página com FILME, a barra não acende aos 8px de rolagem: o hero fica
+     preso no fundo e continua atrás dela por uma tela inteira. Ela acende
+     quando a FOLHA encosta nela, que é o instante em que o filme some de trás.
+     Página sem filme (preço) cai no 8px de sempre. */
+  const folha = document.querySelector(".zx--film .zx-sheet");
+  const onScroll = () => {
+    const acende = folha
+      ? folha.getBoundingClientRect().top <= (nav?.offsetHeight ?? 64)
+      : window.scrollY > 8;
+    nav?.classList.toggle("is-scrolled", acende);
+  };
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  const burger = document.getElementById("zx-burger");
+  const mobile = document.getElementById("zx-mobile");
+  burger?.addEventListener("click", () => {
+    const open = burger.getAttribute("aria-expanded") === "true";
+    burger.setAttribute("aria-expanded", String(!open));
+    burger.setAttribute("aria-label", open ? "Abrir menu" : "Fechar menu");
+    if (mobile) {
+      mobile.hidden = open;
+      mobile.classList.toggle("is-open", !open);
+    }
+  });
+  mobile?.querySelectorAll("a").forEach((a) =>
+    a.addEventListener("click", () => {
+      burger?.setAttribute("aria-expanded", "false");
+      if (mobile) { mobile.hidden = true; mobile.classList.remove("is-open"); }
+    })
+  );
+</script>

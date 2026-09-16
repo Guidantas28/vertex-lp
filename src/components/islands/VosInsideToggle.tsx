@@ -18,9 +18,9 @@ type Props = {
 };
 
 const MODES: { id: Mode; label: string }[] = [
-  { id: "delega", label: "Você Delega" },
-  { id: "prospecta", label: "Ele Prospecta" },
-  { id: "times", label: "Por Time" },
+  { id: "delega", label: "Você delega" },
+  { id: "prospecta", label: "Ele prospecta" },
+  { id: "times", label: "Por time" },
 ];
 
 const PROSPECT_STEPS = [
@@ -79,7 +79,7 @@ export default function VosInsideToggle({
                   <path d="M3 8c40-6 120-7 194-3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
                 </svg>
               </p>
-              <h2>Você delega. A IA faz o trabalho.</h2>
+              <h2>Você delega. A IA <strong>faz</strong> o trabalho.</h2>
               <p className="vos-in__sub">
                 Sua inteligência, guardada. Mais esperto a cada mensagem.
               </p>
@@ -91,7 +91,7 @@ export default function VosInsideToggle({
                 <span><i>3</i> Lembra depois</span>
               </div>
               <div className="vos-in__cta">
-                <GetStartedButton variant="white" label="Começar agora" />
+                <GetStartedButton variant="white" label="Teste grátis" />
               </div>
             </div>
             <div className="vos-in__viz">
@@ -114,9 +114,9 @@ export default function VosInsideToggle({
                   <path d="M3 8c40-6 120-7 194-3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
                 </svg>
               </p>
-              <h2>Ele prospecta. Você só fecha.</h2>
+              <h2>Ele prospecta. Você só <strong>fecha</strong>.</h2>
               <p className="vos-in__sub">
-                Varre a internet, acha clientes em massa, joga no CRM e dispara mensagem pra todos —
+                Varre a internet, acha clientes em massa, joga no CRM e dispara mensagem pra todos,
                 agora ou agendado, rodando no automático.
               </p>
               <div className="vos-in__flow vos-in__flow--stack">
@@ -154,7 +154,10 @@ export default function VosInsideToggle({
         </div>
       </div>
 
-      <style>{`
+      {/* CSS por dangerouslySetInnerHTML, não como filho do <style>: como filho,
+          o React quebra a string em nós de texto e a remontagem no cliente não
+          bate com a do servidor, e a hidratação da página cai inteira. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .vos-in {
           position: relative;
           z-index: 2;
@@ -202,9 +205,9 @@ export default function VosInsideToggle({
           gap: 2px;
           padding: 4px;
           margin: 0;
-          border-radius: 999px;
-          background: rgba(255, 255, 255, 0.12);
-          border: 1px solid rgba(255, 255, 255, 0.28);
+          border-radius: 10px;
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.16);
           backdrop-filter: blur(10px);
           box-shadow:
             0 10px 28px -18px rgba(0, 0, 0, 0.45),
@@ -215,10 +218,10 @@ export default function VosInsideToggle({
           top: 4px; bottom: 4px;
           left: 4px;
           width: calc((100% - 8px) / 3);
-          border-radius: 999px;
+          border-radius: 7px;
           background: #fff;
-          box-shadow: 0 8px 20px -10px rgba(20, 19, 28, 0.55);
-          transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+          box-shadow: 0 8px 20px -10px rgba(8, 9, 10, 0.55);
+          transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
           z-index: 0;
         }
         .vos-in__toggle-glow[data-mode="prospecta"] { transform: translateX(100%); }
@@ -233,15 +236,15 @@ export default function VosInsideToggle({
           padding: 9px 14px;
           min-width: 0;
           flex: 1 1 0;
-          border-radius: 999px;
+          border-radius: 7px;
           font-family: inherit;
           font-size: 13px;
-          font-weight: 650;
+          font-weight: 600;
           color: rgba(255, 255, 255, 0.78);
           transition: color 0.25s ease;
           white-space: nowrap;
         }
-        .vos-in__toggle button.is-on { color: #1A202C; }
+        .vos-in__toggle button.is-on { color: #101214; }
         .vos-in__toggle button:hover:not(.is-on) { color: #fff; }
 
         .vos-in__stage {
@@ -295,7 +298,7 @@ export default function VosInsideToggle({
           font-weight: 700;
           font-size: clamp(28px, 3.6vw, 44px);
           line-height: 0.95;
-          color: #FFBE5A;
+          color: var(--zx-lar-2, #FF7A33);
           transform: rotate(-3.5deg);
         }
         .vos-in__hand-line {
@@ -304,20 +307,21 @@ export default function VosInsideToggle({
           bottom: -0.22em;
           width: 100%;
           height: 0.36em;
-          color: color-mix(in srgb, #FFBE5A 80%, transparent);
+          color: color-mix(in srgb, var(--zx-lar-2, #FF7A33) 80%, transparent);
           overflow: visible;
           pointer-events: none;
         }
         .vos-in__copy h2 {
           margin: 10px 0 0;
-          font-family: var(--zx-display, "Plus Jakarta Sans", system-ui, sans-serif);
+          font-family: var(--zx-display, "Inter Tight", Inter, system-ui, sans-serif);
           font-size: var(--zx-fs-title, clamp(32px, 3.8vw, 44px));
-          line-height: var(--zx-lh-title, 1.1);
-          letter-spacing: var(--zx-ls-title, -0.02em);
-          font-weight: var(--zx-fw-title, 700);
+          line-height: var(--zx-lh-title, 1.08);
+          letter-spacing: var(--zx-ls-title, -0.03em);
+          font-weight: var(--zx-fw-title-dark, 400);
           color: #fff;
           text-wrap: balance;
         }
+        .vos-in__copy h2 strong { font-weight: 600; }
         .vos-in__sub {
           margin: 14px 0 0;
           max-width: 440px;
@@ -325,7 +329,7 @@ export default function VosInsideToggle({
           font-size: var(--zx-fs-body, 16px);
           line-height: var(--zx-lh-body, 22px);
           font-weight: var(--zx-fw-body, 400);
-          color: rgba(255, 240, 232, 0.88);
+          color: rgba(237, 237, 237, 0.8);
           text-wrap: balance;
         }
         .vos-in__flow {
@@ -406,7 +410,7 @@ export default function VosInsideToggle({
 
         .vos-in__times {
           --foreground: #ffffff;
-          --muted-foreground: rgba(255, 240, 232, 0.82);
+          --muted-foreground: rgba(237, 237, 237, 0.8);
           --background: transparent;
           --border: rgba(255, 255, 255, 0.22);
           --muted: rgba(255, 255, 255, 0.12);
@@ -452,26 +456,26 @@ export default function VosInsideToggle({
         .vos-in__times .vos-team-switch [role="tablist"] {
           gap: 8px;
           padding: 6px;
-          border-radius: 22px;
+          border-radius: 12px;
           background: rgba(255, 255, 255, 0.08);
           border: 1px solid rgba(255, 255, 255, 0.16);
           backdrop-filter: blur(8px);
         }
         .vos-in__times .vos-team-switch [role="tab"] {
           padding: 10px 16px;
-          border-radius: 999px;
+          border-radius: 8px;
           min-width: 128px;
         }
         .vos-in__times .vos-team-switch [role="tab"][aria-selected="true"] {
           background: #fff !important;
-          color: #1A202C !important;
+          color: #101214 !important;
         }
         .vos-in__times .vos-team-switch [role="tab"]:not([aria-selected="true"]) {
           color: rgba(255, 255, 255, 0.55) !important;
         }
         .vos-in__times :is(h2, h3, p, span, a, button) { color: inherit; }
         .vos-in__times [class*="text-foreground"] { color: #fff !important; }
-        .vos-in__times [class*="text-muted-foreground"] { color: rgba(255, 240, 232, 0.82) !important; }
+        .vos-in__times [class*="text-muted-foreground"] { color: rgba(237, 237, 237, 0.8) !important; }
         .vos-in__times [class*="bg-muted"] {
           background: rgba(255, 255, 255, 0.14) !important;
         }
@@ -483,7 +487,7 @@ export default function VosInsideToggle({
         .vos-in__times a[class*="bg-foreground"],
         .vos-in__times button[class*="bg-foreground"] {
           background: #fff !important;
-          color: #14131C !important;
+          color: #101214 !important;
         }
         .vos-in__times a[class*="border"] {
           background: rgba(255, 255, 255, 0.1) !important;
@@ -522,7 +526,7 @@ export default function VosInsideToggle({
         @media (prefers-reduced-motion: reduce) {
           .vos-in__toggle-glow { transition: none; }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }

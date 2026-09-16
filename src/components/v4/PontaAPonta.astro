@@ -1,0 +1,138 @@
+---
+// "De ponta a ponta": a fileira do que o VOS faz, rolando sozinha.
+//
+// Os rótulos são os NOMES DE VERDADE dos módulos, copiados do produto
+// (apps/web .. app-shell/vos-nav.ts e finance/v2/finance-nav.ts). Inventar nome
+// aqui criaria um segundo vocabulário: quem vê "Gestão de pedidos" no site e
+// "Pedidos" no menu acha que são coisas diferentes.
+//
+// Referência de composição: a faixa de ícones da Nuvemshop. A cara é nossa:
+// Carvão, fio de 1,6 e o laranja só onde o dedo passa.
+const MODULOS = [
+  // A faísca é a MESMA do Zé no carrossel de setores (SegmentSolutions,
+  // .stx-msg.is-ze-acao), só que em fio em vez de cheia, pra casar com a
+  // fileira. Um símbolo por ideia no site inteiro.
+  { nome: "IA do VOS", sub: "Entende seu negócio, responde perguntas e executa tarefas", d: '<path d="M12 2.6l2 6.1 6.1 2-6.1 2-2 8.7-2-8.7-6.1-2 6.1-2z"/>' },
+  { nome: "Agenda", sub: "Equipe, visitas técnicas e lembretes no mesmo calendário", d: '<rect x="3.2" y="5" width="17.6" height="15.8" rx="2.4"/><path d="M3.2 10h17.6M8 3.2v3.6M16 3.2v3.6M9 15l2 2 4-4"/>' },
+  { nome: "Automações", sub: "Tarefas e mensagens que disparam sozinhas em cada etapa", d: '<circle cx="6" cy="6.5" r="2.6"/><circle cx="6" cy="17.5" r="2.6"/><circle cx="18" cy="12" r="2.6"/><path d="M8.6 6.5h3.2a3.6 3.6 0 0 1 3.6 3.6v.3M8.6 17.5h3.2a3.6 3.6 0 0 0 3.6-3.6v-.3"/>' },
+  { nome: "Assinatura digital", sub: "Contratos enviados e assinados com validade jurídica", d: '<path d="M3.4 17.6c2.4 0 3-2.2 3.8-5.6.8-3.4 1.5-5.6 3-5.6 1.2 0 1.6 1 1.6 2.1 0 2.6-3.4 4.4-3.4 6.5 0 1 .7 1.5 1.5 1.5 1.6 0 2.6-1.6 3.4-1.6.7 0 1 .5 1.6.5.7 0 1.2-.4 1.7-.9"/><path d="M4 20.8h16"/>' },
+  { nome: "CRM", sub: "Clientes, oportunidades e todo o histórico em um só lugar", d: '<path d="M3.2 4.6h17.6l-6.6 7.6v6.6l-4.4 2.4v-9z"/>' },
+  { nome: "Atendimento", sub: "WhatsApp, Instagram e e-mail em uma única fila", d: '<path d="M20.8 11.6a8 8 0 0 1-8.6 8 8.6 8.6 0 0 1-3.6-.9L3.2 20.8l2.1-5.4a8 8 0 0 1-.9-3.6 8 8 0 0 1 8-8.6 8 8 0 0 1 8.4 8.4z"/>' },
+  { nome: "Orçamentos", sub: "Propostas em PDF para o cliente aprovar em um toque", d: '<path d="M13.4 3.2H6.8a2.4 2.4 0 0 0-2.4 2.4v13a2.4 2.4 0 0 0 2.4 2.4h10.4a2.4 2.4 0 0 0 2.4-2.4V9.2z"/><path d="M13.4 3.2v6h6M8.4 13.6h7.2M8.4 17.2h4.8"/>' },
+  { nome: "Pedidos", sub: "Do pedido à entrega, tudo acompanhado em um só fluxo", d: '<path d="M4.4 8.4h15.2l-1.2 11a2.4 2.4 0 0 1-2.4 2.1H8a2.4 2.4 0 0 1-2.4-2.1z"/><path d="M8.6 8.4V6.2a3.4 3.4 0 0 1 6.8 0v2.2"/>' },
+  // a chave é o desenho do lucide "wrench", que é o mesmo ícone que o módulo
+  // usa no produto. A que eu tinha desenhado na mão virava um borrão a 28px.
+  { nome: "Ordens de serviço", sub: "Execução, equipe e atendimentos em campo organizados", d: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>' },
+  { nome: "Ponto de venda", sub: "Vendas no balcão com controle de caixa e operador", d: '<rect x="3.2" y="4.2" width="17.6" height="12" rx="2.2"/><path d="M8 20.8h8M12 16.2v4.6M7.4 8.2h9.2M7.4 11.8h5"/>' },
+  { nome: "Catálogo digital", sub: "Seus produtos em um link pronto para compartilhar", d: '<rect x="6.4" y="2.4" width="11.2" height="19.2" rx="2.6"/><path d="M9.4 6.6h2.4v2.4H9.4zM14.2 6.6h2.4v2.4h-2.4zM9.4 11.4h2.4v2.4H9.4zM14.2 11.4h2.4v2.4h-2.4z"/>' },
+  { nome: "Contas a pagar e receber", sub: "Vendas, pagamentos e taxas com o caixa conciliado", d: '<path d="M3.6 8.4h12.8M12.8 4.8l3.6 3.6-3.6 3.6M20.4 15.6H7.6M11.2 12l-3.6 3.6 3.6 3.6"/>' },
+  { nome: "Nota fiscal", sub: "NF-e e NFS-e emitidas diretamente dos seus pedidos", d: '<path d="M5.2 2.8h13.6v18.4l-2.6-1.6-2.3 1.6-2.3-1.6-2.3 1.6-2.3-1.6-1.8 1.1z"/><path d="M8.6 7.6h6.8M8.6 11.4h6.8M8.6 15.2h4"/>' },
+];
+// A fileira é duplicada: é a cópia que faz a volta fechar sem salto.
+const TRILHO = [...MODULOS, ...MODULOS];
+---
+
+<section class="zx-ponta" aria-label="Tudo que o VOS faz">
+  <div class="zx-ponta-janela">
+    <ul class="zx-ponta-trilho">
+      {TRILHO.map((m, i) => (
+        <li class="zx-ponta-item" aria-hidden={i >= MODULOS.length ? "true" : undefined}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={m.d} />
+          <b>{m.nome}</b>
+          <em>{m.sub}</em>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Respiro CURTO dos dois lados (founder 15/09: "deixa mais junto as três
+     seções"): a fileira é a costura entre a vitrine que vem em cima e o
+     "comece em 3 passos" logo abaixo, e no preto chapado um vão grande não lê
+     como pausa, lê como buraco. Eram 80 no topo e 88 no pé. */
+  .zx-ponta {
+    position: relative;
+    padding: clamp(12px, 1.8vh, 22px) 0 clamp(12px, 1.8vh, 22px);
+  }
+
+  /* A janela sangra pras bordas E apaga nas pontas: fileira cortada em seco
+     parece conteúdo faltando; apagada, parece que continua. */
+  .zx-ponta-janela {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+
+  .zx-ponta-trilho {
+    display: flex;
+    align-items: flex-start;
+    gap: clamp(30px, 3.4vw, 56px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    width: max-content;
+    /* 50% é EXATAMENTE uma cópia da lista: ao terminar, o quadro é idêntico ao
+       inicial e o laço não tem emenda. Linear porque passeio com aceleração
+       denuncia o ponto onde recomeça. */
+    animation: zx-ponta-anda 69s linear infinite;
+  }
+  @keyframes zx-ponta-anda {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+  /* parar no hover é cortesia: dá tempo de ler um que passou */
+  .zx-ponta-janela:hover .zx-ponta-trilho { animation-play-state: paused; }
+
+  /* LARGURA FIXA em cada coluna: é ela que faz a fileira ler como uma grade que
+     anda, e não como uma frase comprida. Sem ela, "Contas a pagar e receber"
+     abriria o dobro de "CRM" e o ritmo morreria. */
+  .zx-ponta-item {
+    display: grid;
+    gap: 2px;
+    flex: none;
+    /* LARGURA FIXA de verdade, não em vw. A fileira ROLA, então a coluna não
+       está presa à tela: encolher com o viewport só servia pra quebrar
+       "Automações" e "Ordens de serviço" em três linhas abaixo de 1440, e aí
+       as colunas paravam de fechar na mesma altura. */
+    width: 236px;
+    align-content: start;
+  }
+  .zx-ponta-item svg {
+    width: 28px;
+    height: 28px;
+    margin-bottom: 14px;
+    color: var(--zx-lar-2);
+  }
+  .zx-ponta-item b {
+    font-size: clamp(15px, 1.15vw, 17px);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--zx-on-dark);
+    text-wrap: balance;
+  }
+  .zx-ponta-item em {
+    margin-top: 6px;
+    font-style: normal;
+    font-size: clamp(12.5px, 0.95vw, 13.5px);
+    line-height: 1.45;
+    color: var(--zx-on-dark-3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* parada e em grade: quem pediu menos movimento não pode perder a lista */
+    .zx-ponta-janela { -webkit-mask-image: none; mask-image: none; }
+    .zx-ponta-trilho {
+      animation: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: auto;
+      max-width: var(--zx-w);
+      margin-inline: auto;
+      padding-inline: clamp(16px, 4vw, 32px);
+      row-gap: 34px;
+    }
+    .zx-ponta-item:nth-child(n + 14) { display: none; }
+  }
+</style>

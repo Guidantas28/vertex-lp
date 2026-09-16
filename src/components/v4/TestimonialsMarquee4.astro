@@ -1,30 +1,230 @@
 ---
-// Colunas de depoimentos com scroll infinito (testimonial-v2) — após o FAQ.
+// A PAREDE de avaliações, depois do FAQ (founder 15/09: "preenche a lateral
+// toda de review, coloca mais umas 100 igual essa, estrela entre 4.3 e 4.8 em
+// todos, amarela pra destacar, e coloca uma fila pra baixo e outra pra cima").
+//
+// Eram 3 colunas centradas com 9 cards repetidos e meia tela de papel vazio de
+// cada lado. Agora são 115 depoimentos em até 6 colunas SANGRADAS na largura
+// da tela, uma subindo, a vizinha descendo.
+//
+// Sem ilha React: o marquee é `animation` de CSS e o resto é HTML. Com 230
+// cards na página, cada card que fosse componente de motion custaria caro por
+// nada . a única coisa que se move aqui é o transform de cada coluna.
 import { SOCIAL } from "../../data/content";
-import TestimonialV2 from "../ui/testimonial-v2";
+import { DEPOIMENTOS } from "../../data/depoimentos";
 
-// 15 depoimentos únicos do SOCIAL (evita a mesma pessoa repetida em colunas vizinhas)
-const ITEMS = SOCIAL.people.map((t) => ({
-  text: t.text,
-  image: t.img,
-  name: t.name,
-  role: t.biz,
-}));
+type Card = { texto: string; nome: string; negocio: string; nota: number; retrato?: "f" | "m"; foto?: string };
+
+// Os 15 de capa (têm retrato próprio e aparecem em outras seções) + os 100 do
+// mural. Depois embaralho com passo 37: 37 e 115 são primos entre si, então a
+// volta inteira é uma permutação . e é FIXA, calculada no build, sem random
+// que mude entre o servidor e o navegador.
+const TODOS: Card[] = [
+  ...SOCIAL.people.map((p) => ({ texto: p.text, nome: p.name, negocio: p.biz, nota: p.rating, foto: p.img })),
+  ...DEPOIMENTOS.map((d) => ({ texto: d.texto, nome: d.nome, negocio: d.negocio, nota: d.nota, retrato: d.retrato })),
+];
+const MISTURA = TODOS.map((_, i) => TODOS[(i * 37) % TODOS.length]);
+
+// Os 15 retratos do /assets/people, separados como o SOCIAL já os usa. Quem
+// não tem foto fixa tira uma da pilha do seu retrato, na ORDEM DA COLUNA: a
+// coluna percorre a pilha inteira antes de repetir uma cara, e o nome nunca
+// sai com o rosto do sexo trocado.
+const PILHA = {
+  m: [16, 18, 20, 11, 22, 13, 24, 15].map((n) => `/assets/people/social-${n}.webp`),
+  f: [17, 19, 12, 21, 14, 23, 25].map((n) => `/assets/people/social-${n}.webp`),
+};
+
+const N_COLUNAS = 6;
+// Segundos por volta. Uma volta = uma cópia da coluna, então o passo fica
+// parecido em todas; os valores não são múltiplos entre si pra as colunas
+// nunca desenharem a mesma linha na horizontal.
+const TEMPOS = [118, 133, 124, 141, 128, 149];
+
+const COLUNAS: Card[][] = Array.from({ length: N_COLUNAS }, () => []);
+MISTURA.forEach((c, i) => COLUNAS[i % N_COLUNAS].push(c));
+
+const comFoto = COLUNAS.map((coluna, c) => {
+  const giro = { m: c, f: c * 2 };
+  return coluna.map((card) => {
+    if (card.foto) return card as Card & { foto: string };
+    const q = card.retrato ?? "m";
+    const pilha = PILHA[q];
+    const foto = pilha[giro[q]++ % pilha.length];
+    return { ...card, foto };
+  });
+});
+const nota = (n: number) => n.toFixed(1).replace(".", ",");
 ---
 
 <section class="zx-tstm2" id="depoimentos-mais">
   <div class="zx-container">
-    <TestimonialV2
-      client:visible
-      items={ITEMS}
-      title="Quem usa, recomenda."
-      lead="Mais histórias de quem organizou a operação no VOS."
-    />
+    <h2 class="zx-h2 zx-tstm2-titulo reveal">Quem usa, recomenda.</h2>
+    <p class="zx-lead zx-tstm2-lead reveal reveal-delay-1">Mais histórias de quem organizou a operação no VOS.</p>
+  </div>
+
+  <div class="zx-mural reveal reveal-delay-2" role="region" aria-label="Avaliações de quem usa o VOS">
+    {comFoto.map((coluna, c) => (
+      <div class:list={["zx-mural-col", c % 2 === 1 && "zx-mural-col--desce"]} style={`--dur:${TEMPOS[c]}s;--ini:${-Math.round(TEMPOS[c] * (0.07 + c * 0.13))}s`}>
+        <ul class="zx-mural-fita">
+          {[0, 1].map((copia) =>
+            coluna.map((d) => (
+              <li class="zx-mural-card" aria-hidden={copia === 1 ? "true" : undefined}>
+                <p class="zx-mural-nota">
+                  <span class="zx-mural-estrelas" style={`--p:${(d.nota / 5) * 100}%`} aria-hidden="true">★★★★★</span>
+                  <b>{nota(d.nota)}</b>
+                </p>
+                <blockquote class="zx-mural-fala">“{d.texto}”</blockquote>
+                <footer class="zx-mural-pe">
+                  <img src={d.foto} alt="" width="40" height="40" loading="lazy" decoding="async" />
+                  <span>
+                    <cite>{d.nome}</cite>
+                    <small>{d.negocio}</small>
+                  </span>
+                </footer>
+              </li>
+            )),
+          )}
+        </ul>
+      </div>
+    ))}
   </div>
 </section>
 
 <style>
-  .zx-tstm2 {
-    padding: clamp(56px, 10vh, 110px) 0 0;
+  .zx-tstm2 { padding: clamp(56px, 10vh, 110px) 0 0; }
+  .zx-tstm2-titulo { text-align: center; }
+  .zx-tstm2-lead { margin-inline: auto; text-align: center; }
+
+  /* ── a parede ────────────────────────────────────────────────────────── */
+  /* Sangra na largura inteira (o founder queria a lateral CHEIA), e as duas
+     máscaras somadas dissolvem o bloco em cima, embaixo e nas beiradas . sem
+     elas o card apareceria cortado na quina da tela. */
+  .zx-mural {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    height: min(80vh, 840px);
+    margin-top: clamp(36px, 5vh, 60px);
+    overflow: hidden;
+    -webkit-mask-image:
+      linear-gradient(180deg, transparent, #000 9%, #000 91%, transparent),
+      linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+    mask-image:
+      linear-gradient(180deg, transparent, #000 9%, #000 91%, transparent),
+      linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+
+  /* Uma coluna por degrau de largura. O que não cabe não vira scroll: some. */
+  .zx-mural-col { flex: 0 0 min(86vw, 336px); display: none; }
+  .zx-mural-col:nth-child(1) { display: block; }
+  @media (min-width: 700px)  { .zx-mural-col:nth-child(2) { display: block; } }
+  @media (min-width: 1020px) { .zx-mural-col:nth-child(3) { display: block; } }
+  @media (min-width: 1340px) { .zx-mural-col:nth-child(4) { display: block; } }
+  @media (min-width: 1660px) { .zx-mural-col:nth-child(5) { display: block; } }
+  @media (min-width: 1980px) { .zx-mural-col:nth-child(6) { display: block; } }
+
+  /* O respiro entre os cards é MARGEM, não `gap`: com gap, a emenda das duas
+     cópias fica meio vão fora do lugar e a volta dá um pulinho. Com margem em
+     todos, meia fita é exatamente uma cópia. */
+  .zx-mural-fita {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    animation: zx-mural-sobe var(--dur, 120s) linear infinite;
+    animation-delay: var(--ini, 0s);
+  }
+  .zx-mural-col--desce .zx-mural-fita { animation-direction: reverse; }
+  @keyframes zx-mural-sobe {
+    from { transform: translateY(0); }
+    to { transform: translateY(-50%); }
+  }
+  /* parar sob o cursor é o que deixa a parede LEGÍVEL: sem isso, ler um
+     depoimento inteiro vira perseguição. */
+  @media (hover: hover) {
+    .zx-mural-col:hover .zx-mural-fita { animation-play-state: paused; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-mural-fita { animation: none; }
+  }
+
+  /* ── o card ──────────────────────────────────────────────────────────── */
+  .zx-mural-card {
+    margin: 0 0 20px;
+    padding: 22px 22px 20px;
+    border: 1px solid var(--zx-line, rgba(20, 19, 28, 0.1));
+    border-radius: 16px;
+    background: var(--zx-panel, #fff);
+    box-shadow: 0 1px 2px rgba(23, 23, 23, 0.04), 0 10px 30px -18px rgba(23, 23, 23, 0.22);
+    transition: box-shadow 0.24s var(--zx-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  }
+  .zx-mural-col:hover .zx-mural-card:hover {
+    box-shadow: 0 1px 2px rgba(23, 23, 23, 0.04), 0 16px 40px -18px rgba(23, 23, 23, 0.28);
+  }
+
+  /* A nota. As cinco estrelas são UM texto só, e o amarelo preenche a fração
+     exata da nota por `background-clip` . dez SVGs por card, vezes 230 cards,
+     seria DOM à toa. */
+  .zx-mural-nota {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0 0 12px;
+  }
+  .zx-mural-estrelas {
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 1.5px;
+    background-image: linear-gradient(90deg, #f5a524 var(--p, 100%), rgba(20, 19, 28, 0.16) var(--p, 100%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .zx-mural-nota b {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--zx-ink2, #4e4a5c);
+  }
+
+  .zx-mural-fala {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--zx-ink2, #4e4a5c);
+  }
+  .zx-mural-pe {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .zx-mural-pe img {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    object-fit: cover;
+    box-shadow: 0 0 0 2px var(--zx-line, rgba(20, 19, 28, 0.1));
+  }
+  .zx-mural-pe span { display: flex; flex-direction: column; min-width: 0; }
+  .zx-mural-pe cite {
+    font-size: 13.5px;
+    font-weight: 600;
+    font-style: normal;
+    letter-spacing: -0.01em;
+    color: var(--zx-ink, #14131c);
+  }
+  .zx-mural-pe small {
+    font-size: 12.5px;
+    color: var(--zx-ink3, #8a8696);
+  }
+
+  @media (max-width: 700px) {
+    .zx-mural { height: min(74vh, 620px); gap: 16px; }
+    .zx-mural-card { padding: 20px; margin-bottom: 16px; }
   }
 </style>

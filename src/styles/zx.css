@@ -1,0 +1,494 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   A CASCA DO SITE (.zx) . tokens, tipografia, botões, chips e as faixas.
+
+   Morava dentro do `<style is:global>` do `index.astro`, e por isso só existia
+   na home: a página de preço (15/09) nasceria sem cor nenhuma. Virou arquivo
+   pra ter UMA fonte, importada por quem for página.
+
+   Fonte dos valores: docs/VOS-UNO.md + packages/ui/tokens.json do vertex-saas.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+  /* ─── Tokens da v4 (escopo .zx) · VOS UNO ────────────────────────────
+     Fonte: docs/VOS-UNO.md + packages/ui/tokens.json (v4.9). Claro = R11 Ink,
+     escuro = Carvão, laranja é SINAL, o Fio é o display, uma curva de motion. */
+  @property --zx-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  .zx {
+    /* Cor · UNO C4: tronco único. A peça branca É a tela clara; hairline Porcelain. */
+    --zx-paper: #FAFAFA;
+    --zx-panel: #FFFFFF;
+    --zx-pick: #F4F4F4;
+    --zx-ink: #171717;
+    --zx-ink-strong: #171717;
+    --zx-ink2: #4A4A4A;
+    --zx-ink3: #6B6B6B;
+    --zx-line: #E4DFD6;
+    --zx-line-2: rgba(23, 23, 23, 0.18);
+    --zx-hover: rgba(23, 23, 23, 0.05);
+
+    /* Sinal (UNO C2): laranja não pode sumir e não pode virar massa. */
+    --zx-lar: #ED4B00;
+    --zx-lar-2: #FF7A33;
+    --zx-lar-deep: #D94400;
+    --zx-lar-soft: rgba(237, 75, 0, 0.12);
+    --zx-lar-on-light: #B83800;
+
+    /* Zé: a única cor de personagem que sobreviveu ao acento único. */
+    --zx-ai: #6D4AFF;
+    --zx-ai-ink: #A899FF;
+
+    /* Status: semântica, não decoração. Superfície CHEIA + tinta escura por cima,
+       como o chip do produto ficou em 11/09 (era véu a 12% com texto neutro). */
+    --zx-ok-surface: #cdfed4;
+    --zx-ok-ink: #014b40;
+    --zx-warn-surface: #ffebd5;
+    --zx-warn-ink: #412d00;
+    --zx-bad-surface: #fee8eb;
+    --zx-bad-ink: #8e0b21;
+    --zx-info-surface: #eaf4ff;
+    --zx-info-ink: #003a5a;
+
+    --zx-ok: #15935A;
+    --zx-warn: #C9810C;
+    --zx-bad: #DC3B2B;
+    --zx-info: #1F6FEB;
+    --zx-ok-dark: #3DBE7A;
+    --zx-warn-dark: #E0A030;
+    --zx-bad-dark: #FF6B5B;
+    --zx-info-dark: #4D8DFF;
+
+    /* Carvão (UNO C4.2 S1): a única família escura do sistema. */
+    --zx-dark: #101214;
+    --zx-dark-deep: #08090A;
+    --zx-dark-2: #15181A;
+    --zx-dark-3: #1B2126;
+    --zx-on-dark: #EDEDED;
+    --zx-on-dark-2: #A1A1A1;
+    --zx-on-dark-3: #8A8A8A;
+    --zx-on-dark-line: rgba(255, 255, 255, 0.12);
+
+    --zx-w: 1200px;
+
+    /* Tipo · UNO C5: Inter é a voz. O display é o Fio (Inter Tight 300, ênfase 600).
+       A voz de dados é mono de sistema, 0 KB (blueprint /v6, decisão 17). */
+    --zx-display: "Inter Tight", "Inter", system-ui, sans-serif;
+    --zx-body: "Inter", system-ui, sans-serif;
+    --zx-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    --zx-fs-display: clamp(40px, 5.2vw, 72px);
+    --zx-lh-display: 1.06;
+    --zx-ls-display: -0.025em;
+    --zx-fw-display: 300;
+
+    --zx-fs-title: clamp(34px, 4vw, 56px);
+    --zx-lh-title: 1.08;
+    --zx-ls-title: -0.03em;
+    --zx-fw-title: 330;
+    /* Sobre dark o Fio sobe pra 400 (regra 4 do Fio). */
+    --zx-fw-title-dark: 400;
+    --zx-fw-emphasis: 600;
+
+    --zx-fs-body: 16px;
+    --zx-lh-body: 24px;
+    --zx-fw-body: 400;
+    --zx-fw-strong: 600;
+
+    --zx-fs-meta: 13px;
+    --zx-lh-meta: 1.45;
+    --zx-fs-label: 11.5px;
+    --zx-ls-label: 0.08em;
+
+    /* Botão · UNO §26.1: o primário é MONO. Raio 10 (pílula só em badge e chip). */
+    --zx-btn-radius: 10px;
+    --zx-btn-fs: 16px;
+    --zx-btn-lh: 22px;
+    --zx-btn-fw: 600;
+    --zx-btn-pad-y: 14px;
+    --zx-btn-pad-x: 22px;
+    --zx-btn-bg: var(--zx-ink);
+    --zx-btn-bg-hover: #000000;
+    --zx-btn-fg: var(--zx-paper);
+
+    /* Raio · UNO C6: 16 card · 24 card grande · 48 lençol · 999 só badge/chip. */
+    --zx-r-card: 16px;
+    --zx-r-card-lg: 24px;
+    --zx-r-edge: 48px;
+    --zx-pill: 999px;
+
+    /* Motion · UNO C6: UMA curva. micro 240 · entrada 320 · cena 500. */
+    --zx-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --zx-t-micro: 240ms;
+    --zx-t-enter: 320ms;
+    --zx-t-scene: 500ms;
+
+    background: var(--zx-paper);
+    color: var(--zx-ink);
+    font-family: var(--zx-body);
+    font-size: var(--zx-fs-body);
+    line-height: var(--zx-lh-body);
+    overflow-x: clip;
+  }
+  html[data-theme="dark"] .zx {
+    --zx-paper: #08090A;
+    --zx-panel: #101214;
+    --zx-pick: #1B2126;
+    --zx-ink: #EDEDED;
+    --zx-ink-strong: #FFFFFF;
+    --zx-ink2: #A1A1A1;
+    --zx-ink3: #8A8A8A;
+    --zx-line: rgba(255, 255, 255, 0.12);
+    --zx-line-2: rgba(255, 255, 255, 0.18);
+    --zx-hover: rgba(255, 255, 255, 0.06);
+    --zx-btn-bg: #FFFFFF;
+    --zx-btn-bg-hover: #ECECEC;
+    --zx-btn-fg: #101214;
+    --zx-ok: #3DBE7A;
+    --zx-warn: #E0A030;
+    --zx-bad: #FF6B5B;
+    --zx-info: #4D8DFF;
+  }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  .zx-container {
+    max-width: var(--zx-w);
+    margin-inline: auto;
+    padding-inline: clamp(16px, 4vw, 32px);
+  }
+
+  /* Tipografia: o Fio. A ênfase é UMA palavra em 600, nunca outra cor. */
+  .zx-h1,
+  .zx-h2 {
+    margin-top: 0;
+    font-family: var(--zx-display);
+    font-size: var(--zx-fs-display);
+    line-height: var(--zx-lh-display);
+    letter-spacing: var(--zx-ls-display);
+    font-weight: var(--zx-fw-display);
+    color: var(--zx-ink);
+    text-wrap: balance;
+  }
+  .zx-h2 {
+    font-size: var(--zx-fs-title);
+    line-height: var(--zx-lh-title);
+    letter-spacing: var(--zx-ls-title);
+    font-weight: var(--zx-fw-title);
+  }
+  .zx-h1 strong,
+  .zx-h2 strong {
+    font-weight: var(--zx-fw-emphasis);
+  }
+  .zx-lead {
+    margin-top: 16px;
+    max-width: 560px;
+    font-family: var(--zx-body);
+    font-size: var(--zx-fs-body);
+    font-weight: var(--zx-fw-body);
+    line-height: var(--zx-lh-body);
+    color: var(--zx-ink2);
+    text-wrap: pretty;
+  }
+  .zx-lead strong,
+  .zx-body strong {
+    font-weight: var(--zx-fw-strong);
+    color: var(--zx-ink-strong);
+  }
+  .zx-body {
+    font-family: var(--zx-body);
+    font-size: var(--zx-fs-body);
+    font-weight: var(--zx-fw-body);
+    line-height: var(--zx-lh-body);
+    color: var(--zx-ink2);
+  }
+  .zx-meta {
+    font-size: var(--zx-fs-meta);
+    line-height: var(--zx-lh-meta);
+    color: var(--zx-ink3);
+  }
+  .zx-label {
+    font-family: var(--zx-mono);
+    font-size: var(--zx-fs-label);
+    font-weight: 500;
+    letter-spacing: var(--zx-ls-label);
+    text-transform: uppercase;
+    color: var(--zx-ink3);
+  }
+
+  /* Botões: MONO (preto no claro, branco no escuro). Hover escurece, active encolhe. */
+  .zx-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: var(--zx-btn-pad-y) var(--zx-btn-pad-x);
+    border-radius: var(--zx-btn-radius);
+    background: var(--zx-btn-bg);
+    color: var(--zx-btn-fg);
+    font-family: var(--zx-body);
+    font-size: var(--zx-btn-fs);
+    font-weight: var(--zx-btn-fw);
+    line-height: var(--zx-btn-lh);
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: none;
+    transition: background var(--zx-t-micro) var(--zx-ease), color var(--zx-t-micro) var(--zx-ease),
+      border-color var(--zx-t-micro) var(--zx-ease), transform var(--zx-t-micro) var(--zx-ease);
+  }
+  .zx-btn::after { display: none; }
+  .zx-btn:hover { background: var(--zx-btn-bg-hover); }
+  .zx-btn:active { transform: scale(0.985); }
+  .zx-btn:focus-visible { outline: 2px solid var(--zx-ink); outline-offset: 2px; }
+  .zx-btn svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+  }
+  .zx-btn--hero { /* alias do padrão */ }
+  .zx-btn--xl {
+    padding: var(--zx-btn-pad-y) calc(var(--zx-btn-pad-x) + 4px);
+    font-size: var(--zx-btn-fs);
+  }
+  .zx-btn--nav {
+    padding: 10px 16px;
+    font-size: 14px;
+    line-height: 20px;
+    border-radius: 8px;
+  }
+  .zx-btn--ghost {
+    background: transparent;
+    color: var(--zx-ink);
+    border-color: var(--zx-line-2);
+  }
+  .zx-btn--ghost:hover {
+    background: var(--zx-hover);
+    border-color: var(--zx-ink);
+  }
+  /* Nome legado: virou o primário MONO. Nenhuma variante tem preenchimento de cor. */
+  .zx-btn--roxo {
+    background: var(--zx-btn-bg);
+    color: var(--zx-btn-fg);
+  }
+  .zx-btn--roxo:hover { background: var(--zx-btn-bg-hover); }
+  /* Sobre Carvão o primário é branco. */
+  .zx-btn--white {
+    background: #FFFFFF;
+    color: var(--zx-dark);
+  }
+  .zx-btn--white:hover { background: #ECECEC; }
+  .zx-btn--white:focus-visible { outline-color: #FFFFFF; }
+  .zx-btn--outline-w {
+    background: transparent;
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+  .zx-btn--outline-w:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: #FFFFFF;
+  }
+  .zx-btn--outline-w:focus-visible { outline-color: #FFFFFF; }
+
+  /* Na faixa escura o chip usa a versão dark do produto: 16% da cor sobre o painel. */
+  .zx-band,
+  .zx-sheet {
+    --zx-ok-surface: color-mix(in oklab, var(--zx-ok-dark) 16%, #16191c);
+    --zx-ok-ink: #92fcac;
+    --zx-warn-surface: color-mix(in oklab, var(--zx-warn-dark) 16%, #16191c);
+    --zx-warn-ink: #ffd6a4;
+    --zx-bad-surface: color-mix(in oklab, var(--zx-bad-dark) 16%, #16191c);
+    --zx-bad-ink: #fec1c7;
+    --zx-info-surface: color-mix(in oklab, var(--zx-info-dark) 16%, #16191c);
+    --zx-info-ink: #a8d8ff;
+  }
+
+  /* ─── Chip do VOS (founder 11/09): raio 6, fundo CHEIO na cor, caixa de frase.
+     Não é pílula e não é caixa-alta; isso é o que está no produto hoje. ─── */
+  .zx-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-family: var(--zx-body);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: nowrap;
+    background: var(--zx-pick);
+    color: var(--zx-ink);
+    border: 0;
+  }
+  .zx-chip--ok { background: var(--zx-ok-surface); color: var(--zx-ok-ink); }
+  .zx-chip--warn { background: var(--zx-warn-surface); color: var(--zx-warn-ink); }
+  .zx-chip--bad { background: var(--zx-bad-surface); color: var(--zx-bad-ink); }
+  .zx-chip--info { background: var(--zx-info-surface); color: var(--zx-info-ink); }
+  /* Marcador é ÍCONE, não bolinha colorida (founder 05/08): o estado se lê sem a cor. */
+  .zx-chip--ok::before,
+  .zx-chip--warn::before,
+  .zx-chip--bad::before,
+  .zx-chip--info::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    flex: none;
+    background: currentColor;
+    -webkit-mask: var(--zx-chip-mark) center / 100% 100% no-repeat;
+    mask: var(--zx-chip-mark) center / 100% 100% no-repeat;
+  }
+  .zx-chip--ok {
+    --zx-chip-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2a10 10 0 100 20 10 10 0 000-20zm-1.1 14.3-4-4 1.6-1.6 2.4 2.4 5.2-5.2 1.6 1.6z'/%3E%3C/svg%3E");
+  }
+  .zx-chip--warn {
+    --zx-chip-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2a10 10 0 100 20 10 10 0 000-20zm1.1 15h-2.2v-2.2h2.2zm0-3.8h-2.2V7h2.2z'/%3E%3C/svg%3E");
+  }
+  .zx-chip--bad {
+    --zx-chip-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2a10 10 0 100 20 10 10 0 000-20zm4 13.6-1.4 1.4-2.6-2.6-2.6 2.6L8 15.6l2.6-2.6L8 10.4 9.4 9l2.6 2.6L14.6 9 16 10.4 13.4 13z'/%3E%3C/svg%3E");
+  }
+  .zx-chip--info {
+    --zx-chip-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 3a9 9 0 100 18 9 9 0 000-18zm0 2.6a6.4 6.4 0 110 12.8 6.4 6.4 0 010-12.8z'/%3E%3C/svg%3E");
+  }
+
+  /* Campo do VOS: 38px de altura, raio 8, fio em --line-2, 13px. */
+  .zx-field {
+    height: 38px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--zx-line-2);
+    background: var(--zx-panel);
+    color: var(--zx-ink);
+    font-family: var(--zx-body);
+    font-size: 13px;
+    width: 100%;
+    transition: border-color 0.12s, box-shadow 0.12s;
+  }
+  .zx-field::placeholder { color: var(--zx-ink3); }
+  .zx-field:focus-visible {
+    outline: none;
+    border-color: var(--zx-ink);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--zx-ink) 12%, transparent);
+  }
+
+  /* Faixas Carvão que "abrem" no scroll. Registro R1: gradiente da escada, sem glow. */
+  .zx-band {
+    position: relative;
+    background: linear-gradient(160deg, var(--zx-dark-3) 0%, var(--zx-dark) 46%, var(--zx-dark-deep) 100%);
+    border-radius: var(--zx-r-card-lg);
+    transform: scale(0.96);
+    transition: transform 0.9s var(--zx-ease), border-radius 0.9s var(--zx-ease);
+    will-change: transform;
+  }
+  .zx-band.is-open { transform: scale(1); border-radius: var(--zx-r-card); }
+  .zx-band--deep {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1.4px);
+    background-size: 26px 26px;
+    background-color: var(--zx-dark);
+    padding: clamp(48px, 8vh, 88px) 0 clamp(48px, 8vh, 80px);
+    max-width: 1440px;
+    margin-inline: auto;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-band { transform: none; transition: none; }
+  }
+
+  /* Traços animados (conectores) */
+  .zx-dash {
+    stroke-dashoffset: 0;
+    animation: zx-dashmove 2.6s linear infinite;
+  }
+  @keyframes zx-dashmove { to { stroke-dashoffset: -16; } }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-dash { animation: none; }
+  }
+
+  .zx .reveal { will-change: transform, opacity; }
+
+  /* ─── Hero em filme (.zx--film): a nav flutua transparente sobre o vídeo e
+     vira papel ao rolar. O filme começa embaixo da nav (margem negativa). ─── */
+  .zx { --zx-nav-h: 68px; }
+  @media (max-width: 900px) { .zx { --zx-nav-h: 63px; } }
+  .zx--film .zx-nav { margin-bottom: calc(-1 * var(--zx-nav-h)); }
+  .zx-nav-logo { display: inline-flex; }
+  .zx-nav-logo--light { display: none; }
+  .zx--film .zx-nav:not(.is-scrolled) .zx-nav-logo--dark { display: none; }
+  .zx--film .zx-nav:not(.is-scrolled) .zx-nav-logo--light { display: inline-flex; }
+  .zx--film .zx-nav:not(.is-scrolled) .zx-nav-links a { color: rgba(255, 255, 255, 0.94); }
+  .zx--film .zx-nav:not(.is-scrolled) .zx-nav-links a:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+  .zx--film .zx-nav:not(.is-scrolled) .zx-nav-login { color: #fff; }
+  .zx--film .zx-nav:not(.is-scrolled) .zx-nav-login:hover { color: rgba(255, 255, 255, 0.78); }
+  .zx--film .zx-nav:not(.is-scrolled) .zx-nav-burger span { background: #fff; }
+  .zx--film .zx-nav.is-scrolled { transition-duration: 0.2s; }
+
+  /* Folha sobre o filme: o hero fica preso no fundo (sticky, z 0) e a folha, com
+     cantos de 48px e sombra pra cima, cobre ele conforme a página desce. */
+  .zx--film .zx-film { position: sticky; top: 0; z-index: 0; }
+  .zx-sheet {
+    position: relative;
+    z-index: 1;
+    background: var(--zx-dark-deep);
+    /* Canto RETO (founder 15/09): com a faixa dos canais já de ponta a ponta,
+       o arredondado deixava duas frestas do filme aparecendo nos cantos de
+       cima, e a folha parecia um cartão em vez de uma página cobrindo a outra. */
+    border-radius: 0;
+    box-shadow: 0 -28px 70px rgba(8, 9, 10, 0.45);
+    overflow: clip;
+  }
+  .zx-sheet-paper { background: var(--zx-paper); }
+  @media (max-width: 900px) {
+    .zx-sheet { border-radius: 0; }
+  }
+
+  /* ─── A PALAVRA QUE GIRA NO HERO é LARANJA (founder 15/09): a rampa violeta
+     do Modo Zé foi provada ali e reprovada . "não gostei do gradiente, coloca o
+     nosso laranja". É o acento da marca cheio, que é o que o hero sempre
+     reservou pro rotator; o resto da linha fica no branco fino. ─── */
+  .zx-hero-palavra {
+    color: var(--zx-lar, #ED4B00);
+  }
+
+  /* ─── A RAMPA DO MODO ZÉ DENTRO DE UMA PALAVRA (founder 15/09): o violeta
+     que vira laranja, o mesmo do mergulho e do recado dos passos, usado pra
+     destacar UMA palavra de um título . "A gente" no preço, "antes" nas
+     dúvidas.
+
+     A ponta clara da rampa (#FF8A3D) fica de fora: estes títulos moram no
+     papel, e ela não se lê sobre branco . o degradê para no laranja cheio.
+     Navegador sem recorte no texto mostra a tinta de sempre, então nada
+     depende do efeito pra ser legível. ─── */
+  .zx-grad-ze { color: var(--zx-ink); }
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .zx-grad-ze {
+      background-image: linear-gradient(100deg, #52309f 0%, #8a3374 38%, #c2452f 68%, #ed4b00 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+  }
+
+  /* ─── DUAS LINHAS SEMPRE no celular (founder 15/09: "sempre mantém 2 linhas
+     pra isso, e o título e o subtítulo mais perto como antes").
+
+     A palavra que gira muda a largura da segunda linha, e a maior delas
+     ("automatiza por você") mede 8,73em. Num iPhone de 390 sobram 350px de
+     linha: 44px estouravam e ela caía pra uma TERCEIRA linha, empurrando o sub
+     e os botões 45px a cada troca de palavra. Reservar a altura tapava o pulo
+     mas abria um buraco entre o título e o sub.
+
+     Então o tamanho é o MAIOR que ainda cabe em duas linhas: 44px de teto, e
+     abaixo disso a largura da tela manda (o 8,8 é a palavra mais longa com uma
+     folga de meio por cento). Em 390 dá 39,8px; em 430, 44. Como o tamanho é
+     fixo por tela, a altura do título nunca muda e nada mais se mexe. ─── */
+  @media (max-width: 760px) {
+    #hero-title { font-size: min(2.75rem, calc((100vw - 2.5rem) / 8.8)); }
+  }

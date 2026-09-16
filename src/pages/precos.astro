@@ -1,0 +1,39 @@
+---
+/* /precos . a página de preço inteira (founder 15/09: "quando clicar em preços
+   lá em cima já leva pra essa página completa só com preço").
+
+   É o MESMO bloco da home (`Pricing4`), aqui como H1 e sem nada em volta a não
+   ser o que responde a pergunta de quem veio ver preço: as dúvidas e o convite
+   do fim. Sem hero de filme . a barra é sólida desde o primeiro pixel. */
+import Base from "../layouts/Base.astro";
+import Nav4 from "../components/v4/Nav4.astro";
+import Pricing4 from "../components/v4/Pricing4.astro";
+import Faq4 from "../components/v4/Faq4.astro";
+import CtaFinal4 from "../components/v4/CtaFinal4.astro";
+import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
+import { SITE } from "../data/content";
+import "../styles/zx.css";
+---
+
+<Base
+  title="Preços do VOS · três planos com o sistema inteiro"
+  description="Start R$ 197, Essential R$ 347 e Scale R$ 557 por mês no plano anual, com o sistema inteiro: atendimento, CRM, vendas, operação e financeiro. Compare as cotas de cada plano."
+  initialTheme="light"
+>
+  <script is:inline define:vars={{ signupUrl: SITE.signupUrl }}>
+    window.__VOS_SIGNUP_URL__ = signupUrl;
+  </script>
+  <div class="zx">
+    <Nav4 />
+    <main>
+      <Pricing4 comoPagina />
+      <Faq4 />
+      <CtaFinal4 />
+    </main>
+    <LeadWizardModal client:idle />
+  </div>
+</Base>
+
+<script>
+  import "../scripts/zx-cena";
+</script>

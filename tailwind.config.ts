@@ -1,10 +1,11 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Vertex Brand Manual v2 — light-first.
- * Base creme #F7F6F4 · tinta #14131C · acento laranja #ED4B00.
- * Assinatura: sidebar/footer/CTA em slate escuro #0D0C1A sobre canvas claro.
- * Cada módulo tem cor própria (wayfinding).
+ * VOS UNO (docs/VOS-UNO.md · packages/ui/tokens.json v4.9).
+ * Claro = R11 Ink #FAFAFA (a peça branca É a tela clara), tinta #171717,
+ * hairline Porcelain #E4DFD6. Escuro = Carvão, a única família escura.
+ * #ED4B00 é SINAL e só sinal (acento único: cor por módulo morreu);
+ * o violeta #6D4AFF é do Zé. Botão primário é MONO (§26.1).
  */
 export default {
   content: ["./src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx}"],
@@ -12,96 +13,104 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Acento de marca (laranja)
+        // Sinal
         accent: {
           DEFAULT: "#ED4B00",
-          400: "#FF6A2B",
+          400: "#FF7A33",
           500: "#ED4B00",
           600: "#C63D00",
-          soft: "rgba(237,75,0,0.10)",
-          line: "rgba(237,75,0,0.28)",
+          soft: "rgba(237,75,0,0.12)",
+          line: "rgba(237,75,0,0.30)",
         },
-        // Cores de módulo (wayfinding)
+        // Acento único: os módulos resolvem pro sinal. Só o Zé tem cor própria.
         module: {
           core: "#ED4B00",
-          commerce: "#1F6FEB",
-          services: "#15935A",
-          finance: "#C9810C",
+          commerce: "#ED4B00",
+          services: "#ED4B00",
+          finance: "#ED4B00",
           ai: "#6D4AFF",
         },
-        // Superfícies claras
-        bg: "#F7F6F4",
+        // Superfícies claras (R11 Ink)
+        bg: "#FAFAFA",
         panel: {
           DEFAULT: "#FFFFFF",
-          2: "#FBFAF8",
-          3: "#F1F0ED",
+          2: "#F5F5F5",
+          3: "#F0F0F0",
         },
-        // Tinta / texto
+        pick: "#F4F4F4",
+        // Tinta
         ink: {
-          DEFAULT: "#14131C",
-          2: "#5B5A68",
-          3: "#8C8B98",
+          DEFAULT: "#171717",
+          2: "#4A4A4A",
+          3: "#6B6B6B",
         },
-        // Slate escuro (sidebar/footer/CTA — assinatura)
+        // Carvão (UNO C4.2 S1)
         slate: {
-          DEFAULT: "#0D0C1A",
-          2: "#16142A",
-          ink: "#EDECF4",
-          "ink-2": "#9A99AE",
-          "ink-3": "#67667C",
-          line: "rgba(255,255,255,0.10)",
+          DEFAULT: "#101214",
+          2: "#15181A",
+          3: "#1B2126",
+          deep: "#08090A",
+          ink: "#EDEDED",
+          "ink-2": "#A1A1A1",
+          "ink-3": "#8A8A8A",
+          line: "rgba(255,255,255,0.12)",
         },
-        // Semântico
+        // Status (semântica, não decoração)
         ok: "#15935A",
         warn: "#C9810C",
         bad: "#DC3B2B",
         info: "#1F6FEB",
-        // Linhas (sobre claro)
+        // Hairlines
         line: {
-          DEFAULT: "rgba(13,12,26,0.09)",
-          2: "rgba(13,12,26,0.14)",
+          DEFAULT: "#E4DFD6",
+          2: "rgba(23,23,23,0.18)",
         },
-        // shadcn-space / preview-switch tokens
-        border: "rgba(20,19,28,0.12)",
-        background: "var(--zx-paper, #F7F6F4)",
-        foreground: "var(--zx-ink, #14131C)",
+        // tokens dos snippets shadcn (preview-switch etc.)
+        border: "rgba(23,23,23,0.12)",
+        background: "var(--zx-paper, #FAFAFA)",
+        foreground: "var(--zx-ink, #171717)",
         muted: {
-          DEFAULT: "var(--zx-hover, rgba(20,19,28,0.05))",
-          foreground: "var(--zx-ink2, #5B5A68)",
+          DEFAULT: "var(--zx-hover, rgba(23,23,23,0.05))",
+          foreground: "var(--zx-ink2, #4A4A4A)",
         },
+        // primário MONO (§26.1): preto no claro
         primary: {
-          DEFAULT: "#ED4B00",
-          foreground: "#FFFFFF",
+          DEFAULT: "#171717",
+          foreground: "#FAFAFA",
         },
         ring: "#ED4B00",
       },
       fontFamily: {
-        display: ["Geist", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
-        sans: ["Geist", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
-        mono: ["'JetBrains Mono'", "ui-monospace", "monospace"],
+        display: ["'Inter Tight'", "Inter", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
+        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
+        mono: ["ui-monospace", "'SF Mono'", "Menlo", "Consolas", "monospace"],
       },
       letterSpacing: {
-        display: "-0.045em",
+        display: "-0.025em",
         tightest: "-0.02em",
-        eyebrow: "0.12em",
+        eyebrow: "0.06em",
         label: "0.06em",
       },
+      // Família do UNO (C6/§22): 8 controle · 12 card · 16 superfície; pílula só em badge.
       borderRadius: {
-        xs: "7px",
-        sm: "11px",
-        DEFAULT: "14px",
-        lg: "16px",
-        xl: "20px",
+        xs: "6px",
+        sm: "8px",
+        DEFAULT: "10px",
+        lg: "12px",
+        xl: "16px",
         pill: "999px",
       },
       boxShadow: {
-        soft: "0 1px 2px rgba(13,12,26,0.04), 0 10px 30px rgba(13,12,26,0.06)",
-        lift: "0 30px 80px rgba(13,12,26,0.14)",
-        slate: "0 20px 60px rgba(13,12,26,0.45)",
+        soft: "0 1px 2px rgba(23,23,23,0.04), 0 12px 32px rgba(23,23,23,0.06)",
+        lift: "0 30px 80px rgba(23,23,23,0.14)",
+        slate: "0 20px 60px rgba(8,9,10,0.45)",
         glow: "0 0 0 1px rgba(237,75,0,0.30), 0 12px 36px -10px rgba(237,75,0,0.40)",
       },
       transitionTimingFunction: {
         vos: "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
+      transitionDuration: {
+        vos: "240ms",
       },
       maxWidth: { content: "1200px" },
       spacing: {

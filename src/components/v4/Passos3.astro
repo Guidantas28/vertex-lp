@@ -1,0 +1,615 @@
+---
+// "Faça seu negócio crescer com o VOS": três passos numerados à direita, duas
+// fotos desencontradas à esquerda e o botão embaixo dos passos.
+// Referência de composição: o "Build fast on Shopify".
+//
+// As fotos aqui são COLORIDAS e em lugar aberto, ao contrário do estúdio
+// escuro do resto do site. Não é contradição: a regra do founder (29/08) diz
+// que a cor entra PELA FOTO (pele, roupa, cena) e nunca pelo fundo. O palco
+// segue Carvão; são as duas fotos que trazem a cor.
+import { GetStartedButton } from "../ui/get-started-button";
+
+const PASSOS = [
+  "Cadastre seus produtos ou serviços",
+  "Conecte seus canais de comunicação",
+  "Venda, receba e acompanhe os resultados",
+];
+
+// Uma de SERVIÇO e uma de PRODUTO, que são as duas metades do que o VOS
+// atende. As duas em luz do dia, na rua, com a loja aberta pra fora.
+const FOTOS = [
+  { src: "/assets/passos/servico.jpg", alt: "Cabeleireira atendendo uma cliente no salão" },
+  { src: "/assets/passos/produto.jpg", alt: "Lojista embalando um pedido no ateliê, com o notebook ao lado" },
+];
+
+// A plateia da live. Sem @ na frente do texto, como no template do founder: na
+// live o que se lê é a frase, e a cara já diz que é gente. As fotos são as
+// MESMAS do resto do site . rosto novo aqui seria gente inventada de novo.
+const FALAS = [
+  { texto: "Que lindo!", foto: "/assets/people/social-25.webp" },
+  { texto: "Tem em outras cores?", foto: "/assets/people/social-12.webp" },
+  { texto: "Quero um desses!", foto: "/assets/people/social-19.webp" },
+];
+---
+
+<section class="zx-passos" id="comece">
+  {/* A costura com a fileira de ícones acima é PRETO CHAPADO (founder 15/09,
+      terceira passada: "deixa tudo preto, tira essa mancha branca aí entre os
+      dois blocos"). Houve um fio com luz descendo, e depois duas nuvens
+      brancas em tinta baixa atravessando o vão . as duas versões foram
+      reprovadas: no preto, qualquer clarão vira mancha. O vão é o vão. */}
+  <div class="zx-container">
+    {/* 15/09: a seta saiu (founder). Entre o recado e o título não há vão que
+        caiba desenho, e o "!" faz o mesmo trabalho sem disputar com o h2. */}
+    <p class="zx-passos-mao reveal" aria-hidden="true">Comece em 3 passos!</p>
+    <h2 class="zx-passos-titulo reveal reveal-delay-1">Você começa, <strong>o VOS conecta o resto</strong>.</h2>
+
+    <div class="zx-passos-grade">
+      <div class="zx-passos-fotos reveal reveal-delay-1" aria-hidden="true">
+        {FOTOS.map((f, i) => (
+          <figure class={`zx-passos-foto zx-passos-foto--${i + 1}`}>
+            <img src={f.src} alt={f.alt} loading="lazy" decoding="async" />
+            {i === 0 ? (
+              /* O aviso sobe devagar e some. É pra mal se notar: a foto é o
+                 assunto, o aviso é só a prova de que tem sistema por trás. */
+              <span class="zx-passos-aviso">
+                <span class="zx-passos-aviso-marcas">
+                  <img src="/assets/icons/google-agenda.svg" alt="" width="16" height="16" loading="lazy" />
+                  <img src="/assets/icons/outlook-agenda.svg" alt="" width="16" height="16" loading="lazy" />
+                </span>
+                Novo agendamento
+              </span>
+            ) : (
+              /* Ela não está só embalando: está VENDENDO ao vivo, e a plateia
+                 responde. A anatomia é a da live do Instagram . selo e
+                 espectadores no topo, comentário subindo no pé, coração saindo
+                 do canto . porque é o que faz a cena ser reconhecida sem legenda. */
+              <span class="zx-passos-live">
+                {/* topo: quem está ao vivo na esquerda; selo, plateia e o X na direita */}
+                <span class="zx-live-topo">
+                  <span class="zx-live-dono">
+                    {/* a cara do perfil é a DELA, a mesma foto puxada no rosto */}
+                    <span class="zx-live-dono-foto">
+                      <img src={f.src} alt="" loading="lazy" decoding="async" />
+                    </span>
+                    sualoja
+                  </span>
+                  <span class="zx-live-status">
+                    <span class="zx-live-selo">AO VIVO</span>
+                    <span class="zx-live-olhos">
+                      <svg viewBox="0 0 24 24" fill="none" width="11" height="11">
+                        <path d="M2 12s3.7-6.6 10-6.6S22 12 22 12s-3.7 6.6-10 6.6S2 12 2 12Z" stroke="currentColor" stroke-width="2.1" />
+                        <circle cx="12" cy="12" r="2.7" stroke="currentColor" stroke-width="2.1" />
+                      </svg>
+                      <b data-olhos>127</b>
+                    </span>
+                    <svg class="zx-live-x" viewBox="0 0 24 24" fill="none">
+                      <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+                    </svg>
+                  </span>
+                </span>
+
+                {/* pé: os comentários sobem e a barra de comentar fecha a tela,
+                    igual ao app. Sem ela a cena vira foto com adesivo. */}
+                <span class="zx-live-pe">
+                  <span class="zx-live-chat">
+                    {FALAS.map((f, n) => (
+                      <span class={`zx-live-fala zx-live-fala--${n + 1}`}>
+                        <img src={f.foto} alt="" width="22" height="22" loading="lazy" decoding="async" />
+                        <span class="zx-live-fala-txt">{f.texto}</span>
+                      </span>
+                    ))}
+                  </span>
+                  <span class="zx-live-barra">
+                    <span class="zx-live-campo">Adicionar um comentário...</span>
+                    <svg class="zx-live-icone" viewBox="0 0 24 24" fill="none">
+                      <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+                    </svg>
+                    <svg class="zx-live-icone" viewBox="0 0 24 24" fill="none">
+                      <path d="M19.7 5.3a5 5 0 0 0-7.1 0l-.6.6-.6-.6a5 5 0 1 0-7.1 7.1l7.7 7.7 7.7-7.7a5 5 0 0 0 0-7.1Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </span>
+
+                <span class="zx-live-amores">
+                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                    <svg class={`zx-live-amor zx-live-amor--${n}`} viewBox="0 0 24 24">
+                      <path d="M12 21.3l-1.4-1.3C5.4 15.3 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.8-8.6 11.5L12 21.3Z" fill="currentColor" />
+                    </svg>
+                  ))}
+                </span>
+              </span>
+            )}
+          </figure>
+        ))}
+      </div>
+
+      <div class="zx-passos-lista reveal reveal-delay-2">
+        <ol>
+          {PASSOS.map((p, i) => (
+            <li>
+              <span class="zx-passos-num">{String(i + 1).padStart(2, "0")}</span>
+              <span class="zx-passos-txt">{p}</span>
+            </li>
+          ))}
+        </ol>
+        {/* o MESMO botão do "Criar conta" da barra: um primário por página */}
+        <div class="zx-passos-cta">
+          <GetStartedButton client:visible label="Teste grátis" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* O topo encosta na fileira de ícones (founder 15/09: "deixa mais junto as
+     três seções"): eram 128px de respiro numa costura que já é preto no preto,
+     e o vão parecia falta de conteúdo. O pé segue longo, porque embaixo começa
+     outro assunto (os módulos). */
+  .zx-passos {
+    position: relative;
+    padding: clamp(16px, 2.6vh, 32px) 0 clamp(64px, 11vh, 128px);
+    background: var(--zx-dark-deep);
+  }
+  /* No monitor a costura ficou APERTADA demais depois de juntar as três seções
+     (founder 15/09: "dá um pouco mais de espaço no desktop, só mantém o do
+     mobile"). O respiro volta a existir só a partir do tablet . na tela do
+     celular a fileira de ícones e o recado já cabem juntos, e lá o vão sobrava. */
+  @media (min-width: 761px) {
+    .zx-passos { padding-top: clamp(44px, 6.5vh, 84px); }
+  }
+
+  /* NADA na costura (founder 15/09, três passadas): primeiro foi um fio com
+     luz descendo, depois duas nuvens brancas em tinta baixíssima atravessando
+     o vão . "tira essa mancha branca aí entre os dois blocos, deixa tudo
+     preto". No preto chapado qualquer clarão vira mancha, e o que costura as
+     duas seções agora é o próprio fundo, igual dos dois lados. */
+
+  /* O recado manuscrito. É a MESMA letra do "feito pra você"
+     (SegmentSolutions): Caveat 700, inclinada. A tinta é o degradê do Zé
+     (founder 15/09, depois de ver o do Instagram: "no degradê do Zé fica
+     melhor"), com as cinco paradas do MODO ZÉ (`ModoZe.tsx`), deitado como a
+     palavra de lá: violeta no começo, laranja no fim. Branco fica de reserva
+     pra quem não pinta texto com fundo. */
+  .zx-passos-mao {
+    position: relative;
+    /* O degradê só pinta DENTRO da caixa, e com entrelinha 0.9 a perna do "p"
+       passa do pé dela e sumiria. A folga em volta devolve a letra inteira; a
+       margem negativa desconta a folga, então o título não se mexe. */
+    margin: -0.12em auto calc(6px - 0.24em);
+    padding: 0.12em 0.08em 0.24em;
+    width: max-content;
+    font-family: "Caveat", cursive;
+    font-size: clamp(26px, 3.4vw, 40px);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: 0;
+    color: var(--zx-on-dark);
+    transform: rotate(-3.5deg);
+  }
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .zx-passos-mao {
+      background-image: linear-gradient(90deg, #52309f 0%, #8a3374 30%, #c2452f 58%, #ed4b00 82%, #ff8a3d 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+  }
+  .zx-passos-titulo {
+    margin: 0 0 clamp(36px, 6vh, 72px);
+    text-align: center;
+    font-family: var(--zx-display);
+    font-size: clamp(30px, 4vw, 54px);
+    font-weight: var(--zx-fw-title-dark);
+    letter-spacing: var(--zx-ls-title);
+    line-height: 1.08;
+    color: var(--zx-on-dark);
+    text-wrap: balance;
+  }
+  .zx-passos-titulo strong { font-weight: var(--zx-fw-emphasis); }
+
+  .zx-passos-grade {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(32px, 5vw, 80px);
+    align-items: center;
+  }
+
+  /* ── as duas fotos, desencontradas ───────────────────────── */
+  .zx-passos-fotos {
+    display: grid;
+    /* a segunda invade a coluna da primeira: é a sobreposição que faz o par
+       parecer duas fotos na mesa, e não duas células de uma tabela */
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+  .zx-passos-foto {
+    position: relative;
+    margin: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -34px rgba(0, 0, 0, 0.9);
+  }
+  /* FILHA DIRETA: sem o ">" esta régua pega também os avatares da live lá
+     dentro e os estica em 3/4 na largura do card. */
+  .zx-passos-foto > img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+  }
+  .zx-passos-foto--1 { grid-area: 1 / 1 / 2 / 2; margin-top: 0; }
+  .zx-passos-foto--2 {
+    grid-area: 1 / 2 / 2 / 3;
+    /* o degrau: a de baixo desce um terço da altura da de cima */
+    /* 15/09: a live SOBE 45px (founder). O degrau era clamp(40px, 9vw, 116px)
+       e, em desktop, a conta batia sempre no teto . então aqui é valor único.
+       Altura fica no 3/4 de todo mundo: subir não é esticar. */
+    margin-top: 71px;
+    margin-left: clamp(-32px, -2.4vw, -12px);
+  }
+
+  /* ── os passos ───────────────────────────────────────────── */
+  .zx-passos-lista ol { margin: 0; padding: 0; list-style: none; }
+  .zx-passos-lista li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline;
+    gap: clamp(14px, 1.6vw, 26px);
+    padding: clamp(16px, 2.4vh, 24px) 0;
+    border-bottom: 1px solid var(--zx-on-dark-line);
+  }
+  .zx-passos-lista li:first-child { border-top: 1px solid var(--zx-on-dark-line); }
+  .zx-passos-num {
+    font-family: var(--zx-mono);
+    font-size: clamp(13px, 1.1vw, 15px);
+    font-weight: 500;
+    color: var(--zx-lar-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .zx-passos-txt {
+    font-family: var(--zx-display);
+    font-size: clamp(19px, 2.1vw, 29px);
+    font-weight: var(--zx-fw-title-dark);
+    letter-spacing: -0.022em;
+    line-height: 1.16;
+    color: var(--zx-on-dark);
+    text-wrap: balance;
+  }
+
+  /* ── o aviso que sobe na foto ────────────────────────────
+     Lento de propósito: 7s de subida, 9s de intervalo. Se o olho pegar, ele
+     conta que tem sistema atrás da cena. Se não pegar, a foto não perdeu nada.
+     É o contrário das notificações dos canais, que ali SÃO o assunto. */
+  .zx-passos-aviso {
+    position: absolute;
+    left: 12px;
+    /* LARGURA DO CONTEÚDO, com teto na foto: esticado de ponta a ponta ele
+       virava uma faixa e roubava a cena. E a segunda foto encavala a primeira
+       pelo pé, então o aviso de cima vai pro TOPO . senão ele fica escondido
+       atrás dela. */
+    width: max-content;
+    max-width: calc(100% - 24px);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 11px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #101214;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 26px -14px rgba(8, 9, 10, 0.7);
+    opacity: 0;
+    animation: zx-passos-sobe 16s var(--zx-ease) infinite;
+  }
+  .zx-passos-foto--1 .zx-passos-aviso { top: 14px; }
+
+  .zx-passos-aviso-marcas { display: inline-flex; flex: none; }
+  .zx-passos-aviso-marcas img {
+    display: block;
+    width: 18px;
+    height: 18px;
+    padding: 2px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(8, 9, 10, 0.08);
+  }
+  .zx-passos-aviso-marcas img + img { margin-left: -6px; }
+
+  /* 0 a 44% é a vida do aviso; o resto do ciclo é silêncio */
+  @keyframes zx-passos-sobe {
+    0% { opacity: 0; transform: translateY(14px); }
+    9% { opacity: 1; transform: translateY(0); }
+    34% { opacity: 1; transform: translateY(-6px); }
+    44%, 100% { opacity: 0; transform: translateY(-18px); }
+  }
+
+  /* ── a live na segunda foto ──────────────────────────────
+     Aqui o exagero é o ponto: live é barulho. Mas o barulho mora nas BORDAS
+     da foto (topo, pé e canto direito), nunca no rosto nem nas mãos dela. */
+  .zx-passos-live { position: absolute; inset: 0; pointer-events: none; }
+
+  .zx-live-topo {
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    right: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  /* quem está ao vivo: a cara é a DELA mesma */
+  .zx-live-dono {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 5px rgba(8, 9, 10, 0.8);
+  }
+  .zx-live-dono-foto {
+    position: relative;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.9);
+  }
+  /* object-fit não chega no rosto: um quadrado tirado de foto 3/4 ainda mostra
+     a cena quase inteira. 295% de largura faz a cabeça dela encher o círculo,
+     e left/top põem o rosto (58% x 20% da foto) no centro. Tudo em % do
+     círculo, então o corte vale igual no celular. */
+  .zx-live-dono-foto img {
+    position: absolute;
+    left: -122%;
+    top: -29%;
+    width: 295%;
+    max-width: none;
+    height: auto;
+  }
+  .zx-live-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex: none;
+  }
+  .zx-live-x {
+    width: 12px;
+    height: 12px;
+    color: #fff;
+    filter: drop-shadow(0 1px 4px rgba(8, 9, 10, 0.7));
+  }
+  .zx-live-selo,
+  .zx-live-olhos {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 6px;
+    border-radius: 6px;
+    font-size: 9.5px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .zx-live-selo {
+    letter-spacing: 0.04em;
+    color: #fff;
+    /* o rosa chapado do selo de live do Instagram, como no template. Hex cru de
+       propósito . é cor de marca dos outros, não token nosso. */
+    background: #ED2E6E;
+  }
+  .zx-live-olhos {
+    gap: 4px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: rgba(255, 255, 255, 0.95);
+    background: rgba(8, 9, 10, 0.38);
+    backdrop-filter: blur(6px);
+  }
+  .zx-live-olhos svg { flex: none; }
+
+  /* o pé inteiro: a raia dos comentários em cima da barra de comentar */
+  .zx-live-pe {
+    position: absolute;
+    left: 9px;
+    right: 9px;
+    bottom: 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  /* a raia por onde os comentários sobem; a direita fica pros corações */
+  .zx-live-chat {
+    position: relative;
+    height: 62px;
+    margin-right: 30px;
+  }
+  .zx-live-fala {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    opacity: 0;
+    animation: zx-live-sobe 9s var(--zx-ease) infinite;
+  }
+  .zx-live-fala--2 { animation-delay: 3s; }
+  .zx-live-fala--3 { animation-delay: 6s; }
+  .zx-live-fala img {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
+  }
+  .zx-live-fala-txt {
+    /* sem cartão: a live escreve DIRETO no vídeo, e a sombra é o que segura
+       a leitura. Um balão branco aqui viraria notificação de novo. */
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.28;
+    color: #fff;
+    text-shadow: 0 1px 5px rgba(8, 9, 10, 0.9), 0 0 16px rgba(8, 9, 10, 0.55);
+  }
+
+  /* a barra de comentar: contorno claro, nada de fundo. É o que fecha a tela
+     como app e não como foto com adesivo. */
+  .zx-live-barra {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .zx-live-campo {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 5px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 999px;
+    font-size: 9.5px;
+    line-height: 1.2;
+    color: rgba(255, 255, 255, 0.92);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 4px rgba(8, 9, 10, 0.7);
+  }
+  .zx-live-icone {
+    flex: none;
+    width: 15px;
+    height: 15px;
+    color: #fff;
+    filter: drop-shadow(0 1px 4px rgba(8, 9, 10, 0.7));
+  }
+
+  @keyframes zx-live-sobe {
+    0%   { opacity: 0; transform: translateY(16px); }
+    6%   { opacity: 1; transform: translateY(0); }
+    28%  { opacity: 1; transform: translateY(-26px); }
+    38%, 100% { opacity: 0; transform: translateY(-42px); }
+  }
+
+  /* a coluna de corações sai do canto do coração da barra, como no app */
+  .zx-live-amores {
+    position: absolute;
+    right: 10px;
+    bottom: 40px;
+    width: 22px;
+    height: 120px;
+  }
+  .zx-live-amor {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 15px;
+    height: 15px;
+    color: #FF3B6B;
+    opacity: 0;
+    filter: drop-shadow(0 2px 6px rgba(8, 9, 10, 0.5));
+    animation: zx-live-amor 5s linear infinite;
+  }
+  /* rosa e laranja alternados, como no template: plateia não bate palma em uníssono */
+  .zx-live-amor--2 { width: 12px; height: 12px; color: #FF7A33; animation-delay: 0.8s; }
+  .zx-live-amor--3 { width: 17px; height: 17px; animation-delay: 1.6s; }
+  .zx-live-amor--4 { width: 13px; height: 13px; color: #FF7A33; animation-delay: 2.5s; }
+  .zx-live-amor--5 { width: 14px; height: 14px; animation-delay: 3.3s; }
+  .zx-live-amor--6 { width: 11px; height: 11px; color: #FF7A33; animation-delay: 4.1s; }
+
+  /* sobe TORTO: coração que sobe reto parece ícone, não gente batendo palma */
+  @keyframes zx-live-amor {
+    0%   { opacity: 0;    transform: translate(0, 6px) scale(0.6); }
+    12%  { opacity: 0.95; transform: translate(-5px, -8px) scale(1); }
+    45%  { opacity: 0.9;  transform: translate(6px, -38px) scale(1.06); }
+    75%  { opacity: 0.45; transform: translate(-6px, -68px) scale(0.95); }
+    100% { opacity: 0;    transform: translate(2px, -94px) scale(0.8); }
+  }
+
+  /* o MESMO botão do "Criar conta" da barra, pelo mesmo componente */
+  .zx-passos-cta { margin-top: clamp(26px, 4vh, 40px); }
+
+  @media (max-width: 900px) {
+    /* No celular as fotos vão pra CIMA dos passos e param de se sobrepor:
+       duas colunas de 175px cada deixariam as duas ilegíveis. */
+    .zx-passos-grade { grid-template-columns: 1fr; gap: clamp(28px, 6vh, 44px); }
+    .zx-passos-fotos { gap: 12px; }
+    .zx-passos-foto--2 { margin-top: clamp(24px, 8vw, 44px); margin-left: 0; }
+    .zx-passos-cta :global(button), .zx-passos-cta :global(a) { width: 100%; justify-content: center; }
+    .zx-passos-mao { margin-inline: 0; }
+    /* a foto cai pra ~175px: a live encolhe junto, senão vira tarja */
+    .zx-live-topo { top: 6px; left: 6px; right: 6px; gap: 5px; }
+    .zx-live-dono { gap: 4px; font-size: 8px; }
+    .zx-live-dono-foto { width: 15px; height: 15px; }
+    .zx-live-status { gap: 4px; }
+    .zx-live-selo, .zx-live-olhos { padding: 2px 4px; font-size: 7px; }
+    .zx-live-olhos svg { width: 8px; height: 8px; }
+    .zx-live-x { width: 9px; height: 9px; }
+    .zx-live-pe { left: 6px; right: 6px; bottom: 6px; gap: 5px; }
+    .zx-live-chat { height: 46px; margin-right: 22px; }
+    .zx-live-fala { gap: 5px; }
+    .zx-live-fala img { width: 16px; height: 16px; }
+    .zx-live-fala-txt { font-size: 9px; }
+    .zx-live-campo { padding: 4px 7px; font-size: 7.5px; }
+    .zx-live-icone { width: 11px; height: 11px; }
+    .zx-live-amores { right: 6px; bottom: 30px; height: 84px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* parado e visível: quem pediu menos movimento ainda vê a prova */
+    .zx-passos-aviso { animation: none; opacity: 1; transform: none; }
+    /* a live para: fica UM comentário e UM coração, parados */
+    .zx-live-fala { animation: none; }
+    .zx-live-fala--1 { opacity: 1; transform: none; }
+    .zx-live-fala--2, .zx-live-fala--3 { display: none; }
+    .zx-live-amor { animation: none; opacity: 0; }
+    .zx-live-amor--1 { opacity: 0.9; transform: translate(-3px, -34px); }
+  }
+</style>
+
+<script>
+  /* A LIVE É AO VIVO: o número de quem está assistindo sobe de 2 em 2 a cada
+     2 segundos (founder 15/09, "de vagarinho"). Para quando a foto sai da
+     tela . e com menos movimento pedido nem começa, porque número trocando
+     sozinho também é movimento. */
+  const olhos = document.querySelector<HTMLElement>("[data-olhos]");
+  if (olhos) {
+    const menos = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let quantos = Number(olhos.textContent?.replace(/\D/g, "")) || 127;
+    let relogio = 0;
+
+    const parar = () => window.clearInterval(relogio);
+    const ligar = () => {
+      parar();
+      if (menos.matches) return;
+      relogio = window.setInterval(() => {
+        quantos += 2;
+        olhos.textContent = quantos.toLocaleString("pt-BR");
+      }, 2000);
+    };
+
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entradas) => {
+          if (entradas.some((e) => e.isIntersecting)) ligar();
+          else parar();
+        },
+        { threshold: 0.2 },
+      );
+      io.observe(olhos);
+    } else {
+      ligar();
+    }
+  }
+</script>

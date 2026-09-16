@@ -49,7 +49,10 @@ export function HeroPill({
         </svg>
       </span>
 
-      <style>{`
+      {/* CSS por dangerouslySetInnerHTML, não como filho do <style>: como filho,
+          o React quebra a string em nós de texto e a remontagem no cliente não
+          bate com a do servidor, e a hidratação da página cai inteira. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .zx-clickup-pill {
           /* borda cinza suave + highlight colorido no topo (estilo ClickUp) */
           background:
@@ -135,7 +138,7 @@ export function HeroPill({
         @media (prefers-reduced-motion: reduce) {
           .zx-clickup-pill:hover { transform: none; }
         }
-      `}</style>
+      ` }} />
     </motion.a>
   );
 }

@@ -25,7 +25,7 @@ export default function TestimonialCards({ items, className }: Props) {
       {items.map((t) => (
         <article
           key={t.name}
-          className="flex w-full max-w-[22rem] min-h-[560px] flex-col bg-[#14121F] text-white rounded-2xl border border-white/10 shadow-[0_28px_60px_-36px_rgba(0,0,0,0.55)]"
+          className="flex w-full max-w-[22rem] min-h-[560px] flex-col bg-[#101214] text-white rounded-2xl border border-white/10 shadow-[0_28px_60px_-36px_rgba(0,0,0,0.55)]"
         >
           <div className="relative -mt-px overflow-hidden rounded-2xl">
             <img
@@ -35,9 +35,9 @@ export default function TestimonialCards({ items, className }: Props) {
               height={360}
               loading="lazy"
               decoding="async"
-              className="h-[360px] w-full rounded-2xl object-cover object-top transition-all duration-300 hover:scale-105"
+              className="h-[360px] w-full rounded-2xl object-cover object-top transition-transform duration-[450ms] ease-vos hover:scale-[1.03]"
             />
-            <div className="pointer-events-none absolute bottom-0 z-10 h-72 w-full bg-gradient-to-t from-[#14121F] to-transparent" />
+            <div className="pointer-events-none absolute bottom-0 z-10 h-72 w-full bg-gradient-to-t from-[#101214] to-transparent" />
           </div>
           <div className="flex flex-1 flex-col px-4 pb-6 pt-1">
             <p className="border-b border-white/15 pb-5 text-[15px] font-medium leading-snug tracking-[-0.01em]">
@@ -48,7 +48,7 @@ export default function TestimonialCards({ items, className }: Props) {
               <p className="mt-1 text-sm font-medium text-white/45">
                 {t.biz} · {t.city}
               </p>
-              <p className="mt-2 text-sm font-semibold uppercase tracking-[0.08em] bg-gradient-to-r from-[#8B76FF] via-[#ED4B00] to-[#9938CA] bg-clip-text text-transparent">
+              <p className="mt-2 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-[#FF7A33]">
                 {t.metric}
               </p>
             </div>

@@ -2,6 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Do redesign (15/09): o leque das integrações no hero. O resto da pele
+   nova mora em styles/zx.css, importado por cada página do site novo; só
+   este bloco precisa ser global, porque a ilha do hero é React. ── */
+/* Hero: leque interativo das integrações oficiais. Repouso MONO (hairline);
+   a cor do canal só acende sob o cursor (VOS UNO · logos de terceiros). */
+.vos-integration-item {
+  margin-left: -10px;
+  transform: rotate(var(--vos-integration-rotate, 0deg));
+  transition:
+    transform var(--motion-short) var(--ease-vos),
+    margin-left var(--motion-short) var(--ease-vos),
+    filter var(--motion-short) var(--ease-vos);
+}
+.vos-integration-item img {
+  border-color: var(--line);
+  transition: border-color var(--motion-hover) var(--ease-vos);
+}
+.vos-integration-item:hover img { border-color: var(--c, var(--accent)); }
+
+.vos-integration-item:first-child { margin-left: 0; }
+.vos-integration-item:nth-child(1) { --vos-integration-rotate: -6deg; --vos-integration-fan-y: -8px; --vos-integration-fan-rotate: -10deg; }
+.vos-integration-item:nth-child(2) { --vos-integration-rotate: 5deg; --vos-integration-fan-y: -5px; --vos-integration-fan-rotate: 8deg; }
+.vos-integration-item:nth-child(3) { --vos-integration-rotate: -4deg; --vos-integration-fan-y: -10px; --vos-integration-fan-rotate: -7deg; }
+.vos-integration-item:nth-child(4) { --vos-integration-rotate: 3deg; --vos-integration-fan-y: -4px; --vos-integration-fan-rotate: 5deg; }
+.vos-integration-item:nth-child(5) { --vos-integration-rotate: -5deg; --vos-integration-fan-y: -9px; --vos-integration-fan-rotate: -9deg; }
+.vos-integration-item:nth-child(6) { --vos-integration-rotate: 6deg; --vos-integration-fan-y: -6px; --vos-integration-fan-rotate: 9deg; }
+.vos-integration-item:nth-child(7) { --vos-integration-rotate: -3deg; --vos-integration-fan-y: -8px; --vos-integration-fan-rotate: -4deg; }
+
+.vos-integrations-list:hover .vos-integration-item {
+  margin-left: 2px;
+  transform: translateY(var(--vos-integration-fan-y, -6px)) rotate(var(--vos-integration-fan-rotate, 0deg));
+}
+
+.vos-integrations-list:hover .vos-integration-item:first-child { margin-left: 0; }
+
+.vos-integrations-list .vos-integration-item:hover {
+  z-index: 20 !important;
+  filter: brightness(1.04);
+  transform: translateY(-12px) scale(1.16) rotate(0deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vos-integration-item,
+  .vos-integrations-list:hover .vos-integration-item,
+  .vos-integrations-list .vos-integration-item:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
 /**
  * Vertex Brand Manual v2, light-first.
  * Canvas creme, tinta escura, acento laranja, slate como assinatura.

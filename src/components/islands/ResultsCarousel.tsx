@@ -189,7 +189,10 @@ export default function ResultsCarousel() {
         )}
       </div>
 
-      <style>{`
+      {/* CSS por dangerouslySetInnerHTML, não como filho do <style>: como filho,
+          o React quebra a string em nós de texto e a remontagem no cliente não
+          bate com a do servidor, e a hidratação da página cai inteira. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .rscar { width: 100%; }
         .rscar__bar {
           display: flex;
@@ -349,7 +352,7 @@ export default function ResultsCarousel() {
             height: 400px;
           }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }

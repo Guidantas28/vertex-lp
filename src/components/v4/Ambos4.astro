@@ -1,0 +1,131 @@
+---
+// Faixa "serviço e produto no mesmo lugar": título em dois tons (a afirmação
+// em tinta cheia, a enumeração apagada) e três cartões mostrando os dois
+// mundos rodando no mesmo sistema. Referência: a faixa de canais da Shopify.
+const CARTOES = [
+  {
+    src: "/assets/people/ctx-services.webp",
+    alt: "Técnico em atendimento na casa do cliente",
+    rotulo: "A visita técnica",
+    nota: "A OS sai do celular, na rua",
+  },
+  {
+    src: "/assets/people/ctx-commerce.webp",
+    alt: "Dono de loja preparando um pedido no balcão",
+    rotulo: "O balcão",
+    nota: "Pedido, estoque e caixa no mesmo toque",
+  },
+  {
+    src: "/assets/product/operacoes-funnel.webp",
+    alt: "Tela do VOS com pedidos e ordens de serviço na mesma lista",
+    rotulo: "O mesmo sistema",
+    nota: "Pedido e OS na mesma lista",
+  },
+];
+---
+
+<section class="zx-ambos" id="ambos">
+  <div class="zx-container">
+    <h2 class="zx-ambos-titulo reveal">
+      Serviço e produto rodam no mesmo lugar.
+      <span>
+        O pedido da loja e a ordem de serviço. O balcão e a visita técnica.
+        O caixa dos dois no fim do dia.
+      </span>
+    </h2>
+
+    <ul class="zx-ambos-grade reveal reveal-delay-1">
+      {CARTOES.map((c) => (
+        <li class="zx-ambos-card">
+          <img src={c.src} alt={c.alt} loading="lazy" decoding="async" />
+          <div class="zx-ambos-pe">
+            <b>{c.rotulo}</b>
+            <span>{c.nota}</span>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .zx-ambos {
+    position: relative;
+    padding: clamp(56px, 10vh, 120px) 0 clamp(40px, 7vh, 88px);
+    background: var(--zx-dark-deep);
+  }
+
+  /* O título em dois tons: a afirmação em tinta cheia, o resto apagado. */
+  .zx-ambos-titulo {
+    margin: 0;
+    max-width: 22ch;
+    font-family: var(--zx-display);
+    font-size: clamp(30px, 4vw, 54px);
+    font-weight: var(--zx-fw-title-dark);
+    letter-spacing: var(--zx-ls-title);
+    line-height: 1.1;
+    color: var(--zx-on-dark);
+    text-wrap: balance;
+  }
+  .zx-ambos-titulo span {
+    color: rgba(237, 237, 237, 0.38);
+  }
+  @media (min-width: 760px) {
+    .zx-ambos-titulo { max-width: 34ch; }
+  }
+
+  .zx-ambos-grade {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(10px, 1.4vw, 18px);
+    margin: clamp(28px, 5vh, 52px) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .zx-ambos-card {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #101214;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .zx-ambos-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s var(--zx-ease);
+  }
+  .zx-ambos-card:hover img { transform: scale(1.03); }
+
+  /* O rótulo sobe do pé, sobre um véu, pra ler em cima de qualquer foto. */
+  .zx-ambos-pe {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 34px 16px 14px;
+    background: linear-gradient(180deg, transparent, rgba(8, 9, 10, 0.88));
+  }
+  .zx-ambos-pe b {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+  .zx-ambos-pe span {
+    display: block;
+    margin-top: 2px;
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: rgba(237, 237, 237, 0.62);
+  }
+
+  @media (max-width: 760px) {
+    .zx-ambos-grade { grid-template-columns: 1fr; }
+    .zx-ambos-card { aspect-ratio: 16 / 10; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zx-ambos-card img, .zx-ambos-card:hover img { transition: none; transform: none; }
+  }
+</style>

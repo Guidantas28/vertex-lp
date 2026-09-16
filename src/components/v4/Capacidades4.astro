@@ -1,0 +1,139 @@
+---
+// Bloco das capacidades: cada card mostra UMA coisa que o VOS faz, com os
+// ícones de quem ele conversa no cantinho de cima (padrão da referência).
+// Começa pela agenda; os outros cards entram no mesmo molde.
+const AGENDA_ICONES = [
+  { src: "/assets/icons/google-agenda.svg", nome: "Google Agenda" },
+  { src: "/assets/icons/apple-agenda.svg", nome: "Apple Agenda" },
+  { src: "/assets/icons/outlook-agenda.svg", nome: "Outlook Calendário" },
+];
+---
+
+<section class="zx-cap" id="capacidades">
+  <div class="zx-container">
+    <article class="zx-cap-card reveal">
+      <div class="zx-cap-topo">
+        <ul class="zx-cap-marcas" aria-label="Agendas que o VOS sincroniza">
+          {AGENDA_ICONES.map((i, n) => (
+            <li style={`z-index:${AGENDA_ICONES.length - n}`}>
+              <img src={i.src} alt={i.nome} width="30" height="30" loading="lazy" decoding="async" />
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="zx-cap-corpo">
+        <h3>Sua agenda completa <strong>em um lugar</strong>.</h3>
+        <p>
+          O que você marca no VOS aparece no Google, na Apple e no Outlook, e o que
+          marcam lá aparece aqui. O cliente confirma pelo WhatsApp e o horário se
+          fecha sozinho.
+        </p>
+      </div>
+
+      <div class="zx-cap-arte" aria-hidden="true">
+        <img src="/assets/product/services-agenda.webp" alt="" loading="lazy" decoding="async" />
+      </div>
+    </article>
+  </div>
+</section>
+
+<style>
+  .zx-cap {
+    position: relative;
+    padding: clamp(40px, 7vh, 88px) 0;
+    background: var(--zx-dark-deep);
+  }
+
+  .zx-cap-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: clamp(20px, 3vw, 44px) clamp(20px, 3vw, 44px);
+    min-height: clamp(360px, 42vh, 440px);
+    padding: clamp(22px, 3vw, 34px);
+    border-radius: var(--zx-r-card-lg);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    background:
+      radial-gradient(74% 90% at 4% 0%, rgba(237, 75, 0, 0.14), transparent 62%),
+      linear-gradient(158deg, #1b2126 0%, #121619 54%, #0c0f11 100%);
+    overflow: hidden;
+  }
+
+  /* As marcas que o card conversa, no cantinho de cima. */
+  .zx-cap-topo {
+    grid-column: 1 / -1;
+  }
+  .zx-cap-marcas {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .zx-cap-marcas li {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 8px 22px -10px rgba(8, 9, 10, 0.8);
+  }
+  .zx-cap-marcas li + li { margin-left: -13px; }
+  .zx-cap-marcas img { display: block; width: 26px; height: 26px; }
+
+  .zx-cap-corpo h3 {
+    margin: 0;
+    font-family: var(--zx-display);
+    font-size: clamp(26px, 2.6vw, 36px);
+    font-weight: var(--zx-fw-title-dark);
+    letter-spacing: var(--zx-ls-title);
+    line-height: 1.12;
+    color: var(--zx-on-dark);
+    text-wrap: balance;
+  }
+  .zx-cap-corpo h3 strong { font-weight: var(--zx-fw-emphasis); }
+  .zx-cap-corpo p {
+    margin: 14px 0 0;
+    max-width: 44ch;
+    font-size: var(--zx-fs-body);
+    line-height: var(--zx-lh-body);
+    color: rgba(237, 237, 237, 0.6);
+  }
+
+  /* A arte é print REAL do produto, ancorada no canto e sangrando pra fora. */
+  .zx-cap-arte {
+    position: relative;
+    align-self: end;
+    margin: 0 calc(-1 * clamp(22px, 3vw, 34px)) calc(-1 * clamp(22px, 3vw, 34px)) 0;
+    border-radius: 14px 0 0 0;
+    overflow: hidden;
+    box-shadow: -22px -12px 50px -30px rgba(0, 0, 0, 0.95);
+  }
+  .zx-cap-arte img {
+    display: block;
+    width: 112%;
+    max-width: none;
+    border-radius: 14px 0 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-left: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  @media (max-width: 900px) {
+    .zx-cap-card { grid-template-columns: 1fr; min-height: 0; }
+    .zx-cap-arte {
+      align-self: stretch;
+      margin-right: calc(-1 * clamp(22px, 3vw, 34px));
+      height: 260px;
+    }
+    /* o print é de tela larga: no celular ele é ampliado e recortado no miolo,
+       senão vira um fiapo de barra lateral que ninguém lê. */
+    .zx-cap-arte img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 42% top;
+    }
+  }
+</style>

@@ -2,7 +2,6 @@
 // Card “Dentro do VOS”: toggle entre delegar (demo) e soluções por time.
 import { SITE, TEAM_SOLUTIONS, SOCIAL } from "../../data/content";
 import VosInsideToggle from "../islands/VosInsideToggle.tsx";
-import { CursorGradient } from "../ui/cursor-gradient";
 
 const avatars = SOCIAL.people.slice(0, 6).map((p) => ({
   src: p.img,
@@ -14,7 +13,6 @@ const avatars = SOCIAL.people.slice(0, 6).map((p) => ({
   <div class="zx-zeai-inner">
     <div class="zx-container">
       <div class="zx-zeai-memory reveal" data-glow>
-        <CursorGradient client:visible />
         <VosInsideToggle
           client:visible
           signupUrl={SITE.signupUrl}
@@ -48,16 +46,17 @@ const avatars = SOCIAL.people.slice(0, 6).map((p) => ({
     height: clamp(560px, 68vh, 640px);
     max-height: clamp(560px, 68vh, 640px);
     padding: clamp(18px, 2.6vw, 32px) clamp(22px, 3.5vw, 44px) clamp(22px, 3.2vw, 36px);
-    border-radius: clamp(28px, 3.5vw, 48px);
+    border-radius: clamp(24px, 3vw, 48px);
+    /* Carvão (VOS UNO C4.2 S1) com o violeta do Zé como LUZ, não como palco:
+       um glow estático a 18% atrás da cena. O gradiente roxo→laranja foi aposentado. */
     background:
-      radial-gradient(80% 60% at 88% 92%, rgba(255, 180, 110, 0.55), transparent 60%),
-      radial-gradient(70% 55% at 10% 8%, rgba(91, 40, 170, 0.85), transparent 62%),
-      linear-gradient(158deg, #52309F 0%, #8A3374 30%, #C2452F 58%, #ED4B00 82%, #FF8A3D 100%);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+      radial-gradient(60% 55% at 10% 8%, rgba(109, 74, 255, 0.22), transparent 62%),
+      radial-gradient(50% 45% at 92% 96%, rgba(255, 255, 255, 0.05), transparent 60%),
+      linear-gradient(160deg, #1B2126 0%, #101214 48%, #08090A 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow:
-      0 34px 80px -36px rgba(91, 69, 209, 0.5),
-      0 20px 50px -26px rgba(237, 75, 0, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      0 34px 80px -36px rgba(8, 9, 10, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
     overflow: hidden;
     isolation: isolate;
     display: flex;

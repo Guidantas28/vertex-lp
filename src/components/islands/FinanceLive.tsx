@@ -59,6 +59,12 @@ export default function FinanceLive() {
         </span>
       </div>
       <svg className="ffin-live__chart" viewBox="0 0 220 70" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="ffin-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ED4B00" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="#ED4B00" stopOpacity="0" />
+          </linearGradient>
+        </defs>
         <path
           className="ffin-live__fill"
           d="M0 56 C 28 48, 44 60, 66 48 S 104 22, 126 34 S 164 10, 186 22 S 208 16, 220 10 L220 70 L0 70 Z"
@@ -70,17 +76,20 @@ export default function FinanceLive() {
         />
       </svg>
       <div className="ffin-live__tags">
-        <span>NF-e emitida</span>
-        <span>PIX conciliado</span>
-        <span>Contas em dia</span>
+        <span><img src="/assets/icons/nfe.svg" alt="" width={13} height={13} loading="lazy" />NF-e emitida</span>
+        <span><img src="/assets/icons/pix.svg" alt="" width={13} height={13} loading="lazy" />PIX conciliado</span>
+        <span><i className="ffin-live__ok" />Contas em dia</span>
       </div>
 
-      <style>{`
+      {/* CSS por dangerouslySetInnerHTML, não como filho do <style>: como filho,
+          o React quebra a string em nós de texto e a remontagem no cliente não
+          bate com a do servidor, e a hidratação da página cai inteira. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .ffin-live { margin-top: 18px; }
         .ffin-live__n {
-          font-family: var(--zx-display, Geist, system-ui, sans-serif);
+          font-family: var(--zx-body, Inter, system-ui, sans-serif);
           font-size: 24px;
-          font-weight: 800;
+          font-weight: 600;
           letter-spacing: -0.02em;
           color: #fff;
           font-variant-numeric: tabular-nums;
@@ -90,20 +99,20 @@ export default function FinanceLive() {
           margin-left: 8px;
           font-size: 12px;
           font-weight: 600;
-          color: #1EB258;
+          color: #3DBE7A;
         }
         .ffin-live.is-flash .ffin-live__n {
           color: #fff;
-          text-shadow: 0 0 24px rgba(30, 178, 88, 0.55);
+          text-shadow: 0 0 24px rgba(61, 190, 122, 0.45);
         }
         .ffin-live.is-flash .ffin-live__n span {
-          color: #4ADE80;
+          color: #3DBE7A;
         }
         .ffin-live__chart {
           width: 100%;
-          height: 70px;
+          height: clamp(78px, 15vh, 130px);
           display: block;
-          margin-top: 10px;
+          margin-top: 12px;
         }
         .ffin-live__line {
           fill: none;
@@ -114,8 +123,8 @@ export default function FinanceLive() {
           stroke-dashoffset: 0;
         }
         .ffin-live__fill {
-          fill: #ED4B00;
-          opacity: 0.08;
+          fill: url(#ffin-grad);
+          opacity: 0.6;
         }
         .ffin-live.is-flash .ffin-live__line {
           filter: drop-shadow(0 0 6px rgba(237, 75, 0, 0.55));
@@ -127,16 +136,27 @@ export default function FinanceLive() {
           margin-top: 12px;
         }
         .ffin-live__tags span {
-          font-family: Inter, system-ui, sans-serif;
-          font-size: 10px;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: rgba(242, 240, 250, 0.55);
-          padding: 5px 9px;
-          border-radius: 999px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-family: var(--zx-body, Inter, system-ui, sans-serif);
+          font-size: 11.5px;
+          font-weight: 600;
+          letter-spacing: 0;
+          text-transform: none;
+          color: rgba(237, 237, 237, 0.7);
+          padding: 4px 9px;
+          border-radius: 6px;
+          background: rgba(255, 255, 255, 0.04);
           border: 1px solid rgba(255, 255, 255, 0.09);
         }
-      `}</style>
+        .ffin-live__tags img { display: block; width: 13px; height: 13px; }
+        .ffin-live__ok {
+          width: 7px; height: 7px;
+          border-radius: 999px;
+          background: #3DBE7A;
+        }
+      ` }} />
     </div>
   );
 }

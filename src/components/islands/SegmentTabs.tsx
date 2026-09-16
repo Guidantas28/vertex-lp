@@ -61,8 +61,6 @@ export default function SegmentTabs({
     setActive(i);
   };
 
-  const lighten = (hex: string, amt = 50) => `color-mix(in srgb, ${hex} ${amt}%, #fff)`;
-
   return (
     <div className="seg-tabs mt-10 sm:mt-12" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       {/* Tabs — scroll horizontal no mobile */}
@@ -78,14 +76,13 @@ export default function SegmentTabs({
               onClick={() => pick(i)}
               className="seg-tabs__tab group relative flex shrink-0 items-center gap-2 overflow-hidden rounded-2xl border px-3.5 py-2.5 text-left transition-all duration-300 sm:gap-2.5 sm:px-4 sm:py-3"
               style={{
-                background: on ? `color-mix(in srgb, ${seg.color} 20%, transparent)` : "rgba(255,255,255,.05)",
-                borderColor: on ? seg.color : "var(--slate-line)",
-                boxShadow: on ? `0 16px 38px -18px ${seg.color}` : "none",
+                background: on ? "rgba(255,255,255,.07)" : "rgba(255,255,255,.03)",
+                borderColor: on ? "var(--accent)" : "var(--slate-line)",
               }}
             >
               <span
                 className="grid h-8 w-8 shrink-0 place-items-center rounded-xl transition-colors sm:h-9 sm:w-9"
-                style={{ background: on ? seg.color : "rgba(255,255,255,.08)", color: on ? "#fff" : "var(--slate-ink-2)" }}
+                style={{ background: on ? "var(--accent)" : "rgba(255,255,255,.08)", color: on ? "#fff" : "var(--slate-ink-2)" }}
               >
                 <Svg name={seg.icon} size={17} />
               </span>
@@ -93,7 +90,7 @@ export default function SegmentTabs({
                 {seg.label}
               </span>
               {on && !locked && (
-                <span key={active} className="seg-bar" style={{ background: seg.color, animationDuration: `${ROTATE_MS}ms`, animationPlayState: paused ? "paused" : "running" }} />
+                <span key={active} className="seg-bar" style={{ background: "var(--accent)", animationDuration: `${ROTATE_MS}ms`, animationPlayState: paused ? "paused" : "running" }} />
               )}
             </button>
           );
@@ -111,17 +108,17 @@ export default function SegmentTabs({
           <span
             className="inline-flex w-fit items-center gap-2 rounded-pill px-3 py-1 font-mono text-[0.66rem] uppercase tracking-wide"
             style={{
-              background: `color-mix(in srgb, ${s.color} 22%, transparent)`,
-              color: lighten(s.color, 45),
-              border: `1px solid color-mix(in srgb, ${s.color} 45%, transparent)`,
+              background: "rgba(237,75,0,.14)",
+              color: "#FF9A66",
+              border: "1px solid rgba(237,75,0,.35)",
             }}
           >
-            <span className="h-1.5 w-1.5 rounded-full" style={{ background: lighten(s.color, 35) }} />
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--accent)" }} />
             {s.label}
           </span>
           <h3
-            className="mt-3 font-display text-[clamp(24px,3vw,32px)] font-bold leading-[1.1] tracking-[-0.02em] sm:mt-4"
-            style={{ color: "var(--slate-ink)", fontFamily: "var(--zx-display, Plus Jakarta Sans, system-ui, sans-serif)" }}
+            className="mt-3 font-display text-[clamp(24px,3vw,32px)] font-normal leading-[1.1] tracking-[-0.025em] sm:mt-4"
+            style={{ color: "var(--slate-ink)", fontFamily: "var(--zx-display, 'Inter Tight', Inter, system-ui, sans-serif)" }}
           >
             {s.title}
           </h3>
@@ -138,7 +135,7 @@ export default function SegmentTabs({
           <ul className="mt-2.5 space-y-2 sm:mt-3 sm:space-y-2.5">
             {s.bullets.slice(0, 6).map((b) => (
               <li key={b} className="flex items-start gap-2.5 text-[16px] font-normal leading-[22px]" style={{ color: "var(--slate-ink)" }}>
-                <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-white" style={{ background: s.color }}>
+                <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-white" style={{ background: "rgba(255,255,255,.14)" }}>
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 6 9 17l-5-5" />
                   </svg>
@@ -157,10 +154,10 @@ export default function SegmentTabs({
               alt={s.quote.name}
               loading="lazy"
               className="h-11 w-11 shrink-0 rounded-full object-cover sm:h-12 sm:w-12"
-              style={{ border: `2px solid ${s.color}` }}
+              style={{ border: "2px solid rgba(255,255,255,.25)" }}
             />
             <div className="min-w-0">
-              <div className="flex gap-0.5" style={{ color: lighten(s.color, 35) }}>
+              <div className="flex gap-0.5" style={{ color: "var(--accent)" }}>
                 {Array.from({ length: s.quote.stars }).map((_, k) => (
                   <svg key={k} width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                     <path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.6 1.1 6.5L12 17.9 6.1 21l1.1-6.5L2.5 9.9l6.5-1L12 2.5Z" />
@@ -197,7 +194,7 @@ export default function SegmentTabs({
               <li key={f.label} className="flex items-center gap-3 py-3" style={{ borderTop: i ? "1px solid var(--slate-line)" : "none" }}>
                 <span
                   className="grid h-9 w-9 shrink-0 place-items-center rounded-xl"
-                  style={{ background: `color-mix(in srgb, ${s.color} 18%, transparent)`, color: lighten(s.color, 55) }}
+                  style={{ background: "rgba(255,255,255,.08)", color: "var(--slate-ink)" }}
                 >
                   <Svg name={f.icon} size={18} />
                 </span>
@@ -213,11 +210,11 @@ export default function SegmentTabs({
             <div
               className="rounded-xl border px-3.5 py-3"
               style={{
-                borderColor: `color-mix(in srgb, ${s.color} 35%, transparent)`,
-                background: `color-mix(in srgb, ${s.color} 12%, transparent)`,
+                borderColor: "var(--slate-line)",
+                background: "rgba(255,255,255,.05)",
               }}
             >
-              <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em]" style={{ color: lighten(s.color, 45) }}>
+              <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em]" style={{ color: "var(--slate-ink-2)" }}>
                 Resultado
               </p>
               <p className="mt-1 text-[0.88rem] font-semibold leading-snug" style={{ color: "var(--slate-ink)" }}>
@@ -229,28 +226,27 @@ export default function SegmentTabs({
               <button
                 type="button"
                 data-action="lead"
-                className="group relative flex w-full items-center overflow-hidden rounded-[12px] py-[14px] pl-[22px] pr-[14px] text-[16px] font-semibold leading-[22px] text-white transition-transform hover:-translate-y-0.5"
-                style={{
-                  background: `linear-gradient(120deg, ${s.color}, color-mix(in srgb, ${s.color} 55%, #6D4AFF))`,
-                  boxShadow: `0 12px 28px -14px ${s.color}`,
-                }}
+                className="group relative flex w-full items-center overflow-hidden rounded-[10px] bg-white py-[14px] pl-[22px] pr-[14px] text-[16px] font-semibold leading-[22px] text-[#101214] transition-colors hover:bg-[#ECECEC]"
               >
-                <span className="mr-12 transition-opacity duration-500 group-hover:opacity-0">{cta}</span>
-                <i className="absolute bottom-1 right-1 top-1 z-10 grid w-1/4 place-items-center rounded-sm bg-white/20 not-italic transition-all duration-500 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
+                <span className="mr-12 transition-opacity duration-300 group-hover:opacity-0">{cta}</span>
+                <i className="absolute bottom-1 right-1 top-1 z-10 grid w-1/4 place-items-center rounded-sm bg-[#101214]/10 not-italic transition-all duration-300 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M9 18l6-6-6-6" />
                   </svg>
                 </i>
               </button>
             </div>
-            <a href="#features" className="mt-3 text-center text-[0.82rem] font-semibold underline-offset-2 hover:underline" style={{ color: lighten(s.color, 50) }}>
+            <a href="#features" className="mt-3 text-center text-[0.82rem] font-semibold underline-offset-2 hover:underline" style={{ color: "var(--slate-ink-2)" }}>
               Ver como funciona →
             </a>
           </div>
         </aside>
       </div>
 
-      <style>{`
+      {/* CSS por dangerouslySetInnerHTML, não como filho do <style>: como filho,
+          o React quebra a string em nós de texto e a remontagem no cliente não
+          bate com a do servidor, e a hidratação da página cai inteira. */}
+      <style dangerouslySetInnerHTML={{ __html: `
         .seg-tabs__nav {
           display: flex;
           gap: 8px;
@@ -292,7 +288,7 @@ export default function SegmentTabs({
           .seg-panel { animation: none; }
           .seg-bar { display: none; }
         }
-      `}</style>
+      ` }} />
     </div>
   );
 }

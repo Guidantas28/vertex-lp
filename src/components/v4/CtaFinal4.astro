@@ -10,14 +10,13 @@ import { GetStartedButton } from "../ui/get-started-button";
     <div class="zx-ctafinal-inner">
       <div class="zx-container">
         <h2 class="reveal">
-          Toda a sua empresa.<br />Em um lugar só.
+          Toda a sua empresa.<br />Em um lugar <strong>só</strong>.
         </h2>
-        <p class="reveal reveal-delay-1">
-          E o Zé cuidando do braçal, enquanto você cuida do crescimento.
-        </p>
-        <div class="zx-ctafinal-actions reveal reveal-delay-2">
-          <GetStartedButton client:visible variant="white" label="Começar Agora" />
-          <GetStartedButton client:visible variant="outline" label="Ver a plataforma" href="#features" />
+        {/* Um botão só, no meio (founder 15/09). O "Ver a plataforma" mandava
+            pra uma âncora que o visitante já passou pra chegar aqui, e a linha
+            de apoio saiu junto: o fecho é o título e o convite, nada mais. */}
+        <div class="zx-ctafinal-actions reveal reveal-delay-1">
+          <GetStartedButton client:visible variant="white" label="Teste grátis" />
         </div>
       </div>
     </div>
@@ -37,24 +36,25 @@ import { GetStartedButton } from "../ui/get-started-button";
     font-size: var(--zx-fs-display);
     line-height: var(--zx-lh-display);
     letter-spacing: var(--zx-ls-display);
-    font-weight: var(--zx-fw-display);
-    color: #F2F0FA;
+    font-weight: var(--zx-fw-title-dark);
+    color: var(--zx-on-dark);
     text-wrap: balance;
   }
-  .zx-ctafinal-inner p {
-    margin: 16px auto 0;
-    max-width: 440px;
-    font-family: var(--zx-body);
-    font-size: var(--zx-fs-body);
-    font-weight: var(--zx-fw-body);
-    line-height: var(--zx-lh-body);
-    color: rgba(242, 240, 250, 0.72);
-  }
+  .zx-ctafinal-inner h2 strong { font-weight: var(--zx-fw-emphasis); }
   .zx-ctafinal-actions {
     display: flex;
     justify-content: center;
     gap: 12px;
-    margin-top: 28px;
+    /* sem a linha de apoio no meio, o botão precisa do respiro que era dela */
+    margin-top: clamp(30px, 4.5vh, 44px);
     flex-wrap: wrap;
+  }
+
+  /* NO CELULAR o fecho SAI (founder 15/09: "remove do footer essa parte somente
+     no mobile"): "Teste grátis" já está na barra do topo, no fim dos três
+     passos e em cada plano . no dedo, mais um convite no pé é meia tela de
+     rolagem repetindo o que a pessoa acabou de ler. O rodapé continua. */
+  @media (max-width: 760px) {
+    .zx-ctafinal-inner { display: none; }
   }
 </style>

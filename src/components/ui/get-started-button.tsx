@@ -4,6 +4,18 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * A PORTA: todo botão de ação do site leva pro ONBOARDING do produto (founder
+ * 15/09, "coloca o link de onboarding em todas as CTA"). Antes eles abriam a
+ * modal de lead, que pedia os dados aqui pra depois mandar pra lá . era um
+ * formulário a mais entre a pessoa e a conta dela.
+ *
+ * O endereço é inlinado no build (o Vite troca `import.meta.env.PUBLIC_*`),
+ * então servidor e cliente escrevem o MESMO href e a hidratação não reclama.
+ */
+export const PORTA = import.meta.env.PUBLIC_SIGNUP_URL ?? "https://app.voshq.com/onboarding";
+
+/** A modal de lead segue viva pros gatilhos `data-action="lead"`. */
 export function openLeadModal() {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent("vos:open-lead"));
@@ -12,9 +24,9 @@ export function openLeadModal() {
 type GetStartedButtonProps = {
   label?: string;
   className?: string;
-  /** dark = hero · white = faixa escura · soft = card claro · outline = secundário dark */
+  /** MONO (UNO §26.1): dark = tinta no claro · white = branco sobre Carvão · soft = contorno · outline = contorno sobre Carvão */
   variant?: "dark" | "white" | "soft" | "outline";
-  /** Navega em vez de abrir a modal */
+  /** Outro destino que não a porta do onboarding. */
   href?: string;
   type?: "button" | "submit";
   onClick?: () => void;
@@ -26,19 +38,19 @@ const VARIANT: Record<
   { btn: string; chevron: string; icon: string }
 > = {
   dark: {
-    btn: "bg-[#1A202C] text-white hover:bg-[#11151c]",
+    btn: "bg-[var(--zx-ink)] text-[var(--zx-paper)] hover:bg-black",
     chevron: "bg-white/15 text-white",
     icon: "text-white",
   },
   white: {
-    btn: "bg-white text-[#14131C] hover:bg-white",
-    chevron: "bg-[#14131C]/10 text-[#14131C]",
-    icon: "text-[#14131C]",
+    btn: "bg-white text-[#101214] hover:bg-[#ECECEC]",
+    chevron: "bg-[#101214]/10 text-[#101214]",
+    icon: "text-[#101214]",
   },
   soft: {
-    btn: "bg-white text-[#14131C] border-[1.5px] border-[rgba(20,19,28,0.18)] hover:border-[#14131C] hover:bg-white",
-    chevron: "bg-[#14131C]/8 text-[#14131C]",
-    icon: "text-[#14131C]",
+    btn: "bg-white text-[var(--zx-ink)] border-[1.5px] border-[var(--zx-line-2)] hover:border-[var(--zx-ink)] hover:bg-[var(--zx-pick)]",
+    chevron: "bg-[#171717]/8 text-[#171717]",
+    icon: "text-[#171717]",
   },
   outline: {
     btn: "bg-transparent text-white border-[1.5px] border-white/40 hover:border-white hover:bg-white/5",
@@ -48,7 +60,7 @@ const VARIANT: Record<
 };
 
 export function GetStartedButton({
-  label = "Começar Agora",
+  label = "Teste grátis",
   className,
   variant = "dark",
   href,
@@ -59,7 +71,7 @@ export function GetStartedButton({
   const v = VARIANT[variant];
 
   const classNames = cn(
-    "group relative h-auto overflow-hidden rounded-[12px] py-[14px] pl-[22px] pr-[14px]",
+    "group relative h-auto overflow-hidden rounded-[10px] py-[14px] pl-[22px] pr-[14px]",
     "text-[16px] font-semibold leading-[22px] shadow-none",
     v.btn,
     className,
@@ -67,12 +79,12 @@ export function GetStartedButton({
 
   const inner = (
     <>
-      <span className="mr-16 transition-opacity duration-500 group-hover:opacity-0">
+      <span className="mr-16 transition-opacity duration-300 group-hover:opacity-0">
         {label}
       </span>
       <i
         className={cn(
-          "absolute bottom-1 right-1 top-1 z-10 grid w-11 place-items-center rounded-sm not-italic transition-all duration-500",
+          "absolute bottom-1 right-1 top-1 z-10 grid w-11 place-items-center rounded-sm not-italic transition-all duration-300",
           "group-hover:w-[calc(100%-0.5rem)] group-active:scale-95",
           v.chevron,
         )}
@@ -82,34 +94,32 @@ export function GetStartedButton({
     </>
   );
 
-  if (href) {
+  /* BOTÃO de verdade só quando ele manda um formulário ou faz algo na própria
+     página; o resto é LINK, porque é navegação . e link abre em outra aba, se
+     copia, e o leitor de tela anuncia como link. */
+  if (type === "submit" || (onClick && !href)) {
     return (
-      <Button asChild size="lg" className={classNames}>
-        <a href={href} onClick={onClick}>
-          {inner}
-        </a>
+      <Button
+        type={type}
+        size="lg"
+        disabled={disabled}
+        className={classNames}
+        onClick={(e) => {
+          if (!onClick) return;
+          e.preventDefault();
+          onClick();
+        }}
+      >
+        {inner}
       </Button>
     );
   }
 
   return (
-    <Button
-      type={type}
-      size="lg"
-      disabled={disabled}
-      className={classNames}
-      onClick={(e) => {
-        if (onClick) {
-          e.preventDefault();
-          onClick();
-          return;
-        }
-        // submit = deixa o form cuidar; button = abre modal de lead
-        if (type === "submit") return;
-        openLeadModal();
-      }}
-    >
-      {inner}
+    <Button asChild size="lg" className={classNames}>
+      <a href={href ?? PORTA} onClick={onClick}>
+        {inner}
+      </a>
     </Button>
   );
 }
