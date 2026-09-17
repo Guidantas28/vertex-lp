@@ -19,8 +19,10 @@ const integrations = [
   { name: "Instagram", src: "/assets/integrations/instagram.png", color: "#E1306C" },
   { name: "Messenger", src: "/assets/integrations/messenger.svg", color: "#0084FF" },
   { name: "Meta", src: "/assets/integrations/meta.png", color: "#0668E1" },
-  { name: "TikTok", src: "/assets/icons/tiktok.svg", color: "#111111" },
-  { name: "Telegram", src: "/assets/icons/telegram.svg", color: "#2AABEE" },
+  /* 17/09 (founder): TikTok e Telegram saem; entram Slack, Google Agenda e o GPT. */
+  { name: "Slack", src: "/assets/integracoes/slack.svg", color: "#4A154B" },
+  { name: "Google Agenda", src: "/assets/icons/google-agenda.svg", color: "#4285F4" },
+  { name: "GPT", src: "/assets/icons/openai.svg", color: "#111111" },
   { name: "Claude", src: "/assets/integrations/claude.svg", color: "#D97757" },
 ];
 
@@ -233,6 +235,19 @@ function Hero({ film = false }: HeroProps) {
               </li>
             ))}
           </ul>
+          {/* O recado manuscrito (founder 17/09): "e muito mais", na mesma letra do "feito pra
+              você" (Caveat 700, inclinada), com uma flechinha desenhada à mão apontando pros
+              ícones. No celular a lista empilha e a flecha some, porque não teria pra onde apontar. */}
+          <span
+            className={`vos-integrations-mais inline-flex items-center gap-1.5 -rotate-3 select-none ${film ? "text-white/80" : "text-ink-2"}`}
+            style={{ fontFamily: '"Caveat", cursive', fontWeight: 700, fontSize: 21, lineHeight: 1, marginLeft: 6 }}
+          >
+            <svg className="hidden sm:block" width="36" height="20" viewBox="0 0 36 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M34 15C26 3 14 3 3 10" />
+              <path d="M9 5L3 10l6 4" />
+            </svg>
+            e muito mais
+          </span>
         </div>
       </div>
     </section>

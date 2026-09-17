@@ -320,18 +320,20 @@ export const TRUST_BR = {
   ],
 };
 
-// Preços: os números do documento "Limites por plano do VOS" (v16, 06/09/2026),
-// os mesmos que o catálogo do produto pratica (`PLAN_CATALOG` em
-// apps/api/src/billing/plan-limits.ts). O preço de cada ciclo é CRAVADO, não
-// calculado: o -30% do anual no Start daria 207,90 e o número do anúncio é 197.
-// Mudou preço ou cota lá, muda aqui no mesmo dia.
+// Preços: os números da "Especificação de planos e implantação" (Plataforma VOS,
+// v1.0, setembro de 2026), o documento que os Termos de Uso e o Contrato de
+// Implantação referenciam e que prevalece sobre eles em escopo, cotas e volumes.
+// O preço de cada ciclo é CRAVADO, não calculado: o -30% do anual no Start daria
+// 207,90 e o número da especificação é 197. Mudou lá, muda aqui no mesmo dia.
 //
 // A página tem dois andares, na leitura de quem compara (founder 15/09, com as
 // páginas de preço da Nuvemshop e da Shopify como referência):
 // 1. os CARDS dizem o preço e o que destaca cada plano, curtos;
-// 2. a TABELA compara linha a linha, com o resto das cotas e dos pacotes.
-// O "Ainda tem mais" com o PDV como complemento saiu no mesmo dia: add-on fica
-// pra mais pra frente, e até lá o site não vende nenhum.
+// 2. a TABELA compara linha a linha, na ordem da especificação: preço e ciclos,
+//    módulos (os 14, nos três planos), cotas mensais com o que acontece no
+//    limite, pacotes e excedentes, e a implantação assistida (taxa única,
+//    opcional). O que fica fora dos planos e da implantação vai numa lista
+//    recolhida no fim (parte 3 do documento).
 export const PRICING = {
   lead: "Todos os planos incluem o VOS completo para atender, vender e organizar sua operação. Você escolhe apenas a capacidade ideal para o momento do seu negócio.",
   cycles: [
@@ -347,9 +349,9 @@ export const PRICING = {
       desc: "Para começar a centralizar a operação e automatizar os primeiros processos.",
       destaques: [
         "2 usuários e 2 canais de atendimento",
-        "300 créditos de IA por mês",
-        "50 notas fiscais por mês",
-        "CRM, agenda, estoque, pedidos e OS",
+        "1.000 contatos e 500 mensagens automáticas por mês",
+        "50 notas fiscais e 10 assinaturas digitais por mês",
+        "10 automações ativas e 5 GB de arquivos",
       ],
       cta: "Começar com o Start",
       featured: false,
@@ -361,9 +363,9 @@ export const PRICING = {
       desc: "Para equipes que precisam conectar atendimento, vendas e operação.",
       destaques: [
         "5 usuários e 5 canais de atendimento",
-        "1.500 créditos de IA por mês",
-        "300 notas fiscais por mês",
-        "Catálogo digital e relatórios",
+        "10.000 contatos e 5.000 mensagens automáticas por mês",
+        "300 notas fiscais e 30 assinaturas digitais por mês",
+        "50 automações ativas e 25 GB de arquivos",
       ],
       cta: "Assinar o Essential",
       featured: true,
@@ -376,9 +378,9 @@ export const PRICING = {
       desc: "Para operações com mais pessoas, canais e volume.",
       destaques: [
         "15 usuários e 20 canais de atendimento",
-        "3.000 créditos de IA por mês",
-        "600 notas fiscais por mês",
-        "200 automações e 50.000 contatos",
+        "50.000 contatos e 20.000 mensagens automáticas por mês",
+        "600 notas fiscais e 200 assinaturas digitais por mês",
+        "200 automações ativas e 50 GB de arquivos",
       ],
       cta: "Assinar o Scale",
       featured: false,
@@ -386,84 +388,122 @@ export const PRICING = {
   ],
   // A tabela: um valor por plano, na ordem Start · Essential · Scale.
   // `true` é incluso, `false` é não incluso, texto é o que se lê na célula.
+  // `fechado` é o grupo que nasce recolhido: os três GRANDES (módulos, pacotes, implantação).
+  // O founder testou tudo aberto em 17/09 e voltou atrás ("não gostei de tudo solto").
   comparar: {
     grupos: [
       {
         id: "preco",
-        titulo: "Preço por mês",
+        titulo: "Preço e ciclos",
         icone: "preco",
         linhas: [
-          { rotulo: "No mensal", nota: "Só no cartão", valores: ["R$ 297", "R$ 497", "R$ 797"] },
-          { rotulo: "No trimestral", nota: "Pix, boleto ou cartão em até 3x", valores: ["R$ 267", "R$ 447", "R$ 717"] },
-          { rotulo: "No anual", nota: "Pix, boleto ou cartão em até 12x", valores: ["R$ 197", "R$ 347", "R$ 557"] },
-        ],
-      },
-      {
-        id: "equipe",
-        titulo: "Equipe e atendimento",
-        icone: "equipe",
-        linhas: [
-          { rotulo: "Usuários incluídos", valores: ["2", "5", "15"] },
-          { rotulo: "Canais de atendimento", nota: "WhatsApp, Instagram, Messenger e e-mail", valores: ["2", "5", "20"] },
-          { rotulo: "Números no Zé do WhatsApp", valores: ["1", "5", "15"] },
-          { rotulo: "Contatos", valores: ["1.000", "10.000", "50.000"] },
-        ],
-      },
-      {
-        id: "ia",
-        titulo: "IA e automação",
-        icone: "ia",
-        linhas: [
-          { rotulo: "Créditos de IA por mês", valores: ["300", "1.500", "3.000"] },
-          { rotulo: "Automações ativas", valores: ["10", "50", "200"] },
-          { rotulo: "Mensagens automáticas por mês", valores: ["500", "5.000", "20.000"] },
-          { rotulo: "E-mails enviados por mês", valores: ["500", "5.000", "10.000"] },
-        ],
-      },
-      {
-        id: "vendas",
-        titulo: "Vendas, fiscal e documentos",
-        icone: "vendas",
-        linhas: [
-          { rotulo: "Notas fiscais por mês", nota: "Nunca trava: o que passar vira pacote", valores: ["50", "300", "600"] },
-          { rotulo: "Assinaturas digitais por mês", valores: ["10", "30", "200"] },
-          { rotulo: "Créditos de Prospect por mês", valores: ["15", "100", "200"] },
-          { rotulo: "Armazenamento", valores: ["5 GB", "25 GB", "50 GB"] },
+          { rotulo: "Mensal, por mês", nota: "Só no cartão, com renovação automática", valores: ["R$ 297", "R$ 497", "R$ 797"] },
+          { rotulo: "Trimestral, por mês", nota: "10% a menos. Pago antes do uso: Pix, boleto à vista ou cartão parcelado", valores: ["R$ 267", "R$ 447", "R$ 717"] },
+          { rotulo: "Valor do trimestre", valores: ["R$ 801", "R$ 1.341", "R$ 2.151"] },
+          { rotulo: "Anual, por mês", nota: "30% a menos. Pago antes do uso: Pix, boleto à vista ou cartão parcelado", valores: ["R$ 197", "R$ 347", "R$ 557"] },
+          { rotulo: "Valor do ano", valores: ["R$ 2.364", "R$ 4.164", "R$ 6.684"] },
         ],
       },
       {
         id: "modulos",
-        titulo: "Módulos",
+        titulo: "Módulos incluídos nos três planos",
         icone: "modulos",
+        fechado: true,
         linhas: [
-          { rotulo: "Atendimento com todos os canais numa fila", valores: [true, true, true] },
-          { rotulo: "CRM e funil de vendas", valores: [true, true, true] },
-          { rotulo: "Agenda da equipe", valores: [true, true, true] },
-          { rotulo: "Orçamentos e pedidos", valores: [true, true, true] },
-          { rotulo: "Estoque", valores: [true, true, true] },
-          { rotulo: "Ordens de serviço", valores: [true, true, true] },
-          { rotulo: "Contas a pagar e a receber", valores: [true, true, true] },
-          { rotulo: "Catálogo digital", valores: [false, true, true] },
-          { rotulo: "Relatórios", valores: [false, true, true] },
+          { rotulo: "Atendimento", nota: "Caixa de entrada única de WhatsApp, Instagram, Messenger, e-mail e API, em tempo real; filas, atribuição, modelos de mensagem, construtor de bots e chat interno", valores: [true, true, true] },
+          { rotulo: "CRM e pipeline", nota: "Leads, negócios, funis, atividades, notas, arquivos, cadências, metas e indicadores de venda", valores: [true, true, true] },
+          { rotulo: "Relacionamento", nota: "Empresas, contatos, clientes, fornecedores, equipe e listas", valores: [true, true, true] },
+          { rotulo: "Prospecção", nota: "Busca de empresas e geração de leads", valores: [true, true, true] },
+          { rotulo: "Orçamentos e OS", nota: "Orçamento com PDF personalizado e link público de aceite; ordens de serviço com checklist e custos; agenda de campo", valores: [true, true, true] },
+          { rotulo: "Catálogo e pedidos", nota: "Produtos e serviços, variações, estoque, movimentações, pedidos e catálogo digital público", valores: [true, true, true] },
+          { rotulo: "Agenda", nota: "Calendário unificado de compromissos, visitas e despachos", valores: [true, true, true] },
+          { rotulo: "Financeiro", nota: "Contas a pagar e a receber, fluxo de caixa, fornecedores, recorrências e emissão de nota fiscal de serviço", valores: [true, true, true] },
+          { rotulo: "Assinatura digital", nota: "Envelopes, modelos com variáveis, assinatura em página pública sem conta, verificação por código e trilha de auditoria", valores: [true, true, true] },
+          { rotulo: "Contratos", nota: "Cadastro e repositório, com controle de vigência e alertas de vencimento", valores: [true, true, true] },
+          { rotulo: "Automações", nota: "Construtor visual de fluxos; campanhas de WhatsApp e e-mail; agentes de IA; galeria de modelos; integração com Google Planilhas", valores: [true, true, true] },
+          { rotulo: "Inteligência artificial", nota: "Copiloto nos módulos e agentes conversacionais", valores: [true, true, true] },
+          { rotulo: "Painéis e relatórios", nota: "Painel inicial configurável, indicadores de venda e atendimento, relatórios por módulo", valores: [true, true, true] },
+          { rotulo: "Administração", nota: "Usuários, perfis e permissões, campos personalizados, notificações, webhooks, tokens de API e servidor MCP", valores: [true, true, true] },
         ],
       },
       {
-        id: "extras",
-        titulo: "Pacotes além da cota",
-        icone: "extras",
+        id: "cotas",
+        titulo: "Cotas mensais",
+        icone: "cotas",
         linhas: [
-          { rotulo: "Usuário adicional", valores: ["R$ 39,90/mês", "R$ 39,90/mês", "R$ 39,90/mês"] },
-          { rotulo: "Canal de atendimento adicional", valores: ["R$ 39/mês", "R$ 39/mês", "R$ 39/mês"] },
-          { rotulo: "100 notas fiscais", valores: ["R$ 39", "R$ 39", "R$ 39"] },
-          { rotulo: "1.000 créditos de IA", valores: ["R$ 49", "R$ 49", "R$ 49"] },
-          { rotulo: "20 assinaturas digitais", valores: ["R$ 29", "R$ 29", "R$ 29"] },
-          { rotulo: "1.000 mensagens automáticas", valores: ["R$ 19", "R$ 19", "R$ 19"] },
-          { rotulo: "10 GB de armazenamento", valores: ["R$ 19/mês", "R$ 19/mês", "R$ 19/mês"] },
+          { rotulo: "Usuários", nota: "No limite: não convida o próximo. Usuário adicional ou plano maior", valores: ["2", "5", "15"] },
+          { rotulo: "Canais de atendimento", nota: "No limite: não conecta o próximo. Canal adicional ou plano maior", valores: ["2", "5", "20"] },
+          { rotulo: "Contatos", nota: "No limite: bloqueia importação e criação em massa. Contato do WhatsApp entra sempre", valores: ["1.000", "10.000", "50.000"] },
+          { rotulo: "Mensagens automáticas por mês", nota: "No limite: campanhas e fluxos entram na fila. Mensagem do atendente nunca para", valores: ["500", "5.000", "20.000"] },
+          { rotulo: "Notas fiscais por mês", nota: "Nunca trava: cada 100 acima vira pacote na fatura seguinte", valores: ["50", "300", "600"] },
+          { rotulo: "Assinaturas digitais por mês", nota: "No limite: não envia envelope novo. Envelopes em curso seguem", valores: ["10", "30", "200"] },
+          { rotulo: "Automações ativas", nota: "No limite: não ativa a próxima. Pode desativar uma para ativar outra", valores: ["10", "50", "200"] },
+          { rotulo: "Armazenamento", nota: "No limite: não sobe arquivo novo. O que existe abre e baixa", valores: ["5 GB", "25 GB", "50 GB"] },
+          { rotulo: "Números no Zé", nota: "No limite: não libera o próximo número", valores: ["1", "5", "15"] },
+          { rotulo: "E-mails por mês", nota: "No limite: campanha de e-mail entra na fila", valores: ["500", "5.000", "10.000"] },
+        ],
+      },
+      {
+        id: "pacotes",
+        titulo: "Pacotes e excedentes",
+        icone: "extras",
+        fechado: true,
+        linhas: [
+          { rotulo: "Usuário adicional", nota: "Por mês", valores: ["R$ 39,90", "R$ 39,90", "R$ 39,90"] },
+          { rotulo: "Canal de atendimento adicional", nota: "Por mês", valores: ["R$ 39", "R$ 39", "R$ 39"] },
+          { rotulo: "Pacote de 100 notas fiscais", valores: ["R$ 39", "R$ 39", "R$ 39"] },
+          { rotulo: "10 GB de armazenamento adicional", nota: "Por mês", valores: ["R$ 19", "R$ 19", "R$ 19"] },
+          { rotulo: "Pacote de 1.000 mensagens automáticas", valores: ["R$ 19", "R$ 19", "R$ 19"] },
+          { rotulo: "Pacote de 20 assinaturas digitais", valores: ["R$ 29", "R$ 29", "R$ 29"] },
+        ],
+      },
+      {
+        id: "implantacao",
+        titulo: "Implantação assistida, opcional",
+        icone: "implantacao",
+        fechado: true,
+        linhas: [
+          { rotulo: "Taxa única", nota: "Não recorrente. À vista no cartão, com parcelamento pela operadora", valores: ["R$ 1.997", "R$ 3.997", "R$ 6.997"] },
+          { rotulo: "Kickoff e mapeamento do processo", nota: "Reunião remota em que a VOS entende como sua empresa trabalha", valores: ["1 × 1h", "1 × 1h", "1 × 2h"] },
+          { rotulo: "Usuários com perfis e permissões", valores: ["2", "5", "15"] },
+          { rotulo: "Canais de atendimento conectados", nota: "WhatsApp, Instagram, Messenger e e-mail na caixa única", valores: ["2", "5", "20"] },
+          { rotulo: "Módulos parametrizados", nota: "Básicos: Atendimento, CRM e Relacionamento", valores: ["Básicos", "Todos", "Todos"] },
+          { rotulo: "Emissão de NFS-e configurada", nota: "1 município; certificado A1 e credenciais da prefeitura por sua conta", valores: [true, true, true] },
+          { rotulo: "Modelos de documento", nota: "A partir do seu .docx: proposta, contrato, OS, envelope", valores: ["3", "6", "10"] },
+          { rotulo: "Automações configuradas", nota: "Fluxos com os gatilhos e ações que o VOS já traz", valores: ["3", "6", "10"] },
+          { rotulo: "Agente de IA configurado", nota: "Persona, base de conhecimento, horários e regras de transbordo", valores: ["1", "1", "2"] },
+          { rotulo: "Migração de contatos", nota: "Pela planilha no layout fornecido", valores: ["300", "1.000", "2.000"] },
+          { rotulo: "Migração de registros", nota: "Contratos, negócios e produtos, pela planilha", valores: ["200", "600", "1.500"] },
+          { rotulo: "Migração de arquivos anexados", nota: "Em lote, nomeados conforme a chave da planilha", valores: ["0,5 GB", "2 GB", "5 GB"] },
+          { rotulo: "Treinamento e apresentação do sistema pronto", nota: "Ao vivo, remoto e gravado, com os seus dados", valores: ["2 × 1h", "3 × 1h", "4 × 1h"] },
+          { rotulo: "Prazo estimado de execução", nota: "Dias úteis a partir da aprovação do pagamento", valores: ["15 dias úteis", "20 dias úteis", "30 dias úteis"] },
         ],
       },
     ],
   },
-  footnote: "Valores em reais. Mensal só no cartão; trimestral e anual são pagos antes do uso, no Pix, boleto à vista ou cartão parcelado. Acima do Scale, pacotes ou contrato negociado. Cancele quando quiser, sem multa.",
+  // O rodapé SAIU DA PÁGINA (founder 17/09: "remove isso aqui também"); fica aqui sem ser passado.
+  footnote: "Valores em reais. Mensal só no cartão, com renovação automática; trimestral e anual são pagos antes do uso, no Pix, boleto à vista ou cartão parcelado. As cotas valem por ciclo de cobrança e não acumulam: você é avisado aos 80% e aos 95%. Os pacotes são comprados na tela de uso, entram na fatura do mês, valem 30 dias e não acumulam. Acima do Scale, contrato negociado. Cancele quando quiser, sem multa.",
+  // Parte 3 da especificação (o que não está incluído) SAIU DA PÁGINA (founder 17/09: "remove essa
+  // parte"). Fica aqui, sem ser passado ao componente, porque o documento segue valendo.
+  fora: {
+    titulo: "O que não está nos planos nem na implantação",
+    intro: "Estes itens só entram com orçamento específico e aprovação por escrito.",
+    itens: [
+      "Desenvolvimento sob medida e alteração do produto para um cliente",
+      "Integração com sistemas próprios, legados ou de terceiros",
+      "Telefonia, voz sobre IP, PABX, discador, gravação de chamadas e serviços de operadora; SMS e RCS",
+      "Certificações, selos de conformidade e adequação a editais ou normas de terceiros",
+      "Consultoria jurídica, contábil, licitatória ou de processos",
+      "Gestão automatizada de obrigações contratuais: marcos, medições, penalidades e fluxos de acompanhamento",
+      "Hospedagem em infraestrutura do cliente ou de terceiros",
+      "O custo das mensagens cobrado pela Meta nos canais oficiais do WhatsApp",
+      "OCR, digitação manual, leitura ou extração de dados do conteúdo dos documentos",
+      "Saneamento, deduplicação ou reconstituição de bases; arquivos ilegíveis ou fora do padrão",
+      "Volumes acima dos limites da implantação e NFS-e em município adicional",
+      "Treinamento adicional, turma extraordinária, treinamento presencial e serviços presenciais",
+      "Migração de histórico de conversas de atendimento e ambiente separado de homologação ou testes",
+    ],
+  },
 };
 
 export const FAQ = {
@@ -900,10 +940,10 @@ export const FOOTER = {
       { label: "Sobre", href: "#" },
       { label: "Carreiras", href: "#" },
       { label: "Contato", href: "#" },
-      { label: "Blog", href: "#" },
+      { label: "Blog", href: "/blog/" },
     ] },
     { title: "Recursos", links: [
-      { label: "Central de ajuda", href: "#" },
+      { label: "Central de ajuda", href: "https://ajuda.voshq.com" },
       { label: "Preços", href: "/precos" },
       { label: "Status", href: "#" },
       { label: "API", href: "#" },

@@ -27,6 +27,7 @@ import TestimonialsMarquee4 from "../components/v4/TestimonialsMarquee4.astro";
 import CtaFinal4 from "../components/v4/CtaFinal4.astro";
 import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
 import ModoZe from "../components/islands/ModoZe.tsx";
+import ConfetePrecos from "../components/islands/ConfetePrecos.tsx";
 import { SITE } from "../data/content";
 // A casca do site (tokens .zx, tipografia, botões) mora em styles/zx.css
 // desde 15/09: a página de preço precisa da MESMA casca, e ela morava aqui.
@@ -90,7 +91,11 @@ import "../styles/zx.css";
       {/* <ZeAI4 /> */}
       {/* <Roi4 /> */}
       {/* <Depoimentos4 /> */}
-      <Pricing4 />
+      {/* 16/09: o confete estoura quando os preços entram na tela (ConfetePrecos observa o #precos). */}
+      <div class="zx-precos-palco" style="position: relative">
+        <ConfetePrecos client:visible />
+        <Pricing4 />
+      </div>
       <Faq4 />
       <TestimonialsMarquee4 />
       <CtaFinal4 />

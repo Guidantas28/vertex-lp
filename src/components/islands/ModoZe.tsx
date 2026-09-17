@@ -29,7 +29,10 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import GlyphPortal from "@/components/ui/glyph-portal";
-import { ModoZeFilme } from "./ModoZeFilme";
+/* 16/09: o filme de três passos (ModoZeFilme) saiu de cena . o founder achou "muito animado
+   pra um site premium". No lugar entra o MUNDO DO ZÉ: a grade calma que explica o que se
+   pede e o que ele faz, com telas reais do produto. O arquivo do filme fica no repo sem uso. */
+import { MundoDoZe } from "./MundoDoZe";
 
 const PALAVRA = "MODO ZÉ.";
 /* A frase em palavras: a última, que chama a palavra grande, vai em ênfase.
@@ -130,8 +133,8 @@ export default function ModoZe() {
             </p>
           }
         >
-          {/* Dentro da palavra mora o filme: o time do Zé em três passos, com o Zé no poste. */}
-          <ModoZeFilme />
+          {/* Dentro da palavra mora o mundo do Zé: a grade que explica o que se pede e o que ele faz. */}
+          <MundoDoZe />
         </GlyphPortal>
       ) : (
         // Reserva a tela enquanto a face carrega: sem ela a página pula quando o portal monta.

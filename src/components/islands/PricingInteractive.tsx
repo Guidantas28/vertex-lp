@@ -38,7 +38,8 @@ export type Plan = {
 };
 
 export type Linha = { rotulo: string; nota?: string; valores: Array<string | boolean> };
-export type Grupo = { id: string; titulo: string; icone: string; linhas: Linha[] };
+export type Grupo = { id: string; titulo: string; icone: string; linhas: Linha[]; fechado?: boolean };
+export type Fora = { titulo: string; intro?: string; itens: string[] };
 
 function formatBRL(value: number) {
   return value.toLocaleString("pt-BR", {
@@ -64,6 +65,8 @@ const ICONES: Record<string, string> = {
   ia: "M12 3.5l1.9 5.2 5.2 1.9-5.2 1.9L12 17.7l-1.9-5.2-5.2-1.9 5.2-1.9ZM19 16l.8 2.2 2.2.8-2.2.8L19 22l-.8-2.2-2.2-.8 2.2-.8Z",
   vendas: "M6 3h12v18l-3-2-3 2-3-2-3 2ZM9 8h6M9 12h6",
   modulos: "M4 4h6v6H4ZM14 4h6v6h-6ZM4 14h6v6H4ZM14 14h6v6h-6Z",
+  cotas: "M4 14a8 8 0 0 1 16 0M12 14l3.5-4M12 14h.01M3 18h18",
+  implantacao: "M14.5 5.5a3.5 3.5 0 0 0-4.6 4.6L4 16v4h4l5.9-5.9a3.5 3.5 0 0 0 4.6-4.6l-2.3 2.3-2.1-2.1Z",
   extras: "M12 5v14M5 12h14",
 };
 
@@ -109,9 +112,11 @@ type Props = {
   plans: Plan[];
   comparar: { grupos: Grupo[] };
   footnote?: string;
+  /** Parte 3 da especificação: o que só entra com orçamento. Fica recolhido no fim. */
+  fora?: Fora;
 };
 
-export default function PricingInteractive({ cycles, plans, comparar, footnote }: Props) {
+export default function PricingInteractive({ cycles, plans, comparar, footnote, fora }: Props) {
   /* Abre no anual: é o melhor número, e a pessoa deve ver primeiro em vez de
      descobrir depois que existia desconto. O caixa do produto abre igual. */
   const [cycle, setCycle] = useState<Cycle>("anual");
@@ -119,7 +124,7 @@ export default function PricingInteractive({ cycles, plans, comparar, footnote }
      iguais (módulos e pacotes) começam fechados pra tabela não virar parede.
      É o que resta do "Só as diferenças", que saiu (founder 15/09): a tabela
      mostra tudo, e o que é igual nos três já nasce recolhido. */
-  const [fechados, setFechados] = useState<Record<string, boolean>>({ modulos: true, extras: true });
+  const [fechados, setFechados] = useState<Record<string, boolean>>(() => Object.fromEntries(comparar.grupos.filter((g) => g.fechado).map((g) => [g.id, true])));
   /* No celular a tabela mostra UM plano por vez, e começa no mais escolhido. */
   const [planoCel, setPlanoCel] = useState(plans.find((p) => p.featured)?.id ?? plans[0]?.id ?? "");
 
@@ -254,6 +259,17 @@ export default function PricingInteractive({ cycles, plans, comparar, footnote }
       </section>
 
       {footnote && <p className="zx-pi__foot">{footnote}</p>}
+      {fora && (
+        <details className="zx-pi__fora" open>
+          <summary>{fora.titulo}</summary>
+          {fora.intro && <p>{fora.intro}</p>}
+          <ul>
+            {fora.itens.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        </details>
+      )}
 
       {/* CSS por dangerouslySetInnerHTML, não como filho do <style>: como filho,
           o React quebra a string em nós de texto e a remontagem no cliente não
@@ -515,6 +531,16 @@ export default function PricingInteractive({ cycles, plans, comparar, footnote }
         .zx-pi__nao svg { width: 14px; height: 14px; }
 
         .zx-pi__foot { margin: 20px 0 0; font-size: 12px; line-height: 1.5; color: var(--zx-ink3, #6B6B6B); }
+        /* o que fica fora: recolhido, em letra de rodapé, duas colunas no desktop */
+        .zx-pi__fora { margin-top: 14px; border-top: 1px solid var(--zx-line, #E4DFD6); padding-top: 12px; font-size: 12px; line-height: 1.5; color: var(--zx-ink3, #6B6B6B); }
+        .zx-pi__fora summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--zx-ink2, #4A4A4A); }
+        .zx-pi__fora summary::-webkit-details-marker { display: none; }
+        .zx-pi__fora summary::after { content: ""; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform .25s cubic-bezier(.22,1,.36,1); }
+        .zx-pi__fora[open] summary::after { transform: rotate(45deg); }
+        .zx-pi__fora p { margin: 10px 0 0; }
+        .zx-pi__fora ul { margin: 8px 0 0; padding-left: 18px; columns: 2; column-gap: 32px; }
+        .zx-pi__fora li { break-inside: avoid; margin: 0 0 6px; }
+        @media (max-width: 760px) { .zx-pi__fora ul { columns: 1; } }
 
         @media (max-width: 900px) {
           .zx-pi__grid { grid-template-columns: minmax(0, 1fr); }

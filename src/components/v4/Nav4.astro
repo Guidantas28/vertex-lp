@@ -10,13 +10,16 @@ const SHOW_TOPBAR = false;
 /* Âncoras com a BARRA na frente: a mesma nav aparece na home e em /precos, e
    um "#segmentos" solto não leva a lugar nenhum fora da home. Na home o
    navegador trata "/#segmentos" como salto na própria página, sem recarregar.
-   Preços virou PÁGINA em 15/09 (founder: "clicar em preços já leva pra essa
-   página completa só com preço"). */
+
+   Três itens (founder 16/09: "fica só plataforma, soluções, blog e help center";
+   17/09: "do header remove o plataforma, deixa só o soluções"): Preços e Dúvidas
+   saíram da barra (a página /precos e o FAQ seguem existindo), e Plataforma saiu
+   no dia seguinte. O Blog mora em /blog/ (outro deploy no mesmo domínio) e a
+   Central de ajuda é o ajuda.voshq.com, que abre em outra aba. */
 const LINKS = [
-  { href: "/#features", label: "Plataforma" },
   { href: "/#segmentos", label: "Soluções" },
-  { href: "/precos", label: "Preços" },
-  { href: "/#faq", label: "Dúvidas" },
+  { href: "/blog/", label: "Blog" },
+  { href: "https://ajuda.voshq.com", label: "Central de ajuda", externo: true },
 ];
 
 /* Item da página em que se está (só os que são página, não âncora). */
@@ -26,7 +29,7 @@ const atual = (href: string) => (href.includes("#") ? false : href.replace(/\/$/
 
 {SHOW_TOPBAR && (
 <div class="zx-topbar" id="zx-topbar">
-  <a href="#features">
+  <a href="#modulos">
     <strong>NOVO</strong>
     <span class="zx-topbar-dot" aria-hidden="true"></span>
     <span class="zx-topbar-msg">
@@ -45,7 +48,7 @@ const atual = (href: string) => (href.includes("#") ? false : href.replace(/\/$/
     <span class="zx-nav-logo zx-nav-logo--dark"><Logo /></span>
     <span class="zx-nav-logo zx-nav-logo--light"><Logo variant="light" /></span>
     <nav class="zx-nav-links" aria-label="Seções da página">
-      {LINKS.map((l) => <a href={l.href} aria-current={atual(l.href) ? "page" : undefined}>{l.label}</a>)}
+      {LINKS.map((l) => <a href={l.href} target={l.externo ? "_blank" : undefined} rel={l.externo ? "noopener" : undefined} aria-current={atual(l.href) ? "page" : undefined}>{l.label}</a>)}
     </nav>
     <div class="zx-nav-actions">
       <a class="zx-nav-login" href={SITE.signupUrl}>Entrar</a>
@@ -58,7 +61,7 @@ const atual = (href: string) => (href.includes("#") ? false : href.replace(/\/$/
     </button>
   </div>
   <div class="zx-mobile" id="zx-mobile" hidden>
-    {LINKS.map((l) => <a href={l.href} aria-current={atual(l.href) ? "page" : undefined}>{l.label}</a>)}
+    {LINKS.map((l) => <a href={l.href} target={l.externo ? "_blank" : undefined} rel={l.externo ? "noopener" : undefined} aria-current={atual(l.href) ? "page" : undefined}>{l.label}</a>)}
     <div class="zx-mobile-cta">
       <GetStartedButton client:visible label="Criar conta" className="w-full justify-center" />
     </div>
