@@ -195,7 +195,9 @@
       "keyword": "vários atendentes whatsapp",
       "title_hint": "Vários atendentes em um número de WhatsApp: como organizar sem bagunça",
       "category": "whatsapp",
-      "used": false
+      "used": true,
+      "publishedSlug": "multiatendimento-whatsapp",
+      "publishedAt": "2026-09-17"
     },
     {
       "id": "relatorio-vendas-semanal",
