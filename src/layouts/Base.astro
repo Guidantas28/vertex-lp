@@ -91,7 +91,12 @@ const grafoDaMarca = {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {/* O MESMO ícone do produto (apps/web/public/favicon.png): quem tem a aba do site e a
+        aba do VOS abertas lado a lado vê a mesma marca nas duas. O "V" do favicon.svg era
+        espaço reservado, não a marca. */}
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <title>{title}</title>
     <meta name="description" content={description} />
