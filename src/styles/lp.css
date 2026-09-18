@@ -25,24 +25,27 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
      marketing (exceção sancionada no CLAUDE.md).
      ───────────────────────────────────────────────────────────────────────── */
   :root{
-    /* marca e status — vos-os.css */
-    --accent:#ED4B00; --accent-400:#FF6A2B; --accent-600:#C63D00;
+    /* marca e status — VOS UNO (styles/zx.css, o redesign de 15/09).
+       O acento e a tinta JÁ eram idênticos; o que muda é o tom quente da
+       linha, o papel no lugar do branco puro e a família Carvão no escuro. */
+    --accent:#ED4B00; --accent-400:#FF7A33; --accent-600:#D94400;
     --accent-soft:rgba(237,75,0,.12); --accent-line:rgba(237,75,0,.30);
     --ok:#15935A; --ok-soft:rgba(21,147,90,.12);
     --warn:#C9810C; --bad:#DC3B2B;
     --info:#1F6FEB; --info-soft:rgba(31,111,235,.12);
     /* violeta do Zé/IA: a única cor de módulo que o DS manteve (§23) */
-    --ai:#7A5BFF;
+    --ai:#6D4AFF;
 
-    /* superfícies e tinta, LIGHT — vos-theme.css */
-    --bg:#FFFFFF; --canvas:#fafafa; --panel:#ffffff; --panel-2:#f5f5f5;
-    --ink:#171717; --ink-2:#525252; --ink-3:#8a8a8a;
-    --line:rgba(0,0,0,.09); --line-2:rgba(0,0,0,.15);
+    /* superfícies e tinta, LIGHT — UNO C4: a peça branca É a tela clara,
+       hairline Porcelain (quente) no lugar do preto a 9%. */
+    --bg:#FAFAFA; --canvas:#FAFAFA; --panel:#FFFFFF; --panel-2:#F4F4F4;
+    --ink:#171717; --ink-2:#4A4A4A; --ink-3:#6B6B6B;
+    --line:#E4DFD6; --line-2:rgba(23,23,23,.18);
 
-    /* superfícies e tinta, DARK (a faixa escura) — vos-theme.css */
-    --d-bg:#0d0d0d; --d-panel:#151515; --d-panel-2:#1c1c1c;
-    --d-ink:#f5f5f5; --d-ink-2:#a8a8a8; --d-ink-3:#7a7a7a;
-    --d-line:rgba(255,255,255,.10);
+    /* superfícies e tinta, DARK (a faixa escura) — Carvão, UNO C4.2 S1 */
+    --d-bg:#101214; --d-panel:#15181A; --d-panel-2:#1B2126;
+    --d-ink:#EDEDED; --d-ink-2:#A1A1A1; --d-ink-3:#8A8A8A;
+    --d-line:rgba(255,255,255,.12);
 
     /* radius — minimal */
     --r:8px; --r-sm:6px; --r-xs:5px; --btn-r:6px; --r-lg:12px; --r-xl:16px;
@@ -74,6 +77,17 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
     --col:min(540px, 100% - 32px);
     --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     --script:"Ink Free","Bradley Hand","Segoe Script","Brush Script MT",cursive;
+
+    /* O Fio (UNO C5): Inter Tight é o display do redesign de 15/09. A voz do
+       corpo continua Inter. Os PESOS ficam em variável de propósito — se o 300
+       ficar leve demais para peça de anúncio, troca-se aqui, numa linha só, sem
+       tocar em nenhuma regra. Tamanhos NÃO mudam: a escala da /lp foi afinada
+       para esta copy, e mexer nela moveria a quebra de linha. */
+    --display:"Inter Tight",Inter,ui-sans-serif,-apple-system,"Segoe UI",sans-serif;
+    --fw-display:300;   /* UNO --zx-fw-display */
+    --fw-title:330;     /* UNO --zx-fw-title   */
+    --ls-display:-.025em;
+    --ls-title:-.03em;
   }
   body{background:var(--bg);color:var(--ink);font-family:var(--sans);
     -webkit-font-smoothing:antialiased;line-height:1.5;
@@ -81,8 +95,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
   /* a página termina na faixa escura: sem respiro branco embaixo dela */
   .wrap{display:flex;flex-direction:column;align-items:center;}
   section{width:var(--col);display:flex;flex-direction:column;gap:18px;padding:46px 0;}
-  h2{margin:0;font-size:var(--fs-page-title);line-height:1.18;font-weight:650;
-    letter-spacing:-.025em;text-wrap:balance;}
+  h2{margin:0;font-family:var(--display);font-size:var(--fs-page-title);line-height:1.18;
+    font-weight:var(--fw-title);letter-spacing:var(--ls-title);text-wrap:balance;}
   p{margin:0;color:var(--ink-2);font-size:var(--fs-body);}
   /* voz manuscrita da campanha: fica, é o layout de marketing */
   .eb{font-family:var(--script);font-size:22px;font-weight:700;color:var(--accent);
@@ -104,8 +118,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
 
   /* hero */
   .hero{align-items:center;text-align:center;gap:15px;padding-top:22px;}
-  h1{margin:0;font-size:var(--fs-display);line-height:1.04;font-weight:800;
-    letter-spacing:-.03em;text-wrap:balance;}
+  h1{margin:0;font-family:var(--display);font-size:var(--fs-display);line-height:1.04;
+    font-weight:var(--fw-display);letter-spacing:var(--ls-display);text-wrap:balance;}
   /* A palavra que gira, sem fundo. O destaque agora é a própria cor da marca.
      Margem negativa mantém as linhas da manchete juntas. */
   .lead{font-size:var(--fs-subtitle);max-width:34ch;}
@@ -215,8 +229,8 @@ img,svg{display:block;max-width:100%}button,input{font:inherit}
   /* título + texto entre a curva e o dashboard */
   .band-head{width:var(--col);text-align:center;padding:clamp(6px,3vw,18px) 0 4px;
     display:flex;flex-direction:column;gap:10px;}
-  .band-head h2{font-weight:650;font-size:var(--fs-page-title);line-height:1.2;
-    letter-spacing:-.025em;text-wrap:balance;}
+  .band-head h2{font-family:var(--display);font-weight:var(--fw-title);font-size:var(--fs-page-title);
+    line-height:1.2;letter-spacing:var(--ls-title);text-wrap:balance;}
   .band-head h2 u{text-decoration:none;color:var(--accent);}
   .band-head p{font-size:var(--fs-body);color:var(--ink-2);text-wrap:balance;}
   .band > section{padding-top:8px;padding-bottom:10px;}

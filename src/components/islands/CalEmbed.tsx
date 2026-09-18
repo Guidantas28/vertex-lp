@@ -10,6 +10,17 @@ interface Props {
   name?: string;
   email?: string;
   notes?: string;
+  /** Convidados fixos adicionados a toda reserva (recebem o Google Meet). */
+  guests?: string[];
+  /**
+   * Primeiro toque (fbp/fbc/click-ids/ip/ua). Vai como `metadata[...]` do booking
+   * → chega no webhook do Cal → vira atribuição do lead. É o que permite ligar o
+   * comparecimento (evento offline, sem navegador) ao anúncio que trouxe a pessoa.
+   *
+   * Reimplantado em 17/09/2026: o PR #16 (`fe054ac`) removeu esta prop junto com o
+   * resto do rastreio, e desde 15/09 toda reserva chegava ao Cal sem atribuição.
+   */
+  metadata?: Record<string, string>;
   onBookingSuccess?: () => void;
   className?: string;
 }
@@ -23,6 +34,8 @@ export default function CalEmbed({
   name,
   email,
   notes,
+  guests,
+  metadata,
   onBookingSuccess,
   className,
 }: Props) {
@@ -65,13 +78,23 @@ export default function CalEmbed({
     };
   }, [calOrigin, onBookingSuccess]);
 
-  const config: Record<string, string> = {
+  const config: Record<string, string | string[]> = {
     theme: "light",
     layout: "month_view",
   };
   if (name) config.name = name;
   if (email) config.email = email;
   if (notes) config.notes = notes;
+  // Convidados fixos: entram como attendees em toda reserva (recebem o Meet).
+  if (guests && guests.length) config.guests = guests;
+  // O Cal lê `metadata[chave]=valor` da query e grava no booking; o webhook
+  // devolve isso pra gente costurar a atribuição por e-mail. 500 chars é o
+  // teto que o Cal aceita por valor.
+  if (metadata) {
+    for (const [k, v] of Object.entries(metadata)) {
+      if (v) config[`metadata[${k}]`] = String(v).slice(0, 500);
+    }
+  }
 
   return (
     <div className={className ?? "h-[480px] w-full overflow-hidden rounded-xl"}>
