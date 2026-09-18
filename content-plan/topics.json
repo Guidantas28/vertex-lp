@@ -204,7 +204,9 @@
       "keyword": "relatório de vendas",
       "title_hint": "O relatório de vendas semanal de 15 minutos que muda a gestão",
       "category": "gestao",
-      "used": false
+      "used": true,
+      "publishedSlug": "relatorio-vendas-semanal",
+      "publishedAt": "2026-09-18"
     },
     {
       "id": "automacao-marketing-pme",
