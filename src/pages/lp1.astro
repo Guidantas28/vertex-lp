@@ -3,9 +3,13 @@
 // da home e da /lp: uma dobra só, um bloco só . a frase que vende, o vídeo e o
 // botão de agendar agora.
 //
-// Rodada 2 (18/09, noite): tudo CENTRADO, numa coluna só (era frase à esquerda
-// e vídeo à direita), pensado primeiro pro celular; a copy nova do founder; e
-// no pé as integrações oficiais do site, as mesmas do hero da home.
+// Rodada 2 (18/09, noite): tudo CENTRADO, numa coluna só, pensado primeiro pro
+// celular; a copy nova do founder; e no pé as integrações oficiais do site, as
+// mesmas do hero da home.
+// Rodada 3 (18/09, noite): no celular o bloco sobe (começa logo abaixo do
+// lockup); no desktop a copy volta pra esquerda e o vídeo pra direita, "pra
+// ver como fica". A ordem do HTML segue a do celular; quem arruma as colunas
+// é a grade do lp1.css.
 // O vídeo segue provisório (o overview v6 de 18/09, que já fecha pedindo a
 // demonstração).
 //
@@ -208,34 +212,6 @@ const SETA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
     var io=new IntersectionObserver(function(es){es.forEach(function(e){
       if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});
     document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
-  })();
-
-  /* ── O vídeo do tamanho da sobra (desktop) ─────────────────────────────
-     O CSS já dá um tamanho que cabe (a --resto); aqui ele passa a ser o
-     MAIOR que cabe: mede a altura do bloco com o vídeo no mínimo e dá a
-     sobra da tela pro vídeo, entre 440 e 720px de largura. No celular o
-     vídeo é sempre da largura da coluna e isto não mexe em nada. */
-  (function(){
-    var vid=document.querySelector('.lp1-video'), palco=document.querySelector('.lp1-palco'),
-        bloco=document.querySelector('.lp1-bloco');
-    if(!vid||!palco||!bloco) return;
-    var mq=matchMedia('(min-width: 700px)'), MIN=440, MAX=720, raf=0;
-    function ajusta(){
-      raf=0;
-      if(!mq.matches){ vid.style.maxWidth=''; return; }
-      vid.style.maxWidth=MIN+'px';
-      palco.style.minHeight='0'; bloco.style.flex='0 0 auto';
-      var conteudo=palco.offsetHeight, alturaMin=vid.offsetHeight;
-      palco.style.minHeight=''; bloco.style.flex='';
-      // 2px de folga: o arredondamento do subpixel passava 1px da dobra
-      var altura=alturaMin+(innerHeight-conteudo)-2;
-      var largura=Math.max(MIN,Math.min(MAX,Math.floor(altura*16/9)));
-      vid.style.maxWidth=largura+'px';
-    }
-    ajusta();
-    addEventListener('resize',function(){ if(!raf) raf=requestAnimationFrame(ajusta); },{passive:true});
-    // as fontes chegam depois e mudam a altura do texto: mede de novo
-    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(ajusta);
   })();
 
   /* ── A barra fixa do celular: só quando o botão do bloco está fora da vista ── */

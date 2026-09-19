@@ -2,30 +2,26 @@
  * CSS da rota /lp1 (founder 18/09/2026): uma dobra, um bloco, o vídeo e o
  * botão de agendar agora.
  *
- * Rodada 2 (18/09, noite): uma COLUNA só, tudo centrado, pensada primeiro pro
- * celular. De cima pra baixo: rótulo, manchete, apoio, vídeo, botão e, no pé,
- * o selo da Meta com as integrações oficiais do site.
+ * Rodada 3 (18/09, noite): no celular tudo SOBE (o bloco começa logo abaixo
+ * do lockup, em vez de centrar na altura da tela, que deixava um vão em cima);
+ * no desktop a copy volta pra ESQUERDA e o vídeo pra DIREITA, com a coluna da
+ * copy igual ao hero da home: rótulo, manchete, apoio, botão e, embaixo de um
+ * fio, as integrações oficiais com o "e muito mais".
+ *
+ * Três faixas:
+ *   · celular (< 700px): coluna centrada, manchete a maior que cabe;
+ *   · tablet (700 a 999px): a mesma coluna, com o botão e a fricção lado a
+ *     lado e as integrações numa linha só com o selo da Meta;
+ *   · desktop (>= 1000px): duas colunas, centradas na altura da tela.
+ * A ordem do HTML é a do celular (o vídeo entre a promessa e o botão); no
+ * desktop a grade põe cada peça na sua coluna sem mexer no HTML.
  *
  * A pele vem do lp.css (importado antes): botão MONO com a setinha, a
  * manuscrita, o Carvão com pontos e grão (.lp-pele), o reveal, o leque das
  * integrações e o selo da Meta. Aqui mora só o que é do palco de uma dobra.
- *
- * A DOBRA: no desktop o vídeo mede o que sobra da altura da tela depois do
- * resto do bloco (--resto), entre 440 e 720px de largura, então tudo cabe
- * em 1920x1080, 1440x900, 1366x768 e 1280x720. No celular o vídeo é sempre de ponta a ponta da
- * coluna; se a tela for baixa e o botão cair abaixo da dobra, a barra fixa
- * (.lp1-fixo) traz o mesmo convite pro pé.
  */
 
-.lp1 {
-  background: #08090A;
-  --wide: min(1120px, calc(100% - 32px));
-  /* altura de tudo que não é o vídeo, no desktop: medida no navegador em
-     1440x900 (512px) com folga; nas telas mais baixas o resto encolhe junto,
-     porque os vãos são em vh */
-  --resto: 520px;
-}
-@media (min-width: 900px) { .lp1 { --wide: min(1120px, calc(100% - 64px)); } }
+.lp1 { background: #08090A; --wide: min(1120px, calc(100% - 32px)); }
 
 /* ─── O palco: a tela inteira ─────────────────────────────────────────────── */
 .lp1-palco {
@@ -45,9 +41,8 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(34% 30% at 50% 60%, rgba(109, 74, 255, 0.26), transparent 70%),
-    radial-gradient(26% 24% at 64% 72%, rgba(237, 75, 0, 0.15), transparent 72%),
-    radial-gradient(26% 24% at 36% 70%, rgba(59, 42, 140, 0.24), transparent 70%);
+    radial-gradient(70% 20% at 50% 62%, rgba(109, 74, 255, 0.28), transparent 70%),
+    radial-gradient(50% 16% at 66% 68%, rgba(237, 75, 0, 0.16), transparent 72%);
   filter: blur(18px);
   animation: lp1-respira 14s ease-in-out infinite alternate;
 }
@@ -55,28 +50,21 @@
   from { opacity: 0.75; transform: scale(1) translate3d(0, 0, 0); }
   to { opacity: 1; transform: scale(1.06) translate3d(0, 1%, 0); }
 }
-@media (max-width: 699px) {
-  .lp1-aurora {
-    background:
-      radial-gradient(70% 22% at 50% 56%, rgba(109, 74, 255, 0.28), transparent 70%),
-      radial-gradient(50% 18% at 66% 62%, rgba(237, 75, 0, 0.16), transparent 72%);
-  }
-}
 
-/* o lockup no centro, como tudo */
-.lp1-hdr { justify-content: center; padding-top: clamp(16px, 2.6vh, 24px); }
+/* o lockup no centro no celular (à esquerda no desktop, alinhado à copy) */
+.lp1-hdr { justify-content: center; padding-top: 16px; }
 .lp1-hdr .logo img { height: 22px; }
 
-/* ─── O bloco: uma coluna, centrada nos dois eixos ────────────────────────── */
+/* ─── O bloco (celular primeiro): uma coluna, centrada, que começa em cima ── */
 .lp1-bloco {
   flex: 1;
   width: var(--wide);
   margin-inline: auto;
-  padding: clamp(12px, 2.4vh, 32px) 0 clamp(10px, 1.8vh, 20px);
+  padding: 22px 0 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
 }
 
@@ -112,18 +100,9 @@
   color: #fff;
   text-wrap: balance;
 }
-@media (min-width: 700px) {
-  .lp1-bloco h1 {
-    margin-top: clamp(10px, 1.7vh, 18px);
-    font-size: clamp(34px, 3.6vw, 52px);
-    /* no desktop baixo o tamanho também respeita a altura, pra dobra fechar */
-    font-size: min(clamp(34px, 3.6vw, 52px), 6svh);
-    line-height: 1.05;
-  }
-}
 /* a virada é a segunda linha: laranja e cheia, como o "é só o começo." da /lp.
-   Em bloco-em-linha pra quebra se equilibrar DENTRO dela no celular ("O VOS
-   conecta tudo / até o caixa."), em vez de largar "caixa." sozinho */
+   Em bloco-em-linha pra quebra se equilibrar DENTRO dela ("O VOS conecta /
+   tudo até o caixa."), em vez de largar "caixa." sozinho */
 .lp1-bloco h1 em {
   display: inline-block;
   font-style: normal;
@@ -140,30 +119,9 @@
   color: rgba(255, 255, 255, 0.76);
   text-wrap: pretty;
 }
-@media (min-width: 700px) {
-  .lp1-sub {
-    margin-top: clamp(10px, 1.6vh, 16px);
-    /* duas linhas no desktop */
-    max-width: 800px;
-    font-size: clamp(15px, 1.15vw, 17px);
-    line-height: 1.55;
-    color: rgba(255, 255, 255, 0.7);
-    text-wrap: balance;
-  }
-}
 
 /* ─── O vídeo ─────────────────────────────────────────────────────────────── */
-.lp1-video {
-  position: relative;
-  width: 100%;
-  margin-top: clamp(16px, 2.6vh, 26px);
-}
-@media (min-width: 700px) {
-  .lp1-video {
-    max-width: clamp(440px, calc((100vh - var(--resto)) * 16 / 9), 720px);
-    max-width: clamp(440px, calc((100svh - var(--resto)) * 16 / 9), 720px);
-  }
-}
+.lp1-video { position: relative; width: 100%; margin-top: 20px; }
 .vsl {
   position: relative;
   width: 100%;
@@ -231,9 +189,9 @@
   z-index: 3;
   display: none;
   align-items: center;
-  gap: 7px;
-  height: 36px;
-  padding: 0 14px;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 10px;
   background: rgba(8, 9, 10, 0.55);
@@ -241,22 +199,18 @@
   backdrop-filter: blur(10px);
   color: #fff;
   font-family: var(--zx-body);
-  font-size: 13.5px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: -0.01em;
   cursor: pointer;
   transition: background var(--zx-t-micro) var(--zx-ease), border-color var(--zx-t-micro) var(--zx-ease);
   animation: lp1-chama 2.4s var(--zx-ease) infinite;
 }
-.vsl-som svg { width: 16px; height: 16px; flex: none; }
+.vsl-som svg { width: 15px; height: 15px; flex: none; }
 .vsl-som:hover { background: rgba(8, 9, 10, 0.75); border-color: rgba(255, 255, 255, 0.4); }
 .vsl-som:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .vsl.tocando .vsl-som { display: inline-flex; }
 .vsl.audio .vsl-som { display: none; }
-@media (max-width: 640px) {
-  .vsl-som { height: 30px; padding: 0 10px; gap: 6px; font-size: 12px; }
-  .vsl-som svg { width: 15px; height: 15px; }
-}
 @keyframes lp1-chama {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.28); }
   60% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
@@ -269,8 +223,8 @@
   bottom: clamp(8px, 1.6vw, 16px);
   z-index: 2;
   max-width: calc(100% - 32px);
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 4px 9px;
+  border-radius: 6px;
   background: rgba(8, 9, 10, 0.66);
   color: #fff;
   font-size: clamp(12px, 1.1vw, 15px);
@@ -285,9 +239,6 @@
 }
 .vsl-leg.on { opacity: 1; }
 .vsl-leg:empty { display: none; }
-@media (max-width: 640px) {
-  .vsl-leg { padding: 4px 9px; border-radius: 6px; }
-}
 
 /* o fim: o convite por cima do último quadro */
 .vsl-fim {
@@ -329,38 +280,34 @@
 
 /* ─── O botão ─────────────────────────────────────────────────────────────── */
 .lp1-acao {
-  margin-top: clamp(14px, 2.3vh, 24px);
+  margin-top: 18px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
 }
+.lp1-acao .cta { width: 100%; }
 .lp1-atrito { font-size: 13px; color: rgba(255, 255, 255, 0.5); }
-/* no desktop a fricção senta ao lado do botão: a mesma linha, menos altura */
-@media (min-width: 700px) {
-  .lp1-acao { flex-direction: row; gap: 18px; }
-  .lp1-atrito { text-align: left; }
-}
-@media (max-width: 560px) {
-  .lp1-acao { width: 100%; }
-  .lp1-acao .cta { width: 100%; }
-}
 
-/* ─── O pé do bloco: selo da Meta e integrações oficiais ──────────────────── */
+/* ─── Selo da Meta e integrações oficiais ─────────────────────────────────── */
 .lp1-integr {
-  margin-top: clamp(14px, 2.4vh, 26px);
-  padding-top: clamp(12px, 1.8vh, 18px);
-  width: min(760px, 100%);
+  margin-top: 20px;
+  padding-top: 16px;
+  width: 100%;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 14px 22px;
+  gap: 12px 22px;
 }
+/* no celular o selo da Meta sai: o logo dela já está no leque */
+.lp1-meta,
+.lp1-sep { display: none; }
 .lp1-meta { color: rgba(255, 255, 255, 0.6); }
 .lp1-sep { width: 1px; height: 22px; background: rgba(255, 255, 255, 0.16); }
-.lp1-ints { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.lp1-ints { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .lp1-ints .lb {
   font-family: var(--zx-mono);
   font-size: 11px;
@@ -370,7 +317,7 @@
   color: rgba(255, 255, 255, 0.55);
 }
 .lp1-ints-linha { display: flex; align-items: center; gap: 10px; }
-.lp1-ints .ic img { width: 34px; height: 34px; padding: 5px; border-radius: 9px; }
+.lp1-ints .ic img { width: 32px; height: 32px; padding: 5px; border-radius: 9px; }
 /* "e muito mais": o recado do dono na manuscrita, a flecha em laranja
    apontando pro leque (o mesmo do hero da home) */
 .lp1-mais {
@@ -386,14 +333,6 @@
   transform: rotate(-3deg);
 }
 .lp1-mais svg { color: var(--zx-lar); flex: none; }
-@media (max-width: 699px) {
-  /* no celular o selo da Meta sai: o logo dela já está no leque, e a linha
-     que ele ocupava é o que separa as integrações da dobra */
-  .lp1-sep,
-  .lp1-meta { display: none; }
-  .lp1-ints { flex-direction: column; gap: 8px; }
-  .lp1-ints .ic img { width: 32px; height: 32px; }
-}
 
 /* ─── O pé: a linha legal, pequena ────────────────────────────────────────── */
 .lp1-pe {
@@ -433,6 +372,98 @@
 }
 .lp1-fixo.show { transform: none; visibility: visible; }
 .lp1-fixo .cta { width: 100%; }
+
+/* ─── Tablet: a mesma coluna, mais folgada ────────────────────────────────── */
+@media (min-width: 700px) {
+  .lp1 { --wide: min(1120px, calc(100% - 64px)); }
+  .lp1-hdr { padding-top: 22px; }
+  .lp1-bloco { padding-top: 34px; }
+  .lp1-sub { max-width: 680px; }
+  .lp1-acao { flex-direction: row; justify-content: center; gap: 18px; }
+  .lp1-acao .cta { width: auto; }
+  .lp1-atrito { text-align: left; }
+  .lp1-integr { width: min(760px, 100%); }
+  .lp1-meta,
+  .lp1-sep { display: flex; }
+  .lp1-ints { flex-direction: row; gap: 14px; }
+  .lp1-ints .ic img { width: 34px; height: 34px; }
+  .vsl-som { height: 36px; padding: 0 14px; gap: 7px; font-size: 13.5px; }
+  .vsl-som svg { width: 16px; height: 16px; }
+  .vsl-leg { padding: 6px 12px; border-radius: 8px; }
+}
+
+/* ─── Desktop: a copy à esquerda, o vídeo à direita ───────────────────────
+   A grade põe cada peça numa linha da coluna da esquerda e o vídeo ocupa a
+   coluna da direita inteira; as linhas 1fr em cima e embaixo centram a copy
+   na altura do vídeo (ou o vídeo na altura da copy, o que for maior). */
+@media (min-width: 1000px) {
+  .lp1 { --wide: min(1280px, calc(100% - 64px)); }
+  .lp1-hdr { justify-content: flex-start; }
+  .lp1-bloco {
+    display: grid;
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+    grid-template-rows: 1fr auto auto auto auto auto 1fr;
+    grid-template-areas:
+      ".      video"
+      "kicker video"
+      "h1     video"
+      "sub    video"
+      "acao   video"
+      "integr video"
+      ".      video";
+    column-gap: clamp(40px, 4.6vw, 84px);
+    align-items: start;
+    justify-items: start;
+    padding: clamp(20px, 4vh, 48px) 0 clamp(16px, 3vh, 32px);
+    text-align: left;
+  }
+  .lp1-kicker { grid-area: kicker; }
+  /* o pé acompanha a copy: à esquerda, na mesma margem */
+  .lp1-pe { justify-content: flex-start; text-align: left; }
+  .lp1-bloco h1 {
+    grid-area: h1;
+    margin-top: clamp(12px, 1.8vh, 18px);
+    font-size: clamp(36px, 3.6vw, 52px);
+    font-size: min(clamp(36px, 3.6vw, 52px), 6.2svh);
+    line-height: 1.05;
+  }
+  .lp1-sub {
+    grid-area: sub;
+    margin-top: clamp(12px, 1.8vh, 18px);
+    max-width: 46ch;
+    font-size: clamp(15px, 1.15vw, 17px);
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .lp1-video { grid-area: video; align-self: center; margin-top: 0; }
+  .lp1-acao {
+    grid-area: acao;
+    margin-top: clamp(20px, 3vh, 30px);
+    width: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .lp1-integr {
+    grid-area: integr;
+    margin-top: clamp(20px, 3vh, 30px);
+    padding-top: clamp(14px, 2vh, 18px);
+    width: 100%;
+    justify-content: flex-start;
+    gap: 10px 18px;
+  }
+  /* no desktop o leque vem primeiro (como no hero da home) e o selo da Meta
+     desce pra uma linha própria, pequena */
+  .lp1-ints { order: 1; }
+  .lp1-sep { display: none; }
+  .lp1-meta { order: 2; flex-basis: 100%; }
+  .lp1-aurora {
+    background:
+      radial-gradient(30% 40% at 72% 52%, rgba(109, 74, 255, 0.26), transparent 70%),
+      radial-gradient(24% 30% at 86% 72%, rgba(237, 75, 0, 0.15), transparent 72%),
+      radial-gradient(24% 30% at 58% 74%, rgba(59, 42, 140, 0.22), transparent 70%);
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .lp1-aurora,
