@@ -1,0 +1,41 @@
+/**
+ * CSS da rota /lp1 (founder 18/09/2026): uma dobra, um bloco, o vídeo e o
+ * botão de agendar agora.
+ *
+ * O topo inteiro (a composição de celular, tablet e desktop e o player) virou
+ * o padrão das páginas de anúncio e mora no styles/lp-dobra.css, junto com a
+ * /lp; a pele vem do lp.css. Aqui sobra só o que é da /lp1: a página é UMA
+ * dobra, então o fundo e a linha legal dentro dela.
+ */
+
+.lp1 {
+  background: #08090A;
+  --wide: min(1120px, calc(100% - 32px));
+  /* a linha mais larga da manchete no celular: "tudo até o caixa." em 600
+     mede 6,76em no Chrome; com folga, 6,9em (52px em 390, 50 em 375) */
+  --h1-em: 6.9;
+}
+@media (min-width: 700px) { .lp1 { --wide: min(1120px, calc(100% - 64px)); } }
+.lp1 .dobra-palco { overflow: clip; }
+.lp1-pele { inset: 0; }
+
+/* ─── O pé: a linha legal, pequena, dentro da dobra ───────────────────────── */
+.lp1-pe {
+  width: var(--wide);
+  margin: 0 auto;
+  padding: 10px 0 calc(14px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  justify-content: center;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+}
+.lp1-pe a { color: rgba(255, 255, 255, 0.62); text-decoration: underline; text-underline-offset: 2px; }
+.lp1-pe a:hover { color: #fff; }
+/* no desktop o pé acompanha a copy: à esquerda, na mesma margem */
+@media (min-width: 1000px) { .lp1-pe { justify-content: flex-start; text-align: left; } }
+
+/* A barra fixa do celular é a MESMA da /lp (lp.css › .bar), pra as duas
+   páginas falarem igual. */

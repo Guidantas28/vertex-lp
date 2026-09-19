@@ -24,8 +24,9 @@ export default defineConfig({
       // A /lp é landing de anúncio: mesma oferta da home, escrita pra tráfego
       // pago. Deixá-la no sitemap fazia o Google escolher entre ela e a home
       // pros mesmos termos ("Duplicate without user-selected canonical"). Ela
-      // sai daqui e ganha noindex,follow na própria página.
-      filter: (page) => !/\/lp\/?$/.test(page),
+      // sai daqui e ganha noindex,follow na própria página. A /lp1 (18/09, a
+      // página de uma dobra com o vídeo) é do mesmo tipo e sai junto.
+      filter: (page) => !/\/lp1?\/?$/.test(page),
       serialize(item) {
         const path = new URL(item.url).pathname;
         // Prioridade por profundidade: home > módulos/blog > posts > legal.

@@ -1,0 +1,430 @@
+/**
+ * O TOPO DE UMA DOBRA das páginas de anúncio (/lp e /lp1, founder 18/09/2026).
+ *
+ * Nasceu na /lp1 e virou padrão ("a /lp precisa ficar nesse padrão também,
+ * pra celular e desktop"): uma peça só pras duas páginas, pra elas não
+ * divergirem. A pele (botão MONO com a setinha, o Carvão com pontos e grão, o
+ * reveal, o leque das integrações, o selo da Meta) vem do lp.css; aqui mora a
+ * composição do topo e o player (.vsl-*, do components/lp/VslPlayer.astro).
+ *
+ * Três faixas:
+ *   · celular (< 700px): uma coluna centrada que começa logo abaixo do lockup,
+ *     com a manchete no MAIOR tamanho que cabe (cada página diz a largura da
+ *     linha mais larga da sua manchete em --h1-em, medida no Chrome);
+ *   · tablet (700 a 999px): a mesma coluna, com o botão e a fricção lado a
+ *     lado e as integrações numa linha só;
+ *   · desktop (>= 1000px): a copy à esquerda, como o hero da home (rótulo,
+ *     manchete, apoio, botão e as integrações embaixo do fio), e o vídeo à
+ *     direita, centrados na altura da tela.
+ * A ordem do HTML é a do celular (o vídeo entre a promessa e o botão); no
+ * desktop a grade põe cada peça na sua coluna sem mexer no HTML.
+ */
+
+/* ─── O palco: a primeira tela inteira ────────────────────────────────────── */
+.dobra-palco {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  color: var(--zx-on-dark);
+}
+/* a aurora do mundo do Zé, respirando devagar atrás do vídeo: o violeta do
+   Zé e o laranja da marca, as duas cores que o próprio vídeo usa */
+.dobra-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 20% at 50% 62%, rgba(109, 74, 255, 0.28), transparent 70%),
+    radial-gradient(50% 16% at 66% 68%, rgba(237, 75, 0, 0.16), transparent 72%);
+  filter: blur(18px);
+  animation: dobra-respira 14s ease-in-out infinite alternate;
+}
+@keyframes dobra-respira {
+  from { opacity: 0.75; transform: scale(1) translate3d(0, 0, 0); }
+  to { opacity: 1; transform: scale(1.06) translate3d(0, 1%, 0); }
+}
+
+/* o lockup no centro no celular (à esquerda no desktop, alinhado à copy) */
+.dobra-hdr { justify-content: center; padding-top: 16px; }
+.dobra-hdr .logo img { height: 22px; }
+
+/* ─── O bloco (celular primeiro): uma coluna, centrada, que começa em cima ── */
+.dobra {
+  flex: 1;
+  width: var(--wide);
+  margin-inline: auto;
+  padding: 22px 0 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+}
+
+/* o rótulo: Inter, caixa de frase, com um ícone em laranja na frente */
+.dobra-kicker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 100%;
+  font-family: var(--zx-body);
+  font-size: clamp(13px, 1vw, 14.5px);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  color: rgba(255, 255, 255, 0.8);
+}
+.dobra-kicker-ic { flex: none; width: 17px; height: 17px; color: var(--zx-lar); }
+
+.dobra h1 {
+  margin-top: 14px;
+  font-family: var(--zx-display);
+  font-weight: 300;
+  /* CELULAR (founder 18/09: "headline bem grande e destacada"): o MAIOR
+     tamanho que cabe na coluna. --h1-em é a largura, em em, da linha mais
+     larga da manchete da página, medida no Chrome (com folga). */
+  font-size: min(54px, calc((100vw - 32px) / var(--h1-em, 6.9)));
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: #fff;
+  text-wrap: balance;
+}
+/* a virada é a segunda linha: laranja e cheia, como a palavra que gira no
+   hero da home. Em bloco-em-linha pra quebra se equilibrar DENTRO dela, em vez
+   de largar a última palavra sozinha */
+.dobra h1 em {
+  display: inline-block;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--zx-lar);
+  text-wrap: balance;
+}
+.dobra-sub {
+  margin-top: 14px;
+  /* no celular o apoio sobe junto com a manchete */
+  font-size: clamp(16px, 4.4vw, 18px);
+  line-height: 1.5;
+  letter-spacing: -0.012em;
+  color: rgba(255, 255, 255, 0.76);
+  text-wrap: pretty;
+}
+
+/* ─── O vídeo ─────────────────────────────────────────────────────────────── */
+.dobra-video { position: relative; width: 100%; margin-top: 20px; }
+.vsl {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: clamp(14px, 1.4vw, 20px);
+  overflow: hidden;
+  background: #0B0620 var(--vsl-capa, none) center / cover no-repeat;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 60px 120px -50px rgba(0, 0, 0, 0.9),
+    0 30px 80px -40px rgba(109, 74, 255, 0.4);
+}
+.vsl video { width: 100%; height: 100%; object-fit: cover; background: transparent; cursor: pointer; }
+.vsl.audio video { cursor: auto; }
+
+/* CELULAR: o filme VERTICAL (a versão reels), na caixa 9:16 com a capa dele.
+   Pra não engolir a tela inteira, ele mede no máximo 66% da altura dela, e
+   centra na coluna; o convite de agendar segue logo embaixo (e, se ficar
+   fora da vista, a barra fixa de cada página traz ele pro pé). O corte
+   (699/700px) é o mesmo do `media` das <source> do VslPlayer. */
+@media (max-width: 699px) {
+  .dobra-video { width: min(100%, calc(66vh * 9 / 16)); width: min(100%, calc(66svh * 9 / 16)); }
+  .vsl {
+    aspect-ratio: 9 / 16;
+    background-image: var(--vsl-capa-v, var(--vsl-capa, none));
+  }
+}
+
+/* a capa: só enquanto o vídeo não roda (autoplay recusado, menos movimento,
+   economia de dados) */
+.vsl-capa {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.1) 55%, rgba(0, 0, 0, 0.55) 100%);
+  transition: opacity 0.4s var(--zx-ease);
+}
+.vsl.tocando .vsl-capa { opacity: 0; pointer-events: none; }
+.vsl-play {
+  width: clamp(58px, 5.4vw, 76px);
+  height: clamp(58px, 5.4vw, 76px);
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.6);
+  transition: transform var(--zx-t-micro) var(--zx-ease);
+}
+.vsl-capa:hover .vsl-play { transform: scale(1.07); }
+.vsl-capa:active .vsl-play { transform: scale(0.96); }
+.vsl-play svg { width: 40%; height: 40%; margin-left: 4%; fill: #101214; }
+.vsl-dur {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(8, 9, 10, 0.62);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-family: var(--zx-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+.vsl-dur b { font-weight: 600; color: #fff; }
+
+/* o convite pro som enquanto roda mudo: pílula de vidro no canto de cima, que
+   respira; a legenda fica com o pé do vídeo */
+.vsl-som {
+  position: absolute;
+  top: clamp(8px, 1.4vw, 14px);
+  right: clamp(8px, 1.4vw, 14px);
+  z-index: 3;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(8, 9, 10, 0.55);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-family: var(--zx-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: background var(--zx-t-micro) var(--zx-ease), border-color var(--zx-t-micro) var(--zx-ease);
+  animation: dobra-chama 2.4s var(--zx-ease) infinite;
+}
+.vsl-som svg { width: 15px; height: 15px; flex: none; }
+.vsl-som:hover { background: rgba(8, 9, 10, 0.75); border-color: rgba(255, 255, 255, 0.4); }
+.vsl-som:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.vsl.tocando .vsl-som { display: inline-flex; }
+.vsl.audio .vsl-som { display: none; }
+@keyframes dobra-chama {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.28); }
+  60% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+}
+
+/* a legenda desenhada pela página, só enquanto o vídeo está mudo */
+.vsl-leg {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(8px, 1.6vw, 16px);
+  z-index: 2;
+  max-width: calc(100% - 32px);
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: rgba(8, 9, 10, 0.66);
+  color: #fff;
+  font-size: clamp(12px, 1.1vw, 15px);
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: balance;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s linear;
+  pointer-events: none;
+}
+.vsl-leg.on { opacity: 1; }
+.vsl-leg:empty { display: none; }
+
+/* o fim: o convite por cima do último quadro */
+.vsl-fim {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 20px;
+  background: rgba(8, 9, 10, 0.72);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  text-align: center;
+  animation: dobra-fim 0.5s var(--zx-ease) both;
+}
+.vsl-fim[hidden] { display: none; }
+@keyframes dobra-fim { from { opacity: 0; } to { opacity: 1; } }
+.vsl-fim-t {
+  font-family: var(--zx-display);
+  font-weight: 400;
+  font-size: clamp(22px, 2.2vw, 32px);
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+.vsl-denovo {
+  border: 0;
+  background: none;
+  padding: 6px 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font: 500 13px/1 var(--zx-body);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.vsl-denovo:hover { color: #fff; }
+
+/* ─── O botão ─────────────────────────────────────────────────────────────── */
+.dobra-acao {
+  margin-top: 18px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.dobra-acao .cta { width: 100%; }
+.dobra-atrito { max-width: 46ch; font-size: 13px; line-height: 1.5; color: rgba(255, 255, 255, 0.5); }
+
+/* ─── Integrações oficiais e o selo da Meta ───────────────────────────────
+   Em todo tamanho: o leque primeiro (como no hero da home) e o selo da Meta
+   numa linha própria, pequena, embaixo dele. O selo fica também no celular:
+   é prova pra quem chega de anúncio, e ali já está abaixo da primeira tela. */
+.dobra-integr {
+  margin-top: 20px;
+  padding-top: 16px;
+  width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.dobra-sep { display: none; }
+.dobra-ints { order: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.dobra-prova { order: 2; color: rgba(255, 255, 255, 0.6); }
+.dobra-ints .lb {
+  font-family: var(--zx-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+.dobra-ints-linha { display: flex; align-items: center; gap: 10px; }
+.dobra-ints .ic img { width: 32px; height: 32px; padding: 5px; border-radius: 9px; }
+/* "e muito mais": o recado do dono na manuscrita, a flecha em laranja
+   apontando pro leque (o mesmo do hero da home) */
+.dobra-mais {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.82);
+  white-space: nowrap;
+  transform: rotate(-3deg);
+}
+.dobra-mais svg { color: var(--zx-lar); flex: none; }
+
+/* ─── Tablet: a mesma coluna, mais folgada ────────────────────────────────── */
+@media (min-width: 700px) {
+  .dobra-hdr { padding-top: 22px; }
+  .dobra { padding-top: 34px; }
+  .dobra-sub { max-width: 680px; }
+  .dobra-acao { flex-direction: row; justify-content: center; gap: 18px; }
+  .dobra-acao .cta { width: auto; flex: none; }
+  .dobra-atrito { text-align: left; }
+  .dobra-integr { width: min(760px, 100%); }
+  .dobra-ints { flex-direction: row; gap: 14px; }
+  .dobra-ints .ic img { width: 34px; height: 34px; }
+  .vsl-som { height: 36px; padding: 0 14px; gap: 7px; font-size: 13.5px; }
+  .vsl-som svg { width: 16px; height: 16px; }
+  .vsl-leg { padding: 6px 12px; border-radius: 8px; }
+}
+
+/* ─── Desktop: a copy à esquerda, o vídeo à direita ───────────────────────
+   A grade põe cada peça numa linha da coluna da esquerda e o vídeo ocupa a
+   coluna da direita inteira; as linhas 1fr em cima e embaixo centram a copy
+   na altura do vídeo (ou o vídeo na altura da copy, o que for maior). */
+@media (min-width: 1000px) {
+  .dobra-palco { --wide: min(1280px, calc(100% - 64px)); }
+  .dobra-hdr { justify-content: flex-start; }
+  .dobra {
+    display: grid;
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+    grid-template-rows: 1fr auto auto auto auto auto 1fr;
+    grid-template-areas:
+      ".      video"
+      "kicker video"
+      "h1     video"
+      "sub    video"
+      "acao   video"
+      "integr video"
+      ".      video";
+    column-gap: clamp(40px, 4.6vw, 84px);
+    align-items: start;
+    justify-items: start;
+    padding: clamp(20px, 4vh, 48px) 0 clamp(16px, 3vh, 32px);
+    text-align: left;
+  }
+  .dobra-kicker { grid-area: kicker; }
+  .dobra h1 {
+    grid-area: h1;
+    margin-top: clamp(12px, 1.8vh, 18px);
+    font-size: clamp(36px, 3.6vw, 52px);
+    font-size: min(clamp(36px, 3.6vw, 52px), 6.2svh);
+    line-height: 1.05;
+  }
+  .dobra-sub {
+    grid-area: sub;
+    margin-top: clamp(12px, 1.8vh, 18px);
+    max-width: 46ch;
+    font-size: clamp(15px, 1.15vw, 17px);
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .dobra-video { grid-area: video; align-self: center; margin-top: 0; }
+  .dobra-acao {
+    grid-area: acao;
+    margin-top: clamp(20px, 3vh, 30px);
+    width: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .dobra-integr {
+    grid-area: integr;
+    margin-top: clamp(20px, 3vh, 30px);
+    padding-top: clamp(14px, 2vh, 18px);
+    width: 100%;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .dobra-prova { justify-content: flex-start; }
+  .dobra-aurora {
+    background:
+      radial-gradient(30% 40% at 72% 52%, rgba(109, 74, 255, 0.26), transparent 70%),
+      radial-gradient(24% 30% at 86% 72%, rgba(237, 75, 0, 0.15), transparent 72%),
+      radial-gradient(24% 30% at 58% 74%, rgba(59, 42, 140, 0.22), transparent 70%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dobra-aurora,
+  .vsl-som,
+  .vsl-fim { animation: none; }
+}

@@ -1,0 +1,219 @@
+---
+// Rota /lp1 · a TERCEIRA opção de página de anúncio (founder 18/09/2026), fora
+// da home e da /lp: uma dobra só, um bloco só . a frase que vende, o vídeo e o
+// botão de agendar agora.
+//
+// Rodadas do founder em 18/09: tudo centrado e pensado primeiro pro celular,
+// a copy dele, as integrações oficiais do site no pé, a manchete grande no
+// celular, o bloco subindo colado no lockup e, no desktop, a copy à esquerda
+// e o vídeo à direita. Esse topo virou o PADRÃO das páginas de anúncio: a
+// composição mora no styles/lp-dobra.css e o player no components/lp/
+// VslPlayer.astro, os dois divididos com a /lp. O vídeo é o oficial desde 19/09
+// (horizontal no computador, vertical no celular), no VslPlayer, pras duas.
+//
+// O que ela divide com a /lp, de propósito: a pele do site novo
+// (styles/zx.css + styles/lp.css), o rastreio (GTM, GA, primeiro toque) e a
+// MESMA modal de lead com o Cal (data-action="lead").
+import "../styles/lp.css";
+import "../styles/zx.css";
+import "../styles/lp-dobra.css";
+import "../styles/lp1.css";
+import GtmHead from "../components/tracking/GtmHead.astro";
+import GaHead from "../components/tracking/GaHead.astro";
+import GtmNoScript from "../components/tracking/GtmNoScript.astro";
+import FirstTouch from "../components/tracking/FirstTouch.astro";
+import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
+import VslPlayer from "../components/lp/VslPlayer.astro";
+
+const title = "VOS · Vender é só o começo. O VOS conecta tudo até o caixa.";
+const description =
+  "Atenda seus clientes, feche negócios, acompanhe pedidos ou serviços, cobre e emita notas. Sem copiar dados, trocar de sistema ou perder o controle da operação.";
+const SITE_URL = "https://www.voshq.com";
+const url = `${SITE_URL}/lp1/`;
+const ogImage = `${SITE_URL}/og.png`;
+
+// As integrações oficiais do SITE: a mesma lista e a mesma ordem do hero da
+// home (src/components/ui/animated-hero.tsx, 17/09: TikTok e Telegram saíram,
+// Slack, Google Agenda e GPT entraram). Mudou lá, muda aqui.
+const INTEGRACOES = [
+  { nome: "WhatsApp", src: "/assets/integrations/whatsapp.svg", cor: "#25D366" },
+  { nome: "Instagram", src: "/assets/integrations/instagram.png", cor: "#E1306C" },
+  { nome: "Messenger", src: "/assets/integrations/messenger.svg", cor: "#0084FF" },
+  { nome: "Meta", src: "/assets/integrations/meta.png", cor: "#0668E1" },
+  { nome: "Slack", src: "/assets/integracoes/slack.svg", cor: "#4A154B" },
+  { nome: "Google Agenda", src: "/assets/icons/google-agenda.svg", cor: "#4285F4" },
+  { nome: "GPT", src: "/assets/icons/openai.svg", cor: "#111111" },
+  { nome: "Claude", src: "/assets/integrations/claude.svg", cor: "#D97757" },
+];
+
+const SETA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+---
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <GtmHead />
+  <GaHead />
+  <meta charset="utf-8">
+  <script is:inline>document.documentElement.classList.add("js")</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" type="image/png" sizes="32x32" href="/lp/favicon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/lp/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/lp/icon-512.png">
+  <link rel="apple-touch-icon" href="/lp/apple-touch-icon.png">
+  <meta name="theme-color" content="#08090A">
+  <meta name="description" content={description}>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@300..800&family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
+  <!-- Fontes da modal de lead, pro wizard ficar igual ao do resto do site -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <!-- a capa do vídeo é o maior elemento da dobra: vem antes de tudo -->
+  <link rel="preload" as="image" href="/vsl/capa.webp" media="(min-width: 700px)" fetchpriority="high">
+  <link rel="preload" as="image" href="/vsl/capa-vertical.webp" media="(max-width: 699px)" fetchpriority="high">
+  <title>{title}</title>
+  <!-- Página de anúncio, como a /lp: fora do índice e do sitemap, com follow. -->
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href={url} />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:url" content={url} />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+</head>
+<body>
+<GtmNoScript />
+
+<div class="zx lp lp1">
+  <main class="dobra-palco">
+    <!-- o Carvão da /lp atrás da dobra inteira, e a aurora do mundo do Zé -->
+    <div class="lp-pele lp1-pele" aria-hidden="true">
+      <div class="lp-pele-luz"></div>
+      <div class="lp-pele-pontos"></div>
+      <div class="lp-pele-grao"></div>
+    </div>
+    <div class="dobra-aurora" aria-hidden="true"></div>
+
+    <div class="hdr dobra-hdr">
+      <div class="logo">
+        <img src="/lp/vos-logo-mono-white.png" alt="VOS" width="901" height="277">
+      </div>
+    </div>
+
+    <section class="dobra">
+      <!-- a linha de cima, em Inter e caixa de frase (founder 18/09), com o
+           ícone de pontos ligados (waypoints, do Lucide) no lugar do ponto -->
+      <p class="dobra-kicker reveal"><svg class="dobra-kicker-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="4.5" r="2.5"/><path d="m10.2 6.3-3.9 3.9"/><circle cx="4.5" cy="12" r="2.5"/><path d="M7 12h10"/><circle cx="19.5" cy="12" r="2.5"/><path d="m13.8 17.7 3.9-3.9"/><circle cx="12" cy="19.5" r="2.5"/></svg><span>Vendas, operação e financeiro. Tudo conectado.</span></p>
+      <h1 class="reveal d1">Vender é só o começo.<br><em>O VOS conecta tudo até o caixa.</em></h1>
+      <p class="dobra-sub reveal d2">Atenda seus clientes, feche negócios, acompanhe pedidos ou serviços, cobre e emita notas. Sem copiar dados, trocar de sistema ou perder o controle da operação.</p>
+
+      <div class="dobra-video reveal d2">
+        <VslPlayer />
+      </div>
+
+      <div class="dobra-acao reveal d3">
+        <a href="#agendar" class="cta cta--white cta--lg" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
+        <p class="dobra-atrito">Demonstração de 30 minutos · ao vivo · sem cartão</p>
+      </div>
+
+      <!-- o leque das integrações oficiais do site, com o "e muito mais", e o
+           selo da Meta (só do tablet pra cima: no celular a Meta já está no leque) -->
+      <div class="dobra-integr reveal d3">
+        <div class="dobra-prova proof">
+          <div class="pf">
+            <svg class="pf-meta" viewBox="0 0 36 20" fill="none" stroke="currentColor"
+                 stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 10c2.6-4.6 4.9-6.6 7.6-6.6 3.4 0 5.9 3 5.9 6.6s-2.5 6.6-5.9 6.6c-2.7 0-5-2-7.6-6.6-2.6-4.6-4.9-6.6-7.6-6.6C7 3.4 4.5 6.4 4.5 10s2.5 6.6 5.9 6.6c2.7 0 5-2 7.6-6.6Z"/>
+            </svg>
+            <span class="pf-txt"><b>Meta</b> Business Partner</span>
+          </div>
+        </div>
+        <span class="dobra-sep" aria-hidden="true"></span>
+        <div class="dobra-ints">
+          <span class="lb">Integrações oficiais</span>
+          <div class="dobra-ints-linha">
+            <ul class="ics" aria-label="Integrações oficiais do VOS">
+              {INTEGRACOES.map((it, i) => (
+                <li class="ic" style={`--c:${it.cor};z-index:${INTEGRACOES.length - i}`}>
+                  <img src={it.src} alt={it.nome} title={it.nome} width="34" height="34" loading="eager" decoding="async">
+                </li>
+              ))}
+            </ul>
+            <span class="dobra-mais">
+              <svg width="30" height="18" viewBox="0 0 36 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M34 15C26 3 14 3 3 10" />
+                <path d="M9 5L3 10l6 4" />
+              </svg>
+              e muito mais
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- identificação legal + política de privacidade: exigência de página de
+         anúncio com captura de dados, mesmo numa dobra só -->
+    <footer class="lp1-pe">
+      <span>© 2026 VOS · Vertex Growth Gestão Empresarial LTDA · CNPJ 67.779.810/0001-69</span>
+      <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>
+    </footer>
+  </main>
+
+  <!-- Rede de segurança do celular: com o vídeo vertical o botão nasce abaixo
+       da primeira tela. Então, sempre que ele sai da vista, o mesmo convite
+       aparece fixo no pé, na MESMA barra da /lp (a pílula de vidro da nav do
+       site, lp.css › .bar); quando ele volta, a barra sai. -->
+  <div class="bar" id="lp1Fixo" aria-hidden="true">
+    <a href="#agendar" class="cta" data-action="lead" tabindex="-1"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
+  </div>
+</div>
+
+<script is:inline>
+  /* ── Entrada (a mesma da /lp: sobe e aparece) ── */
+  (function(){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  })();
+
+  /* ── A barra fixa do celular: só quando o botão do bloco está fora da vista ── */
+  (function(){
+    var fixo=document.getElementById('lp1Fixo'), alvo=document.querySelector('.dobra-acao .cta');
+    if(!fixo||!alvo||!('IntersectionObserver' in window)) return;
+    var link=fixo.querySelector('a');
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        var mostra=!e.isIntersecting;
+        fixo.classList.toggle('show',mostra);
+        fixo.setAttribute('aria-hidden',mostra?'false':'true');
+        link.tabIndex=mostra?0:-1;
+      });
+    },{threshold:.6}).observe(alvo);
+  })();
+</script>
+
+<LeadWizardModal client:load />
+
+<script is:inline>
+  /* CTA -> modal de lead (mesmo contrato da home e da /lp). __vosLeadPending
+     cobre o clique que chega ANTES da ilha hidratar: a modal consome a flag
+     no mount e abre sozinha. */
+  document.addEventListener("click", function (e) {
+    var el = e.target instanceof Element ? e.target.closest("[data-action='lead']") : null;
+    if (!el) return;
+    e.preventDefault();
+    window.__vosLeadPending = true;
+    window.dispatchEvent(new CustomEvent("vos:open-lead"));
+  });
+</script>
+
+<FirstTouch />
+</body>
+</html>
