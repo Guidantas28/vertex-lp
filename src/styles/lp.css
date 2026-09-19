@@ -33,6 +33,10 @@ body { margin: 0; background: #08090A; }
   --hand: "Caveat", "Segoe Script", cursive;
   /* quanto do painel do hero pousa no papel (a outra parte fica no Carvão) */
   --sobra: min(300px, 26vw);
+  /* a linha mais larga da manchete no celular (o topo de uma dobra, do
+     lp-dobra.css): "é só o começo." em 600 mede 6,27em no Chrome; com folga,
+     6,4em (54px em 390) */
+  --h1-em: 6.4;
   background: var(--zx-paper);
   color: var(--zx-ink);
   -webkit-font-smoothing: antialiased;
@@ -213,76 +217,18 @@ input:focus { outline: 2px solid #ED4B00; outline-offset: 1px; border-color: tra
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* header: só o lockup, sem link nenhum */
+/* header: só o lockup, sem link nenhum (o topo de uma dobra, do
+   lp-dobra.css, centra ele no celular e alinha à copy no desktop) */
 .hdr {
   width: var(--wide);
   margin-inline: auto;
   display: flex;
   align-items: center;
-  padding: 22px 0 0;
 }
 .logo { display: flex; align-items: center; }
 .logo img { height: 24px; width: auto; }
 
-.hero {
-  /* larga: "Atendimento automático" cabe numa linha no desktop, como o <br>
-     da manchete pede; lead e fricção têm largura própria em ch */
-  width: var(--wide);
-  margin-inline: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: clamp(56px, 9vh, 104px) 0 0;
-}
-.hero .eb { margin-bottom: 24px; }
-.hero h1 {
-  font-family: var(--zx-display);
-  font-weight: 300;
-  font-size: clamp(42px, 6.1vw, 86px);
-  line-height: 1.02;
-  letter-spacing: -0.035em;
-  color: #fff;
-  text-wrap: balance;
-}
-/* a virada é a palavra que gira da home: laranja e cheia */
-.hero h1 em { font-style: normal; font-weight: 600; color: var(--zx-lar); }
-.hero .lead {
-  margin-top: 22px;
-  max-width: 46ch;
-  font-size: clamp(17px, 1.45vw, 20px);
-  line-height: 1.5;
-  letter-spacing: -0.015em;
-  color: rgba(255, 255, 255, 0.72);
-  text-wrap: balance;
-}
-.hero-acao {
-  margin-top: 30px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-@media (max-width: 560px) { .hero-acao .cta { width: 100%; } }
-/* linha de fricção: responde tempo, cartão, instalação e o que a pessoa leva
-   da call, tudo no espaço de uma linha logo abaixo do botão */
-.atrito {
-  max-width: 44ch;
-  font-size: 13px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-/* prova: Meta Business Partner · VOS, e a faixa das integrações oficiais */
-.badges {
-  margin-top: 30px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-}
+/* prova: Meta Business Partner · VOS (usada pelo topo de uma dobra) */
 .proof {
   display: flex;
   align-items: center;
@@ -299,26 +245,6 @@ input:focus { outline: 2px solid #ED4B00; outline-offset: 1px; border-color: tra
 .pf-logo { height: 15px; width: auto; flex: none; }
 @media (max-width: 330px) { .pf-sep { display: none; } }
 
-.integr {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  min-width: min(520px, 100%);
-}
-.integr .lb {
-  font-family: var(--zx-mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-}
-@media (min-width: 640px) {
-  .integr { flex-direction: row; justify-content: center; gap: 22px; }
-}
 /* o leque da home: ladrilhos brancos sobrepostos e tortos, que abrem quando o
    ponteiro passa; a borda acende na cor do canal */
 .ics { display: flex; align-items: center; margin: 0; padding: 0; list-style: none; }
@@ -360,7 +286,7 @@ input:focus { outline: 2px solid #ED4B00; outline-offset: 1px; border-color: tra
   position: relative;
   z-index: 2;
   width: var(--wide);
-  margin: clamp(48px, 7vh, 72px) auto 0;
+  margin: clamp(24px, 4vh, 48px) auto 0;
   border-radius: clamp(12px, 1.4vw, 18px);
   overflow: hidden;
   background: #fff;

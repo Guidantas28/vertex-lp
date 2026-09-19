@@ -1,0 +1,154 @@
+---
+/**
+ * O player de vídeo das páginas de anúncio (/lp e /lp1, founder 18/09/2026).
+ *
+ * Um só pras duas, de propósito: quando o vídeo OFICIAL chegar, troca-se o
+ * arquivo (ou os props) aqui e as duas páginas mudam juntas. Hoje ele toca o
+ * overview v6 de 18/09 (1:41, fecha pedindo a demonstração), provisório.
+ *
+ * Como se comporta:
+ *  · toca sozinho e MUDO assim que a página abre (é o que o navegador deixa),
+ *    com a legenda desenhada pela página a partir do .vtt;
+ *  · um toque (no vídeo ou no "Assistir com som") liga o som, RECOMEÇA do zero
+ *    e mostra os controles nativos;
+ *  · no fim, o convite de agendar aparece por cima (data-action="lead", a mesma
+ *    modal de lead do site) com o "Assistir de novo";
+ *  · quem pede menos movimento, ou está economizando dados, vê a capa parada e
+ *    aperta o play;
+ *  · empurra `vsl_som` e `vsl_fim` no dataLayer (o GTM separa por página).
+ * A pele mora no styles/lp-dobra.css (.vsl-*).
+ */
+interface Props {
+  poster?: string;
+  src1080?: string;
+  src720?: string;
+  vtt?: string;
+  /** rótulo da duração na capa (o script troca pelo real quando o vídeo carrega) */
+  duracao?: string;
+  rotulo?: string;
+  ctaFim?: string;
+  perguntaFim?: string;
+}
+const {
+  poster = "/lp1/vsl-poster.webp",
+  src1080 = "/lp1/vsl-1080.mp4",
+  src720 = "/lp1/vsl-720.mp4",
+  vtt = "/lp1/vsl.vtt",
+  duracao = "1:41",
+  rotulo = "Vídeo: o VOS em 1 minuto e 41 segundos",
+  ctaFim = "Agendar agora",
+  perguntaFim = "Gostou do que viu?",
+} = Astro.props;
+---
+
+<div class="vsl" data-vsl style={`--vsl-capa:url("${poster}")`}>
+  <video playsinline muted preload="metadata" poster={poster}
+         controlslist="nodownload noplaybackrate" disablepictureinpicture
+         aria-label={rotulo}>
+    <source src={src1080} type="video/mp4" media="(min-width: 960px)">
+    <source src={src720} type="video/mp4">
+    <track kind="captions" src={vtt} srclang="pt-BR" label="Português">
+  </video>
+
+  <p class="vsl-leg" data-vsl-leg aria-hidden="true"></p>
+
+  <button type="button" class="vsl-capa" data-vsl-capa aria-label="Assistir ao vídeo com som">
+    <span class="vsl-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12 8 5.2Z"/></svg></span>
+    <span class="vsl-dur">Assista · <b data-vsl-dur>{duracao}</b></span>
+  </button>
+
+  <button type="button" class="vsl-som" data-vsl-som>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
+    Assistir com som
+  </button>
+
+  <div class="vsl-fim" data-vsl-fim hidden>
+    <p class="vsl-fim-t">{perguntaFim}</p>
+    <a href="#agendar" class="cta cta--white" data-action="lead"><span class="cta-l">{ctaFim}</span><i class="cta-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></i></a>
+    <button type="button" class="vsl-denovo" data-vsl-denovo>Assistir de novo</button>
+  </div>
+</div>
+
+<script>
+  /* Estado na caixa (.vsl): `tocando` (a capa sai), `audio` (com som, com
+     controles) e `fim` (o convite por cima). A legenda é da página: a trilha
+     fica em "hidden" e cada fala entra no <p> enquanto o vídeo está mudo. */
+  function evento(nome: string) {
+    const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+    w.dataLayer = w.dataLayer || [];
+    w.dataLayer.push({ event: nome });
+  }
+
+  const reduz = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const conexao = (navigator as unknown as { connection?: { saveData?: boolean } }).connection;
+  const economia = !!(conexao && conexao.saveData);
+
+  document.querySelectorAll<HTMLElement>("[data-vsl]").forEach((box) => {
+    const v = box.querySelector("video");
+    const capa = box.querySelector<HTMLButtonElement>("[data-vsl-capa]");
+    const som = box.querySelector<HTMLButtonElement>("[data-vsl-som]");
+    const leg = box.querySelector<HTMLElement>("[data-vsl-leg]");
+    const fim = box.querySelector<HTMLElement>("[data-vsl-fim]");
+    const deNovo = box.querySelector<HTMLButtonElement>("[data-vsl-denovo]");
+    const dur = box.querySelector<HTMLElement>("[data-vsl-dur]");
+    if (!v || !capa || !som || !leg || !fim || !deNovo) return;
+    let comSom = false;
+
+    v.addEventListener("loadedmetadata", () => {
+      if (!isFinite(v.duration) || !dur) return;
+      const s = Math.round(v.duration);
+      dur.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+    });
+
+    const trilha = v.textTracks && v.textTracks[0];
+    if (trilha) {
+      trilha.mode = "hidden";
+      trilha.addEventListener("cuechange", () => {
+        const c = trilha.activeCues && (trilha.activeCues[0] as VTTCue | undefined);
+        leg.textContent = c ? c.text : "";
+        leg.classList.toggle("on", !!c && !comSom);
+      });
+    }
+
+    function mudo() {
+      v!.muted = true;
+      v!.loop = true;
+      const p = v!.play();
+      if (p && p.then) p.then(() => box.classList.add("tocando")).catch(() => {});
+    }
+    function ligaSom() {
+      if (!comSom) evento("vsl_som");
+      comSom = true;
+      fim!.hidden = true;
+      box.classList.remove("fim");
+      v!.loop = false;
+      v!.muted = false;
+      v!.currentTime = 0;
+      v!.controls = true;
+      box.classList.add("tocando", "audio");
+      leg!.classList.remove("on");
+      const p = v!.play();
+      if (p && p.catch) p.catch(() => {});
+    }
+    capa.addEventListener("click", ligaSom);
+    som.addEventListener("click", ligaSom);
+    // tocar no vídeo enquanto ele roda mudo também liga o som
+    v.addEventListener("click", (e) => {
+      if (!comSom) {
+        e.preventDefault();
+        ligaSom();
+      }
+    });
+    deNovo.addEventListener("click", ligaSom);
+
+    v.addEventListener("ended", () => {
+      if (!comSom) return;
+      evento("vsl_fim");
+      v.controls = false;
+      box.classList.add("fim");
+      fim.hidden = false;
+    });
+
+    if (!reduz && !economia) mudo();
+  });
+</script>

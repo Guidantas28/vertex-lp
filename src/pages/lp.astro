@@ -15,12 +15,14 @@
 // preço e dúvidas no papel e o fecho escuro com o rodapé dentro, como na home.
 import "../styles/lp.css";
 import "../styles/zx.css";
+import "../styles/lp-dobra.css";
 import GtmHead from "../components/tracking/GtmHead.astro";
 import GaHead from "../components/tracking/GaHead.astro";
 import GtmNoScript from "../components/tracking/GtmNoScript.astro";
 import FirstTouch from "../components/tracking/FirstTouch.astro";
 import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
 import ScrollBand from "../components/site/ScrollBand.astro";
+import VslPlayer from "../components/lp/VslPlayer.astro";
 
 const title = "VOS · Atendimento automático é só o começo";
 const description =
@@ -117,6 +119,8 @@ const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
 <!-- Tipografia do site: Inter é a voz, Inter Tight (o Fio) é o display e
      Caveat é a manuscrita da marca — as três da home, no mesmo pedido. -->
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@300..800&family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
+<!-- a capa do vídeo é o maior elemento da dobra: vem antes de tudo -->
+<link rel="preload" as="image" href="/lp1/vsl-poster.webp" fetchpriority="high">
   <!-- Fontes da modal de lead (Geist/Jakarta/JetBrains Mono), pro wizard ficar
        igual ao do resto do site. A LP em si é Inter. -->
   <link
@@ -151,9 +155,16 @@ const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
        adiante. O H1 anterior ("a maneira mais facil ... em um so lugar")
        era o descritor de produto vendido como manchete, e brigava com a
        tese da secao seguinte.
-       18/09: o palco é o Carvão do hero da home (sem o filme, que aqui não
-       tem); o header continua sem link nenhum — em tráfego frio, saída antes
-       de motivo pra ficar é vazamento. -->
+       18/09 (founder): o topo segue o PADRÃO da /lp1 ("a /lp precisa ficar
+       nesse padrão também, pra celular e desktop"): no celular a coluna
+       centrada que começa colada no lockup, com a manchete no maior tamanho
+       que cabe; no desktop a copy à esquerda e o vídeo à direita. A peça é a
+       mesma das duas páginas (styles/lp-dobra.css + components/lp/
+       VslPlayer.astro). A copy é a de antes; o "para empresas que vivem de
+       WhatsApp" virou o rótulo do padrão (Inter, primeira letra maiúscula,
+       ícone na frente). O painel do sistema continua logo abaixo da dobra,
+       entrando de perspectiva. O header continua sem link nenhum: em tráfego
+       frio, saída antes de motivo pra ficar é vazamento. -->
   <div class="lp-hero">
     <div class="lp-pele" aria-hidden="true">
       <div class="lp-pele-luz"></div>
@@ -161,61 +172,78 @@ const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
       <div class="lp-pele-grao"></div>
     </div>
 
-    <div class="hdr">
-      <!-- lockup MONO oficial, na versão branca porque o topo é escuro.
-           Nunca redesenhar a logo em código. -->
-      <div class="logo">
-        <img src="/lp/vos-logo-mono-white.png" alt="VOS" width="901" height="277">
+    <div class="dobra-palco">
+      <div class="dobra-aurora" aria-hidden="true"></div>
+
+      <div class="hdr dobra-hdr">
+        <!-- lockup MONO oficial, na versão branca porque o topo é escuro.
+             Nunca redesenhar a logo em código. -->
+        <div class="logo">
+          <img src="/lp/vos-logo-mono-white.png" alt="VOS" width="901" height="277">
+        </div>
       </div>
+
+      <section class="dobra">
+        <p class="dobra-kicker reveal"><svg class="dobra-kicker-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg><span>Para empresas que vivem de WhatsApp</span></p>
+        <h1 class="reveal d1">Atendimento automático<br><em>é só o começo.</em></h1>
+        <p class="dobra-sub reveal d2">Atendimento, CRM, vendas, orçamento, contratos, agenda, serviços, financeiro e automações trabalhando dentro do mesmo sistema</p>
+
+        <div class="dobra-video reveal d2">
+          <VslPlayer ctaFim="Agendar demonstração" />
+        </div>
+
+        <div class="dobra-acao reveal d3">
+          <a href="#agendar" class="cta cta--white cta--lg" data-action="lead"><span class="cta-l">Agendar demonstração</span><i class="cta-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></i></a>
+          <p class="dobra-atrito">30 minutos, sem cartão e sem instalar nada. Você vê o sistema por dentro, módulo por módulo, e pergunta o que quiser — ao vivo.</p>
+        </div>
+
+        <div class="dobra-integr reveal d3">
+          <div class="dobra-ints">
+            <span class="lb">Integrações oficiais</span>
+            <div class="dobra-ints-linha">
+              <ul class="ics" aria-label="Integrações oficiais do VOS">
+                {INTEGRACOES.map((it, i) => (
+                  <li class="ic" style={`--c:${it.cor};z-index:${INTEGRACOES.length - i}`}>
+                    <img src={it.src} alt={it.nome} title={it.nome} width="34" height="34" loading="eager" decoding="async">
+                  </li>
+                ))}
+              </ul>
+              <span class="dobra-mais">
+                <svg width="30" height="18" viewBox="0 0 36 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M34 15C26 3 14 3 3 10" />
+                  <path d="M9 5L3 10l6 4" />
+                </svg>
+                e muito mais
+              </span>
+            </div>
+          </div>
+          <div class="dobra-prova proof">
+            <div class="pf">
+              <svg class="pf-meta" viewBox="0 0 36 20" fill="none" stroke="currentColor"
+                   stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 10c2.6-4.6 4.9-6.6 7.6-6.6 3.4 0 5.9 3 5.9 6.6s-2.5 6.6-5.9 6.6c-2.7 0-5-2-7.6-6.6-2.6-4.6-4.9-6.6-7.6-6.6C7 3.4 4.5 6.4 4.5 10s2.5 6.6 5.9 6.6c2.7 0 5-2 7.6-6.6Z"/>
+              </svg>
+              <span class="pf-txt"><b>Meta</b> Business Partner</span>
+            </div>
+            <span class="pf-sep" aria-hidden="true"></span>
+            <div class="pf">
+              <img class="pf-logo" src="/lp/vos-logo-mono-white.png" alt="VOS" width="901" height="277">
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
-
-    <section class="hero">
-      <div class="eb reveal"><u>para empresas que vivem de WhatsApp<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d={TRACO}/></svg></u></div>
-      <h1 class="reveal d1">Atendimento automático<br><em>é só o começo.</em></h1>
-      <p class="lead reveal d2">Atendimento, CRM, vendas, orçamento, contratos, agenda, serviços, financeiro e automações trabalhando dentro do mesmo sistema</p>
-      <div class="hero-acao reveal d3">
-        <a href="#agendar" class="cta cta--white cta--lg" data-action="lead"><span class="cta-l">Agendar demonstração</span><i class="cta-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></i></a>
-        <p class="atrito">30 minutos, sem cartão e sem instalar nada. Você vê o sistema por dentro, módulo por módulo, e pergunta o que quiser — ao vivo.</p>
-      </div>
-      <div class="badges reveal d3">
-        <div class="proof">
-          <div class="pf">
-            <svg class="pf-meta" viewBox="0 0 36 20" fill="none" stroke="currentColor"
-                 stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M18 10c2.6-4.6 4.9-6.6 7.6-6.6 3.4 0 5.9 3 5.9 6.6s-2.5 6.6-5.9 6.6c-2.7 0-5-2-7.6-6.6-2.6-4.6-4.9-6.6-7.6-6.6C7 3.4 4.5 6.4 4.5 10s2.5 6.6 5.9 6.6c2.7 0 5-2 7.6-6.6Z"/>
-            </svg>
-            <span class="pf-txt"><b>Meta</b> Business Partner</span>
-          </div>
-
-          <span class="pf-sep" aria-hidden="true"></span>
-
-          <div class="pf">
-            <img class="pf-logo" src="/lp/vos-logo-mono-white.png" alt="VOS" width="901" height="277">
-          </div>
-        </div>
-        <div class="integr">
-          <span class="lb">Integrações oficiais</span>
-          <ul class="ics" aria-label="Integrações oficiais do VOS">
-            {INTEGRACOES.map((it, i) => (
-              <li class="ic" style={`--c:${it.cor};z-index:${INTEGRACOES.length - i}`}>
-                <img src={it.src} alt={it.nome} title={it.nome} width="40" height="40" loading="eager" decoding="async">
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </section>
 
     <!-- A cara do sistema. Mesma imagem que está no hero de voshq.com
          (/assets/hero/dashboard.webp, usada pelo Hero4 da home). width/height
-         batem com o arquivo (3200x1900) para não gerar CLS; eager porque é
-         provável elemento LCP.
+         batem com o arquivo (3200x1900) para não gerar CLS.
          18/09: sai do Carvão e pousa no papel (metade de cada lado), e entra
-         de perspectiva: começa inclinada e assenta conforme a página desce. -->
+         de perspectiva: começa inclinada e assenta conforme a página desce.
+         Mora logo abaixo da dobra do vídeo, então carrega preguiçosa. -->
     <figure class="hero-tela">
       <img src="/assets/hero/dashboard.webp"
            alt="Tela do VOS: painel com funil de venda, receita, fluxo de caixa e o menu de módulos à esquerda"
-           width="3200" height="1900" loading="eager" fetchpriority="high" decoding="async">
+           width="3200" height="1900" loading="lazy" decoding="async">
     </figure>
   </div>
 
