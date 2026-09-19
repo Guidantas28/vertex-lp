@@ -2,17 +2,32 @@
  * CSS da rota /lp1 (founder 18/09/2026): uma dobra, um bloco, o vídeo e o
  * botão de agendar agora.
  *
+ * Rodada 2 (18/09, noite): uma COLUNA só, tudo centrado, pensada primeiro pro
+ * celular. De cima pra baixo: rótulo, manchete, apoio, vídeo, botão e, no pé,
+ * o selo da Meta com as integrações oficiais do site.
+ *
  * A pele vem do lp.css (importado antes): botão MONO com a setinha, a
- * manuscrita, o Carvão com pontos e grão (.lp-pele), o reveal e a prova da
- * Meta. Aqui mora só o que é do palco de uma dobra: a grade que põe a frase
- * de um lado e o vídeo do outro (e empilha no celular com o vídeo no meio), a
- * aurora do mundo do Zé atrás do vídeo e o player com legenda, capa e fim.
+ * manuscrita, o Carvão com pontos e grão (.lp-pele), o reveal, o leque das
+ * integrações e o selo da Meta. Aqui mora só o que é do palco de uma dobra.
+ *
+ * A DOBRA: no desktop o vídeo mede o que sobra da altura da tela depois do
+ * resto do bloco (--resto), entre 440 e 720px de largura, então tudo cabe
+ * em 1920x1080, 1440x900, 1366x768 e 1280x720. No celular o vídeo é sempre de ponta a ponta da
+ * coluna; se a tela for baixa e o botão cair abaixo da dobra, a barra fixa
+ * (.lp1-fixo) traz o mesmo convite pro pé.
  */
 
-.lp1 { background: #08090A; --wide: min(1280px, calc(100% - 32px)); }
-@media (min-width: 900px) { .lp1 { --wide: min(1280px, calc(100% - 64px)); } }
+.lp1 {
+  background: #08090A;
+  --wide: min(1120px, calc(100% - 32px));
+  /* altura de tudo que não é o vídeo, no desktop: medida no navegador em
+     1440x900 (512px) com folga; nas telas mais baixas o resto encolhe junto,
+     porque os vãos são em vh */
+  --resto: 520px;
+}
+@media (min-width: 900px) { .lp1 { --wide: min(1120px, calc(100% - 64px)); } }
 
-/* ─── O palco: a tela inteira, e nada embaixo ─────────────────────────────── */
+/* ─── O palco: a tela inteira ─────────────────────────────────────────────── */
 .lp1-palco {
   position: relative;
   isolation: isolate;
@@ -30,93 +45,125 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(34% 40% at 70% 44%, rgba(109, 74, 255, 0.24), transparent 70%),
-    radial-gradient(30% 36% at 84% 70%, rgba(237, 75, 0, 0.16), transparent 72%),
-    radial-gradient(26% 30% at 58% 76%, rgba(59, 42, 140, 0.22), transparent 70%);
+    radial-gradient(34% 30% at 50% 60%, rgba(109, 74, 255, 0.26), transparent 70%),
+    radial-gradient(26% 24% at 64% 72%, rgba(237, 75, 0, 0.15), transparent 72%),
+    radial-gradient(26% 24% at 36% 70%, rgba(59, 42, 140, 0.24), transparent 70%);
   filter: blur(18px);
   animation: lp1-respira 14s ease-in-out infinite alternate;
 }
 @keyframes lp1-respira {
   from { opacity: 0.75; transform: scale(1) translate3d(0, 0, 0); }
-  to { opacity: 1; transform: scale(1.06) translate3d(-1.5%, 1%, 0); }
+  to { opacity: 1; transform: scale(1.06) translate3d(0, 1%, 0); }
 }
-@media (max-width: 999px) {
+@media (max-width: 699px) {
   .lp1-aurora {
     background:
-      radial-gradient(60% 30% at 50% 52%, rgba(109, 74, 255, 0.26), transparent 70%),
-      radial-gradient(50% 26% at 70% 62%, rgba(237, 75, 0, 0.16), transparent 72%);
+      radial-gradient(70% 22% at 50% 56%, rgba(109, 74, 255, 0.28), transparent 70%),
+      radial-gradient(50% 18% at 66% 62%, rgba(237, 75, 0, 0.16), transparent 72%);
   }
 }
 
-.lp1-hdr { padding-top: 22px; }
+/* o lockup no centro, como tudo */
+.lp1-hdr { justify-content: center; padding-top: clamp(16px, 2.6vh, 24px); }
+.lp1-hdr .logo img { height: 22px; }
 
-/* ─── O bloco ─────────────────────────────────────────────────────────────
-   Celular: frase, vídeo e botão, um embaixo do outro (o vídeo fica entre a
-   promessa e o convite). Desktop: a frase e o botão à esquerda, centrados na
-   altura do vídeo, que ocupa a coluna da direita inteira. */
+/* ─── O bloco: uma coluna, centrada nos dois eixos ────────────────────────── */
 .lp1-bloco {
   flex: 1;
   width: var(--wide);
   margin-inline: auto;
-  padding: clamp(28px, 5vh, 56px) 0 clamp(20px, 4vh, 40px);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "txt" "video" "acao";
-  row-gap: 22px;
-  align-content: center;
+  padding: clamp(12px, 2.4vh, 32px) 0 clamp(10px, 1.8vh, 20px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
-.lp1-txt { grid-area: txt; display: flex; flex-direction: column; align-items: center; }
-.lp1-video { grid-area: video; }
-.lp1-acao { grid-area: acao; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 
-@media (min-width: 1000px) {
-  .lp1-bloco {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    grid-template-rows: 1fr auto auto 1fr;
-    grid-template-areas:
-      ". video"
-      "txt video"
-      "acao video"
-      ". video";
-    column-gap: clamp(40px, 4.6vw, 80px);
-    row-gap: 30px;
-    text-align: left;
-  }
-  .lp1-txt,
-  .lp1-acao { align-items: flex-start; }
-  .lp1-video { align-self: center; }
+/* o rótulo (founder 18/09): Inter, caixa de frase, e o ícone de pontos
+   ligados em laranja no lugar do ponto . "tudo conectado" desenhado */
+.lp1-kicker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 100%;
+  font-family: var(--zx-body);
+  font-size: clamp(13px, 1vw, 14.5px);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  color: rgba(255, 255, 255, 0.8);
 }
+.lp1-kicker-ic { flex: none; width: 17px; height: 17px; color: var(--zx-lar); }
 
-.lp1-txt .eb { margin-bottom: 18px; }
-.lp1-txt h1 {
+.lp1-bloco h1 {
+  margin-top: 14px;
   font-family: var(--zx-display);
   font-weight: 300;
-  font-size: clamp(30px, 3.1vw, 48px);
-  line-height: 1.06;
+  /* CELULAR (founder 18/09: "headline bem grande e destacada"): o MAIOR
+     tamanho que ainda cabe na coluna com a manchete em quatro linhas curtas,
+     "Vender é só / o começo. / O VOS conecta / tudo até o caixa.". A linha
+     mais larga é "tudo até o caixa." em 600, que mede 6,76em (medido no
+     Chrome); com folga, 6,9em. Em 390px dá 52px; em 375, 50. */
+  font-size: min(54px, calc((100vw - 32px) / 6.9));
+  line-height: 1.02;
   letter-spacing: -0.035em;
   color: #fff;
   text-wrap: balance;
 }
-/* a virada mora na segunda frase, laranja e cheia como a palavra do hero */
-.lp1-txt h1 em { font-style: normal; font-weight: 600; color: var(--zx-lar); }
+@media (min-width: 700px) {
+  .lp1-bloco h1 {
+    margin-top: clamp(10px, 1.7vh, 18px);
+    font-size: clamp(34px, 3.6vw, 52px);
+    /* no desktop baixo o tamanho também respeita a altura, pra dobra fechar */
+    font-size: min(clamp(34px, 3.6vw, 52px), 6svh);
+    line-height: 1.05;
+  }
+}
+/* a virada é a segunda linha: laranja e cheia, como o "é só o começo." da /lp.
+   Em bloco-em-linha pra quebra se equilibrar DENTRO dela no celular ("O VOS
+   conecta tudo / até o caixa."), em vez de largar "caixa." sozinho */
+.lp1-bloco h1 em {
+  display: inline-block;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--zx-lar);
+  text-wrap: balance;
+}
 .lp1-sub {
-  margin-top: 18px;
-  max-width: 44ch;
-  font-size: clamp(15px, 1.2vw, 18px);
-  line-height: 1.55;
+  margin-top: 14px;
+  /* no celular o apoio sobe junto com a manchete */
+  font-size: clamp(16px, 4.4vw, 18px);
+  line-height: 1.5;
   letter-spacing: -0.012em;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.76);
   text-wrap: pretty;
 }
-.lp1-atrito { font-size: 13px; color: rgba(255, 255, 255, 0.5); }
-.lp1-prova { margin-top: 6px; justify-content: flex-start; }
-@media (max-width: 560px) {
-  .lp1-acao .cta { width: 100%; }
+@media (min-width: 700px) {
+  .lp1-sub {
+    margin-top: clamp(10px, 1.6vh, 16px);
+    /* duas linhas no desktop */
+    max-width: 800px;
+    font-size: clamp(15px, 1.15vw, 17px);
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.7);
+    text-wrap: balance;
+  }
 }
 
-/* ─── O player ────────────────────────────────────────────────────────────── */
-.lp1-video { position: relative; width: 100%; }
+/* ─── O vídeo ─────────────────────────────────────────────────────────────── */
+.lp1-video {
+  position: relative;
+  width: 100%;
+  margin-top: clamp(16px, 2.6vh, 26px);
+}
+@media (min-width: 700px) {
+  .lp1-video {
+    max-width: clamp(440px, calc((100vh - var(--resto)) * 16 / 9), 720px);
+    max-width: clamp(440px, calc((100svh - var(--resto)) * 16 / 9), 720px);
+  }
+}
 .vsl {
   position: relative;
   width: 100%;
@@ -125,7 +172,7 @@
   overflow: hidden;
   background: #0B0620 url("/lp1/vsl-poster.webp") center / cover no-repeat;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 60px 120px -50px rgba(0, 0, 0, 0.9),
-    0 30px 80px -40px rgba(109, 74, 255, 0.35);
+    0 30px 80px -40px rgba(109, 74, 255, 0.4);
 }
 .vsl video { width: 100%; height: 100%; object-fit: cover; background: transparent; cursor: pointer; }
 .vsl.audio video { cursor: auto; }
@@ -159,8 +206,8 @@
 .vsl-play svg { width: 40%; height: 40%; margin-left: 4%; fill: #101214; }
 .vsl-dur {
   position: absolute;
-  left: 14px;
-  bottom: 14px;
+  left: 12px;
+  bottom: 12px;
   padding: 5px 10px;
   border-radius: 6px;
   background: rgba(8, 9, 10, 0.62);
@@ -175,17 +222,18 @@
 }
 .vsl-dur b { font-weight: 600; color: #fff; }
 
-/* o convite pro som enquanto roda mudo: pílula de vidro no pé, que respira */
+/* o convite pro som enquanto roda mudo: pílula de vidro no canto de cima, que
+   respira; a legenda fica com o pé do vídeo */
 .vsl-som {
   position: absolute;
-  left: 50%;
-  bottom: clamp(12px, 2vw, 20px);
+  top: clamp(8px, 1.4vw, 14px);
+  right: clamp(8px, 1.4vw, 14px);
   z-index: 3;
   display: none;
   align-items: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 16px;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 10px;
   background: rgba(8, 9, 10, 0.55);
@@ -193,31 +241,20 @@
   backdrop-filter: blur(10px);
   color: #fff;
   font-family: var(--zx-body);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   letter-spacing: -0.01em;
   cursor: pointer;
-  transform: translateX(-50%);
   transition: background var(--zx-t-micro) var(--zx-ease), border-color var(--zx-t-micro) var(--zx-ease);
   animation: lp1-chama 2.4s var(--zx-ease) infinite;
 }
-.vsl-som svg { width: 17px; height: 17px; flex: none; }
+.vsl-som svg { width: 16px; height: 16px; flex: none; }
 .vsl-som:hover { background: rgba(8, 9, 10, 0.75); border-color: rgba(255, 255, 255, 0.4); }
 .vsl-som:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .vsl.tocando .vsl-som { display: inline-flex; }
 .vsl.audio .vsl-som { display: none; }
 @media (max-width: 640px) {
-  .vsl-som {
-    left: auto;
-    right: 8px;
-    top: 8px;
-    bottom: auto;
-    height: 32px;
-    padding: 0 10px;
-    gap: 6px;
-    font-size: 12.5px;
-    transform: none;
-  }
+  .vsl-som { height: 30px; padding: 0 10px; gap: 6px; font-size: 12px; }
   .vsl-som svg { width: 15px; height: 15px; }
 }
 @keyframes lp1-chama {
@@ -229,14 +266,14 @@
 .vsl-leg {
   position: absolute;
   left: 50%;
-  bottom: calc(clamp(12px, 2vw, 20px) + 52px);
+  bottom: clamp(8px, 1.6vw, 16px);
   z-index: 2;
   max-width: calc(100% - 32px);
   padding: 6px 12px;
   border-radius: 8px;
   background: rgba(8, 9, 10, 0.66);
   color: #fff;
-  font-size: clamp(13px, 1.15vw, 16px);
+  font-size: clamp(12px, 1.1vw, 15px);
   font-weight: 500;
   line-height: 1.4;
   text-align: center;
@@ -247,10 +284,10 @@
   pointer-events: none;
 }
 .vsl-leg.on { opacity: 1; }
-@media (max-width: 640px) {
-  .vsl-leg { bottom: 8px; padding: 4px 9px; font-size: 12px; border-radius: 6px; }
-}
 .vsl-leg:empty { display: none; }
+@media (max-width: 640px) {
+  .vsl-leg { padding: 4px 9px; border-radius: 6px; }
+}
 
 /* o fim: o convite por cima do último quadro */
 .vsl-fim {
@@ -290,24 +327,116 @@
 }
 .vsl-denovo:hover { color: #fff; }
 
-/* ─── O pé: a linha legal, pequena, dentro da dobra ───────────────────────── */
+/* ─── O botão ─────────────────────────────────────────────────────────────── */
+.lp1-acao {
+  margin-top: clamp(14px, 2.3vh, 24px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.lp1-atrito { font-size: 13px; color: rgba(255, 255, 255, 0.5); }
+/* no desktop a fricção senta ao lado do botão: a mesma linha, menos altura */
+@media (min-width: 700px) {
+  .lp1-acao { flex-direction: row; gap: 18px; }
+  .lp1-atrito { text-align: left; }
+}
+@media (max-width: 560px) {
+  .lp1-acao { width: 100%; }
+  .lp1-acao .cta { width: 100%; }
+}
+
+/* ─── O pé do bloco: selo da Meta e integrações oficiais ──────────────────── */
+.lp1-integr {
+  margin-top: clamp(14px, 2.4vh, 26px);
+  padding-top: clamp(12px, 1.8vh, 18px);
+  width: min(760px, 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px 22px;
+}
+.lp1-meta { color: rgba(255, 255, 255, 0.6); }
+.lp1-sep { width: 1px; height: 22px; background: rgba(255, 255, 255, 0.16); }
+.lp1-ints { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.lp1-ints .lb {
+  font-family: var(--zx-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+.lp1-ints-linha { display: flex; align-items: center; gap: 10px; }
+.lp1-ints .ic img { width: 34px; height: 34px; padding: 5px; border-radius: 9px; }
+/* "e muito mais": o recado do dono na manuscrita, a flecha em laranja
+   apontando pro leque (o mesmo do hero da home) */
+.lp1-mais {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--hand);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.82);
+  white-space: nowrap;
+  transform: rotate(-3deg);
+}
+.lp1-mais svg { color: var(--zx-lar); flex: none; }
+@media (max-width: 699px) {
+  /* no celular o selo da Meta sai: o logo dela já está no leque, e a linha
+     que ele ocupava é o que separa as integrações da dobra */
+  .lp1-sep,
+  .lp1-meta { display: none; }
+  .lp1-ints { flex-direction: column; gap: 8px; }
+  .lp1-ints .ic img { width: 32px; height: 32px; }
+}
+
+/* ─── O pé: a linha legal, pequena ────────────────────────────────────────── */
 .lp1-pe {
   width: var(--wide);
   margin: 0 auto;
-  padding: 14px 0 calc(16px + env(safe-area-inset-bottom));
+  padding: 10px 0 calc(14px + env(safe-area-inset-bottom));
   display: flex;
   flex-wrap: wrap;
   gap: 2px 14px;
   justify-content: center;
-  font-size: 11.5px;
+  font-size: 11px;
   color: rgba(255, 255, 255, 0.4);
   text-align: center;
 }
 .lp1-pe a { color: rgba(255, 255, 255, 0.62); text-decoration: underline; text-underline-offset: 2px; }
 .lp1-pe a:hover { color: #fff; }
 
+/* ─── A barra fixa (só quando o botão do bloco sai da vista) ──────────────── */
+.lp1-fixo {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 20;
+  max-width: 440px;
+  margin-inline: auto;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(16, 18, 20, 0.72);
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.8);
+  transform: translateY(140%);
+  visibility: hidden;
+  transition: transform 0.5s var(--zx-ease), visibility 0.5s;
+}
+.lp1-fixo.show { transform: none; visibility: visible; }
+.lp1-fixo .cta { width: 100%; }
+
 @media (prefers-reduced-motion: reduce) {
   .lp1-aurora,
   .vsl-som,
   .vsl-fim { animation: none; }
+  .lp1-fixo { transition: none; }
 }

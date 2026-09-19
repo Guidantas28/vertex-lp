@@ -1,12 +1,18 @@
 ---
 // Rota /lp1 · a TERCEIRA opção de página de anúncio (founder 18/09/2026), fora
 // da home e da /lp: uma dobra só, um bloco só . a frase que vende, o vídeo e o
-// botão de agendar agora. A copy é provisória ("depois definimos copy"); o
-// vídeo também (é o overview v6 de 18/09, que já fecha pedindo a demonstração).
+// botão de agendar agora.
+//
+// Rodada 2 (18/09, noite): tudo CENTRADO, numa coluna só (era frase à esquerda
+// e vídeo à direita), pensado primeiro pro celular; a copy nova do founder; e
+// no pé as integrações oficiais do site, as mesmas do hero da home.
+// O vídeo segue provisório (o overview v6 de 18/09, que já fecha pedindo a
+// demonstração).
 //
 // O que ela divide com a /lp, de propósito:
 //   · a pele do site novo (styles/zx.css + styles/lp.css: botão MONO com a
-//     setinha, a manuscrita Caveat, o Carvão com pontos e grão, o reveal);
+//     setinha, a manuscrita Caveat, o Carvão com pontos e grão, o reveal, o
+//     leque de integrações);
 //   · o rastreio (GTM, GA, primeiro toque) e a MESMA modal de lead com o Cal:
 //     o botão tem data-action="lead", como todo CTA de agendar do site.
 // O que é só dela mora no styles/lp1.css.
@@ -19,13 +25,28 @@ import GtmNoScript from "../components/tracking/GtmNoScript.astro";
 import FirstTouch from "../components/tracking/FirstTouch.astro";
 import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
 
-const title = "VOS · A maioria das ferramentas para na conversa. O VOS continua.";
+const title = "VOS · Vender é só o começo. O VOS conecta tudo até o caixa.";
 const description =
-  "O cliente chama no WhatsApp e o VOS responde, monta o orçamento, fecha a venda, cobra e emite a nota. Veja em 1 minuto e agende sua demonstração.";
+  "Atenda seus clientes, feche negócios, acompanhe pedidos ou serviços, cobre e emita notas. Sem copiar dados, trocar de sistema ou perder o controle da operação.";
 const SITE_URL = "https://www.voshq.com";
 const url = `${SITE_URL}/lp1/`;
 const ogImage = `${SITE_URL}/og.png`;
-const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
+
+// As integrações oficiais do SITE: a mesma lista e a mesma ordem do hero da
+// home (src/components/ui/animated-hero.tsx, 17/09: TikTok e Telegram saíram,
+// Slack, Google Agenda e GPT entraram). Mudou lá, muda aqui.
+const INTEGRACOES = [
+  { nome: "WhatsApp", src: "/assets/integrations/whatsapp.svg", cor: "#25D366" },
+  { nome: "Instagram", src: "/assets/integrations/instagram.png", cor: "#E1306C" },
+  { nome: "Messenger", src: "/assets/integrations/messenger.svg", cor: "#0084FF" },
+  { nome: "Meta", src: "/assets/integrations/meta.png", cor: "#0668E1" },
+  { nome: "Slack", src: "/assets/integracoes/slack.svg", cor: "#4A154B" },
+  { nome: "Google Agenda", src: "/assets/icons/google-agenda.svg", cor: "#4285F4" },
+  { nome: "GPT", src: "/assets/icons/openai.svg", cor: "#111111" },
+  { nome: "Claude", src: "/assets/integrations/claude.svg", cor: "#D97757" },
+];
+
+const SETA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
 ---
 
 <!doctype html>
@@ -35,7 +56,7 @@ const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
   <GaHead />
   <meta charset="utf-8">
   <script is:inline>document.documentElement.classList.add("js")</script>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="icon" type="image/png" sizes="32x32" href="/lp/favicon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/lp/icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/lp/icon-512.png">
@@ -86,11 +107,11 @@ const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
     </div>
 
     <section class="lp1-bloco">
-      <div class="lp1-txt">
-        <div class="eb reveal"><u>para empresas que vivem de WhatsApp<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d={TRACO}/></svg></u></div>
-        <h1 class="reveal d1">A maioria das ferramentas para na conversa.<br><em>O VOS continua.</em></h1>
-        <p class="lp1-sub reveal d2">O cliente chama no WhatsApp e o VOS responde, monta o orçamento, fecha a venda, cobra e emite a nota. Tudo no mesmo sistema.</p>
-      </div>
+      <!-- a linha de cima, em Inter e caixa de frase (founder 18/09), com o
+           ícone de pontos ligados (waypoints, do Lucide) no lugar do ponto -->
+      <p class="lp1-kicker reveal"><svg class="lp1-kicker-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="4.5" r="2.5"/><path d="m10.2 6.3-3.9 3.9"/><circle cx="4.5" cy="12" r="2.5"/><path d="M7 12h10"/><circle cx="19.5" cy="12" r="2.5"/><path d="m13.8 17.7 3.9-3.9"/><circle cx="12" cy="19.5" r="2.5"/></svg><span>Vendas, operação e financeiro. Tudo conectado.</span></p>
+      <h1 class="reveal d1">Vender é só o começo.<br><em>O VOS conecta tudo até o caixa.</em></h1>
+      <p class="lp1-sub reveal d2">Atenda seus clientes, feche negócios, acompanhe pedidos ou serviços, cobre e emita notas. Sem copiar dados, trocar de sistema ou perder o controle da operação.</p>
 
       <!-- O vídeo. Toca sozinho e MUDO assim que a página abre (é o que o
            navegador deixa), com a legenda desenhada pela página; um toque liga
@@ -121,22 +142,45 @@ const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
 
           <div class="vsl-fim" id="vslFim" hidden>
             <p class="vsl-fim-t">Gostou do que viu?</p>
-            <a href="#agendar" class="cta cta--white" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></i></a>
+            <a href="#agendar" class="cta cta--white" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
             <button type="button" class="vsl-denovo" id="vslDeNovo">Assistir de novo</button>
           </div>
         </div>
       </div>
 
       <div class="lp1-acao reveal d3">
-        <a href="#agendar" class="cta cta--white cta--lg" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></i></a>
+        <a href="#agendar" class="cta cta--white cta--lg" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
         <p class="lp1-atrito">Demonstração de 30 minutos · ao vivo · sem cartão</p>
-        <div class="proof lp1-prova">
-          <div class="pf">
-            <svg class="pf-meta" viewBox="0 0 36 20" fill="none" stroke="currentColor"
-                 stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M18 10c2.6-4.6 4.9-6.6 7.6-6.6 3.4 0 5.9 3 5.9 6.6s-2.5 6.6-5.9 6.6c-2.7 0-5-2-7.6-6.6-2.6-4.6-4.9-6.6-7.6-6.6C7 3.4 4.5 6.4 4.5 10s2.5 6.6 5.9 6.6c2.7 0 5-2 7.6-6.6Z"/>
-            </svg>
-            <span class="pf-txt"><b>Meta</b> Business Partner</span>
+      </div>
+
+      <!-- O pé do bloco: o selo da Meta e as integrações oficiais do site, em
+           leque, com o "e muito mais" manuscrito apontando pra elas. -->
+      <div class="lp1-integr reveal d3">
+        <div class="pf lp1-meta">
+          <svg class="pf-meta" viewBox="0 0 36 20" fill="none" stroke="currentColor"
+               stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 10c2.6-4.6 4.9-6.6 7.6-6.6 3.4 0 5.9 3 5.9 6.6s-2.5 6.6-5.9 6.6c-2.7 0-5-2-7.6-6.6-2.6-4.6-4.9-6.6-7.6-6.6C7 3.4 4.5 6.4 4.5 10s2.5 6.6 5.9 6.6c2.7 0 5-2 7.6-6.6Z"/>
+          </svg>
+          <span class="pf-txt"><b>Meta</b> Business Partner</span>
+        </div>
+        <span class="lp1-sep" aria-hidden="true"></span>
+        <div class="lp1-ints">
+          <span class="lb">Integrações oficiais</span>
+          <div class="lp1-ints-linha">
+            <ul class="ics" aria-label="Integrações oficiais do VOS">
+              {INTEGRACOES.map((it, i) => (
+                <li class="ic" style={`--c:${it.cor};z-index:${INTEGRACOES.length - i}`}>
+                  <img src={it.src} alt={it.nome} title={it.nome} width="34" height="34" loading="eager" decoding="async">
+                </li>
+              ))}
+            </ul>
+            <span class="lp1-mais">
+              <svg width="30" height="18" viewBox="0 0 36 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M34 15C26 3 14 3 3 10" />
+                <path d="M9 5L3 10l6 4" />
+              </svg>
+              e muito mais
+            </span>
           </div>
         </div>
       </div>
@@ -149,14 +193,64 @@ const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
       <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>
     </footer>
   </main>
+
+  <!-- Rede de segurança do celular: em tela baixa (o SE, o Android com barra
+       gorda) o botão pode ficar abaixo da dobra. Então, sempre que ele sai da
+       vista, o mesmo convite aparece fixo no pé; quando ele volta, a barra sai. -->
+  <div class="lp1-fixo" id="lp1Fixo" aria-hidden="true">
+    <a href="#agendar" class="cta cta--white" data-action="lead" tabindex="-1"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
+  </div>
 </div>
 
 <script is:inline>
-  /* ── Entrada (a mesma da /lp: sobe e aparece; a manuscrita se escreve) ── */
+  /* ── Entrada (a mesma da /lp: sobe e aparece) ── */
   (function(){
     var io=new IntersectionObserver(function(es){es.forEach(function(e){
       if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});
     document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  })();
+
+  /* ── O vídeo do tamanho da sobra (desktop) ─────────────────────────────
+     O CSS já dá um tamanho que cabe (a --resto); aqui ele passa a ser o
+     MAIOR que cabe: mede a altura do bloco com o vídeo no mínimo e dá a
+     sobra da tela pro vídeo, entre 440 e 720px de largura. No celular o
+     vídeo é sempre da largura da coluna e isto não mexe em nada. */
+  (function(){
+    var vid=document.querySelector('.lp1-video'), palco=document.querySelector('.lp1-palco'),
+        bloco=document.querySelector('.lp1-bloco');
+    if(!vid||!palco||!bloco) return;
+    var mq=matchMedia('(min-width: 700px)'), MIN=440, MAX=720, raf=0;
+    function ajusta(){
+      raf=0;
+      if(!mq.matches){ vid.style.maxWidth=''; return; }
+      vid.style.maxWidth=MIN+'px';
+      palco.style.minHeight='0'; bloco.style.flex='0 0 auto';
+      var conteudo=palco.offsetHeight, alturaMin=vid.offsetHeight;
+      palco.style.minHeight=''; bloco.style.flex='';
+      // 2px de folga: o arredondamento do subpixel passava 1px da dobra
+      var altura=alturaMin+(innerHeight-conteudo)-2;
+      var largura=Math.max(MIN,Math.min(MAX,Math.floor(altura*16/9)));
+      vid.style.maxWidth=largura+'px';
+    }
+    ajusta();
+    addEventListener('resize',function(){ if(!raf) raf=requestAnimationFrame(ajusta); },{passive:true});
+    // as fontes chegam depois e mudam a altura do texto: mede de novo
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(ajusta);
+  })();
+
+  /* ── A barra fixa do celular: só quando o botão do bloco está fora da vista ── */
+  (function(){
+    var fixo=document.getElementById('lp1Fixo'), alvo=document.querySelector('.lp1-acao .cta');
+    if(!fixo||!alvo||!('IntersectionObserver' in window)) return;
+    var link=fixo.querySelector('a');
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        var mostra=!e.isIntersecting;
+        fixo.classList.toggle('show',mostra);
+        fixo.setAttribute('aria-hidden',mostra?'false':'true');
+        link.tabIndex=mostra?0:-1;
+      });
+    },{threshold:.6}).observe(alvo);
   })();
 
   /* ── O vídeo ───────────────────────────────────────────────────────────

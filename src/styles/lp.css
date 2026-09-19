@@ -348,6 +348,7 @@ input:focus { outline: 2px solid #ED4B00; outline-offset: 1px; border-color: tra
 .ic:nth-child(5) { --r: -5deg; --fy: -9px; --fr: -9deg; }
 .ic:nth-child(6) { --r: 6deg; --fy: -6px; --fr: 9deg; }
 .ic:nth-child(7) { --r: -3deg; --fy: -8px; --fr: -4deg; }
+.ic:nth-child(8) { --r: 4deg; --fy: -7px; --fr: 6deg; }
 .ics:hover .ic { margin-left: 2px; transform: translateY(var(--fy, -6px)) rotate(var(--fr, 0deg)); }
 .ics:hover .ic:first-child { margin-left: 0; }
 .ics .ic:hover { z-index: 20 !important; filter: brightness(1.04); transform: translateY(-12px) scale(1.16) rotate(0deg); }
