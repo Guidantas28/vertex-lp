@@ -120,7 +120,8 @@ const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
      Caveat é a manuscrita da marca — as três da home, no mesmo pedido. -->
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@300..800&family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
 <!-- a capa do vídeo é o maior elemento da dobra: vem antes de tudo -->
-<link rel="preload" as="image" href="/lp1/vsl-poster.webp" fetchpriority="high">
+<link rel="preload" as="image" href="/vsl/capa.webp" media="(min-width: 700px)" fetchpriority="high">
+  <link rel="preload" as="image" href="/vsl/capa-vertical.webp" media="(max-width: 699px)" fetchpriority="high">
   <!-- Fontes da modal de lead (Geist/Jakarta/JetBrains Mono), pro wizard ficar
        igual ao do resto do site. A LP em si é Inter. -->
   <link
@@ -674,15 +675,20 @@ const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
     });
   })();
 
-  /* barra fixa: entra depois do primeiro scroll e SAI quando o CTA de verdade
-     (o do fecho) está na tela, senão a página termina com dois botões
-     idênticos empilhados */
+  /* barra fixa: entra sempre que o botão do TOPO não está na tela (no
+     celular, com o vídeo vertical, ele nasce abaixo da primeira tela; no
+     desktop, sai quando a pessoa rola) e SAI quando o CTA do fecho está na
+     tela, senão a página termina com dois botões idênticos empilhados */
   (function(){
-    var bar=document.getElementById('bar'), fim=document.querySelector('.band-cta');
+    var bar=document.getElementById('bar'), fim=document.querySelector('.band-cta'),
+        topo=document.querySelector('.dobra-acao .cta');
+    function naTela(el,folga){
+      if(!el) return false;
+      var r=el.getBoundingClientRect();
+      return r.top < innerHeight-(folga||0) && r.bottom > 0;
+    }
     function atualiza(){
-      var naTela=false;
-      if(fim){ var r=fim.getBoundingClientRect(); naTela = r.top < innerHeight-40 && r.bottom > 0; }
-      bar.classList.toggle('show', scrollY>480 && !naTela);
+      bar.classList.toggle('show', !naTela(topo) && !naTela(fim,40));
     }
     /* getBoundingClientRect a cada scroll força layout; coalesce num rAF */
     var raf=0;

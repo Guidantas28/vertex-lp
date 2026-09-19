@@ -8,8 +8,8 @@
 // celular, o bloco subindo colado no lockup e, no desktop, a copy à esquerda
 // e o vídeo à direita. Esse topo virou o PADRÃO das páginas de anúncio: a
 // composição mora no styles/lp-dobra.css e o player no components/lp/
-// VslPlayer.astro, os dois divididos com a /lp. O vídeo segue provisório (o
-// overview v6 de 18/09); o oficial entra no VslPlayer e vale pras duas.
+// VslPlayer.astro, os dois divididos com a /lp. O vídeo é o oficial desde 19/09
+// (horizontal no computador, vertical no celular), no VslPlayer, pras duas.
 //
 // O que ela divide com a /lp, de propósito: a pele do site novo
 // (styles/zx.css + styles/lp.css), o rastreio (GTM, GA, primeiro toque) e a
@@ -71,7 +71,8 @@ const SETA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
     rel="stylesheet"
   />
   <!-- a capa do vídeo é o maior elemento da dobra: vem antes de tudo -->
-  <link rel="preload" as="image" href="/lp1/vsl-poster.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="/vsl/capa.webp" media="(min-width: 700px)" fetchpriority="high">
+  <link rel="preload" as="image" href="/vsl/capa-vertical.webp" media="(max-width: 699px)" fetchpriority="high">
   <title>{title}</title>
   <!-- Página de anúncio, como a /lp: fora do índice e do sitemap, com follow. -->
   <meta name="robots" content="noindex, follow" />
@@ -165,11 +166,12 @@ const SETA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
     </footer>
   </main>
 
-  <!-- Rede de segurança do celular: em tela baixa (o SE, o Android com barra
-       gorda) o botão pode ficar abaixo da dobra. Então, sempre que ele sai da
-       vista, o mesmo convite aparece fixo no pé; quando ele volta, a barra sai. -->
-  <div class="lp1-fixo" id="lp1Fixo" aria-hidden="true">
-    <a href="#agendar" class="cta cta--white" data-action="lead" tabindex="-1"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
+  <!-- Rede de segurança do celular: com o vídeo vertical o botão nasce abaixo
+       da primeira tela. Então, sempre que ele sai da vista, o mesmo convite
+       aparece fixo no pé, na MESMA barra da /lp (a pílula de vidro da nav do
+       site, lp.css › .bar); quando ele volta, a barra sai. -->
+  <div class="bar" id="lp1Fixo" aria-hidden="true">
+    <a href="#agendar" class="cta" data-action="lead" tabindex="-1"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
   </div>
 </div>
 

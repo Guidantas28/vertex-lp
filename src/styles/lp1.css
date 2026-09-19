@@ -5,7 +5,7 @@
  * O topo inteiro (a composição de celular, tablet e desktop e o player) virou
  * o padrão das páginas de anúncio e mora no styles/lp-dobra.css, junto com a
  * /lp; a pele vem do lp.css. Aqui sobra só o que é da /lp1: a página é UMA
- * dobra, então o fundo, a linha legal dentro dela e a barra fixa do celular.
+ * dobra, então o fundo e a linha legal dentro dela.
  */
 
 .lp1 {
@@ -37,26 +37,5 @@
 /* no desktop o pé acompanha a copy: à esquerda, na mesma margem */
 @media (min-width: 1000px) { .lp1-pe { justify-content: flex-start; text-align: left; } }
 
-/* ─── A barra fixa (só quando o botão do bloco sai da vista) ──────────────── */
-.lp1-fixo {
-  position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom));
-  z-index: 20;
-  max-width: 440px;
-  margin-inline: auto;
-  padding: 6px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(16, 18, 20, 0.72);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
-  backdrop-filter: blur(14px) saturate(1.3);
-  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.8);
-  transform: translateY(140%);
-  visibility: hidden;
-  transition: transform 0.5s var(--zx-ease), visibility 0.5s;
-}
-.lp1-fixo.show { transform: none; visibility: visible; }
-.lp1-fixo .cta { width: 100%; }
-@media (prefers-reduced-motion: reduce) { .lp1-fixo { transition: none; } }
+/* A barra fixa do celular é a MESMA da /lp (lp.css › .bar), pra as duas
+   páginas falarem igual. */
