@@ -213,7 +213,9 @@
       "keyword": "automação de marketing pme",
       "title_hint": "Automação de marketing para PME: o kit mínimo que dá resultado",
       "category": "marketing",
-      "used": false
+      "used": true,
+      "publishedSlug": "automacao-marketing-pme",
+      "publishedAt": "2026-09-19"
     },
     {
       "id": "ia-agente-executa",
