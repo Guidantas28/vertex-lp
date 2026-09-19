@@ -1,0 +1,313 @@
+/**
+ * CSS da rota /lp1 (founder 18/09/2026): uma dobra, um bloco, o vídeo e o
+ * botão de agendar agora.
+ *
+ * A pele vem do lp.css (importado antes): botão MONO com a setinha, a
+ * manuscrita, o Carvão com pontos e grão (.lp-pele), o reveal e a prova da
+ * Meta. Aqui mora só o que é do palco de uma dobra: a grade que põe a frase
+ * de um lado e o vídeo do outro (e empilha no celular com o vídeo no meio), a
+ * aurora do mundo do Zé atrás do vídeo e o player com legenda, capa e fim.
+ */
+
+.lp1 { background: #08090A; --wide: min(1280px, calc(100% - 32px)); }
+@media (min-width: 900px) { .lp1 { --wide: min(1280px, calc(100% - 64px)); } }
+
+/* ─── O palco: a tela inteira, e nada embaixo ─────────────────────────────── */
+.lp1-palco {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  color: var(--zx-on-dark);
+  overflow: clip;
+}
+.lp1-pele { inset: 0; }
+/* a aurora do mundo do Zé, respirando devagar atrás do vídeo: o violeta do
+   Zé e o laranja da marca, as duas cores que o próprio vídeo usa */
+.lp1-aurora {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(34% 40% at 70% 44%, rgba(109, 74, 255, 0.24), transparent 70%),
+    radial-gradient(30% 36% at 84% 70%, rgba(237, 75, 0, 0.16), transparent 72%),
+    radial-gradient(26% 30% at 58% 76%, rgba(59, 42, 140, 0.22), transparent 70%);
+  filter: blur(18px);
+  animation: lp1-respira 14s ease-in-out infinite alternate;
+}
+@keyframes lp1-respira {
+  from { opacity: 0.75; transform: scale(1) translate3d(0, 0, 0); }
+  to { opacity: 1; transform: scale(1.06) translate3d(-1.5%, 1%, 0); }
+}
+@media (max-width: 999px) {
+  .lp1-aurora {
+    background:
+      radial-gradient(60% 30% at 50% 52%, rgba(109, 74, 255, 0.26), transparent 70%),
+      radial-gradient(50% 26% at 70% 62%, rgba(237, 75, 0, 0.16), transparent 72%);
+  }
+}
+
+.lp1-hdr { padding-top: 22px; }
+
+/* ─── O bloco ─────────────────────────────────────────────────────────────
+   Celular: frase, vídeo e botão, um embaixo do outro (o vídeo fica entre a
+   promessa e o convite). Desktop: a frase e o botão à esquerda, centrados na
+   altura do vídeo, que ocupa a coluna da direita inteira. */
+.lp1-bloco {
+  flex: 1;
+  width: var(--wide);
+  margin-inline: auto;
+  padding: clamp(28px, 5vh, 56px) 0 clamp(20px, 4vh, 40px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "txt" "video" "acao";
+  row-gap: 22px;
+  align-content: center;
+  text-align: center;
+}
+.lp1-txt { grid-area: txt; display: flex; flex-direction: column; align-items: center; }
+.lp1-video { grid-area: video; }
+.lp1-acao { grid-area: acao; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+@media (min-width: 1000px) {
+  .lp1-bloco {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-rows: 1fr auto auto 1fr;
+    grid-template-areas:
+      ". video"
+      "txt video"
+      "acao video"
+      ". video";
+    column-gap: clamp(40px, 4.6vw, 80px);
+    row-gap: 30px;
+    text-align: left;
+  }
+  .lp1-txt,
+  .lp1-acao { align-items: flex-start; }
+  .lp1-video { align-self: center; }
+}
+
+.lp1-txt .eb { margin-bottom: 18px; }
+.lp1-txt h1 {
+  font-family: var(--zx-display);
+  font-weight: 300;
+  font-size: clamp(30px, 3.1vw, 48px);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  color: #fff;
+  text-wrap: balance;
+}
+/* a virada mora na segunda frase, laranja e cheia como a palavra do hero */
+.lp1-txt h1 em { font-style: normal; font-weight: 600; color: var(--zx-lar); }
+.lp1-sub {
+  margin-top: 18px;
+  max-width: 44ch;
+  font-size: clamp(15px, 1.2vw, 18px);
+  line-height: 1.55;
+  letter-spacing: -0.012em;
+  color: rgba(255, 255, 255, 0.7);
+  text-wrap: pretty;
+}
+.lp1-atrito { font-size: 13px; color: rgba(255, 255, 255, 0.5); }
+.lp1-prova { margin-top: 6px; justify-content: flex-start; }
+@media (max-width: 560px) {
+  .lp1-acao .cta { width: 100%; }
+}
+
+/* ─── O player ────────────────────────────────────────────────────────────── */
+.lp1-video { position: relative; width: 100%; }
+.vsl {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: clamp(14px, 1.4vw, 20px);
+  overflow: hidden;
+  background: #0B0620 url("/lp1/vsl-poster.webp") center / cover no-repeat;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 60px 120px -50px rgba(0, 0, 0, 0.9),
+    0 30px 80px -40px rgba(109, 74, 255, 0.35);
+}
+.vsl video { width: 100%; height: 100%; object-fit: cover; background: transparent; cursor: pointer; }
+.vsl.audio video { cursor: auto; }
+
+/* a capa: só enquanto o vídeo não roda (autoplay recusado, menos movimento,
+   economia de dados) */
+.vsl-capa {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.1) 55%, rgba(0, 0, 0, 0.55) 100%);
+  transition: opacity 0.4s var(--zx-ease);
+}
+.vsl.tocando .vsl-capa { opacity: 0; pointer-events: none; }
+.vsl-play {
+  width: clamp(58px, 5.4vw, 76px);
+  height: clamp(58px, 5.4vw, 76px);
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.6);
+  transition: transform var(--zx-t-micro) var(--zx-ease);
+}
+.vsl-capa:hover .vsl-play { transform: scale(1.07); }
+.vsl-capa:active .vsl-play { transform: scale(0.96); }
+.vsl-play svg { width: 40%; height: 40%; margin-left: 4%; fill: #101214; }
+.vsl-dur {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(8, 9, 10, 0.62);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font-family: var(--zx-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+.vsl-dur b { font-weight: 600; color: #fff; }
+
+/* o convite pro som enquanto roda mudo: pílula de vidro no pé, que respira */
+.vsl-som {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(12px, 2vw, 20px);
+  z-index: 3;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(8, 9, 10, 0.55);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-family: var(--zx-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transform: translateX(-50%);
+  transition: background var(--zx-t-micro) var(--zx-ease), border-color var(--zx-t-micro) var(--zx-ease);
+  animation: lp1-chama 2.4s var(--zx-ease) infinite;
+}
+.vsl-som svg { width: 17px; height: 17px; flex: none; }
+.vsl-som:hover { background: rgba(8, 9, 10, 0.75); border-color: rgba(255, 255, 255, 0.4); }
+.vsl-som:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.vsl.tocando .vsl-som { display: inline-flex; }
+.vsl.audio .vsl-som { display: none; }
+@media (max-width: 640px) {
+  .vsl-som {
+    left: auto;
+    right: 8px;
+    top: 8px;
+    bottom: auto;
+    height: 32px;
+    padding: 0 10px;
+    gap: 6px;
+    font-size: 12.5px;
+    transform: none;
+  }
+  .vsl-som svg { width: 15px; height: 15px; }
+}
+@keyframes lp1-chama {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.28); }
+  60% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+}
+
+/* a legenda desenhada pela página, só enquanto o vídeo está mudo */
+.vsl-leg {
+  position: absolute;
+  left: 50%;
+  bottom: calc(clamp(12px, 2vw, 20px) + 52px);
+  z-index: 2;
+  max-width: calc(100% - 32px);
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(8, 9, 10, 0.66);
+  color: #fff;
+  font-size: clamp(13px, 1.15vw, 16px);
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
+  text-wrap: balance;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s linear;
+  pointer-events: none;
+}
+.vsl-leg.on { opacity: 1; }
+@media (max-width: 640px) {
+  .vsl-leg { bottom: 8px; padding: 4px 9px; font-size: 12px; border-radius: 6px; }
+}
+.vsl-leg:empty { display: none; }
+
+/* o fim: o convite por cima do último quadro */
+.vsl-fim {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 20px;
+  background: rgba(8, 9, 10, 0.72);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  text-align: center;
+  animation: lp1-fim 0.5s var(--zx-ease) both;
+}
+.vsl-fim[hidden] { display: none; }
+@keyframes lp1-fim { from { opacity: 0; } to { opacity: 1; } }
+.vsl-fim-t {
+  font-family: var(--zx-display);
+  font-weight: 400;
+  font-size: clamp(22px, 2.2vw, 32px);
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+.vsl-denovo {
+  border: 0;
+  background: none;
+  padding: 6px 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font: 500 13px/1 var(--zx-body);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.vsl-denovo:hover { color: #fff; }
+
+/* ─── O pé: a linha legal, pequena, dentro da dobra ───────────────────────── */
+.lp1-pe {
+  width: var(--wide);
+  margin: 0 auto;
+  padding: 14px 0 calc(16px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  justify-content: center;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+}
+.lp1-pe a { color: rgba(255, 255, 255, 0.62); text-decoration: underline; text-underline-offset: 2px; }
+.lp1-pe a:hover { color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp1-aurora,
+  .vsl-som,
+  .vsl-fim { animation: none; }
+}

@@ -1,0 +1,246 @@
+---
+// Rota /lp1 · a TERCEIRA opção de página de anúncio (founder 18/09/2026), fora
+// da home e da /lp: uma dobra só, um bloco só . a frase que vende, o vídeo e o
+// botão de agendar agora. A copy é provisória ("depois definimos copy"); o
+// vídeo também (é o overview v6 de 18/09, que já fecha pedindo a demonstração).
+//
+// O que ela divide com a /lp, de propósito:
+//   · a pele do site novo (styles/zx.css + styles/lp.css: botão MONO com a
+//     setinha, a manuscrita Caveat, o Carvão com pontos e grão, o reveal);
+//   · o rastreio (GTM, GA, primeiro toque) e a MESMA modal de lead com o Cal:
+//     o botão tem data-action="lead", como todo CTA de agendar do site.
+// O que é só dela mora no styles/lp1.css.
+import "../styles/lp.css";
+import "../styles/zx.css";
+import "../styles/lp1.css";
+import GtmHead from "../components/tracking/GtmHead.astro";
+import GaHead from "../components/tracking/GaHead.astro";
+import GtmNoScript from "../components/tracking/GtmNoScript.astro";
+import FirstTouch from "../components/tracking/FirstTouch.astro";
+import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
+
+const title = "VOS · A maioria das ferramentas para na conversa. O VOS continua.";
+const description =
+  "O cliente chama no WhatsApp e o VOS responde, monta o orçamento, fecha a venda, cobra e emite a nota. Veja em 1 minuto e agende sua demonstração.";
+const SITE_URL = "https://www.voshq.com";
+const url = `${SITE_URL}/lp1/`;
+const ogImage = `${SITE_URL}/og.png`;
+const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
+---
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <GtmHead />
+  <GaHead />
+  <meta charset="utf-8">
+  <script is:inline>document.documentElement.classList.add("js")</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" sizes="32x32" href="/lp/favicon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/lp/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/lp/icon-512.png">
+  <link rel="apple-touch-icon" href="/lp/apple-touch-icon.png">
+  <meta name="theme-color" content="#08090A">
+  <meta name="description" content={description}>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@300..800&family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
+  <!-- Fontes da modal de lead, pro wizard ficar igual ao do resto do site -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <!-- a capa é o maior elemento da dobra: vem antes de tudo -->
+  <link rel="preload" as="image" href="/lp1/vsl-poster.webp" fetchpriority="high">
+  <title>{title}</title>
+  <!-- Página de anúncio, como a /lp: fora do índice e do sitemap, com follow. -->
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href={url} />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:url" content={url} />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+</head>
+<body>
+<GtmNoScript />
+
+<div class="zx lp lp1">
+  <main class="lp1-palco">
+    <!-- o Carvão da /lp, com a aurora do mundo do Zé atrás do vídeo -->
+    <div class="lp-pele lp1-pele" aria-hidden="true">
+      <div class="lp-pele-luz"></div>
+      <div class="lp1-aurora"></div>
+      <div class="lp-pele-pontos"></div>
+      <div class="lp-pele-grao"></div>
+    </div>
+
+    <div class="hdr lp1-hdr">
+      <div class="logo">
+        <img src="/lp/vos-logo-mono-white.png" alt="VOS" width="901" height="277">
+      </div>
+    </div>
+
+    <section class="lp1-bloco">
+      <div class="lp1-txt">
+        <div class="eb reveal"><u>para empresas que vivem de WhatsApp<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d={TRACO}/></svg></u></div>
+        <h1 class="reveal d1">A maioria das ferramentas para na conversa.<br><em>O VOS continua.</em></h1>
+        <p class="lp1-sub reveal d2">O cliente chama no WhatsApp e o VOS responde, monta o orçamento, fecha a venda, cobra e emite a nota. Tudo no mesmo sistema.</p>
+      </div>
+
+      <!-- O vídeo. Toca sozinho e MUDO assim que a página abre (é o que o
+           navegador deixa), com a legenda desenhada pela página; um toque liga
+           o som e recomeça do zero, com os controles nativos. No fim, o convite
+           de agendar aparece em cima dele. Quem pede menos movimento (ou está
+           economizando dados) vê a capa parada e aperta o play. -->
+      <div class="lp1-video reveal d2">
+        <div class="vsl" id="vsl">
+          <video id="vslVid" playsinline muted preload="metadata" poster="/lp1/vsl-poster.webp"
+                 controlslist="nodownload noplaybackrate" disablepictureinpicture
+                 aria-label="Vídeo: o VOS em 1 minuto e 41 segundos">
+            <source src="/lp1/vsl-1080.mp4" type="video/mp4" media="(min-width: 960px)">
+            <source src="/lp1/vsl-720.mp4" type="video/mp4">
+            <track kind="captions" src="/lp1/vsl.vtt" srclang="pt-BR" label="Português">
+          </video>
+
+          <p class="vsl-leg" id="vslLeg" aria-hidden="true"></p>
+
+          <button type="button" class="vsl-capa" id="vslCapa" aria-label="Assistir ao vídeo com som">
+            <span class="vsl-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12 8 5.2Z"/></svg></span>
+            <span class="vsl-dur">Assista · <b id="vslDur">1:41</b></span>
+          </button>
+
+          <button type="button" class="vsl-som" id="vslSom">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
+            Assistir com som
+          </button>
+
+          <div class="vsl-fim" id="vslFim" hidden>
+            <p class="vsl-fim-t">Gostou do que viu?</p>
+            <a href="#agendar" class="cta cta--white" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></i></a>
+            <button type="button" class="vsl-denovo" id="vslDeNovo">Assistir de novo</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="lp1-acao reveal d3">
+        <a href="#agendar" class="cta cta--white cta--lg" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></i></a>
+        <p class="lp1-atrito">Demonstração de 30 minutos · ao vivo · sem cartão</p>
+        <div class="proof lp1-prova">
+          <div class="pf">
+            <svg class="pf-meta" viewBox="0 0 36 20" fill="none" stroke="currentColor"
+                 stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 10c2.6-4.6 4.9-6.6 7.6-6.6 3.4 0 5.9 3 5.9 6.6s-2.5 6.6-5.9 6.6c-2.7 0-5-2-7.6-6.6-2.6-4.6-4.9-6.6-7.6-6.6C7 3.4 4.5 6.4 4.5 10s2.5 6.6 5.9 6.6c2.7 0 5-2 7.6-6.6Z"/>
+            </svg>
+            <span class="pf-txt"><b>Meta</b> Business Partner</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- identificação legal + política de privacidade: exigência de página de
+         anúncio com captura de dados, mesmo numa dobra só -->
+    <footer class="lp1-pe">
+      <span>© 2026 VOS · Vertex Growth Gestão Empresarial LTDA · CNPJ 67.779.810/0001-69</span>
+      <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>
+    </footer>
+  </main>
+</div>
+
+<script is:inline>
+  /* ── Entrada (a mesma da /lp: sobe e aparece; a manuscrita se escreve) ── */
+  (function(){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  })();
+
+  /* ── O vídeo ───────────────────────────────────────────────────────────
+     Estado na caixa (.vsl): `tocando` (a capa sai), `audio` (com som, com
+     controles) e `fim` (o convite por cima). A legenda é da página: a trilha
+     fica em "hidden" e cada fala entra no <p> enquanto o vídeo está mudo. */
+  (function(){
+    var box=document.getElementById('vsl'), v=document.getElementById('vslVid'),
+        capa=document.getElementById('vslCapa'), som=document.getElementById('vslSom'),
+        leg=document.getElementById('vslLeg'), fim=document.getElementById('vslFim'),
+        deNovo=document.getElementById('vslDeNovo'), dur=document.getElementById('vslDur');
+    if(!box||!v) return;
+    var comSom=false;
+
+    function evento(nome){
+      window.dataLayer=window.dataLayer||[];
+      window.dataLayer.push({event:nome});
+    }
+
+    v.addEventListener('loadedmetadata',function(){
+      if(!isFinite(v.duration)||!dur) return;
+      var s=Math.round(v.duration);
+      dur.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+    });
+
+    var trilha=v.textTracks&&v.textTracks[0];
+    if(trilha){
+      trilha.mode='hidden';
+      trilha.addEventListener('cuechange',function(){
+        var c=trilha.activeCues&&trilha.activeCues[0];
+        leg.textContent=c?c.text:'';
+        leg.classList.toggle('on',!!c&&!comSom);
+      });
+    }
+
+    function mudo(){
+      v.muted=true; v.loop=true;
+      var p=v.play();
+      if(p&&p.then) p.then(function(){ box.classList.add('tocando'); }).catch(function(){});
+    }
+    function ligaSom(){
+      if(!comSom) evento('vsl_som');
+      comSom=true;
+      fim.hidden=true; box.classList.remove('fim');
+      v.loop=false; v.muted=false; v.currentTime=0; v.controls=true;
+      box.classList.add('tocando','audio');
+      leg.classList.remove('on');
+      var p=v.play(); if(p&&p.catch) p.catch(function(){});
+    }
+    capa.addEventListener('click',ligaSom);
+    som.addEventListener('click',ligaSom);
+    // tocar no vídeo enquanto ele roda mudo também liga o som
+    v.addEventListener('click',function(e){ if(!comSom){ e.preventDefault(); ligaSom(); } });
+    deNovo.addEventListener('click',ligaSom);
+
+    v.addEventListener('ended',function(){
+      if(!comSom) return;
+      evento('vsl_fim');
+      v.controls=false;
+      box.classList.add('fim');
+      fim.hidden=false;
+    });
+
+    var reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var economia=!!(navigator.connection&&navigator.connection.saveData);
+    if(!reduz&&!economia) mudo();
+  })();
+</script>
+
+<LeadWizardModal client:load />
+
+<script is:inline>
+  /* CTA -> modal de lead (mesmo contrato da home e da /lp). __vosLeadPending
+     cobre o clique que chega ANTES da ilha hidratar: a modal consome a flag
+     no mount e abre sozinha. */
+  document.addEventListener("click", function (e) {
+    var el = e.target instanceof Element ? e.target.closest("[data-action='lead']") : null;
+    if (!el) return;
+    e.preventDefault();
+    window.__vosLeadPending = true;
+    window.dispatchEvent(new CustomEvent("vos:open-lead"));
+  });
+</script>
+
+<FirstTouch />
+</body>
+</html>
