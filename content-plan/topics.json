@@ -222,7 +222,9 @@
       "keyword": "agente de ia para empresas",
       "title_hint": "Agentes de IA que executam tarefas: o próximo passo depois do chatbot",
       "category": "ia",
-      "used": false
+      "used": true,
+      "publishedSlug": "ia-agente-executa",
+      "publishedAt": "2026-09-20"
     },
     {
       "id": "pdv-loja-fisica",
