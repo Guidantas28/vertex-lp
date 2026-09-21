@@ -54,7 +54,10 @@ export default function CalEmbed({
           light: { "cal-brand": "#ED4B00" },
           dark: { "cal-brand": "#ED4B00" },
         },
-        hideEventTypeDetails: false,
+        // A descrição do evento fica fora do embed (21/09/2026): no celular ela
+        // abria primeiro, rolável, e o calendário ficava escondido embaixo — o
+        // lead não achava os horários. A LP já explica a call antes do passo 3.
+        hideEventTypeDetails: true,
         layout: "month_view",
       });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronRight, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SEGMENTS } from "../../data/content";
 import CalEmbed from "./CalEmbed";
@@ -30,6 +30,15 @@ import { GetStartedButton } from "../ui/get-started-button";
  *    real de 05/08), e o `min` por país sumiu da validação;
  *  · o input caiu para 13,5px: abaixo de 16px o iOS Safari dá auto-zoom, que era
  *    exatamente o bug de celular consertado antes.
+ *
+ * 21/09/2026 — o "Já agendei" do passo 3 SAIU. Ele levava ao "Reunião confirmada"
+ * (confete + tag `vos-agendado`) sem reserva nenhuma no Cal: caso real do dia, lead
+ * pago que clicou 18 s depois do cadastro, disse "marquei 11h" no WhatsApp e não
+ * tinha reunião em lugar nenhum. Só a confirmação real do Cal (`bookingSuccessful`)
+ * avança agora. Junto: a descrição do evento saiu do embed (`hideEventTypeDetails`)
+ * e a caixa cresceu — no celular ela abria numa descrição rolável e o calendário
+ * ficava escondido; e `/api/agendou` passou a ser 1 chamada por e-mail (o embed
+ * dispara `bookingSuccessfulV2` e `bookingSuccessful` para a mesma reserva).
  */
 
 type Step = 1 | 2 | 3 | 4;
@@ -223,6 +232,8 @@ export default function LeadWizardModal() {
   // evento `lead`; trocar o e-mail conta como lead novo e libera os dois.
   const sentEmailRef = useRef<string | null>(null);
   const eventEmailRef = useRef<string | null>(null);
+  // Uma chamada de `/api/agendou` por e-mail (4 POSTs medidos numa reserva só, 21/09).
+  const agendouEmailRef = useRef<string | null>(null);
   const [leadApiFailed, setLeadApiFailed] = useState(false);
 
   // Verificação real de WhatsApp (uazapi via /api/whatsapp-check). Regra de
@@ -594,12 +605,13 @@ export default function LeadWizardModal() {
    * Marca `vos-agendado` (contato + lead) e avança pra confirmação. É UM callback
    * estável de propósito: como arrow inline ele entrava nas deps do effect do
    * CalEmbed e re-registrava o listener a cada render — risco de `/api/agendou`
-   * duplicado. Usado pelo booking do Cal E pelo "Já agendei" (que antes pulava a
-   * tag e jogava quem agendou na cadência de quem NÃO agendou).
+   * duplicado. Só o booking confirmado pelo Cal chama isto: não existe mais
+   * atalho humano para o passo 4 (o "Já agendei" confirmava reunião inexistente).
    */
   const marcarAgendadoEConfirmar = useCallback(() => {
     const email = normEmail(form.email);
-    if (email) {
+    if (email && agendouEmailRef.current !== email) {
+      agendouEmailRef.current = email;
       fetch("/api/agendou", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -958,23 +970,17 @@ export default function LeadWizardModal() {
                     ...(leadApiFailed ? { lead_api_failed: "1" } : {}),
                   }}
                   onBookingSuccess={marcarAgendadoEConfirmar}
-                  className="h-[min(480px,56dvh)] w-full overflow-hidden rounded-xl border border-black/[0.06] bg-[#FAFAFA]"
+                  className="h-[min(600px,62dvh)] w-full overflow-hidden rounded-xl border border-black/[0.06] bg-[#FAFAFA]"
                 />
-                <div className="mt-2.5 flex items-center justify-between gap-3 px-1 sm:px-2">
+                {/* Sem atalho para o passo 4: quem chega ao "Reunião confirmada" é
+                    o `bookingSuccessful` do Cal, com reserva de verdade. */}
+                <div className="mt-2.5 flex items-center justify-start gap-3 px-1 sm:px-2">
                   <button
                     type="button"
                     onClick={() => setStep(2)}
                     className="text-[12px] font-semibold text-[#4A4A4A] underline-offset-2 hover:text-[#171717] hover:underline"
                   >
                     Voltar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={marcarAgendadoEConfirmar}
-                    className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-[#ED4B00] hover:underline"
-                  >
-                    Já agendei
-                    <ChevronRight size={13} strokeWidth={2.4} />
                   </button>
                 </div>
               </motion.div>
