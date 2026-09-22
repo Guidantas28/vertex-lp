@@ -72,6 +72,19 @@ export default function CalEmbed({
           callback: () => onBookingSuccess(),
         });
       }
+      // Em `astro dev`: todo evento do embed no console (é o que o Cal Listener
+      // do GTM ouve em produção). A reserva aqui é de teste, e o Cal a confirma
+      // com `dryRunBookingSuccessfulV2` — nome que os tipos do pacote não
+      // conhecem, por isso é lido pelo "*".
+      if (import.meta.env.DEV) {
+        cal("on", {
+          action: "*",
+          callback: (e) => {
+            console.info("[cal][local]", e.detail?.type, e.detail?.data);
+            if (e.detail?.type === "dryRunBookingSuccessfulV2") onBookingSuccess?.();
+          },
+        });
+      }
     })().catch(() => {
       /* embed indisponível */
     });
@@ -98,6 +111,11 @@ export default function CalEmbed({
       if (v) config[`metadata[${k}]`] = String(v).slice(0, 500);
     }
   }
+  // O Cal é o de PRODUÇÃO: reserva real vira reunião no Calendar, negócio no
+  // CRM, WhatsApp para o lead e Schedule na Meta. Em `astro dev` a reserva é
+  // de teste (dry run do próprio Cal: nada é gravado, nada é avisado) e a
+  // página mostra a faixa de teste. No build isto é código morto.
+  if (import.meta.env.DEV) config["cal.isBookingDryRun"] = "true";
 
   return (
     <div className={className ?? "h-[480px] w-full overflow-hidden rounded-xl"}>

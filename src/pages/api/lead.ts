@@ -221,6 +221,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 // Fire-and-forget de verdade: falha aqui morre em silêncio (o alarme nunca
 // pode piorar o problema que ele denuncia).
 async function avisaCanoQuebrado(motivo: string, nome: string, email: string, telefone: string) {
+  // Em `astro dev` o alarme não sai: viraria linha na planilha de auditoria.
+  if (import.meta.env.DEV) return;
   try {
     const token = process.env.VHQ_TOKEN ?? import.meta.env.VHQ_TOKEN;
     if (!token) return;

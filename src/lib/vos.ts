@@ -17,6 +17,12 @@ const BASE_PADRAO = "https://api.osvertex.com";
 type Resp<T> = { ok: boolean; status: number; data: T | null; erro?: string };
 
 async function chamar<T>(caminho: string, init?: RequestInit): Promise<Resp<T>> {
+  // `astro dev` nunca escreve no CRM de produção, nem com token no ambiente: o
+  // teste local da jornada não pode virar contato, lead nem disparar fluxo.
+  if (import.meta.env.DEV) {
+    console.info("[vos][local] CRM desligado em dev — não chamado:", init?.method ?? "GET", caminho);
+    return { ok: false, status: 0, data: null, erro: "CRM desligado em dev" };
+  }
   // process.env primeiro: import.meta.env congela no BUILD, e build de cache
   // serviu token ausente mesmo com a env restaurada (incidente de 24/08).
   const token = process.env.VOS_API_TOKEN ?? import.meta.env.VOS_API_TOKEN;
