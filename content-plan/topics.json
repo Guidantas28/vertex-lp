@@ -231,7 +231,9 @@
       "keyword": "pdv para loja",
       "title_hint": "PDV moderno: o que o caixa da sua loja precisa ter em 2026",
       "category": "gestao",
-      "used": false
+      "used": true,
+      "publishedSlug": "pdv-loja-fisica",
+      "publishedAt": "2026-09-22"
     },
     {
       "id": "vendas-recorrentes-assinatura",
