@@ -9,6 +9,7 @@ import {
   leadAbertoDoContato,
   tagDesafio,
 } from "../../lib/vos";
+import { foraDoIcp } from "../../lib/icp";
 
 // Serverless (Vercel). Recebe o formulário da landing e cria um **Lead** no vos.
 //
@@ -76,16 +77,6 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   if (name.length < 2) return json({ ok: false, message: "Informe seu nome" }, 422);
   if (!EMAIL_RE.test(email)) return json({ ok: false, message: "E-mail inválido" }, 422);
 
-  if (!(process.env.VOS_API_TOKEN ?? import.meta.env.VOS_API_TOKEN)) {
-    // Sem token não dá pra persistir. Não trava o funil: a pessoa segue pro
-    // agendamento, e o Cal cria o registro no vos de qualquer forma.
-    console.error("[lead] VOS_API_TOKEN ausente; lead não persistido", { email });
-    // Incidente de 24/08: falha silenciosa deixou 2 leads pagos invisíveis.
-    // O alarme vira linha `crm_erro_lead` na planilha de auditoria em segundos.
-    await avisaCanoQuebrado("TOKEN-AUSENTE", name, email, phone);
-    return json({ ok: true, persisted: false });
-  }
-
   // Tudo que descreve a origem vira customFields do Lead. Os click-ids são o
   // que costura este preenchimento com o evento de agendamento no Meta.
   const customFields: Record<string, string> = {
@@ -146,6 +137,27 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       ? "ads"
       : "organic";
 
+  // A tag desafio-* roteia a variante do primeiro toque (M0) no fluxo de
+  // automação do vos — o builder só condiciona em lead.tags.
+  const tags = ["landing", tagDesafio((rawUtm as Record<string, unknown>)?.desafio)];
+  // Fora do ICP (faturamento abaixo de R$ 10 mil, 22/09): o lead entra, marcado.
+  // `aguardando-humano` é a tag que o fluxo "Boas-vindas · cadastrou e não
+  // agendou" já pula — sem ela, 15 min depois ele recebia "você não agendou a
+  // demonstração" de uma demonstração que a LP não ofereceu. E o põe na fila do SDR.
+  if (foraDoIcp((rawUtm as Record<string, unknown>)?.faturamento)) tags.push("fora-icp", "aguardando-humano");
+
+  if (!(process.env.VOS_API_TOKEN ?? import.meta.env.VOS_API_TOKEN)) {
+    // Sem token não dá pra persistir. Não trava o funil: a pessoa segue pro
+    // agendamento, e o Cal cria o registro no vos de qualquer forma.
+    console.error("[lead] VOS_API_TOKEN ausente; lead não persistido", { email });
+    // No teste local é assim que se vê o que iria para o CRM, sem gravar nada.
+    if (import.meta.env.DEV) console.info("[lead][local] seria gravado no CRM:", { origem, tags, customFields });
+    // Incidente de 24/08: falha silenciosa deixou 2 leads pagos invisíveis.
+    // O alarme vira linha `crm_erro_lead` na planilha de auditoria em segundos.
+    await avisaCanoQuebrado("TOKEN-AUSENTE", name, email, phone);
+    return json({ ok: true, persisted: false });
+  }
+
   try {
     // E-mail primeiro; TELEFONE como segunda chave. A mesma pessoa preenche o
     // form do Meta com um e-mail e a landing com outro — sem a segunda chave
@@ -181,9 +193,6 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 
     // Quem já veio pelo formulário do Meta tem Lead aberto. Preencher a landing
     // não faz dele outra pessoa: soma o tracking no lead que existe.
-    // A tag desafio-* roteia a variante do primeiro toque (M0) no fluxo de
-    // automação do vos — o builder só condiciona em lead.tags.
-    const tags = ["landing", tagDesafio((rawUtm as Record<string, unknown>)?.desafio)];
 
     // A busca de lead cobre o e-mail do CONTATO — que pode não ser o que a
     // pessoa digitou agora (contato achado pelo telefone). Buscar pelo e-mail
