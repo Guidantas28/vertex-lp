@@ -240,7 +240,9 @@
       "keyword": "receita recorrente assinatura",
       "title_hint": "Receita recorrente: como transformar serviços em assinatura",
       "category": "financeiro",
-      "used": false
+      "used": true,
+      "publishedSlug": "vendas-recorrentes-assinatura",
+      "publishedAt": "2026-09-23"
     },
     {
       "id": "script-vendas-whatsapp",
