@@ -169,6 +169,12 @@ async function registraBloqueio(ctx: {
   email: string;
   data: any;
 }) {
+  // Em `astro dev` o bloqueio não vira linha na aba `bloqueados`: o teste local
+  // da jornada não pode escrever na planilha de produção. O console mostra.
+  if (import.meta.env.DEV) {
+    console.info("[lead-guard][local] seria registrado:", { motivo: ctx.motivo, strike: ctx.strike, banido: ctx.banido });
+    return;
+  }
   try {
     const token = process.env.VHQ_TOKEN ?? import.meta.env.VHQ_TOKEN;
     if (!token) return;
