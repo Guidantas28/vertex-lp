@@ -1,12 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, ChevronRight, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { SEGMENTS } from "../../data/content";
 import CalEmbed from "./CalEmbed";
 import ConfettiBurst from "./ConfettiBurst";
-import { GetStartedButton } from "../ui/get-started-button";
 
 /**
  * Modal de lead da LP e da home — RESTAURADO POR INTEIRO em 17/09/2026.
@@ -202,6 +201,47 @@ function pareceLixo(v: string) {
   return c.length > 0 && /^[\d\s.\-/]+$/.test(c);
 }
 
+/**
+ * Cor do botão principal = a do botão da página que abriu o modal (decisão do
+ * Orlando, 22/09): laranja na /lp, tinta nas páginas `zx` (/lp1, /lp2, site).
+ * O laranja é o #ED4B00 um tom abaixo: branco sobre #ED4B00 dá 3,75:1, e texto
+ * de 16px pede 4,5:1 (WCAG AA); #D24300 dá 4,62:1.
+ */
+type Tema = "laranja" | "tinta";
+const COR_PRIMARIA: Record<Tema, string> = {
+  laranja: "bg-[#D24300] hover:bg-[#B83B00] active:bg-[#A33400]",
+  tinta: "bg-[#171717] hover:bg-black active:bg-black",
+};
+
+/**
+ * Botão principal do modal. Não é o GetStartedButton de propósito: aquele pinta
+ * o fundo com `var(--zx-ink)`, que só existe dentro do `.zx` da página, e o
+ * modal é montado fora dele — de 15 a 22/09 o "Continuar" saiu sem fundo nas
+ * três LPs. E o efeito de hover dele esconde o rótulo, o que num formulário
+ * tira do lead a certeza do que ele está clicando.
+ */
+function BotaoPrimario({
+  tema,
+  className = "",
+  children,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { tema: Tema }) {
+  return (
+    <button
+      {...props}
+      className={[
+        "inline-flex min-h-[48px] items-center justify-center gap-1.5 rounded-[10px] px-5 text-[16px] font-semibold leading-5 text-white",
+        "transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[#ED4B00]/35 focus-visible:ring-offset-2",
+        "disabled:cursor-wait disabled:opacity-75",
+        COR_PRIMARIA[tema],
+        className,
+      ].join(" ")}
+    >
+      {children}
+    </button>
+  );
+}
+
 const emptyForm = (): FormData => ({
   name: "",
   email: "",
@@ -214,7 +254,7 @@ const emptyForm = (): FormData => ({
   instagram: "",
 });
 
-export default function LeadWizardModal() {
+export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>(1);
   const [submitting, setSubmitting] = useState(false);
@@ -818,13 +858,18 @@ export default function LeadWizardModal() {
                   </p>
                 )}
 
-                <div className="pt-0.5">
-                  <GetStartedButton
+                {/* Preso no pé da área que rola: em tela baixa ou com o teclado
+                    aberto, o próximo passo continua à vista. */}
+                <div className="sticky bottom-0 -mx-4 bg-white px-4 pb-1 pt-2 sm:-mx-5 sm:px-5">
+                  <BotaoPrimario
+                    tema={tema}
                     type="submit"
+                    className="w-full"
                     disabled={submitting || phoneCheck === "checking"}
-                    label={phoneCheck === "checking" ? "Conferindo…" : "Continuar"}
-                    className="!w-full !justify-center !py-[11px] !pl-4 !pr-3 !text-[14px] !leading-5"
-                  />
+                  >
+                    {phoneCheck === "checking" ? "Conferindo…" : "Continuar"}
+                    <ChevronRight size={18} strokeWidth={2.2} aria-hidden="true" />
+                  </BotaoPrimario>
                 </div>
                 <p className="text-center text-[11px] leading-snug text-[#6B6B6B]">
                   Sem spam. Usamos seus dados só pra marcar a conversa.
@@ -924,7 +969,7 @@ export default function LeadWizardModal() {
                   </p>
                 )}
 
-                <div className="flex items-center gap-2 pt-0.5">
+                <div className="sticky bottom-0 -mx-4 flex items-center gap-2 bg-white px-4 pb-1 pt-2 sm:-mx-5 sm:px-5">
                   <button
                     type="button"
                     onClick={() => setStep(1)}
@@ -932,12 +977,10 @@ export default function LeadWizardModal() {
                   >
                     Voltar
                   </button>
-                  <GetStartedButton
-                    type="submit"
-                    disabled={submitting}
-                    label={submitting ? "Salvando…" : "Agendar agora"}
-                    className="!w-full !justify-center !py-[11px] !pl-4 !pr-3 !text-[14px] !leading-5"
-                  />
+                  <BotaoPrimario tema={tema} type="submit" className="flex-1" disabled={submitting}>
+                    {submitting ? "Salvando…" : "Agendar agora"}
+                    <ChevronRight size={18} strokeWidth={2.2} aria-hidden="true" />
+                  </BotaoPrimario>
                 </div>
               </motion.form>
             )}
@@ -1038,12 +1081,9 @@ export default function LeadWizardModal() {
                   </div>
 
                   <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-                    <GetStartedButton
-                      label="Fechar"
-                      variant="dark"
-                      className="!min-w-[140px] !justify-center !py-[11px] !pl-4 !pr-3 !text-[14px] !leading-5"
-                      onClick={close}
-                    />
+                    <BotaoPrimario tema={tema} type="button" className="min-w-[160px]" onClick={close}>
+                      Fechar
+                    </BotaoPrimario>
                   </div>
                 </div>
               </motion.div>
