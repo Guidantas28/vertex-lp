@@ -1,9 +1,11 @@
 // Verifica se um número EXISTE no WhatsApp antes do lead avançar no wizard.
 // Fonte: uazapi `POST /chat/check` (spec OpenAPI 2.1.1, auth = header `token`
-// da instância). Decisões de 24/08 (Orlando): negativo CONFIRMADO bloqueia o
-// avanço; QUALQUER falha nossa (env ausente, timeout, 401/500, instância
-// desconectada) responde "unknown" e o funil segue — nunca perdemos lead por
-// problema de infra (fail-open).
+// da instância). Negativo CONFIRMADO bloqueia o avanço; QUALQUER falha nossa
+// (env ausente, timeout, 401/500, instância desconectada) responde "unknown".
+// O que o wizard faz com o "unknown" mudou em 22/09 (decisão D1 do Orlando,
+// "número sempre validado"): uma 2ª tentativa e, sem resposta, o lead para no
+// passo 1. Até 22/09 era fail-open (decisão de 24/08). Risco que ficou: uazapi
+// fora do ar = formulário parado — vigiar a taxa de "unknown".
 //
 // Proteções: rate-limit por IP e cache por número em memória — servem para o
 // caso normal (função serverless quente); cada cold start zera, o que é

@@ -120,6 +120,19 @@ export function novoLeadEventId(): string {
 // Três etapas no cabeçalho (22/09): com a 4ª ("Confirmado", que é só o fim) os
 // rótulos cortavam no celular ("Seus d…", "Confir…") e o formulário parecia mais
 // longo. No passo 4 as três ficam com o visto verde.
+/**
+ * Eventos de etapa do funil do modal (D7, 22/09): mostram onde o lead desiste,
+ * o que até então era invisível (só existiam `lead` e a reserva do Cal). Sem dado
+ * pessoal. Nenhum acionador do GTM escuta estes nomes hoje — o de Lead casa só
+ * com o nome exato `lead`; levá-los ao GA4 é etapa à parte, no container.
+ */
+function empurraEtapa(evento: "modal_aberto" | "passo_1_ok" | "passo_2_ok", extra: Record<string, unknown> = {}) {
+  if (typeof window === "undefined") return;
+  const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+  w.dataLayer = w.dataLayer || [];
+  w.dataLayer.push({ event: evento, pagina: window.location.pathname, ...extra });
+}
+
 const STEPS = [
   { n: 1 as const, label: "Seus dados" },
   { n: 2 as const, label: "Empresa" }, // "Sua empresa" cortava a 375px (iPhone SE)
@@ -287,9 +300,10 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
   const agendouEmailRef = useRef<string | null>(null);
   const [leadApiFailed, setLeadApiFailed] = useState(false);
 
-  // Verificação real de WhatsApp (uazapi via /api/whatsapp-check). Regra de
-  // 24/08 (Orlando): "no" CONFIRMADO bloqueia o avanço; qualquer falha nossa
-  // vira "unknown" e passa — nunca se perde lead por infra (fail-open).
+  // Verificação real de WhatsApp (uazapi via /api/whatsapp-check). "no"
+  // CONFIRMADO bloqueia o avanço. Falha nossa ("unknown") passava direto desde
+  // 24/08; desde 22/09 (decisão D1 do Orlando: "número sempre validado") ganha
+  // uma 2ª tentativa e, se continuar sem resposta, também para no passo 1.
   const [phoneCheck, setPhoneCheck] = useState<"idle" | "checking" | "yes" | "no" | "unknown">("idle");
   const phoneCheckRef = useRef<{ num: string; v: "yes" | "no" | "unknown" } | null>(null);
   // Cartão "É este seu perfil?" do Instagram (business_discovery). Só perfis
@@ -344,6 +358,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
     const onOpen = () => {
       reset();
       setOpen(true);
+      empurraEtapa("modal_aberto");
     };
     window.addEventListener("vos:open-lead", onOpen);
     return () => window.removeEventListener("vos:open-lead", onOpen);
@@ -398,7 +413,8 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
       window.clearTimeout(timer);
       const d = await res.json().catch(() => null);
       const v: "yes" | "no" | "unknown" = d?.status === "yes" || d?.status === "no" ? d.status : "unknown";
-      phoneCheckRef.current = { num: e164, v };
+      // Só o veredito confirmado fica guardado: "unknown" tem de ser tentado de novo.
+      if (v !== "unknown") phoneCheckRef.current = { num: e164, v };
       return v;
     } catch {
       return "unknown";
@@ -538,11 +554,24 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
     if (!veredito) {
       setPhoneCheck("checking");
       veredito = await consultaWhatsApp(phoneE164);
+      if (veredito === "unknown") {
+        await new Promise((ok) => window.setTimeout(ok, 1500));
+        veredito = await consultaWhatsApp(phoneE164);
+      }
       setPhoneCheck(veredito);
     }
     if (veredito === "no") {
       failAt("phone", "Esse número não tem WhatsApp. Confere o DDD e o número?");
       return;
+    }
+    if (veredito === "unknown") {
+      // O teste local não tem o token da uazapi: lá o número segue sem conferência.
+      if (import.meta.env.DEV) {
+        console.info("[whatsapp][local] sem token da uazapi no teste local: número não conferido, segue");
+      } else {
+        failAt("phone", "Não conseguimos confirmar seu WhatsApp agora. Confira o número e tente de novo.");
+        return;
+      }
     }
     // Empresa é OBRIGATÓRIA de propósito: quem não tem empresa não é público do
     // VOS. O campo é filtro, não cadastro (decisão do Orlando, 06/08).
@@ -573,6 +602,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
       failAt(barrado.campo, "Não conseguimos validar esses dados. Confira o nome e o e-mail.");
       return;
     }
+    if (!isBotRef.current) empurraEtapa("passo_1_ok");
     setStep(2);
   }
 
@@ -730,6 +760,9 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
     // GTM — evento 'lead' no submit VALIDADO. Dispara UMA vez por e-mail.
     // NÃO disparamos dataLayer no agendamento: o GTM escuta o Cal sozinho.
     if (!isBotRef.current && eventEmailRef.current !== chave) {
+      // Antes do `lead`: o modelo do dataLayer do GTM guarda o `lead.email` do push
+      // anterior, e evento de etapa não deve nascer depois dele.
+      empurraEtapa("passo_2_ok", { icp: !foraIcp });
       if (foraIcp) pushForaIcpEvent(leadEventId);
       else pushLeadEvent(leadEventId);
       eventEmailRef.current = chave;
