@@ -7,6 +7,7 @@ import {
   criarLead,
   enriquecerLead,
   leadAbertoDoContato,
+  marcarContatoTag,
   tagDesafio,
 } from "../../lib/vos";
 import { foraDoIcp } from "../../lib/icp";
@@ -204,6 +205,17 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     // Contato antigo pode estar sem empresa. Cria uma só pro lead — sem PATCH
     // no contato, pra não esbarrar no defeito de campo omitido voltar pro default.
     if (!companyId) companyId = await criarEmpresa(nomeEmpresa);
+
+    // Fora do ICP (23/09): as mesmas duas tags também no CONTATO. O fluxo
+    // "Recepção humana · WhatsApp" dispara na 1ª mensagem e lê as tags do
+    // contato, não as do lead: sem isto, o lead que escreve antes de o fluxo
+    // "Fora do ICP" pegá-lo recebia o convite para a demonstração. Vem antes do
+    // lead para o run de "Lead criado" já nascer vendo as tags. Falha aqui não
+    // trava o cadastro.
+    if (tags.includes("fora-icp")) {
+      const okTag = await marcarContatoTag(contato.id, ["fora-icp", "aguardando-humano"]);
+      if (!okTag) console.warn("[lead] contato fora do ICP ficou sem tag", contato.id);
+    }
 
     // Quem já veio pelo formulário do Meta tem Lead aberto. Preencher a landing
     // não faz dele outra pessoa: soma o tracking no lead que existe.

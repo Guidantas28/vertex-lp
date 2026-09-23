@@ -142,12 +142,12 @@ export async function contatoPorTelefone(phone: string): Promise<Contato | null>
  *
  *  ⚠️ PATCH de contato tem o mesmo defeito dos outros: campo omitido volta pro
  *  default (`tags: []`, `customFields: {}`). Por isso lê antes e devolve junto. */
-export async function marcarContatoTag(contactId: string, tag: string): Promise<boolean> {
+export async function marcarContatoTag(contactId: string, tag: string | string[]): Promise<boolean> {
   const r0 = await chamar<{ id: string; tags?: string[]; customFields?: Record<string, unknown> }>(
     `/contacts/${contactId}`,
   );
   if (!r0.ok || !r0.data) return false;
-  const tags = new Set([...(r0.data.tags ?? []), tag]);
+  const tags = new Set([...(r0.data.tags ?? []), ...(Array.isArray(tag) ? tag : [tag])]);
   const r = await chamar(`/contacts/${contactId}`, {
     method: "PATCH",
     body: JSON.stringify({
