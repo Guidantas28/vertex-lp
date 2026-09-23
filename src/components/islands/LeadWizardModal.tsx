@@ -117,11 +117,13 @@ export function novoLeadEventId(): string {
   return `lead_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
 }
 
+// Três etapas no cabeçalho (22/09): com a 4ª ("Confirmado", que é só o fim) os
+// rótulos cortavam no celular ("Seus d…", "Confir…") e o formulário parecia mais
+// longo. No passo 4 as três ficam com o visto verde.
 const STEPS = [
   { n: 1 as const, label: "Seus dados" },
-  { n: 2 as const, label: "Sua empresa" },
+  { n: 2 as const, label: "Empresa" }, // "Sua empresa" cortava a 375px (iPhone SE)
   { n: 3 as const, label: "Agenda" },
-  { n: 4 as const, label: "Confirmado" },
 ];
 
 const REVENUE_OPTS = [
@@ -841,7 +843,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   </span>
                   <span
                     className={[
-                      "truncate text-[11px] font-semibold",
+                      "truncate text-[12px] font-semibold",
                       on || done ? "text-[#171717]" : "text-[#6B6B6B]",
                     ].join(" ")}
                   >
@@ -903,7 +905,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                 />
 
                 <label className="block">
-                  <span className="mb-1 block text-[11.5px] font-medium text-[#4A4A4A]">
+                  <span className="mb-1 block text-[13px] font-medium text-[#4A4A4A]">
                     Telefone / WhatsApp <span className="text-[#ED4B00]">*</span>
                   </span>
                   <div className="flex gap-2">
@@ -943,7 +945,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   </div>
                   <MensagemErro campo="phone" erro={erroDe("phone")} />
                   {phoneCheck === "checking" && (
-                    <span className="mt-1 block text-[11px] text-[#6B6B6B]">Conferindo no WhatsApp…</span>
+                    <span className="mt-1 block text-[12px] text-[#5C5C5C]">Conferindo no WhatsApp…</span>
                   )}
                 </label>
 
@@ -989,7 +991,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                     <ChevronRight size={18} strokeWidth={2.2} aria-hidden="true" />
                   </BotaoPrimario>
                 </div>
-                <p className="text-center text-[11px] leading-snug text-[#6B6B6B]">
+                <p className="text-center text-[12px] leading-snug text-[#5C5C5C]">
                   Sem spam. Usamos seus dados só pra marcar a conversa.
                 </p>
               </motion.form>
@@ -1047,7 +1049,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                 />
 
                 <label className="block">
-                  <span className="mb-1 block text-[11.5px] font-medium text-[#4A4A4A]">
+                  <span className="mb-1 block text-[13px] font-medium text-[#4A4A4A]">
                     Instagram da empresa <span className="text-[#ED4B00]">*</span>
                   </span>
                   <div className="flex items-center gap-2">
@@ -1068,7 +1070,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   </div>
                   <MensagemErro campo="instagram" erro={erroDe("instagram")} />
                   {igChecking && (
-                    <span className="mt-1 block text-[11px] text-[#6B6B6B]">Procurando o perfil…</span>
+                    <span className="mt-1 block text-[12px] text-[#5C5C5C]">Procurando o perfil…</span>
                   )}
                   {igCard?.status === "found" && (
                     <span className="mt-2 flex items-center gap-2 rounded-[10px] border border-black/[0.06] bg-[#FAFAFA] px-2.5 py-2">
@@ -1079,7 +1081,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                         <span className="block truncate text-[12.5px] font-semibold text-[#171717]">
                           @{igCard.username}
                         </span>
-                        <span className="block truncate text-[11px] text-[#6B6B6B]">
+                        <span className="block truncate text-[12px] text-[#5C5C5C]">
                           {igCard.name}
                           {igCard.followers != null ? ` · ${igCard.followers.toLocaleString("pt-BR")} seguidores` : ""}
                         </span>
@@ -1119,7 +1121,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                 transition={{ duration: 0.22 }}
                 className="px-3 py-3 sm:px-4"
               >
-                <p className="mb-2.5 px-1 text-[12.5px] leading-[18px] text-[#4A4A4A] sm:px-2">
+                <p className="mb-2.5 px-1 text-[14px] leading-[20px] text-[#4A4A4A] sm:px-2">
                   Olá, <strong className="font-semibold text-[#171717]">{form.name.split(" ")[0]}</strong>,
                   escolha o melhor horário pra gente te mostrar o VOS.
                 </p>
@@ -1294,7 +1296,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[11.5px] font-medium text-[#4A4A4A]">
+      <span className="mb-1 block text-[13px] font-medium text-[#4A4A4A]">
         {label}
         {required ? <span className="text-[#ED4B00]"> *</span> : null}
       </span>
@@ -1350,7 +1352,7 @@ function SelectField({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[11.5px] font-medium text-[#4A4A4A]">
+      <span className="mb-1 block text-[13px] font-medium text-[#4A4A4A]">
         {label}
         {required ? <span className="text-[#ED4B00]"> *</span> : null}
       </span>
