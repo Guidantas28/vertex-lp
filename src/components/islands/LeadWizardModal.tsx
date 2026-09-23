@@ -163,11 +163,13 @@ const COUNTRIES = [
 
 type Country = (typeof COUNTRIES)[number];
 
+// Borda #919191 = 3,15:1 contra o painel branco (WCAG 1.4.11 pede 3:1; a antiga,
+// preto a 10%, dava 1,25:1 e o campo sumia ao sol). Placeholder #767676 = 4,5:1.
 // 16px é o piso: o iOS Safari dá auto-zoom em qualquer campo focado com fonte
 // menor que isso — era o zoom que quebrava o modal no celular. O redesign
 // baixou para 13,5px e trouxe o bug de volta.
 const inputCls =
-  "w-full rounded-[10px] border border-black/10 bg-[#FAFAFA] px-3 py-2.5 text-[16px] text-[#171717] outline-none transition placeholder:text-[#8A8A8A] focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12";
+  "w-full rounded-[10px] border border-[#919191] bg-[#FAFAFA] px-3 py-2.5 text-[16px] text-[#171717] outline-none transition placeholder:text-[#767676] focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12 aria-[invalid=true]:border-[#C2261A] aria-[invalid=true]:bg-white";
 
 function formatPhone(raw: string, country: string) {
   const c = COUNTRIES.find((x) => x.code === country) ?? COUNTRIES[0];
@@ -262,6 +264,10 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
   const [step, setStep] = useState<Step>(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Campo culpado pelo erro e o valor dele no momento do erro: a mensagem aparece
+  // embaixo DESSE campo e some assim que a pessoa mexe nele.
+  const [errorField, setErrorField] = useState<string | null>(null);
+  const erroValorRef = useRef("");
   const [form, setForm] = useState<FormData>(emptyForm);
   const firstRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -318,6 +324,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
     setStep(1);
     setSubmitting(false);
     setError(null);
+    setErrorField(null);
     setForm(emptyForm());
     isBotRef.current = false;
     setLeadApiFailed(false);
@@ -357,12 +364,20 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
   /** Erro + foco no campo culpado: mensagem sem destino é mensagem perdida. */
   function failAt(field: string, msg: string) {
     setError(msg);
+    setErrorField(field);
+    erroValorRef.current = String((form as Record<string, string>)[field] ?? "");
     setSubmitting(false);
     window.setTimeout(() => {
       const el = panelRef.current?.querySelector<HTMLElement>(`[data-field="${field}"]`);
       el?.focus();
     }, 0);
   }
+
+  /** A mensagem de erro deste campo, enquanto a pessoa não mexeu nele. */
+  const erroDe = (campo: string) =>
+    errorField === campo && String((form as Record<string, string>)[campo] ?? "") === erroValorRef.current
+      ? error
+      : null;
 
   /** Pergunta ao servidor se o número existe no WhatsApp. Memoizado por
    *  número (mudou o número, consulta de novo). Qualquer falha = "unknown". */
@@ -499,6 +514,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
   // Etapa 1 → 2: valida dados pessoais + empresa.
   async function goToCompanyStep() {
     setError(null);
+    setErrorField(null);
     // Honeypot preenchido = bot. Deixa "passar" (sem denunciar o campo), mas
     // marca pra não enviar nada ao CRM nem disparar evento lá na frente.
     if (honeypotRef.current?.value) isBotRef.current = true;
@@ -561,6 +577,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
   // Etapa 2 → 3: valida qualificatórias, persiste o lead e dispara o evento.
   async function submitAndSchedule() {
     setError(null);
+    setErrorField(null);
     if (!form.segment) {
       failAt("segment", "Selecione o segmento da sua empresa.");
       return;
@@ -798,7 +815,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
             <button
               type="button"
               onClick={close}
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-black/10 text-[#6B6B6B] transition hover:border-black/20 hover:text-[#171717]"
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-black/10 text-[#6B6B6B] transition hover:border-black/20 hover:text-[#171717]"
               aria-label="Fechar"
             >
               <X size={14} strokeWidth={2.2} />
@@ -855,6 +872,9 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                 exit={{ opacity: 0, x: -16 }}
                 transition={{ duration: 0.22 }}
                 className="space-y-3 px-4 py-4 sm:px-5 sm:py-5"
+                // Sem o balão nativo do navegador (em 22/09 ele saía em inglês):
+                // toda regra tem mensagem própria embaixo do campo.
+                noValidate
                 onSubmit={(e) => {
                   e.preventDefault();
                   void goToCompanyStep();
@@ -874,6 +894,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   label="Nome"
                   required
                   field="name"
+                  erro={erroDe("name")}
                   inputRef={firstRef}
                   value={form.name}
                   onChange={(v) => setForm((f) => ({ ...f, name: v }))}
@@ -896,7 +917,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                           phone: formatPhone(f.phone, e.target.value),
                         }))
                       }
-                      className="w-[118px] shrink-0 appearance-none rounded-[10px] border border-black/10 bg-[#FAFAFA] px-2 py-2.5 text-[16px] text-[#171717] outline-none transition focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12"
+                      className="w-[118px] shrink-0 appearance-none rounded-[10px] border border-[#919191] bg-[#FAFAFA] px-2 py-2.5 text-[16px] text-[#171717] outline-none transition focus:border-[#ED4B00] focus:bg-white focus:ring-[3px] focus:ring-[#ED4B00]/12"
                     >
                       {COUNTRIES.map((c) => (
                         <option key={c.code} value={c.code}>
@@ -915,9 +936,12 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                       placeholder={form.country === "BR" ? "(11) 99999-9999" : "Número"}
                       inputMode="tel"
                       autoComplete="tel-national"
+                      aria-invalid={erroDe("phone") ? true : undefined}
+                      aria-describedby={erroDe("phone") ? "erro-phone" : undefined}
                       className={inputCls}
                     />
                   </div>
+                  <MensagemErro campo="phone" erro={erroDe("phone")} />
                   {phoneCheck === "checking" && (
                     <span className="mt-1 block text-[11px] text-[#6B6B6B]">Conferindo no WhatsApp…</span>
                   )}
@@ -927,6 +951,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   label="E-mail"
                   required
                   field="email"
+                  erro={erroDe("email")}
                   type="email"
                   value={form.email}
                   onChange={(v) => setForm((f) => ({ ...f, email: v }))}
@@ -938,14 +963,15 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   label="Empresa"
                   required
                   field="company"
+                  erro={erroDe("company")}
                   value={form.company}
                   onChange={(v) => setForm((f) => ({ ...f, company: v }))}
                   placeholder="Nome da sua empresa"
                   autoComplete="organization"
                 />
 
-                {error && (
-                  <p className="text-[12px] font-medium text-[#DC3B2B]" role="alert">
+                {error && !errorField && (
+                  <p className="text-[12.5px] font-medium text-[#C2261A]" role="alert">
                     {error}
                   </p>
                 )}
@@ -977,6 +1003,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                 exit={{ opacity: 0, x: -16 }}
                 transition={{ duration: 0.22 }}
                 className="space-y-3 px-4 py-4 sm:px-5 sm:py-5"
+                noValidate
                 onSubmit={(e) => {
                   e.preventDefault();
                   void submitAndSchedule();
@@ -986,6 +1013,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   label="Segmento"
                   required
                   field="segment"
+                  erro={erroDe("segment")}
                   value={form.segment}
                   onChange={(v) => setForm((f) => ({ ...f, segment: v }))}
                   placeholder="Tipo de negócio"
@@ -1000,6 +1028,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   label="Faturamento mensal"
                   required
                   field="revenue"
+                  erro={erroDe("revenue")}
                   value={form.revenue}
                   onChange={(v) => setForm((f) => ({ ...f, revenue: v }))}
                   placeholder="Selecione a faixa"
@@ -1010,6 +1039,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   label="Principal desafio hoje"
                   required
                   field="challenge"
+                  erro={erroDe("challenge")}
                   value={form.challenge}
                   onChange={(v) => setForm((f) => ({ ...f, challenge: v }))}
                   placeholder="Selecione o desafio"
@@ -1031,9 +1061,12 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                       onBlur={() => void consultaInstagram(igNow.toLowerCase())}
                       placeholder="suaempresa"
                       autoComplete="off"
+                      aria-invalid={erroDe("instagram") ? true : undefined}
+                      aria-describedby={erroDe("instagram") ? "erro-instagram" : undefined}
                       className={inputCls}
                     />
                   </div>
+                  <MensagemErro campo="instagram" erro={erroDe("instagram")} />
                   {igChecking && (
                     <span className="mt-1 block text-[11px] text-[#6B6B6B]">Procurando o perfil…</span>
                   )}
@@ -1055,8 +1088,8 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   )}
                 </label>
 
-                {error && (
-                  <p className="text-[12px] font-medium text-[#DC3B2B]" role="alert">
+                {error && !errorField && (
+                  <p className="text-[12.5px] font-medium text-[#C2261A]" role="alert">
                     {error}
                   </p>
                 )}
@@ -1065,7 +1098,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="shrink-0 text-[12px] font-semibold text-[#4A4A4A] underline-offset-2 hover:text-[#171717] hover:underline"
+                    className="min-h-[48px] shrink-0 px-2 text-[13px] font-semibold text-[#4A4A4A] underline-offset-2 hover:text-[#171717] hover:underline"
                   >
                     Voltar
                   </button>
@@ -1114,7 +1147,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="text-[12px] font-semibold text-[#4A4A4A] underline-offset-2 hover:text-[#171717] hover:underline"
+                    className="min-h-[44px] px-2 text-[13px] font-semibold text-[#4A4A4A] underline-offset-2 hover:text-[#171717] hover:underline"
                   >
                     Voltar
                   </button>
@@ -1245,12 +1278,14 @@ function Field({
   autoComplete,
   inputRef,
   field,
+  erro,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   required?: boolean;
+  erro?: string | null;
   type?: string;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   autoComplete?: string;
@@ -1273,9 +1308,22 @@ function Field({
         placeholder={placeholder}
         inputMode={inputMode}
         autoComplete={autoComplete}
+        aria-invalid={erro ? true : undefined}
+        aria-describedby={erro ? `erro-${field}` : undefined}
         className={inputCls}
       />
+      <MensagemErro campo={field} erro={erro} />
     </label>
+  );
+}
+
+/** Erro embaixo do campo que o causou (lente de formulário: mensagem perto de onde se corrige). */
+function MensagemErro({ campo, erro }: { campo?: string; erro?: string | null }) {
+  if (!erro) return null;
+  return (
+    <span id={`erro-${campo}`} role="alert" className="mt-1 block text-[12.5px] font-medium leading-snug text-[#C2261A]">
+      {erro}
+    </span>
   );
 }
 
@@ -1288,10 +1336,12 @@ function SelectField({
   labels,
   required,
   field,
+  erro,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  erro?: string | null;
   placeholder: string;
   options: string[];
   labels?: Record<string, string>;
@@ -1309,6 +1359,8 @@ function SelectField({
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        aria-invalid={erro ? true : undefined}
+        aria-describedby={erro ? `erro-${field}` : undefined}
         className={inputCls}
       >
         <option value="" disabled>
@@ -1320,6 +1372,7 @@ function SelectField({
           </option>
         ))}
       </select>
+      <MensagemErro campo={field} erro={erro} />
     </label>
   );
 }
