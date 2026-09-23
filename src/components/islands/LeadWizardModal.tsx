@@ -687,7 +687,10 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
         className={[
           "relative z-10 flex max-h-[min(92dvh,860px)] w-full flex-col overflow-hidden rounded-[16px] bg-white transition-[max-width] duration-300",
           "shadow-[0_0_0_1px_rgba(23,23,23,0.12),0_40px_100px_-36px_rgba(8,9,10,0.6)]",
-          step === 3 ? "max-w-[680px]" : "max-w-[480px]",
+          // 900px no passo 3: o Cal só põe os horários AO LADO do calendário com
+          // o iframe a partir de 820px (medido em 22/09); abaixo disso empilha e
+          // o lead rola para achar o horário.
+          step === 3 ? "max-w-[900px]" : "max-w-[480px]",
         ].join(" ")}
         data-step={step}
       >
@@ -1013,7 +1016,8 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                     ...(leadApiFailed ? { lead_api_failed: "1" } : {}),
                   }}
                   onBookingSuccess={marcarAgendadoEConfirmar}
-                  className="h-[min(600px,62dvh)] w-full overflow-hidden rounded-xl border border-black/[0.06] bg-[#FAFAFA]"
+                  corMarca={tema === "laranja" ? "#D24300" : "#171717"}
+                  className="min-h-[420px] w-full overflow-hidden rounded-xl border border-black/[0.06] bg-[#FAFAFA]"
                 />
                 {/* Sem atalho para o passo 4: quem chega ao "Reunião confirmada" é
                     o `bookingSuccessful` do Cal, com reserva de verdade. */}

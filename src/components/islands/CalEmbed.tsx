@@ -23,6 +23,9 @@ interface Props {
   metadata?: Record<string, string>;
   onBookingSuccess?: () => void;
   className?: string;
+  /** Cor dos elementos de ação do Cal (dia escolhido, "Confirmar"): a mesma do
+   *  botão principal do modal, que segue a página. */
+  corMarca?: string;
 }
 
 /**
@@ -38,6 +41,7 @@ export default function CalEmbed({
   metadata,
   onBookingSuccess,
   className,
+  corMarca = "#ED4B00",
 }: Props) {
   useEffect(() => {
     let cancelled = false;
@@ -51,8 +55,8 @@ export default function CalEmbed({
       cal("ui", {
         theme: "light",
         cssVarsPerTheme: {
-          light: { "cal-brand": "#ED4B00" },
-          dark: { "cal-brand": "#ED4B00" },
+          light: { "cal-brand": corMarca, "cal-brand-text": "#FFFFFF" },
+          dark: { "cal-brand": corMarca, "cal-brand-text": "#FFFFFF" },
         },
         // A descrição do evento fica fora do embed (21/09/2026): no celular ela
         // abria primeiro, rolável, e o calendário ficava escondido embaixo — o
@@ -92,7 +96,7 @@ export default function CalEmbed({
     return () => {
       cancelled = true;
     };
-  }, [calOrigin, onBookingSuccess]);
+  }, [calOrigin, onBookingSuccess, corMarca]);
 
   const config: Record<string, string | string[]> = {
     theme: "light",
@@ -118,12 +122,18 @@ export default function CalEmbed({
   if (import.meta.env.DEV) config["cal.isBookingDryRun"] = "true";
 
   return (
-    <div className={className ?? "h-[480px] w-full overflow-hidden rounded-xl"}>
+    // Sem altura fixa e sem rolagem própria (22/09): o Cal ajusta a altura do
+    // iframe ao conteúdo, e quem rola é o modal. A caixa de altura fixa criava
+    // uma segunda rolagem no celular e escondia os horários abaixo do calendário.
+    <div className={className ?? "w-full overflow-hidden rounded-xl"}>
       <Cal
         namespace="demo"
         calLink={calLink}
         calOrigin={calOrigin}
-        style={{ width: "100%", height: "100%", overflow: "auto" }}
+        // Sem isto o componente baixa também o embed.js do Cal na nuvem
+        // (app.cal.com), além do nosso: dois scripts disputando o window.Cal.
+        embedJsUrl={`${calOrigin}/embed/embed.js`}
+        style={{ width: "100%" }}
         config={config}
       />
     </div>
