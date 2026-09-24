@@ -249,7 +249,9 @@
       "keyword": "script de vendas whatsapp",
       "title_hint": "Script de vendas para WhatsApp: estrutura + exemplos prontos",
       "category": "whatsapp",
-      "used": false
+      "used": true,
+      "publishedSlug": "script-vendas-whatsapp",
+      "publishedAt": "2026-09-24"
     },
     {
       "id": "centralizar-canais-atendimento",
