@@ -258,7 +258,9 @@
       "keyword": "central de atendimento omnichannel",
       "title_hint": "WhatsApp, Instagram e site em um lugar só: por que centralizar canais",
       "category": "crm",
-      "used": false
+      "used": true,
+      "publishedSlug": "centralizar-canais-atendimento",
+      "publishedAt": "2026-09-25"
     },
     {
       "id": "meta-lead-ads-crm",
