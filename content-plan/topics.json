@@ -267,7 +267,9 @@
       "keyword": "lead ads facebook crm",
       "title_hint": "Lead Ads da Meta direto no CRM: como parar de perder leads de formulário",
       "category": "marketing",
-      "used": false
+      "used": true,
+      "publishedSlug": "meta-lead-ads-crm",
+      "publishedAt": "2026-09-26"
     }
   ]
 }
