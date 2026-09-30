@@ -1,0 +1,593 @@
+/**
+ * CSS da rota /lp3 (30/09/2026): o topo da /lp1 + a cena do WhatsApp animada no
+ * DOM + o vídeo "Conheça o VOS" da /lp, tudo na pele nova.
+ *
+ * Tudo aqui tem prefixo `lp3-` e NADA é compartilhado com outra página: o chunk
+ * `lp1.*.css` (tailwind + lp-zx + lp-dobra) é o mesmo das /lp1 e /lp2 e não pode
+ * mudar (prova: md5 dos três index.html do build). Por isso este arquivo não é
+ * importado por ninguém além do lp3.astro, e o que a página reaproveita
+ * (.dobra-*, .band-*, .lp-cena, .player, .bar, .cta, .lp-pele, .lp-foot) vem
+ * intacto do lp-zx.css e do lp-dobra.css.
+ *
+ * Blocos:
+ *   1. o que era do lp1.css, prefixado (a /lp3 não importa o lp1.css);
+ *   2. a dobra 2 (papel): a grade celular/desktop da copy + palco + botão;
+ *   3. a cena: geometria em `--u` (1cqw do palco 2:3; 1 px da referência de
+ *      1080 px = 0,0926u), paleta literal do vos-tema.ts do VIDEO-FACTORY,
+ *      camadas empilhadas para acender/ticks/status/hora/legenda (cross-fade de
+ *      opacity, nunca transição de cor), a fita ancorada embaixo (estado final =
+ *      translateY(0)), as bolinhas por keyframes só de opacity;
+ *   4. o botão de pausar (WCAG 2.2.2), fora do palco;
+ *   5. a dobra 3 (Carvão): grade desktop e os chips de 44 px do vídeo;
+ *   6. prefers-reduced-motion.
+ */
+
+/* ─── 1 · O que era do lp1.css ───────────────────────────────────────────── */
+.lp3 {
+  --wide: min(1120px, calc(100% - 32px));
+  /* a linha mais larga da manchete no celular: "tudo até o caixa." em 600
+     mede 6,76em no Chrome; com folga, 6,9em (52px em 390, 50 em 375) */
+  --h1-em: 6.9;
+}
+@media (min-width: 700px) { .lp3 { --wide: min(1120px, calc(100% - 64px)); } }
+.lp3 .dobra-palco { overflow: clip; }
+.lp3-pele { inset: 0; }
+
+/* ─── 2 · Dobra 2: a cena, no papel ──────────────────────────────────────── */
+/* o botão de agendar depois da prova: coluna centrada no celular, linha no
+   tablet (o mesmo desenho do .dobra-acao), coluna à esquerda no desktop */
+.lp3-acao {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.lp3-acao .cta { width: 100%; }
+.lp3-atrito { max-width: 46ch; font-size: 13px; line-height: 1.5; color: var(--zx-ink3); text-align: center; }
+@media (min-width: 700px) {
+  .lp3-acao { flex-direction: row; justify-content: center; gap: 18px; }
+  .lp3-acao .cta { width: auto; flex: none; }
+  .lp3-atrito { text-align: left; }
+}
+/* desktop: o .lp-cena já é 1.1fr / .9fr; aqui só as linhas 1fr em cima e
+   embaixo, que centram a copy e o botão na altura do palco (o mesmo truque da
+   grade da dobra 1) */
+@media (min-width: 1000px) {
+  .lp3-cena {
+    grid-template-rows: 1fr auto auto 1fr;
+    grid-template-areas:
+      ".    cena"
+      "head cena"
+      "acao cena"
+      ".    cena";
+    row-gap: 0;
+    align-items: start;
+  }
+  .lp3-cena-head { grid-area: head; }
+  .lp3-cena-box { grid-area: cena; align-self: center; }
+  .lp3-acao { grid-area: acao; margin-top: clamp(22px, 3vh, 32px); flex-direction: column; align-items: flex-start; }
+}
+
+/* ─── 3 · A cena ─────────────────────────────────────────────────────────── */
+/* o palco é o .cena do lp-zx.css (2:3, raio 24, overflow escondido, sombra);
+   aqui ele vira a caixa de referência das unidades: --u = 1% da largura dele.
+   Sem container queries (iOS < 16), a largura máxima do palco (440px) ou a
+   tela menos as margens, o que for menor. */
+.lp3-palco { container-type: inline-size; background: #000; }
+.lp3-quadro {
+  --u: calc(min(440px, 100vw - 32px) / 100);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--zx-body);
+  color: #ededed;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+@supports (container-type: inline-size) { .lp3-quadro { --u: 1cqw; } }
+
+/* a trilha dos 7 módulos, acima do aparelho (176 de 1620 de altura) */
+.lp3-trilha {
+  flex: none;
+  height: calc(16.3 * var(--u));
+  display: flex;
+  flex-direction: column;
+  background: #0a0a0a;
+  border-bottom: 1px solid #1d1d1d;
+}
+.lp3-mods {
+  height: calc(11.57 * var(--u));
+  margin: 0;
+  padding: 0 calc(3.15 * var(--u));
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.lp3-mod {
+  position: relative;
+  width: calc(7.04 * var(--u));
+  height: calc(7.04 * var(--u));
+  border-radius: calc(2.04 * var(--u));
+  border: 1px solid #1d1d1d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* apagado = 86% do tamanho, como na referência; acende crescendo até 1 */
+  transform: scale(0.86);
+}
+/* as camadas do acendimento: fundo + borda laranja, o brilho do pulso e os dois
+   ícones (cinza e laranja) empilhados. Só opacity muda. */
+.lp3-mod-on,
+.lp3-mod-glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(2.04 * var(--u));
+  opacity: 0;
+  pointer-events: none;
+}
+.lp3-mod-on { background: rgba(255, 106, 43, 0.13); border: 1px solid rgba(255, 106, 43, 0.84); }
+.lp3-mod-glow { box-shadow: 0 0 calc(1.3 * var(--u)) calc(0.25 * var(--u)) #ff6a2b; }
+.lp3-mod-ic {
+  position: absolute;
+  width: calc(4.07 * var(--u));
+  height: calc(4.07 * var(--u));
+  color: #3a3a3a;
+}
+.lp3-mod-ic--on { color: #ff6a2b; opacity: 0; }
+/* a legenda: "N de 7 · Módulo" e o selo do pulso; a camada do estado final
+   por cima, apagada até o reduce/sem JS ligar */
+.lp3-leg {
+  flex: 1;
+  display: grid;
+  align-items: center;
+  padding: 0 calc(3.33 * var(--u));
+  font-size: max(calc(2.78 * var(--u)), 11px);
+  line-height: 1;
+  white-space: nowrap;
+}
+.lp3-leg > * { grid-area: 1 / 1; display: flex; align-items: center; gap: calc(1.3 * var(--u)); }
+.lp3-leg-n { font-weight: 800; color: #6b6b6b; }
+.lp3-leg-n.is-on { color: #ff6a2b; }
+.lp3-leg-sep { color: #6b6b6b; }
+.lp3-leg-nome { display: inline-block; font-weight: 800; color: #ededed; letter-spacing: -0.01em; }
+.lp3-leg-selo {
+  display: inline-block;
+  padding: calc(0.55 * var(--u)) calc(1.1 * var(--u));
+  border-radius: calc(0.8 * var(--u));
+  background: rgba(255, 106, 43, 0.16);
+  color: #ff6a2b;
+  font-weight: 800;
+  font-size: 0.86em;
+  opacity: 0;
+  visibility: hidden;
+}
+.lp3-leg-fim { opacity: 0; }
+
+/* o aparelho: sangra até as bordas (quem emoldura é o .cena) */
+.lp3-aparelho { position: relative; flex: 1; min-height: 0; background: #111111; overflow: hidden; }
+.lp3-status {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  height: calc(9.13 * var(--u));
+  padding: 0 calc(5.39 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: calc(3.53 * var(--u));
+  font-weight: 800;
+  color: #ededed;
+}
+.lp3-hora { display: grid; }
+.lp3-hora > * { grid-area: 1 / 1; }
+.lp3-hora-fim { opacity: 0; }
+.lp3-status-ic { display: flex; align-items: center; gap: calc(1.35 * var(--u)); }
+.lp3-status-ic svg { display: block; height: calc(2.7 * var(--u)); width: auto; }
+.lp3-ilha {
+  position: absolute;
+  top: calc(4.07 * var(--u));
+  left: 50%;
+  z-index: 4;
+  width: calc(31.1 * var(--u));
+  height: calc(9.07 * var(--u));
+  border-radius: 999px;
+  background: #000;
+  transform: translateX(-50%);
+}
+.lp3-tela {
+  position: absolute;
+  inset: 0;
+  padding-top: calc(15.74 * var(--u));
+  display: flex;
+  flex-direction: column;
+}
+
+/* cabeçalho da conversa (208 de altura) */
+.lp3-hdr {
+  flex: none;
+  height: calc(19.26 * var(--u));
+  padding: 0 calc(2.33 * var(--u));
+  display: flex;
+  align-items: center;
+  gap: calc(1.46 * var(--u));
+  background: #161616;
+  border-bottom: 1px solid #1d1d1d;
+}
+.lp3-hdr-volta { flex: none; width: calc(3.21 * var(--u)); height: calc(3.21 * var(--u)); color: #a1a1a1; }
+.lp3-hdr-av {
+  flex: none;
+  width: calc(7.59 * var(--u));
+  height: calc(7.59 * var(--u));
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  background: #2c3439;
+}
+.lp3-hdr-quem { flex: 1; min-width: 0; }
+.lp3-hdr-nome {
+  display: block;
+  font-size: calc(3.5 * var(--u));
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lp3-hdr-st { display: grid; margin-top: calc(0.29 * var(--u)); font-size: calc(2.48 * var(--u)); line-height: 1.2; }
+.lp3-hdr-st > * { grid-area: 1 / 1; }
+.lp3-st--online { color: #a1a1a1; }
+.lp3-st--dig { color: #ff6a2b; opacity: 0; }
+/* a pílula é o contrato da cena: quem responde aqui é o sistema */
+.lp3-hdr-auto {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: calc(1.02 * var(--u));
+  padding: calc(0.73 * var(--u)) calc(1.46 * var(--u));
+  border: 1px solid #282828;
+  border-radius: 999px;
+  background: #161616;
+  font-size: calc(1.6 * var(--u));
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #a1a1a1;
+  white-space: nowrap;
+}
+.lp3-hdr-dot {
+  width: calc(1.31 * var(--u));
+  height: calc(1.31 * var(--u));
+  border-radius: 50%;
+  background: #1eb258;
+  box-shadow: 0 0 calc(1.17 * var(--u)) #1eb258;
+}
+
+/* a fita: o viewport esconde e esfuma as pontas; a fita inteira translada, e
+   os itens nunca re-fluem (já estão no lugar, só invisíveis) */
+.lp3-vp {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 calc(3.8 * var(--u)), #000 calc(100% - 2.69 * var(--u)), transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 calc(3.8 * var(--u)), #000 calc(100% - 2.69 * var(--u)), transparent 100%);
+}
+.lp3-fita {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(2.69 * var(--u));
+  will-change: transform;
+}
+.lp3-msg {
+  display: flex;
+  padding: 0 calc(3.33 * var(--u));
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.94);
+  transform-origin: 0 100%;
+}
+.lp3-msg[data-de="vos"] { justify-content: flex-end; transform-origin: 100% 100%; }
+.lp3-msg + .lp3-msg { margin-top: calc(1.48 * var(--u)); }
+.lp3-msg[data-de="lead"] + .lp3-msg[data-de="vos"],
+.lp3-msg[data-de="vos"] + .lp3-msg[data-de="lead"] { margin-top: calc(2.96 * var(--u)); }
+.lp3-balao {
+  max-width: 78%;
+  padding: calc(2.59 * var(--u)) calc(3.7 * var(--u)) calc(1.85 * var(--u));
+  border-radius: calc(3.33 * var(--u));
+  border-top-left-radius: calc(1 * var(--u));
+  background: #1c1c1c;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+.lp3-msg[data-de="vos"] .lp3-balao {
+  border-top-left-radius: calc(3.33 * var(--u));
+  border-top-right-radius: calc(1 * var(--u));
+  background: #0f2e24;
+}
+/* as linhas são quebradas à mão (como no roteiro) e a altura não depende da
+   fonte: line-height e a linha da meta são travados em u */
+.lp3-txt {
+  margin: 0;
+  font-size: calc(3.89 * var(--u));
+  line-height: calc(5.37 * var(--u));
+  white-space: nowrap;
+  color: #ededed;
+}
+.lp3-meta {
+  height: calc(3.52 * var(--u));
+  margin-top: calc(0.19 * var(--u));
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: calc(0.56 * var(--u));
+  font-size: calc(2.59 * var(--u));
+  line-height: 1;
+  color: #a1a1a1;
+}
+.lp3-msg[data-de="vos"] .lp3-meta { color: rgba(237, 237, 237, 0.5); }
+.lp3-ticks { display: grid; width: calc(3.89 * var(--u)); height: calc(2.59 * var(--u)); }
+.lp3-tick { grid-area: 1 / 1; width: 100%; height: 100%; opacity: 0; }
+.lp3-tick--1,
+.lp3-tick--2 { color: #a1a1a1; }
+.lp3-tick--3 { color: #ff6a2b; }
+/* anexo: o documento (PDF) */
+.lp3-doc {
+  display: flex;
+  align-items: center;
+  gap: calc(2.59 * var(--u));
+  margin-bottom: calc(1.85 * var(--u));
+  padding: calc(2.96 * var(--u));
+  border-radius: calc(2.22 * var(--u));
+  background: rgba(0, 0, 0, 0.3);
+}
+.lp3-doc-papel {
+  position: relative;
+  flex: none;
+  width: calc(10 * var(--u));
+  height: calc(12.22 * var(--u));
+  padding-bottom: calc(1.48 * var(--u));
+  border-radius: calc(1.11 * var(--u));
+  border: 1px solid #333b3f;
+  background: #22282b;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  font-size: calc(2.78 * var(--u));
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #ff7a45;
+}
+.lp3-doc-orelha {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: calc(2.96 * var(--u));
+  height: calc(2.96 * var(--u));
+  background: #3a4348;
+  clip-path: polygon(0 0, 100% 100%, 100% 0);
+}
+.lp3-doc-txt { min-width: 0; display: flex; flex-direction: column; }
+.lp3-doc-txt b { font-size: calc(3.52 * var(--u)); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lp3-doc-txt small { margin-top: calc(0.74 * var(--u)); font-size: calc(2.96 * var(--u)); color: #a1a1a1; }
+/* anexo: o cartão do link de pagamento */
+.lp3-link {
+  margin-bottom: calc(1.85 * var(--u));
+  border-radius: calc(2.22 * var(--u));
+  background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+.lp3-link-faixa { display: block; height: calc(1.11 * var(--u)); background: #ed4b00; }
+.lp3-link-corpo { padding: calc(2.59 * var(--u)) calc(2.96 * var(--u)); display: flex; flex-direction: column; }
+.lp3-link-corpo b { font-size: calc(3.52 * var(--u)); font-weight: 800; }
+.lp3-link-corpo span { margin-top: calc(0.93 * var(--u)); font-size: calc(3.15 * var(--u)); color: #a1a1a1; }
+.lp3-link-corpo u {
+  margin-top: calc(1.67 * var(--u));
+  font-size: calc(3.15 * var(--u));
+  color: #ff6a2b;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* o indicador de digitação: um só, do lado do VOS, movido por transform até
+   o topo da próxima bolha */
+.lp3-dig {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 0 calc(3.33 * var(--u));
+  display: flex;
+  justify-content: flex-end;
+  opacity: 0;
+  visibility: hidden;
+}
+.lp3-dig-balao {
+  height: calc(9.63 * var(--u));
+  padding: 0 calc(3.7 * var(--u));
+  border-radius: calc(3.33 * var(--u));
+  border-top-right-radius: calc(1 * var(--u));
+  background: #0f2e24;
+  display: flex;
+  align-items: center;
+  gap: calc(1.11 * var(--u));
+}
+.lp3-dot {
+  width: calc(2.22 * var(--u));
+  height: calc(2.22 * var(--u));
+  border-radius: 50%;
+  background: #ededed;
+  opacity: 0.34;
+  animation: lp3-onda 0.69s linear infinite paused;
+}
+.lp3-dot:nth-child(2) { animation-delay: -0.152s; }
+.lp3-dot:nth-child(3) { animation-delay: -0.304s; }
+.lp3-palco.is-tocando .lp3-dot { animation-play-state: running; }
+@keyframes lp3-onda {
+  0%, 56%, 100% { opacity: 0.34; }
+  28% { opacity: 1; }
+}
+
+/* a barra de mensagem (168 de altura) */
+.lp3-input {
+  flex: none;
+  height: calc(15.56 * var(--u));
+  padding: 0 calc(2.33 * var(--u)) calc(2.04 * var(--u));
+  display: flex;
+  align-items: center;
+  gap: calc(1.75 * var(--u));
+}
+.lp3-input-campo {
+  flex: 1;
+  height: calc(8.76 * var(--u));
+  padding: 0 calc(3.5 * var(--u));
+  border-radius: 999px;
+  background: #161616;
+  display: flex;
+  align-items: center;
+  font-size: calc(2.77 * var(--u));
+  color: #6b6b6b;
+}
+.lp3-input-enviar {
+  flex: none;
+  width: calc(8.76 * var(--u));
+  height: calc(8.76 * var(--u));
+  border-radius: 50%;
+  background: #ed4b00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lp3-input-enviar svg { width: calc(3.8 * var(--u)); height: calc(3.8 * var(--u)); }
+
+/* ── estado final: o que o reduce (classe posta pelo JS) e o sem-JS mostram ──
+   14 bolhas, 7 módulos acesos, ticks lidos, "7 de 7 · Relatórios", 14:34 */
+.lp3-palco.is-final .lp3-msg,
+html:not(.js) .lp3-msg { opacity: 1; visibility: inherit; transform: none; }
+.lp3-palco.is-final .lp3-mod,
+html:not(.js) .lp3-mod { transform: none; }
+.lp3-palco.is-final .lp3-mod-on,
+.lp3-palco.is-final .lp3-mod-ic--on,
+.lp3-palco.is-final .lp3-tick--3,
+.lp3-palco.is-final .lp3-hora-fim,
+.lp3-palco.is-final .lp3-leg-fim,
+html:not(.js) .lp3-mod-on,
+html:not(.js) .lp3-mod-ic--on,
+html:not(.js) .lp3-tick--3,
+html:not(.js) .lp3-hora-fim,
+html:not(.js) .lp3-leg-fim { opacity: 1; }
+.lp3-palco.is-final .lp3-mod-ic--off,
+.lp3-palco.is-final .lp3-tick--1,
+.lp3-palco.is-final .lp3-tick--2,
+.lp3-palco.is-final .lp3-hora-live,
+.lp3-palco.is-final .lp3-leg-live,
+html:not(.js) .lp3-mod-ic--off,
+html:not(.js) .lp3-tick--1,
+html:not(.js) .lp3-tick--2,
+html:not(.js) .lp3-hora-live,
+html:not(.js) .lp3-leg-live { opacity: 0; }
+html:not(.js) .lp3-cena-acao { display: none; }
+
+/* ─── 4 · O botão de pausar (fora do palco, ≥ 44px, foco visível) ────────── */
+.lp3-cena-acao { margin-top: 12px; display: flex; justify-content: flex-end; }
+.lp3-pausa {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1.5px solid var(--zx-line-2);
+  border-radius: var(--zx-btn-radius);
+  background: var(--zx-panel);
+  color: var(--zx-ink);
+  font-family: var(--zx-body);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--zx-t-micro) var(--zx-ease), background var(--zx-t-micro) var(--zx-ease);
+}
+.lp3-pausa:hover { border-color: var(--zx-ink); background: var(--zx-pick); }
+.lp3-pausa:focus-visible { outline: 2px solid var(--zx-ink); outline-offset: 3px; }
+.lp3-pausa-ic { width: 14px; height: 14px; flex: none; }
+.lp3-pausa-ic[hidden] { display: none; }
+
+/* ─── 5 · Dobra 3: o vídeo, no Carvão ────────────────────────────────────── */
+.lp3-band {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background: var(--zx-dark-deep);
+  color: var(--zx-on-dark);
+}
+.lp3-band .lp-pele { inset: 0; }
+.lp3-band .band-head .eb { color: var(--zx-lar); }
+.lp3-band .band-cta .cta { width: 100%; }
+@media (min-width: 700px) { .lp3-band .band-cta .cta { width: auto; } }
+/* os dois chips por cima do vídeo: som à direita, pausar à esquerda, os dois com
+   44px de alvo; somem quando os controles nativos entram (.audio) */
+.lp3-band .player .som { height: 44px; padding: 0 14px; border-radius: 10px; }
+.lp3-vid-pausa {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 2;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  background: rgba(8, 9, 10, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-family: var(--zx-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--zx-t-micro) var(--zx-ease);
+}
+.lp3-band .player.on .lp3-vid-pausa { display: flex; }
+.lp3-band .player.on.audio .lp3-vid-pausa { display: none; }
+.lp3-vid-pausa:hover { background: rgba(8, 9, 10, 0.8); }
+.lp3-vid-pausa:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.lp3-vid-ic { display: inline-flex; flex: none; }
+.lp3-vid-ic[hidden] { display: none; }
+.lp3-vid-pausa svg { width: 14px; height: 14px; }
+/* desktop: a copy à esquerda e o vídeo à direita, na proporção da dobra 1 */
+@media (min-width: 1000px) {
+  .lp3-band-in {
+    width: var(--wide);
+    display: grid;
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+    grid-template-rows: 1fr auto auto 1fr;
+    grid-template-areas:
+      ".    video"
+      "head video"
+      "cta  video"
+      ".    video";
+    column-gap: clamp(40px, 4.6vw, 84px);
+    align-items: start;
+    justify-items: start;
+  }
+  .lp3-band-head { grid-area: head; align-items: flex-start; text-align: left; }
+  .lp3-band-head p { max-width: 30ch; }
+  .lp3-band-video { grid-area: video; justify-self: center; align-self: center; margin-top: 0; }
+  .lp3-band .player { width: min(340px, 76%); }
+  .lp3-band-cta { grid-area: cta; align-items: flex-start; margin-top: clamp(22px, 3vh, 32px); }
+}
+
+/* ─── 6 · Menos movimento ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .lp3-dot { animation: none; }
+  .lp3-pausa,
+  .lp3-vid-pausa { transition: none; }
+}

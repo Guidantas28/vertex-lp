@@ -17,6 +17,12 @@ export default defineConfig({
   // Web Analytics fica desligado até ser ativado no painel da Vercel — com a
   // flag ligada sem o produto ativo, toda página carregava um script 404.
   adapter: vercel(),
+  // Só no dev server: o gsap entra na /lp3 por import() dinâmico dentro de um
+  // <script> de componente, que o scanner do Vite não enxerga. Sem isto ele é
+  // descoberto na 1ª visita, o Vite reotimiza e recarrega a página, e o script
+  // já servido fica apontando para um hash velho (504 "Outdated Optimize Dep").
+  // Não muda nada no build.
+  vite: { optimizeDeps: { include: ["gsap", "gsap/ScrollTrigger"] } },
   integrations: [
     react(),
     tailwind({ applyBaseStyles: false }),
@@ -25,9 +31,10 @@ export default defineConfig({
       // pago. Deixá-la no sitemap fazia o Google escolher entre ela e a home
       // pros mesmos termos ("Duplicate without user-selected canonical"). Ela
       // sai daqui e ganha noindex,follow na própria página. A /lp1 (18/09, a
-      // página de uma dobra com o vídeo) e a /lp2 (19/09, a /lp na identidade
-      // do site novo) são do mesmo tipo e saem junto.
-      filter: (page) => !/\/lp[12]?\/?$/.test(page),
+      // página de uma dobra com o vídeo), a /lp2 (19/09, a /lp na identidade
+      // do site novo) e a /lp3 (30/09, o topo da /lp1 mais a cena do WhatsApp
+      // animada no DOM e o vídeo "Conheça o VOS") são do mesmo tipo e saem junto.
+      filter: (page) => !/\/lp[123]?\/?$/.test(page),
       serialize(item) {
         const path = new URL(item.url).pathname;
         // Prioridade por profundidade: home > módulos/blog > posts > legal.

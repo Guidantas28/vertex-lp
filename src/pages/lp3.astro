@@ -1,0 +1,386 @@
+---
+// Rota /lp3 · página de anúncio (30/09/2026), a QUARTA ao lado da /lp, /lp1 e
+// /lp2, para o teste de LP das campanhas (Meta Ads → página → modal → Cal).
+// Três dobras, celular primeiro, um objetivo só (agendar a demonstração):
+//   1. o topo da /lp1 como está (a frase, o VSL, o botão, as integrações);
+//   2. a cena do WhatsApp da /lp refeita como animação viva no DOM (GSAP +
+//      ScrollTrigger, botão de pausar, estado final parado em reduce) —
+//      components/lp/CenaWhats.astro — com o botão de agendar embaixo;
+//   3. o vídeo "Conheça o VOS" da /lp (broll vertical, capa, mudo ao entrar,
+//      som a um toque, pausa ao sair) com o botão de agendar embaixo.
+// Fundos: Carvão → papel → Carvão, o ritmo da /lp2.
+//
+// O que ela divide com a /lp1 e a /lp2, de propósito: a pele
+// (styles/lp-zx.css + styles/zx.css + styles/lp-dobra.css — EXATAMENTE esses
+// três e nunca o lp1.css: o chunk de CSS compartilhado das outras duas não
+// pode mudar, e o Tailwind varre este arquivo, então nenhuma palavra que
+// pareça utilitário dele pode aparecer aqui), o VslPlayer, o rastreio (GTM,
+// GA, primeiro toque) e a MESMA modal de lead com o Cal (data-action="lead",
+// tema tinta). O que é só dela mora no styles/lp3.css (prefixo lp3-).
+//
+// A barra fixa observa os QUATRO botões de agendar (dobra 1, o do fim do VSL,
+// dobra 2, dobra 3) e só aparece quando nenhum está na tela. A linha legal
+// saiu da dobra 1 (na /lp1 ela é o pé de uma página de uma dobra) e mora no
+// fim da dobra 3. A dobra 3 é uma <section> escura simples, não o ScrollBand
+// da /lp2: ele traz um script a mais e um chunk que a home divide.
+// Efeito colateral conhecido (medido em 30/09): a presença desta página no
+// build pode trocar o NOME do chunk `hoisted.*.js` da /lp2. O Astro monta esse
+// chunk na ordem em que o Rollup registra os módulos (VslPlayer × ScrollBand),
+// e essa ordem é uma corrida sensível ao tamanho dos arquivos e à CPU: com os
+// componentes importados antes dos CSS ela bateu em uns builds e não em
+// outros. O conteúdo é o mesmo (dois imports, ordem trocada); a /lp2 não muda.
+import VslPlayer from "../components/lp/VslPlayer.astro";
+import CenaWhats from "../components/lp/CenaWhats.astro";
+import "../styles/lp-zx.css";
+import "../styles/zx.css";
+import "../styles/lp-dobra.css";
+// O lp3.css fica como <link> (13 KB minificado, 3,2 KB gz). Medido em 30/09,
+// 5 execuções no celular simulado: esse link custa ~200 ms de LCP em relação
+// à /lp1; inliná-lo por `?raw` custou 165 ms A MAIS (o arquivo entra com os
+// comentários e sem minificar, +20 KB no HTML). Fica o link.
+import "../styles/lp3.css";
+import GtmHead from "../components/tracking/GtmHead.astro";
+import GaHead from "../components/tracking/GaHead.astro";
+import GtmNoScript from "../components/tracking/GtmNoScript.astro";
+import FirstTouch from "../components/tracking/FirstTouch.astro";
+import LeadWizardModal from "../components/islands/LeadWizardModal.tsx";
+
+const title = "VOS · Vender é só o começo. O VOS conecta tudo até o caixa.";
+const description =
+  "Atenda seus clientes, feche negócios, acompanhe pedidos ou serviços, cobre e emita notas. Sem copiar dados, trocar de sistema ou perder o controle da operação.";
+const SITE_URL = "https://www.voshq.com";
+const url = `${SITE_URL}/lp3/`;
+const ogImage = `${SITE_URL}/og.png`;
+
+// As integrações oficiais do SITE: a mesma lista e a mesma ordem da /lp1 e do
+// hero da home (src/components/ui/animated-hero.tsx). Mudou lá, muda aqui.
+const INTEGRACOES = [
+  { nome: "WhatsApp", src: "/assets/integrations/whatsapp.svg", cor: "#25D366" },
+  { nome: "Instagram", src: "/assets/integrations/instagram.png", cor: "#E1306C" },
+  { nome: "Messenger", src: "/assets/integrations/messenger.svg", cor: "#0084FF" },
+  { nome: "Meta", src: "/assets/integrations/meta.png", cor: "#0668E1" },
+  { nome: "Slack", src: "/assets/integracoes/slack.svg", cor: "#4A154B" },
+  { nome: "Google Agenda", src: "/assets/icons/google-agenda.svg", cor: "#4285F4" },
+  { nome: "GPT", src: "/assets/icons/openai.svg", cor: "#111111" },
+  { nome: "Claude", src: "/assets/integrations/claude.svg", cor: "#D97757" },
+];
+
+const SETA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+// o traço da manuscrita (o mesmo da /lp2)
+const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
+const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
+---
+
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <GtmHead />
+  <GaHead />
+  <meta charset="utf-8">
+  <script is:inline>document.documentElement.classList.add("js")</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="icon" type="image/png" sizes="32x32" href="/lp/favicon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/lp/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/lp/icon-512.png">
+  <link rel="apple-touch-icon" href="/lp/apple-touch-icon.png">
+  <meta name="theme-color" content="#08090A">
+  <meta name="description" content={description}>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@300..800&family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
+  <!-- Fontes da modal de lead, pro wizard ficar igual ao do resto do site -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <!-- a capa do vídeo é o maior elemento da dobra 1: vem antes de tudo -->
+  <link rel="preload" as="image" href="/vsl/capa.webp" media="(min-width: 700px)" fetchpriority="high">
+  <link rel="preload" as="image" href="/vsl/capa-vertical.webp" media="(max-width: 699px)" fetchpriority="high">
+  <title>{title}</title>
+  <!-- Página de anúncio, como a /lp: fora do índice e do sitemap, com follow. -->
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href={url} />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:url" content={url} />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+</head>
+<body>
+<GtmNoScript />
+
+<div class="zx lp lp3">
+  <!-- ══ DOBRA 1 · o topo da /lp1, como está ══ -->
+  <main class="dobra-palco">
+    <!-- o Carvão atrás da dobra inteira, e a aurora do mundo do Zé -->
+    <div class="lp-pele lp3-pele" aria-hidden="true">
+      <div class="lp-pele-luz"></div>
+      <div class="lp-pele-pontos"></div>
+      <div class="lp-pele-grao"></div>
+    </div>
+    <div class="dobra-aurora" aria-hidden="true"></div>
+
+    <div class="hdr dobra-hdr">
+      <div class="logo">
+        <img src="/lp/vos-logo-mono-white.png" alt="VOS" width="901" height="277">
+      </div>
+    </div>
+
+    <section class="dobra">
+      <!-- a linha de cima, em Inter e caixa de frase, com o ícone de pontos
+           ligados (waypoints, do Lucide) no lugar do ponto -->
+      <p class="dobra-kicker reveal"><svg class="dobra-kicker-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="4.5" r="2.5"/><path d="m10.2 6.3-3.9 3.9"/><circle cx="4.5" cy="12" r="2.5"/><path d="M7 12h10"/><circle cx="19.5" cy="12" r="2.5"/><path d="m13.8 17.7 3.9-3.9"/><circle cx="12" cy="19.5" r="2.5"/></svg><span>Vendas, operação e financeiro. Tudo conectado.</span></p>
+      <h1 class="reveal d1">Vender é só o começo.<br><em>O VOS conecta tudo até o caixa.</em></h1>
+      <p class="dobra-sub reveal d2">Atenda seus clientes, feche negócios, acompanhe pedidos ou serviços, cobre e emita notas. Sem copiar dados, trocar de sistema ou perder o controle da operação.</p>
+
+      <div class="dobra-video reveal d2">
+        <VslPlayer />
+      </div>
+
+      <div class="dobra-acao reveal d3">
+        <a href="#agendar" class="cta cta--white cta--lg" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
+        <p class="dobra-atrito">{ATRITO}</p>
+      </div>
+
+      <!-- o leque das integrações oficiais do site, com o "e muito mais", e o
+           selo da Meta -->
+      <div class="dobra-integr reveal d3">
+        <div class="dobra-prova proof">
+          <div class="pf">
+            <svg class="pf-meta" viewBox="0 0 36 20" fill="none" stroke="currentColor"
+                 stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 10c2.6-4.6 4.9-6.6 7.6-6.6 3.4 0 5.9 3 5.9 6.6s-2.5 6.6-5.9 6.6c-2.7 0-5-2-7.6-6.6-2.6-4.6-4.9-6.6-7.6-6.6C7 3.4 4.5 6.4 4.5 10s2.5 6.6 5.9 6.6c2.7 0 5-2 7.6-6.6Z"/>
+            </svg>
+            <span class="pf-txt"><b>Meta</b> Business Partner</span>
+          </div>
+        </div>
+        <span class="dobra-sep" aria-hidden="true"></span>
+        <div class="dobra-ints">
+          <span class="lb">Integrações oficiais</span>
+          <div class="dobra-ints-linha">
+            <ul class="ics" aria-label="Integrações oficiais do VOS">
+              {INTEGRACOES.map((it, i) => (
+                <li class="ic" style={`--c:${it.cor};z-index:${INTEGRACOES.length - i}`}>
+                  <img src={it.src} alt={it.nome} title={it.nome} width="34" height="34" loading="eager" decoding="async">
+                </li>
+              ))}
+            </ul>
+            <span class="dobra-mais">
+              <svg width="30" height="18" viewBox="0 0 36 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M34 15C26 3 14 3 3 10" />
+                <path d="M9 5L3 10l6 4" />
+              </svg>
+              e muito mais
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ══ DOBRA 2 · a cena, no papel ══
+       A copy é a da /lp (cabeçalho "você digita uma vez só"), sem mudar. A cena
+       é o components/lp/CenaWhats.astro: o aparelho com a conversa entrando
+       balão a balão, o "digitando…" e a régua dos 7 módulos acendendo em
+       sincronia, com o botão de pausar logo abaixo (WCAG 2.2.2). A caixa da
+       cena NÃO leva .reveal: o fade de 0,7 s disputaria com os primeiros 400 ms
+       da conversa e o translateY do reveal desloca o gatilho do ScrollTrigger.
+       O botão de agendar vem DEPOIS da prova: quem viu a venda acontecer
+       aperta com mais convicção do que quem só leu o título. -->
+  <section class="lp-cena lp3-cena" id="cena">
+    <div class="band-head lp3-cena-head">
+      <div class="eb reveal"><u>você digita uma vez só<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d={TRACO}/></svg></u></div>
+      <h2 class="reveal d1">A conversa no WhatsApp <u>já é o orçamento, o pedido e a nota fiscal.</u></h2>
+      <p class="reveal d2">O cliente escreve. O VOS responde, salva o contato, monta o orçamento e emite a nota. Nada é copiado de uma tela para outra.</p>
+    </div>
+
+    <div class="band-cena lp3-cena-box">
+      <CenaWhats />
+    </div>
+
+    <div class="lp3-acao reveal d3">
+      <a href="#agendar" class="cta cta--lg" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
+      <p class="lp3-atrito">{ATRITO}</p>
+    </div>
+  </section>
+
+  <!-- ══ DOBRA 3 · "Conheça o VOS", no Carvão ══
+       O broll vertical da /lp com o mesmo comportamento de lá (toca mudo ao
+       entrar na tela, pausa ao sair, um toque liga o som e os controles
+       nativos), mais um chip de pausar de 44px enquanto roda mudo: é movimento
+       automático de mais de 5 s, o mesmo critério da cena. O botão de agendar
+       embaixo, e a linha legal no pé. -->
+  <section class="lp-band lp3-band" id="conheca">
+    <div class="lp-pele lp3-band-pele" aria-hidden="true">
+      <div class="lp-pele-luz"></div>
+      <div class="lp-pele-pontos"></div>
+      <div class="lp-pele-grao"></div>
+    </div>
+    <div class="lp-band-in lp3-band-in">
+      <div class="band-head lp3-band-head">
+        <div class="eb reveal"><u>Conheça o VOS<svg viewBox="0 0 240 10" preserveAspectRatio="none"><path d={TRACO}/></svg></u></div>
+        <p class="reveal d1">Conecta atendimento, automações, vendas, notas fiscais e a gestão inteira em um único lugar.</p>
+      </div>
+
+      <div class="band-video lp3-band-video reveal d2">
+        <div class="player lp3-player" id="lp3Player">
+          <video id="lp3Vid" src="/lp/broll.mp4" poster="/lp/broll-poster.jpg"
+                 playsinline muted preload="none" controlslist="nodownload"
+                 aria-label="Vídeo: conheça o VOS"></video>
+          <button type="button" class="capa" id="lp3Capa" aria-label="Assistir ao vídeo">
+            <span class="play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12 8 5.2Z"/></svg></span>
+            <span class="rot">Conheça o VOS</span>
+          </button>
+          <button type="button" class="lp3-vid-pausa" id="lp3VidPausa">
+            <span class="lp3-vid-ic lp3-vid-ic-pausa"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></span>
+            <span class="lp3-vid-ic lp3-vid-ic-play" hidden><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6L19 12 8 5.2Z"/></svg></span>
+            <span class="lp3-vid-pausa-l">Pausar</span>
+          </button>
+          <button type="button" class="som" id="lp3Som" aria-label="Ativar o som do vídeo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>
+            Ativar Som
+          </button>
+        </div>
+      </div>
+
+      <div class="band-cta lp3-band-cta reveal d3">
+        <a href="#agendar" class="cta cta--white cta--lg" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
+        <p class="band-cta-nota">{ATRITO}</p>
+      </div>
+    </div>
+
+    <!-- identificação legal + política de privacidade: exigência de página de
+         anúncio com captura de dados -->
+    <footer class="lp-foot">
+      <span>© 2026 VOS · Vertex Growth Gestão Empresarial LTDA · CNPJ 67.779.810/0001-69</span>
+      <a href="/privacidade" target="_blank" rel="noopener">Política de Privacidade</a>
+    </footer>
+  </section>
+
+  <!-- Rede de segurança do celular: sempre que NENHUM botão de agendar está na
+       vista, o mesmo convite aparece na barra do pé (a pílula de vidro da
+       /lp1); quando um deles volta, a barra sai. -->
+  <div class="bar" id="lp3Fixo" aria-hidden="true">
+    <a href="#agendar" class="cta" data-action="lead" tabindex="-1"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
+  </div>
+</div>
+
+<script is:inline>
+  /* ── Entrada (a mesma da /lp1: sobe e aparece) ── */
+  (function(){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.1});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  })();
+
+  /* ── A barra do pé: só quando nenhum botão de agendar está na vista ──
+     Observa os quatro (dobra 1, o do fim do VSL, dobra 2, dobra 3); o do fim
+     do VSL fica escondido até o vídeo acabar com som, e escondido não conta. */
+  (function(){
+    var fixo=document.getElementById('lp3Fixo');
+    if(!fixo||!('IntersectionObserver' in window)) return;
+    var link=fixo.querySelector('a');
+    var alvos=[].slice.call(document.querySelectorAll("[data-action='lead']")).filter(function(a){return !fixo.contains(a);});
+    if(!alvos.length) return;
+    var visiveis=new Set();
+    var obs=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting) visiveis.add(e.target); else visiveis.delete(e.target); });
+      var mostra=visiveis.size===0;
+      fixo.classList.toggle('show',mostra);
+      fixo.setAttribute('aria-hidden',mostra?'false':'true');
+      link.tabIndex=mostra?0:-1;
+    },{threshold:.6});
+    alvos.forEach(function(a){obs.observe(a);});
+  })();
+
+  /* ── O vídeo da dobra 3 (o player da /lp, com duas diferenças) ──
+     1. preload="none" e a pré-busca só quando a seção se aproxima (600px):
+        o "metadata" da /lp puxava um pedaço do mp4 de 2 MB na carga, brigando
+        com a dobra 1 no celular.
+     2. um chip de pausar enquanto roda mudo (WCAG 2.2.2); some quando os
+        controles nativos entram.
+     Toca mudo ao entrar na tela e pausa ao sair. Autoplay com som é bloqueado
+     em todo navegador, então o som fica a um toque no chip; capa e clique
+     seguem valendo como caminho manual, inclusive quando o autoplay é
+     recusado. */
+  (function(){
+    var pl=document.getElementById('lp3Player'), vid=document.getElementById('lp3Vid'),
+        capa=document.getElementById('lp3Capa'), som=document.getElementById('lp3Som'),
+        pausa=document.getElementById('lp3VidPausa');
+    if(!pl||!vid||!capa) return;
+    var comSom=false, pausouNoChip=false;
+    var icP=pausa&&pausa.querySelector('.lp3-vid-ic-pausa'), icT=pausa&&pausa.querySelector('.lp3-vid-ic-play'),
+        rot=pausa&&pausa.querySelector('.lp3-vid-pausa-l');
+    function chip(tocando){
+      if(!pausa) return;
+      if(icP) icP.hidden=!tocando;
+      if(icT) icT.hidden=tocando;
+      if(rot) rot.textContent=tocando?'Pausar':'Continuar';
+    }
+
+    function ligaSom(){
+      comSom=true; pausouNoChip=false; vid.muted=false; vid.controls=true;
+      pl.classList.add('on','audio');
+      vid.play();
+    }
+    capa.addEventListener('click',ligaSom);
+    if(som) som.addEventListener('click',ligaSom);
+    if(pausa) pausa.addEventListener('click',function(){
+      if(vid.paused){ pausouNoChip=false; vid.play(); chip(true); }
+      else { pausouNoChip=true; vid.pause(); chip(false); }
+    });
+
+    var reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if('IntersectionObserver' in window){
+      // pré-busca ao se aproximar, uma vez
+      var perto=new IntersectionObserver(function(es){
+        if(es.some(function(e){return e.isIntersecting;})){ vid.preload='auto'; perto.disconnect(); }
+      },{rootMargin:'600px 0px'});
+      perto.observe(pl);
+    }
+    if(!reduz && 'IntersectionObserver' in window){
+      var dentro=false;
+      function tenta(){
+        if(!dentro||pausouNoChip) return;
+        if(!comSom) vid.muted=true;
+        var p=vid.play();
+        // só some com a capa se o navegador REALMENTE deixou tocar
+        if(p&&p.then) p.then(function(){pl.classList.add('on'); chip(true);}).catch(function(){});
+      }
+      vid.addEventListener('canplay',tenta);
+      new IntersectionObserver(function(es){
+        es.forEach(function(e){
+          dentro=e.isIntersecting;
+          if(dentro) tenta();
+          else if(!vid.paused) vid.pause();
+        });
+      },{threshold:.55}).observe(pl);
+    }
+
+    // no fim volta a capa, e o próximo play recomeça mudo
+    vid.addEventListener('ended',function(){
+      pl.classList.remove('on','audio'); vid.controls=false; comSom=false; pausouNoChip=false; chip(true);
+    });
+  })();
+</script>
+
+<LeadWizardModal client:load />
+
+<script is:inline>
+  /* CTA -> modal de lead (mesmo contrato da home, da /lp e da /lp1). */
+  document.addEventListener("click", function (e) {
+    var el = e.target instanceof Element ? e.target.closest("[data-action='lead']") : null;
+    if (!el) return;
+    e.preventDefault();
+    window.__vosLeadPending = true;
+    window.dispatchEvent(new CustomEvent("vos:open-lead"));
+  });
+</script>
+
+<FirstTouch />
+</body>
+</html>

@@ -1,0 +1,665 @@
+---
+/**
+ * A cena do WhatsApp da /lp3 (30/09/2026): a venda inteira acontecendo numa
+ * conversa, com a trilha dos 7 módulos acendendo em cima. É a composição
+ * VosPainelWhats do VIDEO-FACTORY (engine/src/templates, roteiro em
+ * engine/src/roteiros/vos-lp-painel.ts) reproduzida no DOM, em vez do vídeo
+ * que a /lp usa e que em produção não roda.
+ *
+ * Como funciona:
+ *  · O roteiro (14 batidas, nomes e valores fictícios) e a agenda em ms moram
+ *    aqui no frontmatter, fonte única, com guardas de build: 14 bolhas, 7
+ *    "digitando", 30 400 ms — se divergir do vídeo, o build para.
+ *    O tempo de "digitando" é a fórmula do próprio produto
+ *    (packages/whatsapp/src/dispatch.ts): min(4000, max(700, len × 45)).
+ *  · A marcação já traz as 14 bolhas no lugar (invisíveis) e a agenda em
+ *    data-*; o script só lê e mede. Nada re-flui: a fita inteira translada.
+ *  · A fita ancora EMBAIXO do viewport: o alvo da bolha i é
+ *    hFita − (topo_i + altura_i), e o estado final é translateY(0) — por isso
+ *    o reduce e o sem-JS mostram o fim por CSS puro (lp3.css, .is-final).
+ *  · GSAP + ScrollTrigger entram por import() dinâmico (o script empacotado da
+ *    página divide o chunk com o autoplay do VSL da dobra 1; um import estático
+ *    atrasaria aquele autoplay em ~42 KB gz). Carrega ao se aproximar (900px)
+ *    ou no ocioso depois do load. Em reduce, só se a pessoa apertar Reproduzir.
+ *  · ScrollTrigger é só o portão (sem pin, sem scrub): entra → toca do zero;
+ *    sai → pausa; volta → do zero. Se a pessoa pausou, a volta não retoma.
+ *  · Botão de pausar visível, fora do palco (WCAG 2.2.2): Pausar / Continuar /
+ *    Ver de novo / Reproduzir. Sem aria-pressed: o nome muda com a ação.
+ *  · Só transform e opacity, tudo ≤ 600 ms: acender, ticks, "online →
+ *    digitando…", hora e legenda são camadas empilhadas com cross-fade.
+ *
+ * Divergências conscientes do vídeo: sem a "queda" da 1ª bolha (artefato do
+ * alvo inicial 0 do render); anexos com a altura real (no render eram
+ * estimativas); o selo do pulso ("R$ 797 recebido", "NF-e 000482") é
+ * desenhado na legenda (o render só o define, não o mostra); na batida 13 a
+ * legenda diz "6 de 7 · Agenda" (o que acendeu) e o selo leva a NF-e; o brilho
+ * radial #411400 não é desenhado (no render fica todo coberto).
+ *
+ * `VELOCIDADE` é a única constante de ajuste (1 = o tempo do produto, 30,4 s).
+ */
+type Lado = "lead" | "vos";
+type Modulo =
+  | "Atendimento"
+  | "CRM"
+  | "Automações"
+  | "Agenda"
+  | "Financeiro"
+  | "Pedidos e notas"
+  | "Relatórios";
+type Anexo =
+  | { tipo: "doc"; nome: string; meta: string }
+  | { tipo: "link"; titulo: string; url: string; descricao: string };
+type Batida = {
+  de: Lado;
+  /** quebra de linha manual, como no roteiro: a altura da bolha não pode
+      depender de quebra automática */
+  linhas: string[];
+  /** espera antes desta batida começar, em ms */
+  pausaMs: number;
+  hora: string;
+  anexo?: Anexo;
+  /** módulo que acende quando esta batida entra */
+  acende?: Modulo;
+  /** módulo já aceso que pulsa de novo, com o selo que sai dele */
+  pulsa?: { modulo: Modulo; selo: string };
+};
+
+const NOME_CONTATO = "Lucas Martins";
+const AVATAR = "/lp/pessoas/social-13.webp";
+const CAUDA_MS = 1800;
+
+/** a ordem da trilha é a da navegação do produto; os módulos ACENDEM na ordem
+    dos eventos da venda (o orçamento antes do pagamento, que vem antes da
+    ativação) */
+const MODULOS: Modulo[] = [
+  "Atendimento",
+  "CRM",
+  "Automações",
+  "Agenda",
+  "Financeiro",
+  "Pedidos e notas",
+  "Relatórios",
+];
+
+/** o roteiro, literal (engine/src/roteiros/vos-lp-painel.ts) */
+const ROTEIRO: Batida[] = [
+  { de: "lead", linhas: ["Oi! Tenho interesse", "no seu produto"], pausaMs: 400, hora: "14:26", acende: "Atendimento" },
+  { de: "vos", linhas: ["Oi, Lucas! Aqui é o Orlando", "do VOS. Vou te ajudar agora."], pausaMs: 300, hora: "14:26", acende: "CRM" },
+  { de: "vos", linhas: ["Me conta rápido: quantas", "pessoas atendem no", "WhatsApp aí?"], pausaMs: 300, hora: "14:26" },
+  { de: "lead", linhas: ["Somos 12 no escritório."], pausaMs: 1500, hora: "14:27" },
+  { de: "vos", linhas: ["Perfeito. Para 12 pessoas o", "Scale cobre: são 15 usuários", "e 20 canais."], pausaMs: 300, hora: "14:27", acende: "Automações" },
+  { de: "lead", linhas: ["Consegue me mandar", "um orçamento?"], pausaMs: 1400, hora: "14:28" },
+  {
+    de: "vos",
+    linhas: ["Claro, segue com as", "duas opções."],
+    pausaMs: 300,
+    hora: "14:28",
+    anexo: { tipo: "doc", nome: "orcamento-1042.pdf", meta: "PDF · 2 páginas · 148 KB" },
+    acende: "Pedidos e notas",
+  },
+  { de: "lead", linhas: ["Fechado, vou querer", "a opção 2."], pausaMs: 1900, hora: "14:29" },
+  {
+    de: "vos",
+    linhas: ["Ótimo! O link de pagamento", "está aqui — Pix, cartão", "ou boleto."],
+    pausaMs: 300,
+    hora: "14:30",
+    anexo: { tipo: "link", titulo: "Pagamento · VOS Scale", url: "pagar.voshq.com/1042", descricao: "R$ 797,00 · Pix, cartão ou boleto" },
+    acende: "Financeiro",
+  },
+  { de: "lead", linhas: ["Pronto, acabei de", "pagar no Pix."], pausaMs: 1700, hora: "14:32" },
+  { de: "vos", linhas: ["Recebemos, Lucas.", "Pagamento confirmado", "às 14h32."], pausaMs: 300, hora: "14:32", pulsa: { modulo: "Financeiro", selo: "R$ 797 recebido" } },
+  { de: "lead", linhas: ["Quando a gente começa?"], pausaMs: 1300, hora: "14:33" },
+  {
+    de: "vos",
+    linhas: ["Marquei sua call de ativação", "para 26/08, às 9h. Segue", "a nota fiscal."],
+    pausaMs: 300,
+    hora: "14:33",
+    anexo: { tipo: "doc", nome: "nfe-000482.pdf", meta: "NF-e · DANFE · 96 KB" },
+    acende: "Agenda",
+    pulsa: { modulo: "Pedidos e notas", selo: "NF-e 000482" },
+  },
+  { de: "lead", linhas: ["Show, obrigado!"], pausaMs: 750, hora: "14:34", acende: "Relatórios" },
+];
+
+const digitando = (texto: string) => Math.min(4000, Math.max(700, texto.trim().length * 45));
+
+type Agenda = {
+  /** a bolha entra */
+  t: number;
+  /** o "digitando" começa (só VOS) */
+  dig: number | null;
+  /** o tick vira dois traços (só VOS) */
+  entregue: number | null;
+  /** o tick vira laranja: o lead abriu a conversa (só VOS) */
+  lido: number | null;
+  /** o cabeçalho vira "digitando…" (só lead, quando havia VOS pendente) */
+  abre: number | null;
+};
+function agendar(batidas: Batida[]): { itens: Agenda[]; total: number } {
+  let t = 0;
+  const itens: Agenda[] = [];
+  for (const b of batidas) {
+    t += b.pausaMs;
+    const dig = b.de === "vos" ? t : null;
+    if (dig !== null) t += digitando(b.linhas.join(" "));
+    itens.push({ t, dig, entregue: b.de === "vos" ? t + 300 : null, lido: null, abre: null });
+  }
+  // o lead abriu a conversa ~600 ms antes de a mensagem dele entrar: os ticks
+  // das mensagens pendentes viram lidos e o cabeçalho mostra "digitando…"
+  // no MESMO instante (no aplicativo é um evento só)
+  let pendentes: Agenda[] = [];
+  itens.forEach((it, i) => {
+    if (batidas[i].de === "vos") {
+      pendentes.push(it);
+      return;
+    }
+    if (pendentes.length) {
+      const abre = Math.max(0, it.t - 600);
+      pendentes.forEach((p) => (p.lido = abre));
+      it.abre = abre;
+    }
+    pendentes = [];
+  });
+  const ultima = itens[itens.length - 1];
+  pendentes.forEach((p) => (p.lido = ultima.t + 900));
+  return { itens, total: t + CAUDA_MS };
+}
+const { itens: AGENDA, total: TOTAL_MS } = agendar(ROTEIRO);
+
+// guardas de build: este é o roteiro do vídeo, e não outro
+if (ROTEIRO.length !== 14 || TOTAL_MS !== 30400 || AGENDA.filter((a) => a.dig !== null).length !== 7) {
+  throw new Error(`CenaWhats: roteiro divergiu do vídeo (${ROTEIRO.length} batidas, ${TOTAL_MS} ms)`);
+}
+const ULTIMA = ROTEIRO[ROTEIRO.length - 1];
+
+/** os 7 ícones, literais do IconesModulos.tsx (viewBox 24, traço em currentColor) */
+const ICONES: Record<Modulo, string> = {
+  Atendimento: '<path d="M20.5 11.6a7.7 7.7 0 0 1-8.3 7.7c-.9 0-1.8-.2-2.6-.5L4.5 20l1.3-4.6a7.5 7.5 0 0 1-1-3.8 7.7 7.7 0 0 1 15.7 0Z"/>',
+  CRM: '<rect x="3.4" y="4.6" width="6.2" height="14.8" rx="1.6"/><rect x="13.4" y="4.6" width="7.2" height="8.4" rx="1.6"/><path d="M17 16.2v3.2"/>',
+  "Automações": '<path d="M13.6 2.6 4.9 13.4h5.6l-.7 7.9 8.6-10.8h-5.5l.7-7.9Z"/>',
+  Agenda: '<rect x="3.4" y="5.2" width="17.2" height="15.2" rx="2.4"/><path d="M3.4 9.9h17.2M8.3 3.2v3.6M15.7 3.2v3.6"/>',
+  Financeiro: '<circle cx="12" cy="12" r="8.6"/><path d="M14.6 9.2c-.5-.8-1.5-1.3-2.7-1.3-1.6 0-2.7.8-2.7 2s1 1.7 2.7 2.1c1.8.4 2.8 1 2.8 2.2s-1.2 2-2.8 2c-1.3 0-2.3-.5-2.8-1.4M12 6.1v11.8"/>',
+  "Pedidos e notas": '<path d="M3.6 7.6h16.8v11.2a1.8 1.8 0 0 1-1.8 1.8H5.4a1.8 1.8 0 0 1-1.8-1.8Z"/><path d="M3.6 7.6 5.9 3.4h12.2l2.3 4.2M9.4 11.4a2.6 2.6 0 0 0 5.2 0"/>',
+  "Relatórios": '<path d="M4.2 20.2V13M9.4 20.2V6.4M14.6 20.2v-9.4M19.8 20.2V3.6"/>',
+};
+const TICK_1 = '<path d="M2 6.5l2.6 2.6L10.2 3.5"/>';
+const TICK_2 = '<path d="M2 6.5l2.6 2.6L10.2 3.5"/><path d="M7.4 6.5 10 9.1l5.7-5.6"/>';
+
+const ROTULO =
+  "Demonstração animada: uma conversa de WhatsApp em que cada mensagem do cliente aciona um módulo do VOS, do atendimento à nota fiscal.";
+---
+
+<div class="lp3-cena-peca" data-cena>
+  <div class="cena lp3-palco" id="lp3Palco" role="img" aria-label={ROTULO} data-total={TOTAL_MS}>
+    <div class="lp3-quadro" aria-hidden="true">
+      <!-- a trilha dos 7 módulos: o mecanismo da cena, acima do aparelho -->
+      <div class="lp3-trilha">
+        <ul class="lp3-mods">
+          {MODULOS.map((mod) => (
+            <li class="lp3-mod" data-mod={mod}>
+              <span class="lp3-mod-glow"></span>
+              <span class="lp3-mod-on"></span>
+              <svg class="lp3-mod-ic lp3-mod-ic--off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" set:html={ICONES[mod]} />
+              <svg class="lp3-mod-ic lp3-mod-ic--on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" set:html={ICONES[mod]} />
+            </li>
+          ))}
+        </ul>
+        <div class="lp3-leg">
+          <span class="lp3-leg-live">
+            <b class="lp3-leg-n">0 de 7</b>
+            <span class="lp3-leg-sep">·</span>
+            <b class="lp3-leg-nome">aguardando</b>
+            <b class="lp3-leg-selo"></b>
+          </span>
+          <span class="lp3-leg-fim">
+            <b class="lp3-leg-n is-on">7 de 7</b>
+            <span class="lp3-leg-sep">·</span>
+            <b class="lp3-leg-nome">{ULTIMA.acende}</b>
+          </span>
+        </div>
+      </div>
+
+      <!-- o aparelho: sangra até as bordas; quem emoldura é o .cena -->
+      <div class="lp3-aparelho">
+        <div class="lp3-status">
+          <span class="lp3-hora"><span class="lp3-hora-live">{ROTEIRO[0].hora}</span><span class="lp3-hora-fim">{ULTIMA.hora}</span></span>
+          <span class="lp3-status-ic">
+            <svg viewBox="0 0 17 12" fill="#ededed"><rect x="0" y="9" width="3" height="3" rx="1"/><rect x="4.4" y="6.3" width="3" height="5.7" rx="1"/><rect x="8.8" y="3.6" width="3" height="8.4" rx="1"/><rect x="13.2" y="0.9" width="3" height="11.1" rx="1"/></svg>
+            <svg viewBox="0 0 16 12" fill="none" stroke="#ededed" stroke-width="1.5" stroke-linecap="round"><path d="M1 4.2A10.6 10.6 0 0 1 15 4.2M3.4 6.9a7 7 0 0 1 9.2 0M6 9.6a3.1 3.1 0 0 1 4 0"/></svg>
+            <svg viewBox="0 0 24 12"><rect x="0.7" y="0.7" width="19" height="10.6" rx="3" stroke="#ededed" stroke-width="1.2" fill="none" opacity="0.6"/><rect x="2.4" y="2.4" width="13" height="7.2" rx="1.6" fill="#ededed"/><path d="M21.4 4v4a2.2 2.2 0 0 0 0-4Z" fill="#ededed" opacity="0.6"/></svg>
+          </span>
+        </div>
+        <div class="lp3-ilha"></div>
+        <div class="lp3-tela">
+          <header class="lp3-hdr">
+            <svg class="lp3-hdr-volta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+            <img class="lp3-hdr-av" src={AVATAR} alt="" loading="lazy" decoding="async">
+            <div class="lp3-hdr-quem">
+              <b class="lp3-hdr-nome">{NOME_CONTATO}</b>
+              <span class="lp3-hdr-st"><span class="lp3-st lp3-st--online">online</span><span class="lp3-st lp3-st--dig">digitando…</span></span>
+            </div>
+            <!-- a pílula é o contrato da cena: quem responde aqui é o sistema -->
+            <span class="lp3-hdr-auto"><i class="lp3-hdr-dot"></i>AUTOMÁTICO ATIVO</span>
+          </header>
+
+          <div class="lp3-vp">
+            <div class="lp3-fita">
+              {ROTEIRO.map((b, i) => {
+                const a = AGENDA[i];
+                return (
+                  <div
+                    class="lp3-msg"
+                    data-i={i}
+                    data-de={b.de}
+                    data-t={a.t}
+                    data-dig={a.dig ?? undefined}
+                    data-entregue={a.entregue ?? undefined}
+                    data-lido={a.lido ?? undefined}
+                    data-abre={a.abre ?? undefined}
+                    data-hora={b.hora}
+                    data-acende={b.acende}
+                    data-pulsa={b.pulsa?.modulo}
+                    data-selo={b.pulsa?.selo}
+                  >
+                    <div class="lp3-balao">
+                      {b.anexo?.tipo === "doc" && (
+                        <div class="lp3-doc">
+                          <span class="lp3-doc-papel"><i class="lp3-doc-orelha"></i>PDF</span>
+                          <span class="lp3-doc-txt"><b>{b.anexo.nome}</b><small>{b.anexo.meta}</small></span>
+                        </div>
+                      )}
+                      {b.anexo?.tipo === "link" && (
+                        <div class="lp3-link">
+                          <i class="lp3-link-faixa"></i>
+                          <div class="lp3-link-corpo"><b>{b.anexo.titulo}</b><span>{b.anexo.descricao}</span><u>{b.anexo.url}</u></div>
+                        </div>
+                      )}
+                      <p class="lp3-txt">
+                        {b.linhas.map((l, k) => (
+                          <>
+                            {k > 0 && <br />}
+                            {l}
+                          </>
+                        ))}
+                      </p>
+                      <span class="lp3-meta">
+                        <time>{b.hora}</time>
+                        {b.de === "vos" && (
+                          <span class="lp3-ticks">
+                            <svg class="lp3-tick lp3-tick--1" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={TICK_1} />
+                            <svg class="lp3-tick lp3-tick--2" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={TICK_2} />
+                            <svg class="lp3-tick lp3-tick--3" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" set:html={TICK_2} />
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+              <!-- as três bolinhas: uma só, do lado do VOS, levada por transform
+                   até o topo da próxima bolha dele -->
+              <div class="lp3-dig"><span class="lp3-dig-balao"><i class="lp3-dot"></i><i class="lp3-dot"></i><i class="lp3-dot"></i></span></div>
+            </div>
+          </div>
+
+          <div class="lp3-input">
+            <span class="lp3-input-campo">Mensagem</span>
+            <span class="lp3-input-enviar"><svg viewBox="0 0 24 24"><path d="M3.2 20.6 21.4 12 3.2 3.4l.1 6.7 12.3 1.9-12.3 1.9z" fill="#fff"/></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- o botão de pausar, fora do palco (o palco é role="img") -->
+  <div class="lp3-cena-acao">
+    <button type="button" class="lp3-pausa" id="lp3Pausa" aria-controls="lp3Palco">
+      <span class="lp3-pausa-ic lp3-pausa-ic--pausa" hidden><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></span>
+      <span class="lp3-pausa-ic lp3-pausa-ic--play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6L19 12 8 5.2Z"/></svg></span>
+      <span class="lp3-pausa-l">Reproduzir</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  /* O motor da cena. Lê a agenda dos data-*, mede a fita uma vez e monta UMA
+     timeline GSAP dirigida por tempo; o ScrollTrigger só abre e fecha o
+     portão. gsap e ScrollTrigger chegam por import() dinâmico (ver o
+     cabeçalho do componente). Identificadores em português de propósito: o
+     Tailwind varre este arquivo, e uma palavra que pareça utilitário mudaria o
+     CSS que a /lp1 e a /lp2 dividem. */
+  type Gsap = typeof import("gsap")["gsap"];
+  type Plugin = typeof import("gsap/ScrollTrigger")["ScrollTrigger"];
+  type Linha = ReturnType<Gsap["timeline"]>;
+  type Portao = ReturnType<Plugin["create"]>;
+  type Estado = "pronto" | "tocando" | "pausado" | "fim";
+  type Msg = {
+    el: HTMLElement;
+    de: string;
+    t: number;
+    dig: number | null;
+    entregue: number | null;
+    lido: number | null;
+    abre: number | null;
+    hora: string;
+    acende: string | null;
+    pulsa: string | null;
+    selo: string | null;
+    ticks: HTMLElement[];
+    topo: number;
+    altura: number;
+  };
+  type Ladrilho = { el: HTMLElement; on: HTMLElement; glow: HTMLElement; icOff: HTMLElement; icOn: HTMLElement };
+
+  /** 1 = o tempo do produto (30,4 s). É a única constante de ajuste. */
+  const VELOCIDADE = 1;
+  const reduz = matchMedia("(prefers-reduced-motion: reduce)");
+
+  document.querySelectorAll<HTMLElement>("[data-cena]").forEach(montarCena);
+
+  function montarCena(raiz: HTMLElement) {
+    const q = <T extends Element>(sel: string) => raiz.querySelector<T>(sel);
+    const palco = q<HTMLElement>(".lp3-palco");
+    const fita = q<HTMLElement>(".lp3-fita");
+    const dig = q<HTMLElement>(".lp3-dig");
+    const hora = q<HTMLElement>(".lp3-hora-live");
+    const stOnline = q<HTMLElement>(".lp3-st--online");
+    const stDig = q<HTMLElement>(".lp3-st--dig");
+    const legN = q<HTMLElement>(".lp3-leg-live .lp3-leg-n");
+    const legNome = q<HTMLElement>(".lp3-leg-live .lp3-leg-nome");
+    const legSelo = q<HTMLElement>(".lp3-leg-selo");
+    const botao = q<HTMLButtonElement>(".lp3-pausa");
+    const rotulo = q<HTMLElement>(".lp3-pausa-l");
+    const icPausa = q<HTMLElement>(".lp3-pausa-ic--pausa");
+    const icPlay = q<HTMLElement>(".lp3-pausa-ic--play");
+    if (!palco || !fita || !dig || !hora || !stOnline || !stDig || !legN || !legNome || !legSelo || !botao || !rotulo || !icPausa || !icPlay) return;
+
+    const num = (v: string | undefined) => (v === undefined || v === "" ? null : Number(v));
+    const msgs: Msg[] = Array.from(raiz.querySelectorAll<HTMLElement>(".lp3-msg")).map((el) => ({
+      el,
+      de: el.dataset.de || "lead",
+      t: Number(el.dataset.t),
+      dig: num(el.dataset.dig),
+      entregue: num(el.dataset.entregue),
+      lido: num(el.dataset.lido),
+      abre: num(el.dataset.abre),
+      hora: el.dataset.hora || "",
+      acende: el.dataset.acende || null,
+      pulsa: el.dataset.pulsa || null,
+      selo: el.dataset.selo || null,
+      ticks: Array.from(el.querySelectorAll<HTMLElement>(".lp3-tick")),
+      topo: 0,
+      altura: 0,
+    }));
+    const total = Number(palco.dataset.total) / 1000;
+    const ladrilhos = new Map<string, Ladrilho>();
+    raiz.querySelectorAll<HTMLElement>(".lp3-mod").forEach((el) => {
+      const on = el.querySelector<HTMLElement>(".lp3-mod-on");
+      const glow = el.querySelector<HTMLElement>(".lp3-mod-glow");
+      const icOff = el.querySelector<HTMLElement>(".lp3-mod-ic--off");
+      const icOn = el.querySelector<HTMLElement>(".lp3-mod-ic--on");
+      if (on && glow && icOff && icOn) ladrilhos.set(el.dataset.mod || "", { el, on, glow, icOff, icOn });
+    });
+    if (!msgs.length || ladrilhos.size !== 7) return;
+
+    let est: Estado = "pronto";
+    let usuarioPausou = false;
+    let tl: Linha | null = null;
+    let portao: Portao | null = null;
+    let hFita = 0;
+    let hDig = 0;
+    let largura = 0;
+
+    function estado(e: Estado) {
+      est = e;
+      rotulo!.textContent = e === "tocando" ? "Pausar" : e === "pausado" ? "Continuar" : e === "fim" ? "Ver de novo" : "Reproduzir";
+      icPausa!.hidden = e !== "tocando";
+      icPlay!.hidden = e === "tocando";
+      palco!.classList.toggle("is-tocando", e === "tocando");
+    }
+    function legenda(n: number, nome: string) {
+      legN!.textContent = n + " de 7";
+      legN!.classList.toggle("is-on", n > 0);
+      legNome!.textContent = nome;
+    }
+    /* restart() não desfaz .call(): os textos voltam por aqui */
+    function reiniciarTextos() {
+      legenda(0, "aguardando");
+      legSelo!.textContent = "";
+      hora!.textContent = msgs[0].hora;
+    }
+    function medir() {
+      hFita = fita!.offsetHeight;
+      hDig = dig!.offsetHeight;
+      msgs.forEach((m) => {
+        m.topo = m.el.offsetTop;
+        m.altura = m.el.offsetHeight;
+      });
+    }
+    /* a fita ancora embaixo: a bolha i pousa com o pé no chão do viewport */
+    const alvoBolha = (i: number) => hFita - (msgs[i].topo + msgs[i].altura);
+    const alvoDig = (i: number) => hFita - (msgs[i].topo + hDig);
+
+    function montarLinha(gsap: Gsap): Linha {
+      const linha = gsap.timeline({ paused: true, defaults: { ease: "power3.out" }, onComplete: () => estado("fim") });
+      linha.timeScale(VELOCIDADE);
+      linha.set(fita, { y: () => alvoBolha(0) }, 0);
+      /* a rolagem da fita anda até o próximo evento, no máximo .55 s, para
+         nunca haver dois tweens na mesma propriedade ao mesmo tempo */
+      const dur = (de: number, ate: number | null) => Math.max(0.25, Math.min(0.55, ((ate ?? Infinity) - de) / 1000));
+      let acesos = 0;
+      msgs.forEach((m, i) => {
+        const t = m.t / 1000;
+        const prox = msgs[i + 1];
+        const proxEvento = prox ? (prox.dig ?? prox.t) : null;
+        if (m.de === "vos" && m.dig !== null) {
+          const td = m.dig / 1000;
+          linha
+            .set(dig, { y: () => m.topo }, td)
+            .to(dig, { autoAlpha: 1, duration: 0.22 }, td)
+            .to(fita, { y: () => alvoDig(i), duration: dur(m.dig, m.t) }, td)
+            .set(dig, { autoAlpha: 0 }, t);
+          const [t1, t2, t3] = m.ticks;
+          if (t1 && t2 && t3) {
+            linha.set(t1, { opacity: 1 }, t);
+            if (m.lido !== null && m.entregue !== null && m.lido <= m.entregue) {
+              // lida antes de entregue (batida 13): o tick cruza direto para o laranja
+              linha.to(t1, { opacity: 0, duration: 0.15 }, m.lido / 1000).to(t3, { opacity: 1, duration: 0.15 }, m.lido / 1000);
+            } else {
+              if (m.entregue !== null) linha.to(t1, { opacity: 0, duration: 0.15 }, m.entregue / 1000).to(t2, { opacity: 1, duration: 0.15 }, m.entregue / 1000);
+              if (m.lido !== null) linha.to(t2, { opacity: 0, duration: 0.15 }, m.lido / 1000).to(t3, { opacity: 1, duration: 0.15 }, m.lido / 1000);
+            }
+          }
+        } else if (m.abre !== null) {
+          const ta = m.abre / 1000;
+          linha
+            .to(stOnline, { opacity: 0, duration: 0.2 }, ta)
+            .to(stDig, { opacity: 1, duration: 0.2 }, ta)
+            .to(stDig, { opacity: 0, duration: 0.2 }, t)
+            .to(stOnline, { opacity: 1, duration: 0.2 }, t);
+        }
+        // a bolha entra só com opacity + escala (a fita já está se movendo)
+        linha
+          .to(m.el, { autoAlpha: 1, duration: 0.28 }, t)
+          .to(m.el, { scale: 1, duration: 0.45 }, t)
+          .to(fita, { y: () => alvoBolha(i), duration: dur(m.t, proxEvento) }, t)
+          .call(() => { hora!.textContent = m.hora; }, [], t);
+        if (m.acende) acender(linha, m.acende, t, ++acesos);
+        if (m.pulsa) pulsar(linha, m.pulsa, m.selo || "", t, m.acende ? null : acesos);
+      });
+      // a cauda segura o quadro final até o fim declarado
+      linha.to({ v: 0 }, { v: 1, duration: 0.01 }, total - 0.01);
+      return linha;
+    }
+    function acender(linha: Linha, mod: string, t: number, n: number) {
+      const l = ladrilhos.get(mod);
+      if (!l) return;
+      linha
+        .to(l.el, { scale: 1, duration: 0.5 }, t)
+        .to(l.on, { opacity: 1, duration: 0.4 }, t)
+        .to(l.icOff, { opacity: 0, duration: 0.3 }, t)
+        .to(l.icOn, { opacity: 1, duration: 0.3 }, t)
+        .call(() => legenda(n, mod), [], t)
+        .fromTo(legNome, { opacity: 0, x: -8 }, { opacity: 1, x: 0, duration: 0.35, immediateRender: false }, t);
+    }
+    function pulsar(linha: Linha, mod: string, selo: string, t: number, nomeSozinho: number | null) {
+      const l = ladrilhos.get(mod);
+      if (!l) return;
+      linha
+        .to(l.el, { scale: 1.09, duration: 0.16, ease: "power2.out" }, t)
+        .to(l.el, { scale: 1, duration: 0.44, ease: "back.out(3)" }, t + 0.16)
+        .to(l.glow, { opacity: 1, duration: 0.2, ease: "power1.out" }, t)
+        .to(l.glow, { opacity: 0, duration: 0.4 }, t + 0.2)
+        .call(() => {
+          legSelo!.textContent = selo;
+          if (nomeSozinho !== null) legenda(nomeSozinho, mod);
+        }, [], t)
+        .fromTo(legSelo, { autoAlpha: 0, x: -6 }, { autoAlpha: 1, x: 0, duration: 0.3, immediateRender: false }, t)
+        .to(legSelo, { autoAlpha: 0, duration: 0.3 }, t + 2.2);
+    }
+
+    function montar(gsap: Gsap, ST: Plugin) {
+      gsap.registerPlugin(ST);
+      ST.config({ ignoreMobileResize: true });
+      const animados = () => [
+        fita!, dig!, legNome!, legSelo!, stOnline!, stDig!,
+        ...msgs.map((m) => m.el),
+        ...msgs.flatMap((m) => m.ticks),
+        ...Array.from(ladrilhos.values()).flatMap((l) => [l.el, l.on, l.glow, l.icOff, l.icOn]),
+      ];
+      /* volta tudo ao CSS (o estado inicial) e recoloca a fita no 1º alvo */
+      const limpar = () => {
+        gsap.set(animados(), { clearProps: "all" });
+        reiniciarTextos();
+        gsap.set(fita, { y: alvoBolha(0) });
+      };
+      const doZero = () => {
+        if (!tl) return;
+        palco!.classList.remove("is-final");
+        tl.pause(0);
+        limpar();
+        tl.invalidate().restart();
+        estado("tocando");
+      };
+      const entrar = () => {
+        if (usuarioPausou || est === "tocando") return;
+        doZero();
+      };
+      /* sai da tela: pausa e volta a "pronto", para a volta reiniciar do zero
+         (se ficasse em "tocando", entrar() recusaria e a cena ficaria parada
+         onde a saída a pegou). Pausa do usuário não passa por aqui. */
+      const sair = () => {
+        if (est === "tocando" && tl) {
+          tl.pause();
+          estado("pronto");
+        }
+      };
+      function clique() {
+        if (!tl) return;
+        if (est === "tocando") {
+          tl.pause();
+          usuarioPausou = true;
+          estado("pausado");
+        } else if (est === "pausado") {
+          usuarioPausou = false;
+          tl.play();
+          estado("tocando");
+        } else {
+          usuarioPausou = false;
+          doZero();
+        }
+      }
+
+      const mm = gsap.matchMedia();
+      mm.add(
+        { reduce: "(prefers-reduced-motion: reduce)", celular: "(max-width: 999px)", desktop: "(min-width: 1000px)" },
+        (ctx) => {
+          const c = (ctx.conditions || {}) as { reduce?: boolean; celular?: boolean };
+          medir();
+          tl = montarLinha(gsap);
+          if (!palco!.classList.contains("is-final")) gsap.set(fita, { y: alvoBolha(0) });
+          if (!c.reduce) {
+            portao = ST.create({
+              trigger: palco,
+              start: c.celular ? "top 80%" : "top 70%",
+              end: c.celular ? "bottom 20%" : "bottom 30%",
+              onEnter: entrar,
+              onEnterBack: entrar,
+              onLeave: sair,
+              onLeaveBack: sair,
+            });
+            if (portao.isActive) entrar();
+          }
+          return () => {
+            portao?.kill();
+            portao = null;
+            tl?.kill();
+            tl = null;
+            limpar();
+            usuarioPausou = false;
+            estado("pronto");
+          };
+        }
+      );
+
+      /* remede na mudança de LARGURA do palco (a altura acompanha) e quando o
+         Inter chega: os alvos são funções, o invalidate() basta */
+      new ResizeObserver((entradas) => {
+        const w = Math.round(entradas[0].contentRect.width);
+        if (w === largura) return;
+        largura = w;
+        medir();
+        if (!tl) return;
+        tl.invalidate();
+        if (est !== "tocando" && est !== "pausado") gsap.set(fita, { y: est === "fim" ? 0 : alvoBolha(0) });
+      }).observe(palco!);
+      document.fonts.ready.then(() => {
+        medir();
+        tl?.invalidate();
+      });
+
+      return { clique };
+    }
+
+    let motor: Promise<{ clique: () => void }> | null = null;
+    /* uma falha de rede no import() não pode travar o botão para sempre: a
+       promessa rejeitada é descartada e o próximo pedido tenta de novo */
+    const carregar = () =>
+      (motor ??= Promise.all([import("gsap"), import("gsap/ScrollTrigger")])
+        .then(([g, s]) => montar(g.gsap, s.ScrollTrigger))
+        .catch((e) => {
+          motor = null;
+          throw e;
+        }));
+
+    botao.addEventListener("click", () => {
+      carregar().then((m) => m.clique());
+    });
+
+    if (reduz.matches) {
+      // menos movimento: o estado final parado; movimento só se a pessoa pedir
+      palco.classList.add("is-final");
+      estado("pronto");
+      return;
+    }
+    estado("pronto");
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (es) => {
+          if (es.some((e) => e.isIntersecting)) {
+            io.disconnect();
+            carregar();
+          }
+        },
+        { rootMargin: "900px 0px" }
+      );
+      io.observe(palco);
+    }
+    const noOcioso = () => {
+      if ("requestIdleCallback" in window) requestIdleCallback(() => carregar());
+      else setTimeout(() => carregar(), 0);
+    };
+    if (document.readyState === "complete") noOcioso();
+    else addEventListener("load", noOcioso, { once: true });
+  }
+</script>
