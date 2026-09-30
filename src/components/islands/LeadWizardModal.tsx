@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SEGMENTS } from "../../data/content";
 import CalEmbed from "./CalEmbed";
 import ConfettiBurst from "./ConfettiBurst";
-import { foraDoIcp, WHATSAPP_TIME } from "../../lib/icp";
 
 /**
  * Modal de lead da LP e da home — RESTAURADO POR INTEIRO em 17/09/2026.
@@ -39,10 +38,20 @@ import { foraDoIcp, WHATSAPP_TIME } from "../../lib/icp";
  * e a caixa cresceu — no celular ela abria numa descrição rolável e o calendário
  * ficava escondido; e `/api/agendou` passou a ser 1 chamada por e-mail (o embed
  * dispara `bookingSuccessfulV2` e `bookingSuccessful` para a mesma reserva).
+ *
+ * 30/09/2026 — o corte "fora do ICP" SAIU, por decisão do Orlando. De 22/09 a
+ * 30/09 quem marcava faturamento abaixo de R$ 10 mil caía num passo 5 (WhatsApp
+ * do time) em vez do Cal, empurrava um evento próprio no lugar de `lead` e o
+ * servidor marcava duas tags de fila humana no lead e no contato (o fluxo do
+ * VOS que as lia fica pausado a partir do deploy). Agora todo lead vai ao
+ * passo 3 e empurra `lead`; a pergunta de faturamento continua e chega ao CRM
+ * como campo (`utm.faturamento` → customField) e na nota do Cal. O dedupe do
+ * POST e do evento voltou a ser só por e-mail. E a flag `__vosLeadPending`,
+ * que as páginas setam antes de despachar `vos:open-lead`, passou a ser lida
+ * no mount: o toque que chega antes da hidratação abre a modal.
  */
 
-/** 5 = fora do ICP: no lugar da agenda, a tela que leva ao WhatsApp do time. */
-type Step = 1 | 2 | 3 | 4 | 5;
+type Step = 1 | 2 | 3 | 4;
 
 type FormData = {
   name: string;
@@ -355,12 +364,18 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
   };
 
   useEffect(() => {
+    // As páginas setam `__vosLeadPending` antes de despachar `vos:open-lead`.
+    // Se o toque chegou antes da hidratação, o evento se perdeu sem ouvinte:
+    // a flag ainda está de pé aqui no mount e a modal abre sozinha.
+    const w = window as unknown as { __vosLeadPending?: boolean };
     const onOpen = () => {
+      w.__vosLeadPending = false;
       reset();
       setOpen(true);
       empurraEtapa("modal_aberto");
     };
     window.addEventListener("vos:open-lead", onOpen);
+    if (w.__vosLeadPending) onOpen();
     return () => window.removeEventListener("vos:open-lead", onOpen);
   }, []);
 
@@ -506,25 +521,6 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
         faturamento: form.revenue,
         desafio: form.challenge,
         instagram: normInstagram(form.instagram),
-      },
-    });
-  }
-
-  /** Lead fora do ICP: evento próprio, de propósito SEM o bloco `lead` — o
-   *  acionador "2 | Lead" do GTM filtra por `lead.email`, então este push não
-   *  vira Lead na Meta em nenhuma configuração do container. Serve para medir
-   *  quantos caem aqui. Sem dado pessoal. */
-  function pushForaIcpEvent(leadEventId: string) {
-    const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
-    w.dataLayer = w.dataLayer || [];
-    w.dataLayer.push({
-      event: "lead_fora_icp",
-      ...(leadEventId ? { lead_event_id: leadEventId } : {}),
-      fora_icp: {
-        segmento: segmentLabel,
-        faturamento: form.revenue,
-        desafio: form.challenge,
-        pagina: window.location.pathname,
       },
     });
   }
@@ -738,18 +734,11 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
       }
     };
 
-    // Faturamento abaixo de R$ 10 mil = fora do ICP (22/09): o lead vai ao CRM
-    // (o servidor marca `fora-icp`), mas não abre a agenda nem vira Lead na Meta.
-    // A chave de repetição é e-mail + ICP: quem voltou e corrigiu a faixa por
-    // engano ainda manda o registro e o evento certos uma vez.
-    const foraIcp = foraDoIcp(form.revenue);
-    const chave = `${emailNow}|${foraIcp ? "fora" : "icp"}`;
-
-    if (!isBotRef.current && sentEmailRef.current !== chave) {
+    if (!isBotRef.current && sentEmailRef.current !== emailNow) {
       let ok = await postLead();
       if (!ok) ok = await postLead();
       if (ok) {
-        sentEmailRef.current = chave;
+        sentEmailRef.current = emailNow;
         setLeadApiFailed(false);
       } else {
         setLeadApiFailed(true);
@@ -759,17 +748,16 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
 
     // GTM — evento 'lead' no submit VALIDADO. Dispara UMA vez por e-mail.
     // NÃO disparamos dataLayer no agendamento: o GTM escuta o Cal sozinho.
-    if (!isBotRef.current && eventEmailRef.current !== chave) {
+    if (!isBotRef.current && eventEmailRef.current !== emailNow) {
       // Antes do `lead`: o modelo do dataLayer do GTM guarda o `lead.email` do push
       // anterior, e evento de etapa não deve nascer depois dele.
-      empurraEtapa("passo_2_ok", { icp: !foraIcp });
-      if (foraIcp) pushForaIcpEvent(leadEventId);
-      else pushLeadEvent(leadEventId);
-      eventEmailRef.current = chave;
+      empurraEtapa("passo_2_ok");
+      pushLeadEvent(leadEventId);
+      eventEmailRef.current = emailNow;
     }
 
     setSubmitting(false);
-    setStep(foraIcp ? 5 : 3);
+    setStep(3);
   }
 
   /**
@@ -795,12 +783,6 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
   if (!open) return null;
 
   const igNow = normInstagram(form.instagram);
-  const primeiroNome = form.name.trim().split(/\s+/)[0] ?? "";
-  // Mensagem pronta do WhatsApp da tela fora do ICP: sem faturamento (o CRM já
-  // tem a tag) e com a página, que é o que o SDR precisa saber de onde veio.
-  const linkWhatsApp = `https://wa.me/${WHATSAPP_TIME}?text=${encodeURIComponent(
-    `Oi! Sou ${primeiroNome}, da ${form.company.trim()}. Vim pelo site do VOS (voshq.com${window.location.pathname.replace(/\/$/, "")}) e quero tirar umas dúvidas sobre o sistema antes de decidir.`,
-  )}`;
 
   return (
     <div
@@ -844,7 +826,6 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                 {step === 2 && "Sobre a sua empresa"}
                 {step === 3 && "Escolha um horário"}
                 {step === 4 && "Tudo certo!"}
-                {step === 5 && `${primeiroNome}, vamos ser diretos com você`}
               </h2>
             </div>
             <button
@@ -857,10 +838,7 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
             </button>
           </div>
 
-          <ol
-            className={["relative mt-3.5 flex items-center gap-1.5", step === 5 ? "hidden" : ""].join(" ")}
-            aria-label="Etapas"
-          >
+          <ol className="relative mt-3.5 flex items-center gap-1.5" aria-label="Etapas">
             {STEPS.map((s, i) => {
               const done = step > s.n;
               const on = step === s.n;
@@ -1246,52 +1224,6 @@ export default function LeadWizardModal({ tema = "tinta" }: { tema?: Tema }) {
                       Fechar
                     </BotaoPrimario>
                   </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Fora do ICP (faturamento abaixo de R$ 10 mil): no lugar da agenda,
-                o WhatsApp do time. Copy escolhida pelo Orlando em 22/09 ("opção 2,
-                franqueza"), a partir da pesquisa de desqualificação B2B. */}
-            {step === 5 && (
-              <motion.div
-                key="step-5"
-                initial={{ opacity: 0, x: 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -16 }}
-                transition={{ duration: 0.22 }}
-                className="px-4 py-5 sm:px-5 sm:py-6"
-              >
-                <p className="text-[15px] leading-[22px] text-[#2B2B2B]">
-                  Pelo faturamento que você marcou, a demonstração com o time talvez não seja o ideal agora. Ela
-                  foi montada para operações maiores.
-                </p>
-                <p className="mt-3 text-[15px] leading-[22px] text-[#2B2B2B]">
-                  Suas dúvidas continuam com a gente, só que pelo WhatsApp.
-                </p>
-                <a
-                  href={linkWhatsApp}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={classePrimaria(tema, "mt-5 w-full")}
-                  onClick={() => {
-                    const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
-                    w.dataLayer = w.dataLayer || [];
-                    w.dataLayer.push({ event: "fora_icp_clique_whatsapp", lead_event_id: eventIdRef.current.id });
-                  }}
-                >
-                  Continuar no WhatsApp
-                  <ChevronRight size={18} strokeWidth={2.2} aria-hidden="true" />
-                </a>
-                <p className="mt-2.5 text-center text-[12px] text-[#5C5C5C]">Sem custo e sem compromisso.</p>
-                <div className="mt-3 text-center">
-                  <button
-                    type="button"
-                    onClick={() => setStep(2)}
-                    className="min-h-[44px] px-3 text-[13px] font-semibold text-[#4A4A4A] underline-offset-2 hover:text-[#171717] hover:underline"
-                  >
-                    Voltar e revisar as respostas
-                  </button>
                 </div>
               </motion.div>
             )}
