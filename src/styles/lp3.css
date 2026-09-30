@@ -20,7 +20,8 @@
  *   4. (vazio desde 30/09: o botão de pausar da cena saiu — loop contínuo por
  *      decisão do Orlando, WCAG 2.2.2 reprovado; ver CenaWhats.astro);
  *   5. a dobra 3 (Carvão): grade desktop e os chips de 44 px do vídeo;
- *   6. prefers-reduced-motion.
+ *   6. prefers-reduced-motion;
+ *   7. desempenho: as dobras 2 e 3 só são calculadas perto da tela.
  */
 
 /* ─── 1 · O que era do lp1.css ───────────────────────────────────────────── */
@@ -45,11 +46,18 @@
   gap: 10px;
 }
 .lp3-acao .cta { width: 100%; }
-.lp3-atrito { max-width: 46ch; font-size: 13px; line-height: 1.5; color: var(--zx-ink3); text-align: center; }
+.lp3-atrito { max-width: 46ch; font-size: 13px; line-height: 1.5; color: var(--zx-ink3); text-align: center; text-wrap: balance; }
+/* a mesma linha na dobra 3: no celular ela ocupa duas linhas, equilibradas */
+.lp3-band .band-cta-nota { max-width: 46ch; text-align: center; text-wrap: balance; }
 @media (min-width: 700px) {
   .lp3-acao { flex-direction: row; justify-content: center; gap: 18px; }
   .lp3-acao .cta { width: auto; flex: none; }
   .lp3-atrito { text-align: left; }
+}
+/* celular e tablet: o botão cola na cena que ele fecha — 24px em vez dos 36px
+   do gap do .lp-cena (rodada 2, 30/09: o botão pertence à prova) */
+@media (max-width: 999px) {
+  .lp3-acao { margin-top: -12px; }
 }
 /* desktop: o .lp-cena já é 1.1fr / .9fr; aqui só as linhas 1fr em cima e
    embaixo, que centram a copy e o botão na altura do palco (o mesmo truque da
@@ -67,7 +75,12 @@
   }
   .lp3-cena-head { grid-area: head; }
   .lp3-cena-box { grid-area: cena; align-self: center; }
-  .lp3-acao { grid-area: acao; margin-top: clamp(22px, 3vh, 32px); flex-direction: column; align-items: flex-start; }
+  /* a mesma coluna da dobra 3: botão e linha de atrito a 14px, como o
+     .band-cta-nota de lá */
+  .lp3-acao { grid-area: acao; margin-top: clamp(22px, 3vh, 32px); flex-direction: column; align-items: flex-start; gap: 14px; }
+  /* a coluna já limita a largura: a linha de atrito cabe numa linha só */
+  .lp3-atrito,
+  .lp3-band .band-cta-nota { max-width: none; text-align: left; }
 }
 
 /* ─── 3 · A cena ─────────────────────────────────────────────────────────── */
@@ -503,6 +516,11 @@ html:not(.js) .lp3-leg-live { opacity: 0; }
   color: var(--zx-on-dark);
 }
 .lp3-band .lp-pele { inset: 0; }
+/* celular e tablet: a dobra 3 respira como as outras duas (64–80px), e não os
+   110–176px do .lp-band-in; o botão final entra ~100px antes (rodada 2) */
+@media (max-width: 999px) {
+  .lp3-band-in { padding: clamp(72px, 10vh, 120px) 0 clamp(40px, 6vh, 64px); }
+}
 .lp3-band .band-head .eb { color: var(--zx-lar); }
 .lp3-band .band-cta .cta { width: 100%; }
 @media (min-width: 700px) { .lp3-band .band-cta .cta { width: auto; } }
@@ -559,6 +577,22 @@ html:not(.js) .lp3-leg-live { opacity: 0; }
   .lp3-band-video { grid-area: video; justify-self: center; align-self: center; margin-top: 0; }
   .lp3-band .player { width: min(340px, 76%); }
   .lp3-band-cta { grid-area: cta; align-items: flex-start; margin-top: clamp(22px, 3vh, 32px); }
+}
+
+/* ─── 7 · Desempenho ─────────────────────────────────────────────────────── */
+/* Medido em 30/09 (Lighthouse celular, mediana de 5): a /lp3 fazia o DOBRO do
+   cálculo de estilo e layout da /lp1 antes da 1ª pintura (731 × 364 ms), por
+   causa do DOM da cena (14 balões, SVGs, unidades de container) — e isso, com a
+   CPU simulada 4× mais lenta, empurrava o LCP ~240 ms. As duas dobras nascem
+   fora da tela: com content-visibility o navegador só as calcula perto da vista.
+   A altura reservada evita salto na rolagem, e o `auto` guarda a altura real
+   depois da 1ª vez. A cena mede a fita com offsetHeight (o navegador calcula a
+   parte pulada sob demanda) e remede no ResizeObserver. */
+.lp3-cena,
+.lp3-band { content-visibility: auto; contain-intrinsic-block-size: auto 1500px; }
+@media (min-width: 1000px) {
+  .lp3-cena,
+  .lp3-band { contain-intrinsic-block-size: auto 900px; }
 }
 
 /* ─── 6 · Menos movimento ────────────────────────────────────────────────── */

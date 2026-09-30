@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Cal, { getCalApi } from "@calcom/embed-react";
+
+/** Teto do aviso de carregamento: se o `linkReady` do Cal não chegar, o aviso
+ *  sai assim mesmo (o calendário pode estar lá, só o evento se perdeu). */
+const TETO_AVISO_MS = 8000;
 
 interface Props {
   calLink: string;
@@ -43,6 +47,15 @@ export default function CalEmbed({
   className,
   corMarca = "#ED4B00",
 }: Props) {
+  // 30/09/2026: até o Cal avisar que a agenda está pronta (`linkReady`), a
+  // caixa mostra "Carregando os horários…". Antes ficava cinza e vazia de 1 a
+  // 3 s no 4G, no passo que mais vale do funil.
+  const [pronto, setPronto] = useState(false);
+  useEffect(() => {
+    const teto = window.setTimeout(() => setPronto(true), TETO_AVISO_MS);
+    return () => window.clearTimeout(teto);
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -63,6 +76,11 @@ export default function CalEmbed({
         // lead não achava os horários. A LP já explica a call antes do passo 3.
         hideEventTypeDetails: true,
         layout: "month_view",
+      });
+
+      cal("on", {
+        action: "linkReady",
+        callback: () => setPronto(true),
       });
 
       if (onBookingSuccess) {
@@ -125,7 +143,12 @@ export default function CalEmbed({
     // Sem altura fixa e sem rolagem própria (22/09): o Cal ajusta a altura do
     // iframe ao conteúdo, e quem rola é o modal. A caixa de altura fixa criava
     // uma segunda rolagem no celular e escondia os horários abaixo do calendário.
-    <div className={className ?? "w-full overflow-hidden rounded-xl"}>
+    <div className={`relative ${className ?? "w-full overflow-hidden rounded-xl"}`}>
+      {!pronto && (
+        <p role="status" className="pointer-events-none absolute inset-0 grid place-items-center text-[13px] text-[#5C5C5C]">
+          Carregando os horários…
+        </p>
+      )}
       <Cal
         namespace="demo"
         calLink={calLink}

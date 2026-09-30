@@ -38,10 +38,11 @@ import CenaWhats from "../components/lp/CenaWhats.astro";
 import "../styles/lp-zx.css";
 import "../styles/zx.css";
 import "../styles/lp-dobra.css";
-// O lp3.css fica como <link> (13 KB minificado, 3,2 KB gz). Medido em 30/09,
-// 5 execuções no celular simulado: esse link custa ~200 ms de LCP em relação
-// à /lp1; inliná-lo por `?raw` custou 165 ms A MAIS (o arquivo entra com os
-// comentários e sem minificar, +20 KB no HTML). Fica o link.
+// O lp3.css fica como <link> (13 KB minificado, 3,2 KB gz). Embutir foi medido
+// DUAS vezes no celular simulado (mediana de 5) e piorou nas duas: por `?raw`
+// (1ª rodada, entra sem minificar) +165 ms de LCP; por `?inline` (rodada 2,
+// 30/09: minificado, num <style> no início do <body>, depois dos <link> do
+// Astro) +114 ms de LCP e +114 ms de FCP. Fica o link.
 import "../styles/lp3.css";
 import GtmHead from "../components/tracking/GtmHead.astro";
 import GaHead from "../components/tracking/GaHead.astro";
@@ -72,7 +73,10 @@ const INTEGRACOES = [
 const SETA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
 // o traço da manuscrita (o mesmo da /lp2)
 const TRACO = "M2 7.4C46 3.1 120 1.9 178 3.4c22 .6 46 1.9 60 3.6";
+// a linha de atrito da dobra 1 é a da /lp1; a das dobras 2 e 3 diz o formato
+// (videochamada) e o conteúdo (os módulos) — rodada 2, 30/09
 const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
+const ATRITO_2 = "Videochamada de 30 min · módulo por módulo, ao vivo · sem cartão";
 ---
 
 <!doctype html>
@@ -89,13 +93,22 @@ const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
   <link rel="apple-touch-icon" href="/lp/apple-touch-icon.png">
   <meta name="theme-color" content="#08090A">
   <meta name="description" content={description}>
+  <!-- As duas origens do Google Fonts: a folha (googleapis) bloqueia a
+       renderização, então a conexão com ela abre antes (30/09, rodada 2). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@300..800&family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
-  <!-- Fontes da modal de lead, pro wizard ficar igual ao do resto do site -->
+  <!-- Fontes da modal de lead, pro wizard ficar igual ao do resto do site. Só
+       a modal as usa e ela nasce fechada: a folha carrega fora do caminho
+       crítico (media de impressão até chegar, depois vale para a tela). Custo
+       aceito em 30/09: nisto a /lp3 deixa de ser igual à /lp1 no teste. -->
   <link
     href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
     rel="stylesheet"
+    media="print"
+    onload="this.media='all'"
   />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" /></noscript>
   <!-- a capa do vídeo é o maior elemento da dobra 1: vem antes de tudo -->
   <link rel="preload" as="image" href="/vsl/capa.webp" media="(min-width: 700px)" fetchpriority="high">
   <link rel="preload" as="image" href="/vsl/capa-vertical.webp" media="(max-width: 699px)" fetchpriority="high">
@@ -207,9 +220,11 @@ const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
       <CenaWhats />
     </div>
 
-    <div class="lp3-acao reveal d3">
-      <a href="#agendar" class="cta cta--lg" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
-      <p class="lp3-atrito">{ATRITO}</p>
+    <!-- o botão não entra com o .reveal: o elemento de conversão já está no
+         lugar quando a pessoa chega à dobra (rodada 2, 30/09) -->
+    <div class="lp3-acao">
+      <a href="#agendar" class="cta cta--lg" data-action="lead"><span class="cta-l">Agendar demonstração</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
+      <p class="lp3-atrito">{ATRITO_2}</p>
     </div>
   </section>
 
@@ -234,7 +249,11 @@ const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
 
       <div class="band-video lp3-band-video reveal d2">
         <div class="player lp3-player" id="lp3Player">
-          <video id="lp3Vid" src="/lp/broll.mp4" poster="/lp/broll-poster.jpg"
+          <!-- o pôster vem do data-poster, posto pelo script quando a dobra se
+               aproxima: com o atributo poster no HTML o navegador o baixava na
+               carga (51 KB) e ele disputava a rede com a capa do VSL, o LCP
+               (medido 30/09, rodada 2) -->
+          <video id="lp3Vid" src="/lp/broll.mp4" data-poster="/lp/broll-poster.jpg"
                  playsinline muted preload="none" controlslist="nodownload"
                  aria-label="Vídeo: conheça o VOS"></video>
           <button type="button" class="capa" id="lp3Capa" aria-label="Assistir ao vídeo">
@@ -253,9 +272,9 @@ const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
         </div>
       </div>
 
-      <div class="band-cta lp3-band-cta reveal d3">
-        <a href="#agendar" class="cta cta--white cta--lg" data-action="lead"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
-        <p class="band-cta-nota">{ATRITO}</p>
+      <div class="band-cta lp3-band-cta">
+        <a href="#agendar" class="cta cta--white cta--lg" data-action="lead"><span class="cta-l">Agendar demonstração</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
+        <p class="band-cta-nota">{ATRITO_2}</p>
       </div>
     </div>
 
@@ -301,8 +320,9 @@ const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
   })();
 
   /* ── O vídeo da dobra 3 (o player da /lp, com duas diferenças) ──
-     1. preload="none" e a pré-busca só quando a seção se aproxima (600px):
-        o "metadata" da /lp puxava um pedaço do mp4 de 2 MB na carga, brigando
+     1. preload="none", e o pôster e a pré-busca só quando a seção se aproxima
+        (600px): o "metadata" da /lp puxava um pedaço do mp4 de 2 MB na carga, e
+        o pôster no HTML (51 KB) disputava a rede com a capa do VSL, brigando
         com a dobra 1 no celular.
      2. um chip de pausar enquanto roda mudo (WCAG 2.2.2); some quando os
         controles nativos entram.
@@ -338,13 +358,14 @@ const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
     });
 
     var reduz=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function poePoster(){ if(!vid.poster && vid.dataset.poster) vid.poster=vid.dataset.poster; }
     if('IntersectionObserver' in window){
-      // pré-busca ao se aproximar, uma vez
+      // pôster e pré-busca ao se aproximar, uma vez
       var perto=new IntersectionObserver(function(es){
-        if(es.some(function(e){return e.isIntersecting;})){ vid.preload='auto'; perto.disconnect(); }
+        if(es.some(function(e){return e.isIntersecting;})){ poePoster(); vid.preload='auto'; perto.disconnect(); }
       },{rootMargin:'600px 0px'});
       perto.observe(pl);
-    }
+    } else poePoster();
     if(!reduz && 'IntersectionObserver' in window){
       var dentro=false;
       function tenta(){
