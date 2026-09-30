@@ -19,8 +19,11 @@
 // GA, primeiro toque) e a MESMA modal de lead com o Cal (data-action="lead",
 // tema tinta). O que é só dela mora no styles/lp3.css (prefixo lp3-).
 //
-// A barra fixa observa os QUATRO botões de agendar (dobra 1, o do fim do VSL,
-// dobra 2, dobra 3) e só aparece quando nenhum está na tela. A linha legal
+// A barra fixa é a da /lp (decisão do Orlando, 30/09): entra depois de 480px de
+// rolagem e fica, inclusive com outro botão na tela, com o mesmo rótulo
+// "Agendar demonstração" e a mesma modal. Custo conhecido: no celular o botão
+// da dobra 1 nasce abaixo da primeira tela, então o topo fica sem convite até
+// a pessoa rolar (a regra antiga mostrava a barra já no topo). A linha legal
 // saiu da dobra 1 (na /lp1 ela é o pé de uma página de uma dobra) e mora no
 // fim da dobra 3. A dobra 3 é uma <section> escura simples, não o ScrollBand
 // da /lp2: ele traz um script a mais e um chunk que a home divide.
@@ -264,11 +267,12 @@ const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
     </footer>
   </section>
 
-  <!-- Rede de segurança do celular: sempre que NENHUM botão de agendar está na
-       vista, o mesmo convite aparece na barra do pé (a pílula de vidro da
-       /lp1); quando um deles volta, a barra sai. -->
-  <div class="bar" id="lp3Fixo" aria-hidden="true">
-    <a href="#agendar" class="cta" data-action="lead" tabindex="-1"><span class="cta-l">Agendar agora</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
+  <!-- A barra da /lp, na pílula de vidro da /lp1 e da /lp2 (lp-zx.css › .bar):
+       entra depois de 480px de rolagem e fica. Escondida, o visibility do .bar
+       já a tira do Tab e dos leitores de tela; o rodapé reserva 84px embaixo
+       para ela (lp-zx.css › .lp-foot), e a modal (z 80) passa por cima. -->
+  <div class="bar" id="lp3Fixo">
+    <a href="#agendar" class="cta" data-action="lead"><span class="cta-l">Agendar demonstração</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
   </div>
 </div>
 
@@ -280,24 +284,20 @@ const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
     document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
   })();
 
-  /* ── A barra do pé: só quando nenhum botão de agendar está na vista ──
-     Observa os quatro (dobra 1, o do fim do VSL, dobra 2, dobra 3); o do fim
-     do VSL fica escondido até o vídeo acabar com som, e escondido não conta. */
+  /* ── A barra do pé: a da /lp (lp.astro), sem a saída perto do botão final ──
+     Entra depois de 480px de rolagem e fica em qualquer posição abaixo disso,
+     inclusive com outro botão de agendar na tela; de volta ao topo, sai, como
+     na /lp. */
   (function(){
-    var fixo=document.getElementById('lp3Fixo');
-    if(!fixo||!('IntersectionObserver' in window)) return;
-    var link=fixo.querySelector('a');
-    var alvos=[].slice.call(document.querySelectorAll("[data-action='lead']")).filter(function(a){return !fixo.contains(a);});
-    if(!alvos.length) return;
-    var visiveis=new Set();
-    var obs=new IntersectionObserver(function(es){
-      es.forEach(function(e){ if(e.isIntersecting) visiveis.add(e.target); else visiveis.delete(e.target); });
-      var mostra=visiveis.size===0;
-      fixo.classList.toggle('show',mostra);
-      fixo.setAttribute('aria-hidden',mostra?'false':'true');
-      link.tabIndex=mostra?0:-1;
-    },{threshold:.6});
-    alvos.forEach(function(a){obs.observe(a);});
+    var bar=document.getElementById('lp3Fixo');
+    if(!bar) return;
+    function atualiza(){ bar.classList.toggle('show', scrollY>480); }
+    /* coalesce num rAF, como na /lp */
+    var raf=0;
+    function agenda(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=0; atualiza(); }); }
+    addEventListener('scroll',agenda,{passive:true});
+    addEventListener('resize',agenda,{passive:true});
+    atualiza();
   })();
 
   /* ── O vídeo da dobra 3 (o player da /lp, com duas diferenças) ──
