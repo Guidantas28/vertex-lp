@@ -17,7 +17,8 @@
  *      camadas empilhadas para acender/ticks/status/hora/legenda (cross-fade de
  *      opacity, nunca transição de cor), a fita ancorada embaixo (estado final =
  *      translateY(0)), as bolinhas por keyframes só de opacity;
- *   4. o botão de pausar (WCAG 2.2.2), fora do palco;
+ *   4. (vazio desde 30/09: o botão de pausar da cena saiu — loop contínuo por
+ *      decisão do Orlando, WCAG 2.2.2 reprovado; ver CenaWhats.astro);
  *   5. a dobra 3 (Carvão): grade desktop e os chips de 44 px do vídeo;
  *   6. prefers-reduced-motion.
  */
@@ -492,31 +493,6 @@ html:not(.js) .lp3-tick--1,
 html:not(.js) .lp3-tick--2,
 html:not(.js) .lp3-hora-live,
 html:not(.js) .lp3-leg-live { opacity: 0; }
-html:not(.js) .lp3-cena-acao { display: none; }
-
-/* ─── 4 · O botão de pausar (fora do palco, ≥ 44px, foco visível) ────────── */
-.lp3-cena-acao { margin-top: 12px; display: flex; justify-content: flex-end; }
-.lp3-pausa {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 16px;
-  border: 1.5px solid var(--zx-line-2);
-  border-radius: var(--zx-btn-radius);
-  background: var(--zx-panel);
-  color: var(--zx-ink);
-  font-family: var(--zx-body);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1;
-  cursor: pointer;
-  transition: border-color var(--zx-t-micro) var(--zx-ease), background var(--zx-t-micro) var(--zx-ease);
-}
-.lp3-pausa:hover { border-color: var(--zx-ink); background: var(--zx-pick); }
-.lp3-pausa:focus-visible { outline: 2px solid var(--zx-ink); outline-offset: 3px; }
-.lp3-pausa-ic { width: 14px; height: 14px; flex: none; }
-.lp3-pausa-ic[hidden] { display: none; }
 
 /* ─── 5 · Dobra 3: o vídeo, no Carvão ────────────────────────────────────── */
 .lp3-band {
@@ -588,6 +564,5 @@ html:not(.js) .lp3-cena-acao { display: none; }
 /* ─── 6 · Menos movimento ────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .lp3-dot { animation: none; }
-  .lp3-pausa,
   .lp3-vid-pausa { transition: none; }
 }

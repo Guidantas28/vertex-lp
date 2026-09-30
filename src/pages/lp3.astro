@@ -4,7 +4,8 @@
 // Três dobras, celular primeiro, um objetivo só (agendar a demonstração):
 //   1. o topo da /lp1 como está (a frase, o VSL, o botão, as integrações);
 //   2. a cena do WhatsApp da /lp refeita como animação viva no DOM (GSAP +
-//      ScrollTrigger, botão de pausar, estado final parado em reduce) —
+//      ScrollTrigger, loop contínuo sem pausar — WCAG 2.2.2 reprovado por
+//      decisão do Orlando em 30/09 —, estado final parado em reduce) —
 //      components/lp/CenaWhats.astro — com o botão de agendar embaixo;
 //   3. o vídeo "Conheça o VOS" da /lp (broll vertical, capa, mudo ao entrar,
 //      som a um toque, pausa ao sair) com o botão de agendar embaixo.
@@ -186,7 +187,8 @@ const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
        A copy é a da /lp (cabeçalho "você digita uma vez só"), sem mudar. A cena
        é o components/lp/CenaWhats.astro: o aparelho com a conversa entrando
        balão a balão, o "digitando…" e a régua dos 7 módulos acendendo em
-       sincronia, com o botão de pausar logo abaixo (WCAG 2.2.2). A caixa da
+       sincronia, em loop contínuo e sem botão de pausar (decisão do Orlando,
+       30/09: reprova WCAG 2.2.2 nível A, registrado no componente). A caixa da
        cena NÃO leva .reveal: o fade de 0,7 s disputaria com os primeiros 400 ms
        da conversa e o translateY do reveal desloca o gatilho do ScrollTrigger.
        O botão de agendar vem DEPOIS da prova: quem viu a venda acontecer
@@ -212,7 +214,8 @@ const ATRITO = "Demonstração de 30 minutos · ao vivo · sem cartão";
        O broll vertical da /lp com o mesmo comportamento de lá (toca mudo ao
        entrar na tela, pausa ao sair, um toque liga o som e os controles
        nativos), mais um chip de pausar de 44px enquanto roda mudo: é movimento
-       automático de mais de 5 s, o mesmo critério da cena. O botão de agendar
+       automático de mais de 5 s (WCAG 2.2.2). A decisão de 30/09 de tirar o
+       pausar vale só para a cena da dobra 2; este chip fica. O botão de agendar
        embaixo, e a linha legal no pé. -->
   <section class="lp-band lp3-band" id="conheca">
     <div class="lp-pele lp3-band-pele" aria-hidden="true">

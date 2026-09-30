@@ -20,11 +20,22 @@
  *  · GSAP + ScrollTrigger entram por import() dinâmico (o script empacotado da
  *    página divide o chunk com o autoplay do VSL da dobra 1; um import estático
  *    atrasaria aquele autoplay em ~42 KB gz). Carrega ao se aproximar (900px)
- *    ou no ocioso depois do load. Em reduce, só se a pessoa apertar Reproduzir.
+ *    ou no ocioso depois do load. Em reduce não carrega nunca.
  *  · ScrollTrigger é só o portão (sem pin, sem scrub): entra → toca do zero;
- *    sai → pausa; volta → do zero. Se a pessoa pausou, a volta não retoma.
- *  · Botão de pausar visível, fora do palco (WCAG 2.2.2): Pausar / Continuar /
- *    Ver de novo / Reproduzir. Sem aria-pressed: o nome muda com a ação.
+ *    sai → pausa; volta → do zero.
+ *  · 🔴 LOOP CONTÍNUO, SEM CONTROLE DE PAUSAR (decisão do Orlando, 30/09/2026):
+ *    no fim dos 30,4 s a cena recomeça sozinha, com a cauda de 1,8 s como
+ *    intervalo, e repete enquanto estiver na tela. Isto REPROVA o critério
+ *    WCAG 2.2.2 (nível A): movimento que começa sozinho, dura mais de 5 s e
+ *    divide a tela com texto exige um mecanismo de pausar, parar ou ocultar, e
+ *    aqui não há nenhum. Não é descuido: é escolha do dono, com o custo na mesa
+ *    (registrada também em _LOGS/MUDANCAS.md, 30/09). O que sobra de atenuação:
+ *    quem pede menos movimento vê o estado final parado (sem baixar o gsap), e
+ *    fora da tela a cena para. O recomeço é o doZero() (o mesmo caminho da volta
+ *    à tela), e não o repeat do GSAP: o repeat volta ao tempo 0 sem invalidate
+ *    e deixa a hora, a legenda e o "N de 7" do ciclo anterior na tela.
+ *  · Os últimos 0,4 s da cauda apagam o quadro e o ciclo seguinte o acende em
+ *    0,3 s: o recomeço acontece no escuro, sem corte seco.
  *  · Só transform e opacity, tudo ≤ 600 ms: acender, ticks, "online →
  *    digitando…", hora e legenda são camadas empilhadas com cross-fade.
  *
@@ -310,15 +321,6 @@ const ROTULO =
       </div>
     </div>
   </div>
-
-  <!-- o botão de pausar, fora do palco (o palco é role="img") -->
-  <div class="lp3-cena-acao">
-    <button type="button" class="lp3-pausa" id="lp3Pausa" aria-controls="lp3Palco">
-      <span class="lp3-pausa-ic lp3-pausa-ic--pausa" hidden><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></span>
-      <span class="lp3-pausa-ic lp3-pausa-ic--play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6L19 12 8 5.2Z"/></svg></span>
-      <span class="lp3-pausa-l">Reproduzir</span>
-    </button>
-  </div>
 </div>
 
 <script>
@@ -332,7 +334,6 @@ const ROTULO =
   type Plugin = typeof import("gsap/ScrollTrigger")["ScrollTrigger"];
   type Linha = ReturnType<Gsap["timeline"]>;
   type Portao = ReturnType<Plugin["create"]>;
-  type Estado = "pronto" | "tocando" | "pausado" | "fim";
   type Msg = {
     el: HTMLElement;
     de: string;
@@ -360,6 +361,7 @@ const ROTULO =
   function montarCena(raiz: HTMLElement) {
     const q = <T extends Element>(sel: string) => raiz.querySelector<T>(sel);
     const palco = q<HTMLElement>(".lp3-palco");
+    const quadro = q<HTMLElement>(".lp3-quadro");
     const fita = q<HTMLElement>(".lp3-fita");
     const dig = q<HTMLElement>(".lp3-dig");
     const hora = q<HTMLElement>(".lp3-hora-live");
@@ -368,11 +370,7 @@ const ROTULO =
     const legN = q<HTMLElement>(".lp3-leg-live .lp3-leg-n");
     const legNome = q<HTMLElement>(".lp3-leg-live .lp3-leg-nome");
     const legSelo = q<HTMLElement>(".lp3-leg-selo");
-    const botao = q<HTMLButtonElement>(".lp3-pausa");
-    const rotulo = q<HTMLElement>(".lp3-pausa-l");
-    const icPausa = q<HTMLElement>(".lp3-pausa-ic--pausa");
-    const icPlay = q<HTMLElement>(".lp3-pausa-ic--play");
-    if (!palco || !fita || !dig || !hora || !stOnline || !stDig || !legN || !legNome || !legSelo || !botao || !rotulo || !icPausa || !icPlay) return;
+    if (!palco || !quadro || !fita || !dig || !hora || !stOnline || !stDig || !legN || !legNome || !legSelo) return;
 
     const num = (v: string | undefined) => (v === undefined || v === "" ? null : Number(v));
     const msgs: Msg[] = Array.from(raiz.querySelectorAll<HTMLElement>(".lp3-msg")).map((el) => ({
@@ -402,21 +400,15 @@ const ROTULO =
     });
     if (!msgs.length || ladrilhos.size !== 7) return;
 
-    let est: Estado = "pronto";
-    let usuarioPausou = false;
     let tl: Linha | null = null;
     let portao: Portao | null = null;
     let hFita = 0;
     let hDig = 0;
     let largura = 0;
+    /* o recomeço do zero: montar() o preenche depois que o gsap chega. O fim
+       de cada volta o chama com `volta = true` (é o loop). */
+    let doZero: (volta: boolean) => void = () => {};
 
-    function estado(e: Estado) {
-      est = e;
-      rotulo!.textContent = e === "tocando" ? "Pausar" : e === "pausado" ? "Continuar" : e === "fim" ? "Ver de novo" : "Reproduzir";
-      icPausa!.hidden = e !== "tocando";
-      icPlay!.hidden = e === "tocando";
-      palco!.classList.toggle("is-tocando", e === "tocando");
-    }
     function legenda(n: number, nome: string) {
       legN!.textContent = n + " de 7";
       legN!.classList.toggle("is-on", n > 0);
@@ -441,9 +433,13 @@ const ROTULO =
     const alvoDig = (i: number) => hFita - (msgs[i].topo + hDig);
 
     function montarLinha(gsap: Gsap): Linha {
-      const linha = gsap.timeline({ paused: true, defaults: { ease: "power3.out" }, onComplete: () => estado("fim") });
+      // o fim da volta recomeça do zero: é o loop (ver o cabeçalho)
+      const linha = gsap.timeline({ paused: true, defaults: { ease: "power3.out" }, onComplete: () => doZero(true) });
       linha.timeScale(VELOCIDADE);
       linha.set(fita, { y: () => alvoBolha(0) }, 0);
+      /* o quadro acende em 0,3 s: no recomeço ele vem apagado (doZero), na
+         entrada na tela já está aceso e este tween não muda nada */
+      linha.to(quadro, { opacity: 1, duration: 0.3, ease: "power1.out" }, 0);
       /* a rolagem da fita anda até o próximo evento, no máximo .55 s, para
          nunca haver dois tweens na mesma propriedade ao mesmo tempo */
       const dur = (de: number, ate: number | null) => Math.max(0.25, Math.min(0.55, ((ate ?? Infinity) - de) / 1000));
@@ -487,7 +483,9 @@ const ROTULO =
         if (m.acende) acender(linha, m.acende, t, ++acesos);
         if (m.pulsa) pulsar(linha, m.pulsa, m.selo || "", t, m.acende ? null : acesos);
       });
-      // a cauda segura o quadro final até o fim declarado
+      // a cauda segura o quadro final e o apaga nos últimos 0,4 s: o recomeço
+      // acontece no escuro
+      linha.to(quadro, { opacity: 0, duration: 0.4, ease: "power1.in" }, total - 0.45);
       linha.to({ v: 0 }, { v: 1, duration: 0.01 }, total - 0.01);
       return linha;
     }
@@ -522,7 +520,7 @@ const ROTULO =
       gsap.registerPlugin(ST);
       ST.config({ ignoreMobileResize: true });
       const animados = () => [
-        fita!, dig!, legNome!, legSelo!, stOnline!, stDig!,
+        quadro!, fita!, dig!, legNome!, legSelo!, stOnline!, stDig!,
         ...msgs.map((m) => m.el),
         ...msgs.flatMap((m) => m.ticks),
         ...Array.from(ladrilhos.values()).flatMap((l) => [l.el, l.on, l.glow, l.icOff, l.icOn]),
@@ -533,71 +531,58 @@ const ROTULO =
         reiniciarTextos();
         gsap.set(fita, { y: alvoBolha(0) });
       };
-      const doZero = () => {
+      /* do zero: devolve tudo ao CSS e toca. `volta` = o fim do ciclo anterior
+         (o quadro recomeça apagado e acende em 0,3 s) */
+      doZero = (volta: boolean) => {
         if (!tl) return;
-        palco!.classList.remove("is-final");
         tl.pause(0);
         limpar();
+        if (volta) gsap.set(quadro, { opacity: 0 });
         tl.invalidate().restart();
-        estado("tocando");
+        palco!.classList.add("is-tocando");
       };
+      /* entra na tela: só recomeça se estiver parada (o portão pode avisar duas
+         vezes: isActive na criação e o onEnter) */
       const entrar = () => {
-        if (usuarioPausou || est === "tocando") return;
-        doZero();
+        if (tl && tl.paused()) doZero(false);
       };
-      /* sai da tela: pausa e volta a "pronto", para a volta reiniciar do zero
-         (se ficasse em "tocando", entrar() recusaria e a cena ficaria parada
-         onde a saída a pegou). Pausa do usuário não passa por aqui. */
+      /* sai da tela: pausa onde estiver; a volta recomeça do zero */
       const sair = () => {
-        if (est === "tocando" && tl) {
-          tl.pause();
-          estado("pronto");
-        }
+        tl?.pause();
+        palco!.classList.remove("is-tocando");
       };
-      function clique() {
-        if (!tl) return;
-        if (est === "tocando") {
-          tl.pause();
-          usuarioPausou = true;
-          estado("pausado");
-        } else if (est === "pausado") {
-          usuarioPausou = false;
-          tl.play();
-          estado("tocando");
-        } else {
-          usuarioPausou = false;
-          doZero();
-        }
-      }
 
       const mm = gsap.matchMedia();
       mm.add(
         { reduce: "(prefers-reduced-motion: reduce)", celular: "(max-width: 999px)", desktop: "(min-width: 1000px)" },
         (ctx) => {
           const c = (ctx.conditions || {}) as { reduce?: boolean; celular?: boolean };
+          if (c.reduce) {
+            // a pessoa ligou "menos movimento" com a página aberta: o estado final parado
+            gsap.set(fita, { clearProps: "transform" });
+            palco!.classList.add("is-final");
+            return () => palco!.classList.remove("is-final");
+          }
           medir();
           tl = montarLinha(gsap);
-          if (!palco!.classList.contains("is-final")) gsap.set(fita, { y: alvoBolha(0) });
-          if (!c.reduce) {
-            portao = ST.create({
-              trigger: palco,
-              start: c.celular ? "top 80%" : "top 70%",
-              end: c.celular ? "bottom 20%" : "bottom 30%",
-              onEnter: entrar,
-              onEnterBack: entrar,
-              onLeave: sair,
-              onLeaveBack: sair,
-            });
-            if (portao.isActive) entrar();
-          }
+          gsap.set(fita, { y: alvoBolha(0) });
+          portao = ST.create({
+            trigger: palco,
+            start: c.celular ? "top 80%" : "top 70%",
+            end: c.celular ? "bottom 20%" : "bottom 30%",
+            onEnter: entrar,
+            onEnterBack: entrar,
+            onLeave: sair,
+            onLeaveBack: sair,
+          });
+          if (portao.isActive) entrar();
           return () => {
             portao?.kill();
             portao = null;
             tl?.kill();
             tl = null;
             limpar();
-            usuarioPausou = false;
-            estado("pronto");
+            palco!.classList.remove("is-tocando");
           };
         }
       );
@@ -611,38 +596,30 @@ const ROTULO =
         medir();
         if (!tl) return;
         tl.invalidate();
-        if (est !== "tocando" && est !== "pausado") gsap.set(fita, { y: est === "fim" ? 0 : alvoBolha(0) });
+        if (tl.paused()) gsap.set(fita, { y: alvoBolha(0) });
       }).observe(palco!);
       document.fonts.ready.then(() => {
         medir();
         tl?.invalidate();
       });
-
-      return { clique };
     }
 
-    let motor: Promise<{ clique: () => void }> | null = null;
-    /* uma falha de rede no import() não pode travar o botão para sempre: a
-       promessa rejeitada é descartada e o próximo pedido tenta de novo */
-    const carregar = () =>
-      (motor ??= Promise.all([import("gsap"), import("gsap/ScrollTrigger")])
+    let motor: Promise<void> | null = null;
+    /* uma falha de rede no import() não trava a cena para sempre: a promessa
+       é descartada e o próximo gatilho (aproximar ou ocioso) tenta de novo */
+    const carregar = () => {
+      motor ??= Promise.all([import("gsap"), import("gsap/ScrollTrigger")])
         .then(([g, s]) => montar(g.gsap, s.ScrollTrigger))
-        .catch((e) => {
+        .catch(() => {
           motor = null;
-          throw e;
-        }));
-
-    botao.addEventListener("click", () => {
-      carregar().then((m) => m.clique());
-    });
+        });
+    };
 
     if (reduz.matches) {
-      // menos movimento: o estado final parado; movimento só se a pessoa pedir
+      // menos movimento: o estado final parado, e o gsap nem é baixado
       palco.classList.add("is-final");
-      estado("pronto");
       return;
     }
-    estado("pronto");
     if ("IntersectionObserver" in window) {
       const io = new IntersectionObserver(
         (es) => {
