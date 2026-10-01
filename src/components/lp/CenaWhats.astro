@@ -19,11 +19,13 @@
  *    o sem-JS mostra o fim por CSS puro (lp3.css, html:not(.js)).
  *  · GSAP + ScrollTrigger entram por import() dinâmico (o script empacotado da
  *    página divide o chunk com o autoplay do VSL da dobra 1; um import estático
- *    atrasaria aquele autoplay em ~42 KB gz). Carrega ao se aproximar (900px)
- *    ou no primeiro gesto da pessoa (rolar, tocar, roda, tecla), para todo
- *    mundo. Até 30/09 o 2º gatilho era "no ocioso depois do load": no
- *    Lighthouse isso entrava como JS concorrendo com o LCP (+140 ms simulados)
- *    e quem só olha a 1ª dobra pagava 48 KB à toa.
+ *    atrasaria aquele autoplay em ~42 KB gz). Carrega no primeiro gesto da
+ *    pessoa (rolar, tocar, roda, tecla) ou, sem gesto, quando o palco já está
+ *    na tela (link direto, volta do histórico), para todo mundo. Até 30/09 os
+ *    gatilhos eram "a 900px do palco" e "no ocioso depois do load": no celular
+ *    o palco fica a ~1 580px do topo, então os dois disparavam NA CARGA, e
+ *    o gsap entrava no Lighthouse como JS concorrendo com o LCP (+140 a +430 ms
+ *    simulados); quem só olha a 1ª dobra pagava 48 KB à toa.
  *  · ScrollTrigger é só o portão (sem pin, sem scrub): entra → toca do zero;
  *    sai → pausa; volta → do zero.
  *  · 🔴 LOOP CONTÍNUO, SEM CONTROLE DE PAUSAR (decisão do Orlando, 30/09/2026):
@@ -614,6 +616,7 @@ const ROTULO =
         });
     };
 
+    /* sem margem de propósito: só o palco JÁ na tela conta (ver o cabeçalho) */
     if ("IntersectionObserver" in window) {
       const io = new IntersectionObserver(
         (es) => {
@@ -622,7 +625,7 @@ const ROTULO =
             carregar();
           }
         },
-        { rootMargin: "900px 0px" }
+        { rootMargin: "0px" }
       );
       io.observe(palco);
     }
