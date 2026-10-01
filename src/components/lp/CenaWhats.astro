@@ -16,11 +16,11 @@
  *    data-*; o script só lê e mede. Nada re-flui: a fita inteira translada.
  *  · A fita ancora EMBAIXO do viewport: o alvo da bolha i é
  *    hFita − (topo_i + altura_i), e o estado final é translateY(0) — por isso
- *    o reduce e o sem-JS mostram o fim por CSS puro (lp3.css, .is-final).
+ *    o sem-JS mostra o fim por CSS puro (lp3.css, html:not(.js)).
  *  · GSAP + ScrollTrigger entram por import() dinâmico (o script empacotado da
  *    página divide o chunk com o autoplay do VSL da dobra 1; um import estático
  *    atrasaria aquele autoplay em ~42 KB gz). Carrega ao se aproximar (900px)
- *    ou no ocioso depois do load. Em reduce não carrega nunca.
+ *    ou no ocioso depois do load, para todo mundo.
  *  · ScrollTrigger é só o portão (sem pin, sem scrub): entra → toca do zero;
  *    sai → pausa; volta → do zero.
  *  · 🔴 LOOP CONTÍNUO, SEM CONTROLE DE PAUSAR (decisão do Orlando, 30/09/2026):
@@ -29,8 +29,10 @@
  *    WCAG 2.2.2 (nível A): movimento que começa sozinho, dura mais de 5 s e
  *    divide a tela com texto exige um mecanismo de pausar, parar ou ocultar, e
  *    aqui não há nenhum. Não é descuido: é escolha do dono, com o custo na mesa
- *    (registrada também em _LOGS/MUDANCAS.md, 30/09). O que sobra de atenuação:
- *    quem pede menos movimento vê o estado final parado (sem baixar o gsap), e
+ *    (registrada também em _LOGS/MUDANCAS.md, 30/09). Vale TAMBÉM para quem
+ *    pede menos movimento (prefers-reduced-motion): ordem dele de 30/09 20h30,
+ *    "a dobra 2 funciona para todo mundo, sempre em movimento" — até essa hora
+ *    o reduce mostrava o estado final parado. A única atenuação que fica é que
  *    fora da tela a cena para. O recomeço é o doZero() (o mesmo caminho da volta
  *    à tela), e não o repeat do GSAP: o repeat volta ao tempo 0 sem invalidate
  *    e deixa a hora, a legenda e o "N de 7" do ciclo anterior na tela.
@@ -354,7 +356,6 @@ const ROTULO =
 
   /** 1 = o tempo do produto (30,4 s). É a única constante de ajuste. */
   const VELOCIDADE = 1;
-  const reduz = matchMedia("(prefers-reduced-motion: reduce)");
 
   document.querySelectorAll<HTMLElement>("[data-cena]").forEach(montarCena);
 
@@ -553,16 +554,11 @@ const ROTULO =
       };
 
       const mm = gsap.matchMedia();
+      /* sem condição de prefers-reduced-motion de propósito (ver o cabeçalho) */
       mm.add(
-        { reduce: "(prefers-reduced-motion: reduce)", celular: "(max-width: 999px)", desktop: "(min-width: 1000px)" },
+        { celular: "(max-width: 999px)", desktop: "(min-width: 1000px)" },
         (ctx) => {
-          const c = (ctx.conditions || {}) as { reduce?: boolean; celular?: boolean };
-          if (c.reduce) {
-            // a pessoa ligou "menos movimento" com a página aberta: o estado final parado
-            gsap.set(fita, { clearProps: "transform" });
-            palco!.classList.add("is-final");
-            return () => palco!.classList.remove("is-final");
-          }
+          const c = (ctx.conditions || {}) as { celular?: boolean };
           medir();
           tl = montarLinha(gsap);
           gsap.set(fita, { y: alvoBolha(0) });
@@ -615,11 +611,6 @@ const ROTULO =
         });
     };
 
-    if (reduz.matches) {
-      // menos movimento: o estado final parado, e o gsap nem é baixado
-      palco.classList.add("is-final");
-      return;
-    }
     if ("IntersectionObserver" in window) {
       const io = new IntersectionObserver(
         (es) => {

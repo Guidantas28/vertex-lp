@@ -480,27 +480,16 @@
 }
 .lp3-input-enviar svg { width: calc(3.8 * var(--u)); height: calc(3.8 * var(--u)); }
 
-/* ── estado final: o que o reduce (classe posta pelo JS) e o sem-JS mostram ──
+/* ── estado final: o que o sem-JS mostra (desde 30/09 20h30 a cena anima para
+   todo mundo, inclusive com "menos movimento": ordem do Orlando, ver CenaWhats) ──
    14 bolhas, 7 módulos acesos, ticks lidos, "7 de 7 · Relatórios", 14:34 */
-.lp3-palco.is-final .lp3-msg,
 html:not(.js) .lp3-msg { opacity: 1; visibility: inherit; transform: none; }
-.lp3-palco.is-final .lp3-mod,
 html:not(.js) .lp3-mod { transform: none; }
-.lp3-palco.is-final .lp3-mod-on,
-.lp3-palco.is-final .lp3-mod-ic--on,
-.lp3-palco.is-final .lp3-tick--3,
-.lp3-palco.is-final .lp3-hora-fim,
-.lp3-palco.is-final .lp3-leg-fim,
 html:not(.js) .lp3-mod-on,
 html:not(.js) .lp3-mod-ic--on,
 html:not(.js) .lp3-tick--3,
 html:not(.js) .lp3-hora-fim,
 html:not(.js) .lp3-leg-fim { opacity: 1; }
-.lp3-palco.is-final .lp3-mod-ic--off,
-.lp3-palco.is-final .lp3-tick--1,
-.lp3-palco.is-final .lp3-tick--2,
-.lp3-palco.is-final .lp3-hora-live,
-.lp3-palco.is-final .lp3-leg-live,
 html:not(.js) .lp3-mod-ic--off,
 html:not(.js) .lp3-tick--1,
 html:not(.js) .lp3-tick--2,
@@ -596,7 +585,7 @@ html:not(.js) .lp3-leg-live { opacity: 0; }
 }
 
 /* ─── 6 · Menos movimento ────────────────────────────────────────────────── */
+/* a cena da dobra 2 fica de fora de propósito (anima para todo mundo) */
 @media (prefers-reduced-motion: reduce) {
-  .lp3-dot { animation: none; }
   .lp3-vid-pausa { transition: none; }
 }
