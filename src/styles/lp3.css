@@ -21,7 +21,8 @@
  *      decisão do Orlando, WCAG 2.2.2 reprovado; ver CenaWhats.astro);
  *   5. a dobra 3 (Carvão): grade desktop e os chips de 44 px do vídeo;
  *   6. prefers-reduced-motion;
- *   7. desempenho: as dobras 2 e 3 só são calculadas perto da tela.
+ *   7. desempenho: as dobras 2 e 3 só são calculadas perto da tela;
+ *   8. o botão flutuante de WhatsApp (o da /lp2) no celular e no tablet.
  */
 
 /* ─── 1 · O que era do lp1.css ───────────────────────────────────────────── */
@@ -545,6 +546,13 @@ html:not(.js) .lp3-leg-live { opacity: 0; }
 .lp3-vid-ic { display: inline-flex; flex: none; }
 .lp3-vid-ic[hidden] { display: none; }
 .lp3-vid-pausa svg { width: 14px; height: 14px; }
+/* abaixo de 360px o player tem 219px e os dois chips (90 + 112 + margens) se
+   cruzavam por 3px (medido 01/10): o pausar vira só ícone, 44×44, e o rótulo
+   continua sendo o nome do botão para o leitor de tela (escondido só na tela) */
+@media (max-width: 359px) {
+  .lp3-vid-pausa { width: 44px; padding: 0; justify-content: center; }
+  .lp3-vid-pausa-l { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
 /* desktop: a copy à esquerda e o vídeo à direita, na proporção da dobra 1 */
 @media (min-width: 1000px) {
   .lp3-band-in {
@@ -582,6 +590,25 @@ html:not(.js) .lp3-leg-live { opacity: 0; }
 @media (min-width: 1000px) {
   .lp3-cena,
   .lp3-band { contain-intrinsic-block-size: auto 900px; }
+}
+
+/* ─── 8 · WhatsApp flutuante no celular e no tablet ──────────────────────── */
+/* Medido em 01/10 (rodada 3, 320–834px): no topo, o botão (e o balão) ficavam
+   por cima do VSL e da ponta do "Agendar agora" da dobra 1, que no celular
+   nasce no pé da 1ª tela; em 768 ele cobria o link do rodapé. Abaixo de
+   1000px ele entra JUNTO com a barra (depois de 480px de rolagem, o mesmo
+   `.bar.show ~` que o lp-zx.css usa para subi-lo) e o rodapé reserva espaço
+   para os dois. No desktop fica como na /lp2: o canto direito não encosta em
+   nenhum botão. */
+@media (max-width: 999px) {
+  .lp3 .zap-wrap {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: bottom 0.32s var(--zx-ease), opacity 0.3s var(--zx-ease), transform 0.3s var(--zx-ease), visibility 0.3s;
+  }
+  .lp3 .bar.show ~ .zap-wrap { opacity: 1; visibility: visible; transform: none; }
+  .lp3-band .lp-foot { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
 }
 
 /* ─── 6 · Menos movimento ────────────────────────────────────────────────── */
