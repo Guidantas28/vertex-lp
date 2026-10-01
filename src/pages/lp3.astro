@@ -217,7 +217,18 @@ const ATRITO_2 = "Videochamada de 30 min · módulo por módulo, ao vivo · sem 
       <p class="reveal d2">O cliente escreve. O VOS responde, salva o contato, monta o orçamento e emite a nota. Nada é copiado de uma tela para outra.</p>
     </div>
 
+    <!-- o painel do VOS atrás do aparelho (rodada 3, 01/10, pedido do Orlando):
+         print do painel de Insights no VOS local, no commit da produção, com
+         dados de demonstração (nunca a produção: dado real de cliente não vai
+         para página pública). Esmaecido e com o véu do papel, atrás do
+         aparelho e longe do título e do texto, para o contraste não cair. O
+         src vem do data-src quando a dobra se aproxima, depois do load: no
+         HTML ele seria baixado na carga e brigaria com a capa do VSL (o LCP),
+         como o pôster da dobra 3. -->
     <div class="band-cena lp3-cena-box">
+      <div class="lp3-cena-fundo" aria-hidden="true">
+        <img data-src="/assets/lp3/painel-vos.webp" alt="" width="1600" height="950" decoding="async">
+      </div>
       <CenaWhats />
     </div>
 
@@ -346,6 +357,34 @@ const ATRITO_2 = "Videochamada de 30 min · módulo por módulo, ao vivo · sem 
     addEventListener('scroll',agenda,{passive:true});
     addEventListener('resize',agenda,{passive:true});
     atualiza();
+  })();
+
+  /* ── O painel do VOS atrás da cena: no 1º gesto ou com a dobra na tela ──
+     O mesmo gatilho do gsap da cena (CenaWhats): com "a 600px da dobra" ele
+     era pedido logo depois do load no celular (a dobra 2 começa a ~1 250px) e
+     entrava na medição do Lighthouse antes da 1ª pintura, como o pôster da
+     dobra 3. Agora só quando a pessoa mexe na página (rolar, tocar, roda,
+     tecla) ou quando a dobra já está na tela (link direto, volta do
+     histórico). Esmaece ao chegar. Sem IntersectionObserver, põe no load. */
+  (function(){
+    var img=document.querySelector('.lp3-cena-fundo img'), cena=document.getElementById('cena');
+    if(!img||!cena) return;
+    function poe(){
+      if(img.getAttribute('src')) return;
+      img.addEventListener('load',function(){ img.classList.add('in'); },{once:true});
+      img.src=img.dataset.src;
+    }
+    ['scroll','wheel','touchstart','pointerdown','keydown'].forEach(function(ev){
+      addEventListener(ev,poe,{once:true,passive:true});
+    });
+    /* 2% visível, e não "encostou": no desktop a dobra 1 tem a altura da tela
+       e a borda da dobra 2 encosta na borda de baixo já na carga */
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(es){
+        if(es.some(function(e){return e.isIntersecting&&e.intersectionRatio>0;})){ io.disconnect(); poe(); }
+      },{threshold:0.02});
+      io.observe(cena);
+    } else addEventListener('load',poe,{once:true});
   })();
 
   /* ── WhatsApp flutuante (o script da /lp2, igual) ──

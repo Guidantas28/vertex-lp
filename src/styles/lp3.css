@@ -60,6 +60,12 @@
 @media (max-width: 999px) {
   .lp3-acao { margin-top: -12px; }
 }
+/* tablet: botão e linha de atrito lado a lado logo abaixo do aparelho caem na
+   sombra do .cena (~52px para baixo) e a linha de atrito descia a 3,6:1 de
+   contraste (medido 01/10; com 48px ainda 4,3:1); aqui o respiro é 64px */
+@media (min-width: 700px) and (max-width: 999px) {
+  .lp3-acao { margin-top: 28px; }
+}
 /* desktop: o .lp-cena já é 1.1fr / .9fr; aqui só as linhas 1fr em cima e
    embaixo, que centram a copy e o botão na altura do palco (o mesmo truque da
    grade da dobra 1) */
@@ -82,6 +88,67 @@
   /* a coluna já limita a largura: a linha de atrito cabe numa linha só */
   .lp3-atrito,
   .lp3-band .band-cta-nota { max-width: none; text-align: left; }
+}
+
+/* ── o painel do VOS atrás do aparelho (rodada 3, 01/10) ──
+   Fora do fluxo (sem CLS), atrás do aparelho (z -1 dentro da caixa isolada) e
+   só na altura do aparelho: o título e o texto da dobra ficam no papel limpo
+   e seguem com o contraste de antes. A máscara esmaece as quatro bordas e a
+   opacidade baixa + o véu do papel deixam o painel como contexto, nunca como
+   protagonista. A imagem entra esmaecendo quando o script põe o src. */
+/* A seção ocupa a largura da tela e o conteúdo segue na largura de sempre
+   (`--wide`) pelo padding: o content-visibility (bloco 7) recorta o que passa
+   da borda da seção, e com a seção na largura do conteúdo o painel não podia
+   sair do lado do aparelho (no desktop o aparelho fica a 23px da borda). O
+   overflow-x: clip garante que o painel nunca gera rolagem horizontal. */
+.lp3-cena { width: 100%; padding-inline: calc((100% - var(--wide)) / 2); overflow-x: clip; }
+.lp3-cena-box { position: relative; isolation: isolate; }
+/* celular: o aparelho ocupa a largura toda; o painel sobe 36px para o vão
+   acima dele e aparece em volta do topo, sumindo para baixo */
+.lp3-cena-fundo {
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: -36px;
+  width: 140vw;
+  aspect-ratio: 1600 / 950;
+  transform: translateX(-50%);
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 40%, transparent 72%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 40%, transparent 72%);
+}
+/* tablet e desktop: sobra lugar dos dois lados do aparelho; a máscara radial
+   chega a transparente antes da borda da imagem (sem corte duro) e fica cheia
+   até um pouco além da borda do aparelho, onde o painel aparece */
+@media (min-width: 700px) {
+  .lp3-cena-fundo {
+    top: 4%;
+    width: min(900px, 100vw);
+    -webkit-mask-image: radial-gradient(closest-side, #000 66%, transparent 100%);
+    mask-image: radial-gradient(closest-side, #000 66%, transparent 100%);
+  }
+}
+.lp3-cena-fundo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 0 0;
+  opacity: 0;
+  transition: opacity 0.8s var(--zx-ease);
+}
+.lp3-cena-fundo img.in { opacity: 0.9; }
+.lp3-cena-fundo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(250, 250, 250, 0.2) 0%, rgba(250, 250, 250, 0.08) 45%, rgba(250, 250, 250, 0.4) 100%);
+}
+/* desktop: 760px centrado no aparelho (na coluna da direita); a borda esquerda
+   já chega transparente antes do texto da coluna ao lado (com 820px o medidor
+   do painel encostava no fim do parágrafo; contraste medido) */
+@media (min-width: 1000px) {
+  .lp3-cena-fundo { width: 760px; top: 2%; }
 }
 
 /* ─── 3 · A cena ─────────────────────────────────────────────────────────── */
