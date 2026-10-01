@@ -20,7 +20,10 @@
  *  · GSAP + ScrollTrigger entram por import() dinâmico (o script empacotado da
  *    página divide o chunk com o autoplay do VSL da dobra 1; um import estático
  *    atrasaria aquele autoplay em ~42 KB gz). Carrega ao se aproximar (900px)
- *    ou no ocioso depois do load, para todo mundo.
+ *    ou no primeiro gesto da pessoa (rolar, tocar, roda, tecla), para todo
+ *    mundo. Até 30/09 o 2º gatilho era "no ocioso depois do load": no
+ *    Lighthouse isso entrava como JS concorrendo com o LCP (+140 ms simulados)
+ *    e quem só olha a 1ª dobra pagava 48 KB à toa.
  *  · ScrollTrigger é só o portão (sem pin, sem scrub): entra → toca do zero;
  *    sai → pausa; volta → do zero.
  *  · 🔴 LOOP CONTÍNUO, SEM CONTROLE DE PAUSAR (decisão do Orlando, 30/09/2026):
@@ -623,11 +626,10 @@ const ROTULO =
       );
       io.observe(palco);
     }
-    const noOcioso = () => {
-      if ("requestIdleCallback" in window) requestIdleCallback(() => carregar());
-      else setTimeout(() => carregar(), 0);
-    };
-    if (document.readyState === "complete") noOcioso();
-    else addEventListener("load", noOcioso, { once: true });
+    /* o 2º gatilho é o primeiro gesto (ver o cabeçalho); carregar() é
+       idempotente, então os cinco ouvintes podem disparar à vontade */
+    for (const ev of ["scroll", "wheel", "touchstart", "pointerdown", "keydown"]) {
+      addEventListener(ev, () => carregar(), { once: true, passive: true });
+    }
   }
 </script>

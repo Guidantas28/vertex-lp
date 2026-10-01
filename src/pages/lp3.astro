@@ -26,7 +26,8 @@
 // a pessoa rolar (a regra antiga mostrava a barra já no topo). A linha legal
 // saiu da dobra 1 (na /lp1 ela é o pé de uma página de uma dobra) e mora no
 // fim da dobra 3. A dobra 3 é uma <section> escura simples, não o ScrollBand
-// da /lp2: ele traz um script a mais e um chunk que a home divide.
+// da /lp2: ele traz um script a mais e um chunk que a home divide. O botão
+// flutuante de WhatsApp é o da /lp2, igual (pedido do Orlando, 30/09 20h50).
 // Efeito colateral conhecido (medido em 30/09): a presença desta página no
 // build pode trocar o NOME do chunk `hoisted.*.js` da /lp2. O Astro monta esse
 // chunk na ordem em que o Rollup registra os módulos (VslPlayer × ScrollBand),
@@ -293,6 +294,34 @@ const ATRITO_2 = "Videochamada de 30 min · módulo por módulo, ao vivo · sem 
   <div class="bar" id="lp3Fixo">
     <a href="#agendar" class="cta" data-action="lead"><span class="cta-l">Agendar demonstração</span><i class="cta-chev" aria-hidden="true" set:html={SETA} /></a>
   </div>
+  <!-- ══ BOTÃO FLUTUANTE DE WHATSAPP — o da /lp2, igual (pedido do Orlando, 30/09) ══
+       Número: +55 43 99688-5300, o canal "WhatsApp Vertex" conectado no VOS.
+       Click-to-chat de site: o clique monta o link com um `ref` novo no texto
+       e empurra `clique_whatsapp` no dataLayer com os identificadores do
+       primeiro toque (o GTM não consome o evento: standby desde 19/08). Fica
+       DEPOIS da .bar de propósito: o `.bar.show ~ .zap-wrap` do lp-zx.css é o
+       que o sobe quando a barra entra, e a modal (z 80) passa por cima dele. -->
+  <div class="zap-wrap" id="zapWrap">
+    <!-- O balão: uma vez por sessão, alguns segundos depois de a pessoa passar
+         do topo, e some de vez se ela dispensar (sessionStorage). Dispensar não
+         dispara evento nenhum. -->
+    <div class="zap-balao" id="zapBalao" hidden>
+      <p class="zap-balao-t">Prefere sem formulário? Chama no WhatsApp.</p>
+      <button type="button" class="zap-x" id="zapX" aria-label="Dispensar aviso do WhatsApp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <a class="zap" id="zap" href="https://wa.me/5543996885300" target="_blank" rel="noopener"
+       aria-label="Falar com o VOS no WhatsApp">
+      <span class="zap-rosto">
+        <img class="zap-av" src="/lp/orlando.webp" alt="" width="160" height="160" decoding="async">
+        <span class="zap-selo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm5.7 14.1c-.2.7-1.4 1.4-2 1.4-.5 0-1.1.2-3.7-.8-3.1-1.3-5-4.4-5.2-4.6-.1-.2-1.2-1.5-1.2-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.4-.4.5c-.1.1-.3.3-.1.6a9 9 0 0 0 1.5 1.8 8 8 0 0 0 2.1 1.3c.3.1.4.1.6-.1l.8-1c.2-.2.3-.2.6-.1l1.8.9c.3.1.4.2.5.3.1.2.1.7-.1 1.4Z"/></svg>
+        </span>
+      </span>
+      <span class="zap-txt">Falar no WhatsApp</span>
+    </a>
+  </div>
 </div>
 
 <script is:inline>
@@ -317,6 +346,71 @@ const ATRITO_2 = "Videochamada de 30 min · módulo por módulo, ao vivo · sem 
     addEventListener('scroll',agenda,{passive:true});
     addEventListener('resize',agenda,{passive:true});
     atualiza();
+  })();
+
+  /* ── WhatsApp flutuante (o script da /lp2, igual) ──
+     Monta o link na hora do clique para carregar um `event_id` novo a cada
+     vez, e empurra `clique_whatsapp` no dataLayer com os identificadores do
+     primeiro toque. O GTM ainda NÃO consome este evento (standby, 19/08). */
+  (function(){
+    var a=document.getElementById('zap'); if(!a) return;
+    var NUM='5543996885300';
+
+    function primeiroToque(){
+      var out={};
+      try{
+        var m=document.cookie.match('(?:^|; )vos_ft=([^;]*)');
+        if(!m) return out;
+        var ft=JSON.parse(decodeURIComponent(m[1]));
+        ['fbp','fbc','fbclid','gclid'].forEach(function(k){ if(ft[k]) out[k]=ft[k]; });
+        if(ft.clientId) out.client_id=ft.clientId;
+        if(ft.stapeUserId) out.stape_user_id=ft.stapeUserId;
+      }catch(e){}
+      return out;
+    }
+
+    function novoId(){
+      try{ if(crypto&&crypto.randomUUID) return crypto.randomUUID().slice(0,8); }catch(e){}
+      return (Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+    }
+
+    /* o balão entra uma vez por sessão, depois do topo */
+    var balao=document.getElementById('zapBalao');
+    var fechar=document.getElementById('zapX');
+    var CHAVE='vos_zap_dispensado';
+    var jaFoi=false;
+    function mostraBalao(){
+      if(jaFoi||!balao) return;
+      try{ if(sessionStorage.getItem(CHAVE)) return; }catch(e){}
+      jaFoi=true; balao.hidden=false;
+      requestAnimationFrame(function(){ balao.classList.add('in'); });
+    }
+    if(fechar) fechar.addEventListener('click',function(){
+      balao.classList.remove('in');
+      setTimeout(function(){ balao.hidden=true; }, 240);
+      try{ sessionStorage.setItem(CHAVE,'1'); }catch(e){}
+    });
+    (function(){
+      var disparou=false;
+      function confere(){
+        if(disparou||scrollY<520) return;
+        disparou=true; window.removeEventListener('scroll',confere);
+        setTimeout(mostraBalao, 1400);
+      }
+      window.addEventListener('scroll',confere,{passive:true});
+      confere();
+    })();
+
+    a.addEventListener('click',function(){
+      var id=novoId();
+      var texto='Oi! Vim pelo site do VOS e quero entender como funciona. (ref '+id+')';
+      a.href='https://wa.me/'+NUM+'?text='+encodeURIComponent(texto);
+      var dados=primeiroToque();
+      dados.event='clique_whatsapp';
+      dados.event_id=id;
+      window.dataLayer=window.dataLayer||[];
+      window.dataLayer.push(dados);
+    });
   })();
 
   /* ── O vídeo da dobra 3 (o player da /lp, com duas diferenças) ──
