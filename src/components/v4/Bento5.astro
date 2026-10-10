@@ -84,12 +84,13 @@ const MODULOS = [
   {
     id: "financeiro",
     nome: "Financeiro",
-    nota: "Entradas, saídas e o caixa conciliado, com a nota saindo direto do pedido.",
+    nota: "Seus bancos pelo Open Finance, o caixa conciliado e a nota saindo direto do pedido.",
+    // 30/09: o Open Finance entra no lugar da maquininha (o teto é seis).
     liga: [
+      { src: `${INT}/open-finance.svg`, nome: "Open Finance" },
       { src: `${ICO}/pix.svg`, nome: "Pix" },
       { src: `${INT}/mercadopago.svg`, nome: "Mercado Pago" },
       { src: `${INT}/stripe.svg`, nome: "Stripe" },
-      { src: `${INT}/maquininha.svg`, nome: "Maquininha de cartão" },
       { src: `${ICO}/nfe.svg`, nome: "NF-e" },
       MAIS,
     ],
@@ -144,6 +145,18 @@ const PASSOS = [
 ];
 
 /* A semana do caixa em % da maior barra: entrada e saída por dia. */
+/* Open Finance (founder 30/09): os cinco bancos que mais aparecem no Brasil,
+   com as logos da Malvo, a mesma cópia que o Financeiro do produto usa. A
+   logo vem sem fundo, então mora num disco BRANCO, na mesma pilha do "Conecta
+   com", pra ler como parte do site. O Itaú já é disco: `cheio` ocupa tudo. */
+const BANCOS = [
+  { src: "/assets/bancos/itau.svg", nome: "Itaú", cheio: true },
+  { src: "/assets/bancos/nubank.svg", nome: "Nubank" },
+  { src: "/assets/bancos/bradesco.svg", nome: "Bradesco" },
+  { src: "/assets/bancos/bb.svg", nome: "Banco do Brasil" },
+  { src: "/assets/bancos/santander.svg", nome: "Santander" },
+];
+
 const DIAS = [
   { d: "Seg", e: 46, s: 22 },
   { d: "Ter", e: 58, s: 30 },
@@ -317,10 +330,17 @@ const DIAS = [
                       <span><i />Saídas da semana</span>
                       <b>R$ 4.310,00</b>
                     </div>
-                    <span class="zx-fin-ok">
-                      <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
-                      Caixa conciliado
-                    </span>
+                    <div class="zx-fin-of">
+                      <ul class="zx-fin-bancos" aria-label="Bancos pelo Open Finance">
+                        {BANCOS.map((b) => (
+                          <li class={b.cheio ? "cheio" : undefined}><img src={b.src} alt={b.nome} title={b.nome} width="22" height="22" loading="lazy" /></li>
+                        ))}
+                      </ul>
+                      <span class="zx-fin-ok">
+                        <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+                        Conciliado pelo Open Finance
+                      </span>
+                    </div>
                   </div>
                   <div class="zx-fin-semana">
                     {DIAS.map((d) => (
@@ -898,6 +918,24 @@ const DIAS = [
     font-size: 11px !important;
     font-weight: 600;
   }
+  /* O Open Finance: a pilha dos bancos em cima do selo verde. No hover a
+     pilha se abre um pouco, o gesto único deste card junto com as barras. */
+  .zx-fin-of { display: flex !important; flex-direction: column; align-items: flex-start; gap: 8px !important; }
+  .zx-fin-bancos { display: flex; margin: 0; padding: 0; list-style: none; }
+  .zx-fin-bancos li {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 2px var(--panel);
+    overflow: hidden;
+    transition: margin 0.5s var(--ease);
+  }
+  .zx-fin-bancos li + li { margin-left: -6px; }
+  .zx-fin-bancos img { display: block; width: 76%; height: 76%; object-fit: contain; }
+  .zx-fin-bancos li.cheio img { width: 100%; height: 100%; }
   .zx-fin-semana {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -939,6 +977,7 @@ const DIAS = [
     .zx-mod-card:hover .zx-ag-ev.ela { opacity: 1; transform: none; }
     .zx-mod-card:hover .zx-fluxo::after { transform: scaleX(1); animation: zx-fio-do-ze 1.6s linear infinite; }
     .zx-mod-card:hover .zx-fin-barras i { transform: none; }
+    .zx-mod-card:hover .zx-fin-bancos li + li { margin-left: 3px; }
   }
 
   @media (max-width: 1100px) {
@@ -960,7 +999,7 @@ const DIAS = [
   @container (max-width: 430px) {
     .zx-fin { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); gap: 14px; }
     .zx-fin-nums { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; gap: 6px 18px; }
-    .zx-fin-ok { display: none !important; }
+    .zx-fin-of { flex-direction: row !important; align-items: center; flex-basis: 100%; }
   }
   /* Card de uma coluna no celular: o detalhe do passo não cabe entre os nós
      (sairia encavalado no vizinho), então fica só o nome do bloco. */
