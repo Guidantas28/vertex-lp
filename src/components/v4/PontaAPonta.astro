@@ -26,6 +26,8 @@ const MODULOS = [
   { nome: "Ponto de venda", sub: "Vendas no balcão com controle de caixa e operador", d: '<rect x="3.2" y="4.2" width="17.6" height="12" rx="2.2"/><path d="M8 20.8h8M12 16.2v4.6M7.4 8.2h9.2M7.4 11.8h5"/>' },
   { nome: "Catálogo digital", sub: "Seus produtos em um link pronto para compartilhar", d: '<rect x="6.4" y="2.4" width="11.2" height="19.2" rx="2.6"/><path d="M9.4 6.6h2.4v2.4H9.4zM14.2 6.6h2.4v2.4h-2.4zM9.4 11.4h2.4v2.4H9.4zM14.2 11.4h2.4v2.4h-2.4z"/>' },
   { nome: "Contas a pagar e receber", sub: "Vendas, pagamentos e taxas com o caixa conciliado", d: '<path d="M3.6 8.4h12.8M12.8 4.8l3.6 3.6-3.6 3.6M20.4 15.6H7.6M11.2 12l-3.6 3.6 3.6 3.6"/>' },
+  // 30/09: "Open Finance" é o nome da aba no Financeiro do produto.
+  { nome: "Open Finance", sub: "O extrato dos seus bancos entrando sozinho e conciliado", d: '<path d="M3.4 9.2 12 4l8.6 5.2z"/><path d="M5.6 12v5.4M9.8 12v5.4M14.2 12v5.4M18.4 12v5.4M3.4 20.4h17.2"/>' },
   { nome: "Nota fiscal", sub: "NF-e e NFS-e emitidas diretamente dos seus pedidos", d: '<path d="M5.2 2.8h13.6v18.4l-2.6-1.6-2.3 1.6-2.3-1.6-2.3 1.6-2.3-1.6-1.8 1.1z"/><path d="M8.6 7.6h6.8M8.6 11.4h6.8M8.6 15.2h4"/>' },
 ];
 // A fileira é duplicada: é a cópia que faz a volta fechar sem salto.
@@ -133,6 +135,6 @@ const TRILHO = [...MODULOS, ...MODULOS];
       padding-inline: clamp(16px, 4vw, 32px);
       row-gap: 34px;
     }
-    .zx-ponta-item:nth-child(n + 14) { display: none; }
+    .zx-ponta-item:nth-child(n + 15) { display: none; }
   }
 </style>

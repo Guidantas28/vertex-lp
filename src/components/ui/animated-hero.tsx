@@ -22,6 +22,8 @@ const integrations = [
   /* 17/09 (founder): TikTok e Telegram saem; entram Slack, Google Agenda e o GPT. */
   { name: "Slack", src: "/assets/integracoes/slack.svg", color: "#4A154B" },
   { name: "Google Agenda", src: "/assets/icons/google-agenda.svg", color: "#4285F4" },
+  /* 30/09 (founder): entra o Open Finance, o ícone do "Conecta com" do Financeiro. */
+  { name: "Open Finance", src: "/assets/integracoes/open-finance.svg", color: "#171717" },
   { name: "GPT", src: "/assets/icons/openai.svg", color: "#111111" },
   { name: "Claude", src: "/assets/integrations/claude.svg", color: "#D97757" },
 ];
@@ -162,7 +164,7 @@ function Hero({ film = false }: HeroProps) {
           </h1>
 
           <p className={`max-w-2xl text-balance leading-relaxed tracking-[-0.015em] ${film ? "text-[clamp(1rem,2.3vh,1.25rem)] text-white/75" : "text-lg text-ink-2 md:text-xl"}`}>
-            CRM, atendimento, catálogo, estoque, agenda e notas fiscais em um só lugar.
+            CRM, atendimento, catálogo, estoque, agenda e financeiro em um só lugar.
           </p>
         </div>
 
