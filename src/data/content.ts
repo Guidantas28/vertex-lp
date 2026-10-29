@@ -2,11 +2,13 @@
 // Direção: "Um sistema. Os módulos que você escolher." (Brand Manual v2, light-first)
 
 export const SITE = {
-  /* A CTA do site cai no ONBOARDING do produto (founder 15/09: "coloca o link
-     de onboarding em todas as CTA"). É a porta única: a pessoa cria a conta e
-     já entra nos passos, sem tela de cadastro no meio. `PUBLIC_SIGNUP_URL`
+  /* A CTA do site cai no CADASTRO do produto (29/10). Apontava pro
+     /onboarding (founder 15/09), mas o /onboarding sem conta redireciona pro
+     LOGIN: quem clicava em "Teste grátis" caía na tela de entrar. O /signup
+     cria a conta e já segue sozinho pro onboarding. `PUBLIC_SIGNUP_URL`
      segue mandando . é por ela que o dev aponta pra 3001. */
-  signupUrl: import.meta.env.PUBLIC_SIGNUP_URL ?? "https://app.voshq.com/onboarding",
+  signupUrl: import.meta.env.PUBLIC_SIGNUP_URL ?? "https://app.voshq.com/signup",
+  loginUrl: "https://app.voshq.com/login",
   appUrl: "app.voshq.com",
 };
 

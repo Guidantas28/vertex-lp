@@ -51,7 +51,7 @@ const atual = (href: string) => (href.includes("#") ? false : href.replace(/\/$/
       {LINKS.map((l) => <a href={l.href} target={l.externo ? "_blank" : undefined} rel={l.externo ? "noopener" : undefined} aria-current={atual(l.href) ? "page" : undefined}>{l.label}</a>)}
     </nav>
     <div class="zx-nav-actions">
-      <a class="zx-nav-login" href={SITE.signupUrl}>Entrar</a>
+      <a class="zx-nav-login" href={SITE.loginUrl}>Entrar</a>
       <span class="zx-nav-cta">
         <GetStartedButton client:visible label="Criar conta" className="!py-2.5 !pl-4 !pr-3 !text-[14px] !leading-5" />
       </span>

@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
  * O endereço é inlinado no build (o Vite troca `import.meta.env.PUBLIC_*`),
  * então servidor e cliente escrevem o MESMO href e a hidratação não reclama.
  */
-export const PORTA = import.meta.env.PUBLIC_SIGNUP_URL ?? "https://app.voshq.com/onboarding";
+export const PORTA = import.meta.env.PUBLIC_SIGNUP_URL ?? "https://app.voshq.com/signup";
 
 /** A modal de lead segue viva pros gatilhos `data-action="lead"`. */
 export function openLeadModal() {
