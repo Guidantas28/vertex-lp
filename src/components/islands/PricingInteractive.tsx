@@ -55,7 +55,7 @@ function formatBRL(value: number) {
     economia. Como o ciclo é pago adiantado, quem diz isso é o rodapé: "pagos
     antes do uso, no Pix, boleto à vista ou cartão parcelado". */
 function cobranca(cycle: Cycle) {
-  return cycle === "mensal" ? "No cartão, mês a mês" : null;
+  return cycle === "mensal" ? "7 dias grátis, depois no cartão" : null;
 }
 
 /** Os traços dos ícones dos grupos (24 × 24, contorno). */
