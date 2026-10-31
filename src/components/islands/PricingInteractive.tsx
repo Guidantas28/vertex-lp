@@ -117,9 +117,9 @@ type Props = {
 };
 
 export default function PricingInteractive({ cycles, plans, comparar, footnote, fora }: Props) {
-  /* Abre no anual: é o melhor número, e a pessoa deve ver primeiro em vez de
-     descobrir depois que existia desconto. O caixa do produto abre igual. */
-  const [cycle, setCycle] = useState<Cycle>("anual");
+  /* Abre no mensal (founder 31/10): o preço que a pessoa paga sem compromisso
+     vem primeiro; trimestral e anual mostram o desconto no seletor. */
+  const [cycle, setCycle] = useState<Cycle>("mensal");
   /* Abertos os grupos em que os planos DIFEREM; os dois em que os três são
      iguais (módulos e pacotes) começam fechados pra tabela não virar parede.
      É o que resta do "Só as diferenças", que saiu (founder 15/09): a tabela
