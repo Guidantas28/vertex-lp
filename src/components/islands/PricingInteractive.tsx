@@ -55,7 +55,7 @@ function formatBRL(value: number) {
     economia. Como o ciclo é pago adiantado, quem diz isso é o rodapé: "pagos
     antes do uso, no Pix, boleto à vista ou cartão parcelado". */
 function cobranca(cycle: Cycle) {
-  return cycle === "mensal" ? "7 dias grátis, depois no cartão" : null;
+  return cycle === "mensal" ? "No cartão, mês a mês" : null;
 }
 
 /** Os traços dos ícones dos grupos (24 × 24, contorno). */
@@ -402,9 +402,10 @@ export default function PricingInteractive({ cycles, plans, comparar, footnote, 
         .zx-pi__cta > button, .zx-pi__cta > a { width: 100%; justify-content: center; }
         /* Quatro colunas (31/10): o card tem ~224px e o rótulo com a folga de
            64px da seta não cabia; centralizado, vazava pra esquerda e colava na
-           borda. A folga vira padding do lado da seta e a letra desce 1px. */
+           borda. A folga vira padding do lado da seta. Com "Testar grátis por
+           7 dias" (31/10, 23h) a letra fica em 14 pra caber numa linha só. */
         @media (min-width: 1281px) {
-          .zx-pi__cta > button, .zx-pi__cta > a { padding-left: 16px; padding-right: 54px; font-size: 15px; }
+          .zx-pi__cta > button, .zx-pi__cta > a { padding-left: 12px; padding-right: 50px; font-size: 14px; }
           .zx-pi__cta > button > span:first-child, .zx-pi__cta > a > span:first-child { margin-right: 0; white-space: nowrap; }
         }
         .zx-pi__destaque {
