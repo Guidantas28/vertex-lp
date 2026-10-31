@@ -375,7 +375,9 @@ export default function PricingInteractive({ cycles, plans, comparar, footnote, 
         }
         .zx-pi__desc {
           margin: 6px 0 0;
-          min-height: 38px;
+          /* Três linhas (31/10): com quatro planos a descrição do Scale tinha
+             duas e o botão dele subia em relação aos vizinhos. */
+          min-height: calc(3 * var(--zx-lh-meta, 1.45) * var(--zx-fs-meta, 13px));
           font-size: var(--zx-fs-meta, 13px);
           line-height: var(--zx-lh-meta, 1.45);
           color: var(--zx-ink3, #6B6B6B);
@@ -398,6 +400,13 @@ export default function PricingInteractive({ cycles, plans, comparar, footnote, 
         }
         .zx-pi__cta { margin-top: 18px; display: flex; width: 100%; }
         .zx-pi__cta > button, .zx-pi__cta > a { width: 100%; justify-content: center; }
+        /* Quatro colunas (31/10): o card tem ~224px e o rótulo com a folga de
+           64px da seta não cabia; centralizado, vazava pra esquerda e colava na
+           borda. A folga vira padding do lado da seta e a letra desce 1px. */
+        @media (min-width: 1281px) {
+          .zx-pi__cta > button, .zx-pi__cta > a { padding-left: 16px; padding-right: 54px; font-size: 15px; }
+          .zx-pi__cta > button > span:first-child, .zx-pi__cta > a > span:first-child { margin-right: 0; white-space: nowrap; }
+        }
         .zx-pi__destaque {
           margin-top: 22px;
           padding-top: 18px;
@@ -543,7 +552,7 @@ export default function PricingInteractive({ cycles, plans, comparar, footnote, 
         @media (max-width: 760px) { .zx-pi__fora ul { columns: 1; } }
 
         /* Quatro planos desde 31/10 (Enterprise): dois por linha antes de virar um. */
-        @media (max-width: 1180px) {
+        @media (max-width: 1280px) {
           .zx-pi__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
         @media (max-width: 900px) {
