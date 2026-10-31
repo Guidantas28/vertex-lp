@@ -10,7 +10,7 @@ import { GetStartedButton } from "../ui/get-started-button";
  * 1. CARDS curtos: preço do ciclo, o que se cobra de uma vez e os quatro
  *    destaques do plano. A lista inteira não mora mais aqui . lida três vezes,
  *    ela obrigava a comparar de cabeça.
- * 2. A TABELA: linha a linha, por grupo, com os grupos iguais nos três planos
+ * 2. A TABELA: linha a linha, por grupo, com os grupos iguais nos quatro planos
  *    recolhidos e um plano por vez no celular.
  *
  * O andar "Ainda tem mais" (o PDV como complemento e os créditos do Zé) saiu
@@ -117,9 +117,9 @@ type Props = {
 };
 
 export default function PricingInteractive({ cycles, plans, comparar, footnote, fora }: Props) {
-  /* Abre no anual: é o melhor número, e a pessoa deve ver primeiro em vez de
-     descobrir depois que existia desconto. O caixa do produto abre igual. */
-  const [cycle, setCycle] = useState<Cycle>("anual");
+  /* Abre no mensal (founder 31/10): o preço que a pessoa paga sem compromisso
+     vem primeiro; trimestral e anual mostram o desconto no seletor. */
+  const [cycle, setCycle] = useState<Cycle>("mensal");
   /* Abertos os grupos em que os planos DIFEREM; os dois em que os três são
      iguais (módulos e pacotes) começam fechados pra tabela não virar parede.
      É o que resta do "Só as diferenças", que saiu (founder 15/09): a tabela
@@ -335,7 +335,7 @@ export default function PricingInteractive({ cycles, plans, comparar, footnote, 
         /* ── 1 · os cards ── */
         .zx-pi__grid {
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-columns: repeat(4, minmax(0, 1fr));
           gap: 14px;
           margin-top: 22px;
           align-items: stretch;
@@ -542,6 +542,10 @@ export default function PricingInteractive({ cycles, plans, comparar, footnote, 
         .zx-pi__fora li { break-inside: avoid; margin: 0 0 6px; }
         @media (max-width: 760px) { .zx-pi__fora ul { columns: 1; } }
 
+        /* Quatro planos desde 31/10 (Enterprise): dois por linha antes de virar um. */
+        @media (max-width: 1180px) {
+          .zx-pi__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
         @media (max-width: 900px) {
           .zx-pi__grid { grid-template-columns: minmax(0, 1fr); }
           .zx-pi__desc { min-height: 0; }
@@ -559,7 +563,8 @@ export default function PricingInteractive({ cycles, plans, comparar, footnote, 
           .zx-pi[data-plano] .zx-pi__tabela [data-col] { display: none; }
           .zx-pi[data-plano="start"] .zx-pi__tabela [data-col="start"],
           .zx-pi[data-plano="essential"] .zx-pi__tabela [data-col="essential"],
-          .zx-pi[data-plano="scale"] .zx-pi__tabela [data-col="scale"] { display: table-cell; }
+          .zx-pi[data-plano="scale"] .zx-pi__tabela [data-col="scale"],
+          .zx-pi[data-plano="enterprise"] .zx-pi__tabela [data-col="enterprise"] { display: table-cell; }
         }
         @media (max-width: 620px) {
           .zx-pi__cycle { width: 100%; }
