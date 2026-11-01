@@ -38,7 +38,7 @@ const ROTATE_MS = 5200;
 export default function SegmentTabs({
   segments,
   cta,
-  signupUrl = "https://app.vos.com/signup",
+  signupUrl = "https://app.voshq.com/signup",
 }: {
   segments: Segment[];
   cta: string;

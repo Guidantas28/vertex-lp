@@ -26,7 +26,7 @@ const BUBBLE_MSG = "Olá, como eu posso te ajudar?";
 export function ZeRevealAI({
   size = 470,
   videoSrc,
-  signupUrl = "https://app.vos.com/signup",
+  signupUrl = "https://app.voshq.com/signup",
 }: {
   size?: number;
   videoSrc?: string;
