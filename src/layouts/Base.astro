@@ -16,14 +16,14 @@ interface Props {
   noDefaultSchema?: boolean;
   /** Tira a página do índice mantendo o follow (landings de anúncio, etc.). */
   noindex?: boolean;
-  /** Imagem de compartilhamento própria da página; cai no /og.png se ausente. */
+  /** Imagem de compartilhamento própria da página; cai no /og-vos.png se ausente. */
   ogImage?: string;
 }
 
 const {
-  title = "VOS · O sistema operacional da sua empresa",
+  title = "VOS · Sua empresa organizada. Tudo em um só lugar.",
   description =
-    "Um sistema. Os módulos que você escolher. Core com Dashboard, WhatsApp, CRM, Assinaturas e Tarefas, ative Commerce, Services e Financeiro quando crescer. Em português, com NF-e e PIX nativos.",
+    "Atendimento, vendas e gestão conectados, com o Zé, a IA que trabalha com você. CRM, WhatsApp, agenda, estoque e financeiro. Teste grátis por 7 dias.",
   lang = "pt-BR",
   ogLocale = "pt_BR",
   initialTheme = "light",
@@ -40,7 +40,7 @@ const siteBase = Astro.site ?? "https://www.voshq.com";
 // sitemap falam a mesma língua — era a divergência que virava "Duplicate
 // without user-selected canonical" no Search Console.
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteBase).toString();
-const ogImage = new URL(ogImageProp ?? "/og.png", siteBase).toString();
+const ogImage = new URL(ogImageProp ?? "/og-vos.png", siteBase).toString();
 
 // Entidade da marca, em toda página. É o que sustenta o Knowledge Panel e o
 // que os motores de resposta (AEO/GEO) leem pra saber QUEM está respondendo —
